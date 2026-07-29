@@ -1,8 +1,26 @@
-add_executable(test_version test_version.cpp)
-target_link_libraries(test_version PRIVATE fredpp_core)
-add_test(NAME version COMMAND test_version)
+function(fredpp_add_test target source)
+    add_executable(${target} ${source})
+    target_link_libraries(${target} PRIVATE fredpp_core)
+    if(MSVC)
+        target_compile_options(${target} PRIVATE /FS)
+    endif()
+    add_test(NAME ${target} COMMAND ${target})
+endfunction()
 
-add_test(NAME cli_smoke COMMAND fredpp)
+fredpp_add_test(test_version test_version.cpp)
+fredpp_add_test(test_buffer test_buffer.cpp)
+fredpp_add_test(test_flow test_flow.cpp)
+fredpp_add_test(test_character_stream test_character_stream.cpp)
+fredpp_add_test(test_lexer test_lexer.cpp)
+fredpp_add_test(test_token_stream test_token_stream.cpp)
+fredpp_add_test(test_address_parser test_address_parser.cpp)
+fredpp_add_test(test_pattern_parser test_pattern_parser.cpp)
+fredpp_add_test(test_command_parser test_command_parser.cpp)
+fredpp_add_test(test_runtime_context test_runtime_context.cpp)
+fredpp_add_test(test_command_executor test_command_executor.cpp)
+fredpp_add_test(test_append test_append.cpp)
+
+add_test(NAME cli_smoke COMMAND fredpp --version)
 set_tests_properties(cli_smoke PROPERTIES
-    PASS_REGULAR_EXPRESSION "FREDPP v0.0.1"
+    PASS_REGULAR_EXPRESSION "FREDPP v0.0.2"
 )

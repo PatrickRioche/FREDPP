@@ -1,5 +1,5 @@
 #include "fredpp/version.hpp"
 
 namespace fredpp {
-static_assert(version() == "0.0.1");
+static_assert(version() == "0.0.2");
 }

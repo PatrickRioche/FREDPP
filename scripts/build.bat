@@ -10,5 +10,6 @@ if errorlevel 1 (
 )
 if errorlevel 1 exit /b 1
 
-cmake --build out\build\x64-Debug --config Debug --parallel
+rem Build serially for reliability in synchronized folders (for example Google Drive).
+cmake --build out\build\x64-Debug --config Debug --parallel 1
 exit /b %errorlevel%

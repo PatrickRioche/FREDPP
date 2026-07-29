@@ -16,6 +16,6 @@ jobs:
       - name: Configure
         run: cmake -S . -B build -DFREDPP_BUILD_TESTS=ON
       - name: Build
-        run: cmake --build build --config Debug --parallel
+        run: cmake --build build --config Debug --parallel 1
       - name: Test
         run: ctest --test-dir build -C Debug --output-on-failure
