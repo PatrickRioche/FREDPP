@@ -1,0 +1,1404 @@
+<!DOCTYPE html PUBLIC "-//IETF//DTD HTML//EN">
+<!-- saved from url=(0060)http://www.thinkage.ca/english/gcos/expl/fred/tuto/tuto.html -->
+<html class="translated-ltr"><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+<title>FRED Text Editor Guide Tutorial</title>
+<link type="text/css" rel="stylesheet" charset="UTF-8" href="./FRED Text Editor Guide Tutorial_files/translateelement.css"></head>
+
+
+<body>
+
+<h1><font><font>Bienvenue dans le Guide Tutorial FRED!</font></font></h1>
+
+<p><font><font>Copyright © 1997, Thinkage Ltd.</font></font></p>
+
+<p><font><font>FRED, l'éditeur bienvenus, est un programme qui vous permet de saisir du texte, de le modifier et l'écrire dans un fichier. </font><font>Votre texte peut être la source d'un programme informatique, les données pour un programme, ou en anglais ordinaire pour un document comme celui-ci (ce tutoriel a été préparé en utilisant FRED). </font><font>Les utilisateurs débutants sont plus susceptibles d'utiliser FRED interactive, à savoir en tapant du texte et des commandes à partir d'un terminal.</font></font></p>
+
+<p><font><font>Ce tutoriel est conçu pour les personnes qui ne sont jamais utilisées FRED et qui peuvent ne pas être très familiers avec l'informatique en général. </font><font>Nous ne supposons que vous savez comment vous sur le système TSS et que vous avez une vague notion de ce qu'est un fichier informatique est.</font></font></p>
+
+<p><font><font>Dans ce guide de tutoriel, nous allons essayer de vous dire tout ce que vous devez savoir pour faire des travaux d'édition simples. </font><font>Les chances sont cependant, que vous avez des questions, nous ne répondons pas ici. </font><font>Certaines des réponses peuvent être dans le Manuel de référence FRED, également disponible sur le système. </font><font>Les autres utilisateurs qui sont plus familiers avec FRED peuvent être en mesure de vous aider avec vos problèmes. </font><font>Parfois, la meilleure façon de trouver des choses bien est juste pour l'expérience: si vous vous demandez si quelque chose va fonctionner, tapez quelques lignes pour jouer avec et essayer! </font><font>Les nouveaux utilisateurs devraient se rendre compte que rien ne va se passer désastreux, même si vous faites une erreur ou deux - FRED prend soin de vous. </font><font>(FRED a aussi une technique pour vous laisser annuler vos erreurs, nous en parlerons plus tard.)</font></font></p>
+
+<p><font><font>Nous vous recommandons de faire tous les exercices dans ce tutoriel que vous travaillez votre chemin à travers, et que vous expérimenter avec FRED comme vous allez le long aussi. </font><font>Si vous arrive de faire une erreur de frappe, ne vous inquiétez pas. </font><font>FRED est conçu pour vous aider à corriger vos erreurs. </font><font>La pire chose qui puisse arriver est que FRED pourrait vous donner un message d'erreur parce qu'il ne comprend pas ce que vous voulez qu'il fasse. </font><font>Dans la plupart des cas, tout ce que vous avez à faire est de taper dans la ligne correctement et FRED sera heureux à nouveau. </font><font>Nous dirons plus sur les messages d'erreur très peu de temps.</font></font></p>
+
+<h3><font><font>Commencer:</font></font></h3>
+
+<p><font><font>Nous supposerons que vous êtes connecté au système TSS et qu'il vient de vous y êtes invité par un "*" pour savoir ce que vous voulez faire. </font><font>Pour commencer avec FRED, le type</font></font></p>
+
+<pre><font><font>fred &lt;cr&gt;</font></font></pre>
+
+<p><font><font>où &lt;cr&gt; est "retour" ou "retour chariot". </font><font>(Nous allons utiliser ce symbole pour "retour chariot" de temps en temps tout au long de ce tutoriel, mais la plupart du temps, nous allons simplement l'omettre quand il est évident un retour chariot est nécessaire.) Lorsque FRED est prêt à aller, il répondra en tapant</font></font></p>
+
+<pre><font><font>Fred</font></font></pre>
+
+<p><font><font>sur une nouvelle ligne. </font></font></p>
+
+<p><font><font>FRED est maintenant en attente pour vous de lui donner une commande. </font><font>La plupart des commandes FRED ne sont qu'une longue lettre, bien qu'il y ait certaines avec deux lettres. </font><font>Les lettres peuvent être soit majuscules ou minuscules, mais nous allons utiliser les minuscules dans ce tutoriel. </font><font>Il est parfois possible de taper dans un certain nombre de commandes sur une seule ligne; </font><font>Cependant, les utilisateurs débutants devraient généralement taper une commande par ligne pour éviter de faire des choses trop compliquées. </font><font>Lorsque vous êtes prêt à donner FRED quelque chose à faire, tapez la ligne et appuyez sur la touche de retour chariot - le &lt;cr&gt; est ce qui permet de FRED sais qu'il ya du travail à faire.</font></font></p>
+
+<p><font><font>Le premier problème un nouvel utilisateur est apte à avoir est d'obtenir du texte dans l'ordinateur. </font><font>Peut-être que vous voulez taper dans la première ébauche d'un rapport. </font><font>Plus tard, vous allez utiliser FRED pour modifier et éditer ce premier projet en quelque chose de plus poli. </font><font>Pour l'instant, nous allons simplement parler de mettre dans votre première copie rugueuse.</font></font></p>
+
+<p><font><font>Si vous travaillez sur une machine à écrire normale, vous rouler dans un morceau de papier blanc et commencer à taper votre rapport. </font><font>Lorsque FRED commence d'abord, il est très semblable à ce morceau de papier blanc - il n'y a pas de texte présente encore. </font><font>Qu'est-ce que vous avez est un "tampon" vide. </font><font>Un tampon est l'équivalent d'un morceau de papier brouillon, un espace intérieur de l'ordinateur où FRED conserve le texte que vous travaillez sur. </font><font>Vous pouvez saisir les choses dans une mémoire tampon, changer certaines des choses qui sont là-bas, et enfin déposer le tout de suite quand il est dans la forme que vous voulez.</font></font></p>
+
+<p><font><font>Pour dire FRED que vous êtes prêt à taper des choses dans votre tampon vide, vous tapez </font></font></p>
+
+<pre><font><font>une</font></font></pre>
+
+<p><font><font>immédiatement suivi par un retour chariot. </font><font>Le "a" signifie "ajouter" ou "ajouter" et raconte FRED que les prochaines lignes vous tapez seront texte pour être stocké dans votre tampon. </font><font>FRED répondra en tapant le caractère</font></font></p>
+
+<pre><font><font>&gt;</font></font></pre>
+
+<p><font><font>qui dit FRED est prêt à prendre une ligne de votre texte. </font></font></p>
+
+<p><font><font>Donc, pour commencer à taper du texte dans le tampon vide, nous venons de taper quelque chose comme ceci: </font></font></p>
+
+<pre><font><font>une</font></font><font></font><font><font>
+&gt; Mary avait peu d'agneau</font></font><font></font><font><font>
+&gt; Sa toison était blanche comme la neige,</font></font><font></font><font><font>
+&gt; Et partout où Marie allait,</font></font><font></font><font><font>
+&gt; L'agneau était sûr d'aller.</font></font></pre>
+
+<p><font><font>FRED vous invite avec un "&gt;" à chaque fois qu'il est prêt pour une autre ligne, et que vous tapez dans le texte que vous voulez. </font></font></p>
+
+<p><font><font>Tôt ou tard, vous serez fini de taper votre texte. </font><font>À ce moment-là, vous avez à dire FRED que vous avez terminé avec la saisie de texte. </font><font>Vous faites cela en tapant</font></font></p>
+
+<pre><font><font>\F</font></font></pre>
+
+<p><font><font>immédiatement suivie d'un retour chariot lorsque FRED utilise "&gt;" pour demander une nouvelle ligne. </font><font>FRED ne mettra pas le "\ F" dans le tampon avec le reste de votre texte - vous tapez simplement le "\ F" pour dire FRED que vous avez terminé avec le texte.</font></font></p>
+
+<p><font><font>Après avoir vu le "\ F", FRED vous attendra de lui donner quelque chose de nouveau à faire. </font><font>Il ne vous demande pas d'un "&gt;", puisque ce qui incite est fait uniquement pour l'entrée de texte et FRED sait que vous ne tapez dans le texte. </font><font>Si vous voulez voir ce que vous avez tapé dans la mesure, le type</font></font></p>
+
+<pre><font><font>* p</font></font></pre>
+
+<p><font><font>suivi d'un retour chariot. </font><font>Le "p" signifie "print" et "*" indique FRED que vous souhaitez imprimer tout. </font><font>FRED obligera en tapant</font></font></p>
+
+<pre><font><font>Mary avait un petit agneau</font></font><font></font><font><font>
+Sa toison était blanche comme la neige,</font></font><font></font><font><font>
+Et partout où Marie allait,</font></font><font></font><font><font>
+L'agneau était sûr d'aller.</font></font></pre>
+
+<p><font><font>Notez que le "a" et "\ F" ne sont pas là, et ni sont les caractères "&gt;". </font><font>Les seules choses dans la mémoire tampon sont les lignes de texte que vous avez tapé dans.</font></font></p>
+
+<p><font><font>Il y a une chose que nous devrions souligner à propos de "* p": vous ne pouvez l'utiliser lorsque vous ne tapez pas dans les lignes de texte. </font><font>Si vous tapez "* p" tout en mettant en lignes de texte, FRED sera juste assumer la "* p" fait partie de votre texte, pas une commande.</font></font></p>
+
+<p><font><font>Maintenant, si vous voulez taper plusieurs lignes, il suffit de taper "a" à nouveau et FRED demandera un "&gt;" pour plus de texte.
+</font></font></p>
+
+<h3><font><font>Quelques mots importants:</font></font></h3>
+
+<p><font><font>Vous êtes maintenant en mesure de taper dans un rapport complet à l'aide "a" pour commencer la saisie de texte et "\ F" pour y mettre fin. </font><font>Vous pouvez également imprimer ce que vous avez tapé dans l'aide "* p". </font><font>Vous pouvez taper dans pratiquement tout ce que vous voulez, et autant que vous voulez (un tampon peut contenir des milliards de lignes).</font></font></p>
+
+<p><font><font>La seule chose que vous devez être prudent avec le caractère barre oblique inverse "\". </font><font>Ce personnage est très spécial dans FRED, à la fois lorsque vous donnez des commandes FRED et lorsque vous tapez dans le texte. </font><font>Nous expliquerons plus à ce sujet dans quelques pages. </font><font>En ce moment, tout ce que nous allons dire à ce sujet est que si vous voulez entrer une barre oblique inverse dans vos lignes de texte, vous devez taper deux barres obliques sans espace entre les deux (\\). </font><font>Essayez-le.</font></font></p>
+
+<pre><font><font>une</font></font><font></font><font><font>
+&gt; Bonjour \\ goodbye</font></font><font></font><font><font>
+&gt; \ F</font></font></pre>
+
+<p><font><font>Si vous maintenant tapez "* p" vous verrez que FRED a converti les deux backslashes dans le seul que vous vouliez. </font></font></p>
+
+<pre><font><font>Bonjour au revoir</font></font></pre>
+
+<p><font><font>Tôt ou tard, vous êtes tenu de faire une erreur. </font><font>Si vous faites une erreur typage dans vos lignes de texte, vous aurez juste à vivre avec elle pendant un certain temps. </font><font>Finalement, nous allons vous montrer comment il est facile de corriger ces erreurs en utilisant FRED (beaucoup plus facile que la correction des erreurs sur le papier, une fois que vous obtenez le coup de lui).</font></font></p>
+
+<p><font><font>L'autre type d'erreur que vous pouvez faire est de donner FRED une commande qu'il ne comprend pas. </font><font>Par exemple, essayez de taper "\ F" lorsque vous ne mettez pas dans le texte. </font><font>FRED émet un bip et impression</font></font></p>
+
+<pre><font><font>? </font><font>commande inconnue</font></font></pre>
+
+<p><font><font>sur votre terminal. </font><font>La raison pour laquelle cela se produit est que "\ F" est utilisé pour dire FRED vous avez fini de taper du texte. </font><font>Si vous ne tapez pas dans le texte, FRED ne comprend pas pourquoi vous avez tapé un "\ F".</font></font></p>
+
+<p><font><font>Chaque fois que vous faites une erreur de FRED, FRED émet un bip et un message d'erreur commençant par un point d'interrogation. </font><font>La plupart du temps, il est assez facile de comprendre pourquoi FRED vous a donné une erreur en vérifiant ce que vous venez de taper. Si la raison pour laquelle une erreur est pas évidente, vous pouvez avoir FRED donner un peu plus d'une explication en tapant</font></font></p>
+
+<pre><font><font>y</font></font></pre>
+
+<p><font><font>(Qui signifie «Pourquoi?»). </font><font>FRED va répondre à votre question avec une brève description de la raison pour laquelle il vous a donné une erreur. </font><font>Si elle est toujours pas clair pourquoi l'erreur est arrivé, vous devriez demander à quelqu'un qui est plus familier avec FRED pour vous aider.</font></font></p>
+
+<p><font><font>Appuyer sur la touche BREAK ou ATTN tout en travaillant avec FRED est pas tout à fait une erreur, mais il donne souvent des résultats indésirables. </font><font>BREAK ou ATTN dit FRED pour arrêter tout ce qu'il fait. </font><font>Si vous tapez dans le texte, en appuyant sur PAUSE ou ATTN dit FRED d'arrêter de prendre dans le texte, comme "\ F" fait. </font><font>Cependant, si vous appuyez sur Pause ou ATTN par accident dans le milieu d'une ligne de texte, non seulement ne s'arrête FRED prendre dans le texte, mais il perd la ligne que vous tapiez trop. </font><font>Si cela se produit, il suffit de taper "a" pour commencer l'ajout de nouveau les lignes et commencer avec la ligne que le BREAK ou ATTN interrompues.
+</font></font></p>
+
+<p><font><font>Si FRED imprime votre texte suite à une commande "* p", en appuyant sur PAUSE ou ATTN va arrêter l'impression au milieu des choses. </font><font>Ceci est parfois ce que vous voulez faire si la liste est longue et vous ne voulez pas de tout lire.</font></font></p>
+
+<p><font><font>Lorsque FRED est interrompu par BREAK ou ATTN, il avait l'habitude tape un "?" </font><font>juste au cas où vous ne réalisez pas ce que vous avez fait. </font><font>La commande Y ne se soucie pas d'expliquer cela, depuis le "?" </font><font>sans numéro est seulement émis lorsque vous appuyez sur la touche BREAK ou ATTN par accident ou à dessein.</font></font></p>
+
+<h3><font><font>Écrire un texte à un fichier:</font></font></h3>
+
+<p><font><font>Nous savons maintenant comment commencer à </font><font>mettre dans le </font><font>texte ( "a"), comment arrêter de </font><font>mettre dans le </font><font>texte ( "\ F"), et la </font><font>façon d'imprimer ce texte que </font><font>nous avons ( «* p»). </font><font>La prochaine chose que </font><font>nous voulons savoir comment écrire notre texte dans un fichier. </font><font>C'est très important. </font><font>Nous avons mentionné que votre tampon pourrait être considéré comme </font></font><em><font><font>zéro</font></font></em><font><font> 
+papier. </font><font>Ce papier brouillon est perdu lorsque vous quittez FRED (de la même manière que les </font><font>documents laissés traîner sur un bureau ont tendance à se perdre trop). </font><font>Si vous souhaitez conserver tout le texte que </font><font>vous venez de </font><font>saisir, vous devez l' </font><font>écrire à un </font></font><em><font><font>fichier</font></font></em><font><font> . </font><font>Cela ressemble beaucoup à </font><font>faire une copie propre de votre papier brouillon, puis le </font><font>déposer loin un </font><font>endroit sûr.</font></font></p>
+
+<p><font><font>Pour écrire tout ce qui est dans votre mémoire tampon, vous utilisez la commande d'écriture </font></font></p>
+
+<pre><font><font>w / myfile</font></font></pre>
+
+<p><font><font>(Assurez-vous qu'il ya un espace entre le "w" et "/"). </font><font>Cette instruction va écrire tout dans votre tampon dans un fichier permanent nommé "/ myfile". </font><font>Bien sûr, "/ myfile" est juste un exemple, et vous pouvez donner à votre fichier le nom que vous voulez.</font></font></p>
+
+<p><font><font>Si "/ myfile" existait avant vous avez émis votre commande d'écriture, le contenu de votre écriture tampon plus de ce qui était précédemment dans "/ myfile". </font><font>De ce fait, le contenu précédent "/ monfichier" sont perdues. </font><font>Si "/ myfile" n'a pas existé avant votre écriture, FRED va créer un fichier permanent avec ce nom et de mettre le contenu de votre mémoire tampon dans le fichier.</font></font></p>
+
+<p><font><font>Il peut prendre un peu de temps pour l'opération d'écriture pour terminer, en particulier si vous écrivez une grande quantité de texte. </font><font>Lorsque l'écriture est terminée, FRED affiche des statistiques pour l'opération d'écriture. </font><font>Celles-ci ont la forme</font></font></p>
+
+<pre><font><font>12,345,6789 b (nom) utilisateur / chat / fichier</font></font></pre>
+
+<p><font><font>Vous ne devez pas vous préoccuper de ces statistiques lorsque vous êtes débutant, mais pour votre information, le premier nombre est le nombre de blocs de stockage sur disque de votre fichier est prise, le second est le nombre de lignes de texte FRED rédigea et le troisième est le nombre de caractères dans les lignes de texte. </font><font>Après cela vient le nom de votre tampon courant et le nom du fichier dans lequel votre texte a été écrit. </font><font>Si FRED a créé un fichier permanent pour vous, un "p" est imprimé à la fin de la ligne.</font></font></p>
+
+<p><font><font>Vous devez attendre que les statistiques à imprimer avant de vous donner FRED une autre commande comme "un" ou "* p". </font><font>Jusqu'à ce que ces statistiques sont imprimées, FRED est en train d'écrire et ne pas prêter attention à tout ce que vous tapez dans.</font></font></p>
+
+<p><font><font>Peut-être que vous vous demandez pourquoi vous avez dû commencer le nom de votre fichier avec une barre oblique "/" dans la commande d'écriture. </font><font>La raison est que la barre oblique indique FRED vous voulez que votre texte dans un fichier permanent. </font><font>S'il n'y a pas slash, FRED va chercher un fichier appelé "myfile" et s'il ne peut pas trouver un fichier portant ce nom, il va créer un fichier temporaire. </font><font>Un fichier temporaire est généralement pas ce que vous voulez, puisque les fichiers temporaires disparaissent lorsque vous signez le terminal. </font><font>Pour être en mesure de garder votre texte d'une session d'édition à l'autre, vous devez garder votre texte dans un fichier permanent.</font></font></p>
+
+<p><font><font>Si vous oubliez le slash avec votre nom de fichier et FRED crée un fichier temporaire, un «t» sera imprimé après les trois chiffres qui renseignent sur l'écriture. </font><font>Si vous voyez un tel "t", vous devriez probablement donner FRED une autre commande d'écriture à la barre dans le bon endroit pour vous assurer d'obtenir un fichier permanent au lieu d'un temporaire.</font></font></p>
+
+<p><font><font>Une opération d'écriture copie simplement le contenu de votre mémoire tampon dans le fichier que vous nommez. </font><font>Le tampon est lui-même ne change pas du tout. </font><font>Ainsi, vous pouvez ajouter quelques lignes de texte, arrêtez la saisie de texte avec un "\ F", écrivez votre tampon hors, puis commencer à nouveau annexant là où vous l'avez laissé. </font><font>Rappelez-vous que vous devez arrêter votre saisie de texte avec un "\ F" avant de faire votre écriture; </font><font>autrement, FRED sera simplement supposer que "w / myfile" est l'une de vos lignes de texte.</font></font></p>
+
+<p><font><font>Il est une bonne idée d'écrire votre tampon sur votre fichier assez souvent. </font><font>Si le système arrive à planter (c.-à-die) pendant que vous travaillez, vous perdrez tout ce que vous avez tapé depuis la dernière fois que vous avez fait une écriture.</font></font></p>
+
+<h3><font><font>Laissant FRED:</font></font></h3>
+
+<p><font><font>Lorsque vous avez fini avec FRED, vous devez écrire le texte que vous avez travaillé sur l'utilisation de la commande W. </font><font>Une fois que vous avez fait cela, vous pouvez quitter en tapant</font></font></p>
+
+<pre><font><font>q</font></font></pre>
+
+<p><font><font>(Ce qui signifie naturellement Quit). </font><font>FRED disparaîtra et dans le processus de votre tampon sera nettoyé. </font><font>Lorsque le système est prêt, il affichera un "*" sur votre terminal pour montrer qu'il est prêt pour quelque chose de nouveau. </font><font>Vous pouvez signer à ce point en disant "logoff" ou passer à un travail différent. </font><font>Vous voudrez peut-être dire "liste myfile" lorsque le système vous donne la "*". </font><font>La "liste" commande du système listera le contenu de "myfile" de sorte que vous pouvez voir le texte que vous avez écrit en elle.</font></font></p>
+
+<p><font><font>Si vous arrivez à taper "q" AVANT que vous avez écrit sur votre dossier, ne vous inquiétez pas. </font><font>FRED vous donnera l'avertissement</font></font></p>
+
+<pre><font><font>? </font><font>tampons douteux</font></font></pre>
+
+<p><font><font>FRED vous donne cet avertissement parce qu'il suppose que vous ne voulez pas vraiment quitter avant d'enregistrer votre travail. </font><font>Si vous obtenez cet avertissement, écrivez votre tampon puis dire "q" à nouveau. </font><font>Cette fois FRED va vous laisser partir en paix.</font></font></p>
+
+<h3><font><font>Exercice 1:</font></font></h3>
+
+<p><font><font>Entrez FRED en répondant "fred" lorsque le système vous invite à son «*». </font><font>Créer un texte et l'imprimer à l'aide</font></font></p>
+
+<pre><font><font>une</font></font><font></font><font><font>
+&gt; ... Texte ...</font></font><font></font><font><font>
+&gt; \ F</font></font><font></font><font><font>
+* p</font></font></pre>
+
+<p><font><font>Écrivez votre texte dans un fichier permanent en utilisant la commande W. </font><font>Quittez FRED en utilisant la commande Q.</font></font></p>
+
+<h3><font><font>En train de lire:</font></font></h3>
+
+<p><font><font>Nous arrivons maintenant à votre deuxième session avec FRED. </font><font>Vous signez sur le système TSS, vous répondez par "fred" lorsque le système vous invite avec "*", et les types FRED "Fred" pour vous dire qu'il est prêt pour les entreprises. </font><font>Encore une fois, le tampon est complètement vide comme ce fut la première fois que vous avez signé. </font><font>Naturellement, vous souhaitez mettre la main sur tout le texte que vous avez tapé dans la dernière fois que vous avez travaillé avec FRED. </font><font>Depuis que vous avez écrit tout votre texte sur un fichier permanent, vous pouvez obtenir le texte en arrière avec la commande</font></font></p>
+
+<pre><font><font>r / myfile</font></font></pre>
+
+<p><font><font>(Où R représente Lire). </font><font>Cette commande obtient le contenu "/ myfile" et les met dans votre tampon vide. </font><font>Si vous tapez maintenant</font></font></p>
+
+<pre><font><font>* p</font></font></pre>
+
+<p><font><font>FRED va taper </font></font></p>
+
+<pre><font><font>Mary avait un petit agneau</font></font><font></font><font><font>
+Sa toison était blanche comme la neige,</font></font><font></font><font><font>
+Et partout où Marie allait,</font></font><font></font><font><font>
+L'agneau était sûr d'aller.</font></font></pre>
+
+<p><font><font>(Ou quel que soit le texte que vous avez écrit dans votre fichier). </font><font>Vous pouvez maintenant taper "a" et commencer à annexant lignes à la fin de votre texte si vous le désirez.</font></font></p>
+
+<p><font><font>Il y a une ou deux choses qui pourraient mal tourner lorsque vous essayez la commande de lecture. </font><font>Lorsque vous tapez "r / monfichier", FRED suppose que vous voulez lire le contenu de "myfile" dans un tampon vide. </font><font>Si votre tampon est pas vide, FRED ne laissera pas la lecture lieu (car il lisait le fichier dans le haut du texte déjà dans les tampons et désordre des choses vers le haut). </font><font>Si vous essayez une lecture lorsque votre tampon contient déjà du texte, FRED vous donnera un
+</font></font></p>
+
+<pre><font><font>? </font><font>tampon non vide</font></font></pre>
+
+<p><font><font>Message d'erreur. </font><font>Si cela se produit, la seule chose que vous pouvez faire pour le moment est d'écrire votre tampon avec "w", quittez FRED avec "q", puis revenir à FRED à nouveau en répondant "fred" à "*" invite du système. </font><font>Cela vous donnera un nouveau tampon frais vide, et vous pouvez alors lire dans votre fichier. </font><font>En quelques pages, nous allons vous parler de meilleurs moyens pour effacer un tampon pour la lecture, mais pour le moment de quitter FRED de cette manière devrons faire.</font></font></p>
+
+<p><font><font>Une autre chose qui pourrait se produire lorsque vous essayez une lecture est que FRED répondra avec </font></font></p>
+
+<pre><font><font>? </font><font>incorrect cat / description du fichier</font></font></pre>
+
+<p><font><font>Cela signifie que, pour une raison FRED n'a pas pu trouver le fichier que vous vouliez. </font><font>Très probablement, vous venez de faire une faute de frappe lorsque vous tapiez dans le nom du fichier. </font><font>Si tel est le cas, donner juste la commande R à nouveau, en tapant le nom du fichier correctement cette fois, et FRED va lire dans le fichier que vous voulez. </font><font>Si cela est le cas, la commande "y" peut être en mesure de vous dire quel est le problème avec votre lecture.</font></font></p>
+
+<p><font><font>Après FRED a lu avec succès dans un fichier, il affiche le même genre de statistiques qu'il imprime quand un fichier est écrit. </font><font>Vous pourriez avoir à attendre un peu après avoir donné FRED votre commande R avant que ces statistiques sont imprimées, surtout si FRED est en train de lire dans un grand fichier. </font><font>Cependant, vous devez attendre les statistiques d'imprimer avant de vous donner FRED une autre commande, puisque FRED ignore tout ce que vous dites, alors qu'il est la lecture.</font></font></p>
+
+<h3><font><font>Numéros de ligne:</font></font></h3>
+
+<p><font><font>Chaque ligne dans votre tampon a un certain nombre. </font><font>La ligne 1 est naturellement la première ligne dans la mémoire tampon, la ligne 2 est la seconde et ainsi de suite. </font><font>Pour imprimer une ligne donnée, tout ce que vous avez à faire est de taper le numéro de la ligne suivie par un "p" pour l'impression. </font><font>Par exemple, pour imprimer la première ligne de votre texte que vous tapez</font></font></p>
+
+<pre><font><font>1p</font></font></pre>
+
+<p><font><font>et FRED répondrait avec </font></font></p>
+
+<pre><font><font>Mary avait un petit agneau</font></font></pre>
+
+<p><font><font>Vous pouvez imprimer plus d'une ligne en spécifiant la première ligne et la dernière ligne que vous souhaitez imprimer, comme dans </font></font></p>
+
+<pre><font><font>1,3p</font></font></pre>
+
+<p><font><font>Cette commande vous donnera </font></font></p>
+
+<pre><font><font>Mary avait un petit agneau</font></font><font></font><font><font>
+Sa toison était blanche comme la neige,</font></font><font></font><font><font>
+Et partout où Marie allait,</font></font></pre>
+
+<p><font><font>En d'autres termes, "1,3p" imprime des lignes 1 à 3 inclus. </font></font></p>
+
+<p><font><font>Très souvent, vous aurez envie de jeter un oeil à la dernière ligne de texte dans le tampon pour voir ce que vous avez tapé jusqu'à présent. </font><font>Parce qu'il est ennuyeux d'avoir à garder une trace du nombre exact de la dernière ligne de texte, FRED vous permet d'utiliser le caractère "$" comme raccourci pour la dernière ligne du tampon. </font><font>Ainsi</font></font></p>
+
+<pre><font><font>$ p</font></font></pre>
+
+<p><font><font>est une commande pour imprimer la dernière ligne de la mémoire tampon. </font><font>La commande
+</font></font></p>
+
+<pre><font><font>1, $ p</font></font></pre>
+
+<p><font><font>permet d'imprimer toutes les lignes de la première ligne dans la mémoire tampon à la dernière. </font><font>Il est donc évident, "1, $ p» est la même chose que "* p". </font><font>Une commande comme</font></font></p>
+
+<pre><font><font>3, $ p</font></font></pre>
+
+<p><font><font>imprimera le tampon courant de la ligne 3 jusqu'à la fin. </font></font></p>
+
+<p><font><font>Une autre forme valide de numéro de ligne est utilisé dans </font></font></p>
+
+<pre><font><font>-1 $, $ P</font></font></pre>
+
+<p><font><font>Cette commande affiche les deux dernières lignes de la mémoire tampon, depuis "$ -1" est la dernière ligne dans le tampon et "$" est le dernier. </font></font></p>
+
+<p><font><font>Impression d'une ligne ou d'un groupe de lignes est l'une des choses les plus communes tout utilisateur ne lorsque vous utilisez FRED. </font><font>À cause de cela, FRED vous permet de réduire votre frappe en omettant le "p" dans les commandes d'impression. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>1,3</font></font></pre>
+
+<p><font><font>est la même chose que «1,3p». </font><font>De la même manière,</font></font></p>
+
+<pre><font><font>$</font></font></pre>
+
+<p><font><font>imprime la dernière ligne de la mémoire tampon. </font></font></p>
+
+<h3><font><font>Exercice 2:</font></font></h3>
+
+<p><font><font>Connectez-vous à FRED et lire dans le fichier créé dans l'exercice 1. Imprimez le fichier en utilisant "* p" ou "1, $ p". </font><font>Append quelques lignes de texte, puis mis dans le "\ F" pour mettre fin à la saisie de texte.</font></font></p>
+
+<p><font><font>Maintenant expérimenter avec la commande p. </font><font>Imprimer plusieurs gammes de lignes et de voir les nombreuses façons dont vous pouvez utiliser le "$" comme dans "-1 $", "-2 $" etc. Essayez ligne d'impression 0 (vous obtiendrez une erreur). </font><font>Voir ce qui se passe lorsque vous utilisez un numéro de ligne si grand qu'il est passé à la fin de la mémoire tampon. </font><font>Voir aussi ce qui se passe lorsque vous essayez quelque chose comme</font></font></p>
+
+<pre><font><font>4,2p</font></font></pre>
+
+<p><font><font>où vous dites FRED pour commencer l'impression à une impression en ligne et à la fin à une ligne plus tôt. </font><font>voir enfin ce qui se passe quand vous donnez un ordre de P plus de deux nombres comme dans</font></font></p>
+
+<pre><font><font>1,2,3p</font></font></pre>
+
+<p><font><font>Depuis la commande P a besoin au plus deux numéros de ligne, FRED vous donnera une erreur si vous donnez trois ou plus. </font><font>Vous devez également pratiquer des lignes d'impression sans avoir à taper le «p» comme dans</font></font></p>
+
+<pre><font><font>1, $ - 1</font></font></pre>
+
+<p><font><font>Qu'est-ce qui se passe quand vous tapez simplement "*"? </font></font></p>
+
+<h3><font><font>La ligne actuelle:</font></font></h3>
+
+<p><font><font>Nous avons déjà appris que chaque ligne dans le tampon a un numéro de ligne et que nous pouvons imprimer une ligne en tapant son numéro de ligne suivi d'un "p". </font><font>Si notre tampon contient le verset de "Mary Had a Little Lamb" que nous utilisons dans nos exemples,</font></font></p>
+
+<pre><font><font>2p</font></font></pre>
+
+<p><font><font>imprimera </font></font></p>
+
+<pre><font><font>Sa toison était blanche comme la neige,</font></font></pre>
+
+<p><font><font>Qu'est-ce qui se passe maintenant si nous suffit de taper "p" sans numéro de ligne? </font></font></p>
+
+<pre><font><font>p</font></font><font></font><font><font>
+Sa toison était blanche comme la neige,</font></font></pre>
+
+<p><font><font>FRED nous imprime à nouveau la même ligne! </font></font></p>
+
+<p><font><font>La raison en est très simple. </font><font>Sur l'ensemble des lignes dans notre mémoire tampon, FRED toujours "garde son doigt" sur une seule ligne. </font><font>La ligne que le doigt de FRED est à un moment donné est appelé "la ligne courante". </font><font>Il suffit de penser de la ligne courante comme la ligne où vous travaillez actuellement. </font><font>Par exemple, la commande "2p" fonctionne sur la ligne 2 en l'imprimant, et par conséquent la commande rend la ligne 2 de la ligne actuelle. </font><font>Si vous dites ensuite "p" sans un numéro de ligne, FRED suppose que vous voulez lui faire imprimer la ligne actuelle. </font><font>Si vous continuez à taper dans "p", FRED gardera sur la ligne d'impression 2 pour vous parce que c'est la ligne courante. </font><font>Si vous tapez "3p", la ligne actuelle sera modifiée à la ligne 3 (ie FRED déplace son doigt de la ligne 2 à la ligne 3). </font><font>Par conséquent, en tapant "p" va maintenant ligne d'impression 3, la nouvelle ligne courante.</font></font></p>
+
+<p><font><font>Tout comme le symbole raccourci pour la dernière ligne dans le tampon est "$", le symbole sténographie pour la ligne courante est </font></font></p>
+
+<pre><font><font> .</font></font></pre>
+
+<p><font><font>(Prononcé "point"). </font><font>Dot est un numéro de ligne de la même manière "$" est.</font></font></p>
+
+<pre><font><font> .,. + 1p</font></font></pre>
+
+<p><font><font>imprime la ligne actuelle et la ligne après. </font></font></p>
+
+<pre><font><font> ., $ P</font></font></pre>
+
+<p><font><font>permet d'imprimer les lignes de la ligne actuelle à la fin de la mémoire tampon. </font></font></p>
+
+<p><font><font>Comme nous l'avons dit, la ligne actuelle de la mémoire tampon est la ligne où vous travaillez actuellement. </font><font>Si vous donnez FRED une commande qui change où vous travaillez, FRED change automatiquement la ligne en cours aussi. </font><font>Par exemple, essayez</font></font></p>
+
+<pre><font><font>2, $ p</font></font></pre>
+
+<p><font><font>puis essayer un "p" par lui-même. </font><font>Le single "p" imprime la dernière ligne du tampon. </font><font>Pourquoi? </font><font>"2, $ p» imprime les lignes de la ligne 2 à la fin de la mémoire tampon. </font><font>FRED sera réglée la ligne courante à la dernière ligne de la mémoire tampon, puisque telle est la dernière ligne imprimée (et donc la dernière ligne où vous travaillez). </font><font>"P" par lui-même imprime la ligne courante et maintenant la ligne courante est la dernière ligne du tampon.</font></font></p>
+
+<p><font><font>Il est une bonne idée d'expérimenter un peu pour vous assurer que vous comprenez au sujet de la ligne actuelle. </font><font>Rappelez-vous qu'un "p" par lui-même imprime la ligne actuelle de sorte que vous pouvez voir où vous êtes. </font><font>Une autre commande utile est</font></font></p>
+
+<pre><font><font>=</font></font></pre>
+
+<p><font><font>Lorsque vous tapez ceci, FRED répondra en donnant le numéro de ligne de la ligne actuelle. </font><font>Par exemple, vous pouvez trouver le numéro de ligne de la dernière ligne en tapant</font></font></p>
+
+<pre><font><font>$</font></font><font></font><font><font>
+=</font></font></pre>
+
+<p><font><font>Le "$" imprime la dernière ligne et fait que la ligne actuelle. </font><font>Le "=" indique le numéro de ligne de la ligne courante (le numéro de ligne de la dernière ligne dans la mémoire tampon). </font><font>Vous pouvez gagner du temps en tapant</font></font></p>
+
+<pre><font><font>$ =</font></font></pre>
+
+<p><font><font>qui vous indique le numéro de ligne de "$". </font><font>Dans ce cas, la ligne actuelle ne change pas à "$" et "$" est pas imprimé. </font><font>Si notre tampon contient "Mary avait un petit agneau", FRED donnerait "4" comme le numéro de ligne de la dernière ligne.</font></font></p>
+
+<p><font><font>Un dernier commentaire pendant que nous parlons de lignes d'impression. </font><font>Un retour chariot simple avec rien d'autre sur la ligne imprime la ligne après la ligne courante. </font><font>Il est un équivalent pratique pour ". + 1p" et enregistre une bonne partie de la saisie. </font><font>Essayez-le.</font></font></p>
+
+<h3><font><font>Plus de détails sur les numéros de ligne et la ligne actuelle:</font></font></h3>
+
+<p><font><font>Nous avons beaucoup parlé de l'utilisation des numéros de ligne avec la commande P. </font><font>Nous pouvons également utiliser les numéros de ligne avec la plupart des autres commandes dont nous avons parlé. </font><font>Par exemple, essayez la commande</font></font></p>
+
+<pre><font><font>1a</font></font><font></font><font><font>
+&gt; Dock dickory Hickory</font></font><font></font><font><font>
+&gt; La souris a couru l'horloge.</font></font><font></font><font><font>
+&gt; \ F</font></font></pre>
+
+<p><font><font>La première question que nous pourrions poser est ce que la ligne actuelle est maintenant. </font><font>Si l'on tape "p" pour imprimer la ligne actuelle, gravures FRED</font></font></p>
+
+<pre><font><font>La souris a couru jusqu'à l'horloge.</font></font></pre>
+
+<p><font><font>Ceci est tout à fait raisonnable. </font><font>La ligne courante est la ligne où nous travaillons actuellement, et cette ligne de texte est la dernière ligne que nous avons fait quelque chose avec (nous avons tapé dans).</font></font></p>
+
+<p><font><font>Si nous imprimons maintenant le contenu de notre buffer en utilisant "* p" ou "1, $ p", FRED nous donne </font></font></p>
+
+<pre><font><font>Mary avait un petit agneau</font></font><font></font><font><font>
+dock dickory Hickory</font></font><font></font><font><font>
+La souris a couru jusqu'à l'horloge.</font></font><font></font><font><font>
+Sa toison était blanche comme la neige,</font></font><font></font><font><font>
+Et partout où Marie allait,</font></font><font></font><font><font>
+L'agneau était sûr d'aller.</font></font></pre>
+
+<p><font><font>Les deux lignes nous avons tapé dans ont été ajoutés après la ligne 1! </font></font></p>
+
+<p><font><font>Nous voyons que nous pouvons ajouter des lignes de texte après chaque ligne dans le tampon en tapant le numéro de la ligne suivie par le "a" pour append. </font><font>Si nous voulons ajouter des lignes à la fin du tampon, on pourrait dire</font></font></p>
+
+<pre><font><font>$ a</font></font></pre>
+
+<p><font><font>puis commencer à taper dans notre texte. </font></font></p>
+
+<p><font><font>Qu'est-ce qui se passe si nous venons de dire "a" sans spécifier un numéro de ligne? </font><font>Tout comme FRED suppose que vous souhaitez imprimer la ligne courante lorsque vous dites "p" sans un numéro de ligne, FRED suppose que vous voulez ajouter des lignes après la ligne courante lorsque vous venez de dire "a". </font><font>(Si vous regardez le travail que nous avons fait au début de ce tutoriel, vous verrez que chaque fois que nous avons dit "a" nous étions soit à la fin de la mémoire tampon ou un tampon vide. A ce stade, nous voulions éviter l'ajout texte au milieu des lignes qui étaient déjà là.)</font></font></p>
+
+<p><font><font>Utilisation de la commande A dans le milieu de la mémoire tampon, vous pouvez ajouter du texte après chaque ligne. </font><font>Vous pouvez même ajouter des choses avant la première ligne dans la mémoire tampon en disant "0a" (annexant choses, après la ligne zéro est la même chose que de les insérer avant la ligne 1). </font><font>Ceci est très pratique lorsque vous voulez ajouter quelque chose au milieu de ce que vous avez déjà tapé dans. Assurez-vous que votre ligne actuelle est au bon endroit, et append loin.</font></font></p>
+
+<p><font><font>Nous pouvons également utiliser des adresses de ligne avec la commande R. </font><font>Si nous disons</font></font></p>
+
+<pre><font><font>$ R / myfile</font></font></pre>
+
+<p><font><font>le contenu de "myfile" seront ajoutés après la dernière ligne de la mémoire tampon. </font><font>Vous vous souviendrez que FRED donne une erreur quand vous dites juste</font></font></p>
+
+<pre><font><font>r / myfile</font></font></pre>
+
+<p><font><font>et le tampon ne soit pas vide. </font><font>La raison est que FRED ne sait pas où vous voulez le contenu de "myfile" mettre dans la mémoire tampon et donc il évite les problèmes de ne pas faire quoi que ce soit. </font><font>Si vous spécifiez un numéro de ligne, FRED est tout à fait heureux de lire dans le fichier et ajouter son contenu après la ligne que vous spécifiez.</font></font></p>
+
+<h3><font><font>Exercice 3:</font></font></h3>
+
+<p><font><font>Entrez FRED et ajouter quelques lignes de texte. </font><font>Écrivez les lignes dans un fichier, puis lire le fichier de retour en spécifiant un numéro de ligne avant le "r" dans la commande R. </font><font>Imprimer le contenu de votre tampon pour voir ce qui est arrivé. </font><font>Essayez quelques commandes comme</font></font></p>
+
+<pre><font><font> .-1p</font></font><font></font><font><font>
+ .r / fichier</font></font><font></font><font><font>
+ . + 1a</font></font></pre>
+
+<p><font><font>et de voir ce qui se passe. </font></font></p>
+
+<h3><font><font>Modification de texte:</font></font></h3>
+
+<p><font><font>Pour passer en revue ce que nous avons fait jusqu'à présent, nous pouvons lire et écrire des fichiers (en utilisant R et W), nous pouvons ajouter du texte dans notre mémoire tampon (en utilisant A), et nous pouvons imprimer ce qui est dans notre mémoire tampon (en utilisant P). </font><font>Nous sommes maintenant au point où nous voulons éditer et modifier le contenu de notre buffer.</font></font></p>
+
+<p><font><font>La commande la plus simple pour ce faire est le changement de commande, désigné par la lettre "c". </font><font>Si, par exemple, nous tapons dans</font></font></p>
+
+<pre><font><font>3c</font></font></pre>
+
+<p><font><font>FRED répondra avec "&gt;" indiquant qu'il est prêt à prendre les lignes de saisie de texte. </font><font>FRED prendra le texte que vous tapez dans et l'utiliser pour remplacer la ligne 3. Par exemple, si vous tapez</font></font></p>
+
+<pre><font><font>3c</font></font><font></font><font><font>
+&gt; Row, rangée, rangée votre bateau</font></font><font></font><font><font>
+&gt; Doucement le flux</font></font><font></font><font><font>
+&gt; \ F</font></font></pre>
+
+<p><font><font>le tampon contient maintenant </font></font></p>
+
+<pre><font><font>Mary avait un petit agneau</font></font><font></font><font><font>
+dock dickory Hickory</font></font><font></font><font><font>
+Rangée, rangée, rangée votre bateau</font></font><font></font><font><font>
+Doucement le flux</font></font><font></font><font><font>
+Sa toison était blanche comme la neige,</font></font><font></font><font><font>
+Et partout où Marie allait,</font></font><font></font><font><font>
+L'agneau était sûr d'aller.</font></font></pre>
+
+<p><font><font>Vous voyez que vous pouvez mettre dans un certain nombre de lignes pour remplacer la ligne donnée et que le texte de remplacement vous tapez est terminée par un "\ F" de texte ajouté comme. </font></font></p>
+
+<p><font><font>Vous pouvez également modifier un groupe de lignes. </font></font></p>
+
+<pre><font><font>2,4c</font></font></pre>
+
+<p><font><font>remplacera les lignes 2 à 4 avec les lignes de texte que vous tapez. </font></font></p>
+
+<p><font><font>A la fin d'une commande de changement, la ligne courante est définie sur la dernière ligne de texte de remplacement que vous avez tapé. </font></font></p>
+
+<p><font><font>Si vous tapez simplement "c" sans un numéro de ligne, FRED suppose que vous voulez changer la ligne actuelle. </font></font></p>
+
+<h3><font><font>Suppression de lignes:</font></font></h3>
+
+<p><font><font>Si vous souhaitez simplement supprimer une ligne plutôt que de le changer pour quelque chose d'autre, vous pouvez utiliser la commande delete "d". </font></font></p>
+
+<pre><font><font>3d</font></font></pre>
+
+<p><font><font>va supprimer la ligne 3. </font></font></p>
+
+<pre><font><font>2, $ d</font></font></pre>
+
+<p><font><font>va supprimer toutes les lignes de la ligne 2 à la fin de la mémoire tampon. </font><font>En d'autres termes, tout ce qui reste est la ligne 1. Si par exemple, vous utilisez la commande</font></font></p>
+
+<pre><font><font>3, $ d</font></font></pre>
+
+<p><font><font>sur notre "Mary avait un petit agneau" tampon, le tampon contiendra </font></font></p>
+
+<pre><font><font>Mary avait un petit agneau</font></font><font></font><font><font>
+dock dickory Hickory</font></font></pre>
+
+<p><font><font>Ligne 2 serait maintenant «$». </font></font></p>
+
+<p><font><font>Tout comme "* p" imprime le contenu du tampon entier, "* d" (ou "1, $ d") supprime le contenu du tampon entier, vous laissant avec un tampon vide. </font><font>Cette commande est utile si vous faites quelque chose le long des lignes suivantes. </font><font>Supposons que vous avez les deux premiers chapitres de votre grand roman canadien stockées dans des fichiers appelés "chapter1" et "chapter2". </font><font>Vous pouvez vous inscrire à FRED, lu dans "chapter1" et le modifier pendant un certain temps, l'ajout et la modification que vous avez vu en forme. </font><font>Lorsque le chapitre a finalement été parfait, vous écrivez en arrière sur votre dossier et préparer à travailler sur "chapter2".</font></font></p>
+
+<p><font><font>Maintenant, vous ne pouvez pas lire dans "chapter2" tout de suite ou bien il obtiendriez mélangé avec les "chapter1" qui est déjà dans votre tampon. </font><font>Ainsi vous dites "* d" dire FRED tout supprimer des "chapter1" qui est dans votre tampon. </font><font>Avec un tampon vide, vous pouvez alors se sentir libre à lire dans "chapter2" et se concentrer sur votre travail.</font></font></p>
+
+<p><font><font>Lorsque vous supprimez des lignes dans le milieu de votre tampon, la ligne actuelle sera réglée sur la ligne immédiatement après la dernière ligne que vous avez supprimé. </font><font>(Vous pourriez envisager la dernière ligne que vous avez supprimé pour être la dernière ligne que vous travaillez avec, mais depuis cette ligne n'existe plus, il ne peut pas être la ligne courante.) Lorsque vous supprimez l'intégralité du tampon avec "* d", la ligne de courant est réglé à la ligne 0 que vous serez en mesure de voir avec la commande "=" (si vous essayez d'imprimer la ligne 0 vous obtenez une erreur - après tout, il n'y a rien sur la ligne 0 à imprimer). </font><font>Vous devez expérimenter pour voir ce qui se passe à la ligne courante lorsque vous supprimez la dernière ligne de votre tampon. </font><font>Essayez la commande "=" - il est lié à vous surprendre.</font></font></p>
+
+<p><font><font>Il est important de se rappeler que la suppression du texte rend le pointeur de la ligne courante (ie doigt de FRED) point à la ligne après la dernière ligne supprimée. </font><font>Si tu le dis</font></font></p>
+
+<pre><font><font>$ d</font></font><font></font><font><font>
+une</font></font></pre>
+
+<p><font><font>de supprimer la dernière ligne dans votre tampon et pour commencer la saisie de texte, votre texte sera au début de votre tampon. </font><font>Pourquoi? </font><font>La raison est que "$ d" supprime la dernière ligne dans votre tampon et ensembles "." </font><font>à la ligne 0 (car il n'y a pas de ligne après «$»). </font><font>Le «a» dit donc FRED commencer annexant après la ligne 0, au début de votre tampon. </font><font>Parce qu'il est facile de devenir confus où votre ligne actuelle est après une suppression, il est toujours une bonne idée d'imprimer "." </font><font>en utilisant "p" avant de faire quoi que ce soit d'autre. </font><font>Sinon, vous pouvez obtenir des résultats indésirables.</font></font></p>
+
+<h3><font><font>Que faire lorsque vous Goof:</font></font></h3>
+
+<p><font><font>Tout le monde fait des erreurs. </font><font>Tôt ou tard, chacun des types de «D» quand ils censés taper quelque chose d'autre et finissent par démolir une ligne qu'ils voulaient garder. </font><font>Lorsque vous faites ce genre d'erreur, que vous avez à tout récrire vous avez supprimé par accident? </font><font>Non - FRED comprend la fragilité humaine et fournit un moyen pour vous d'annuler ou de "vide" vos erreurs.</font></font></p>
+
+<p><font><font>Il fonctionne comme ceci: chaque fois FRED voit que vous voulez lui faire exécuter une commande qui modifie votre texte (par exemple, "a" pour ajouter du texte, "c" pour le changer, ou «d» pour le supprimer), FRED prend un " instantané »du texte avant qu'il fasse la modification. </font><font>Si vous décidez que vous souhaitez annuler la modification, le type</font></font></p>
+
+<pre><font><font>v</font></font></pre>
+
+<p><font><font>(Pour Void) et FRED rétablira les choses à la façon dont ils étaient dans le dernier instantané. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>une</font></font><font></font><font><font>
+&gt; Little Miss Muffet</font></font><font></font><font><font>
+&gt; Sat sur un tuffet</font></font><font></font><font><font>
+&gt; Manger ses caillés et le lactosérum.</font></font><font></font><font><font>
+&gt; \ F</font></font><font></font><font><font>
+ré</font></font><font></font><font><font>
+* p</font></font><font></font><font><font>
+Little Miss Muffet</font></font><font></font><font><font>
+Assis sur un tuffet</font></font><font></font><font><font>
+v</font></font><font></font><font><font>
+* p</font></font><font></font><font><font>
+Little Miss Muffet</font></font><font></font><font><font>
+Assis sur un tuffet</font></font><font></font><font><font>
+Manger ses caillés et pourquoi</font></font></pre>
+
+<p><font><font>La commande «d» supprime la ligne courante, la ligne 3. Toutefois, avant FRED ne la suppression, il prend un instantané de ce qui est dans la mémoire tampon. </font><font>Ainsi, lorsque FRED voit la commande V, il recule jusqu'à ce cliché, essentiellement non faire la suppression.</font></font></p>
+
+<p><font><font>L'existence de la commande V signifie que vous pouvez sortir de presque tous les ennuis que vous entrez dans. </font><font>Si vous tapez une commande qui salit les choses, vous pouvez revenir à la façon dont les choses étaient tout simplement en tapant V. Nous montrerons d'autres exemples de cela plus tard.</font></font></p>
+
+<p><font><font>Pour le moment, nous allons juste faire un peu plus de commentaires sur V. </font></font></p>
+
+<ol>
+    <li><font><font>FRED garde toujours les dix instantanés les plus récentes. </font><font>Taper un "v" soutient jusqu'à la plus récente; </font><font>tapant une autre "v" sauvegarde de l'instantané avant cela, et ainsi de suite. </font><font>Ainsi, vous pouvez sauvegarder sur les effets de plusieurs commandes si vous voulez.</font></font></li>
+    <li><font><font>FRED seulement prend un instantané quand vous faites quelque chose qui affecte le contenu de la mémoire tampon que vous regardez. </font><font>Par conséquent FRED ne prend pas un instantané si vous faites juste des commandes comme "p" ou "=" qui n'affichent des informations.</font></font></li>
+    <li><font><font>FRED prend ses clichés au début d'une ligne contenant des commandes appropriées. </font><font>Si une ligne contient plus d'une commande (par exemple "ddd" supprime trois lignes), FRED prend seulement un instantané au début de la ligne. </font><font>Ainsi V sauvegardera sur les effets de toutes les commandes sur la ligne.</font></font></li>
+    <li><font><font>Parfois, vous pouvez taper V pour sauvegarder sur une certaine commande, puis décidez que vous ne voulez pas sauvegarder après tout. </font><font>Dans ce cas, le type</font></font><pre><font><font>zv</font></font></pre>
+        <p><font><font>(Pour Zap Void). </font><font>ZV annule les effets de la commande la plus récente de V. </font><font>Ainsi quelque chose comme</font></font></p>
+        <pre><font><font>v</font></font><font></font><font><font>
+zv</font></font></pre>
+        <p><font><font>annule une commande, puis restaure les effets de la commande. </font></font></p>
+    </li>
+    <li><font><font>Si FRED vous donne un message d'erreur, la commande V annule les effets des commandes sur la ligne où l'erreur est survenue. </font><font>Par conséquent, chaque fois que vous obtenez une erreur, vous pouvez annuler les effets possibles de l'erreur en tapant "v".</font></font></li>
+</ol>
+
+<p><font><font>Nous espérons que vous vous souviendrez de la commande V et l'utiliser pour vous aider à sortir du pétrin. </font><font>Vous pouvez vous permettre d'être beaucoup plus aventureux avec FRED et expérimenter avec beaucoup de choses, une fois que vous savez que vous pouvez annuler les effets de toute commande qui ne fonctionne pas tout à fait sur.</font></font></p>
+
+<h3><font><font>Recherches de ligne:</font></font></h3>
+
+<p><font><font>Avec le C et D des commandes, vous pouvez maintenant modifier ou supprimer une ligne ou un groupe de lignes dans votre texte. </font><font>L'un des problèmes que vous sont tenus de faire face presque immédiatement est de localiser les lignes que vous souhaitez modifier ou supprimer. </font><font>Mémorisation des numéros de ligne est ennuyeux. </font><font>En outre, les numéros de ligne changent à mesure que vous ajoutez ou supprimez des lignes dans la mémoire tampon. </font><font>Qu'est-ce que vous voulez est un moyen de recherche à travers votre texte rapidement pour trouver la ou les lignes que vous souhaitez modifier. </font><font>FRED vous permet de faire cela au moyen d'une "recherche de ligne".</font></font></p>
+
+<p><font><font>Pour rechercher une ligne contenant le mot "agneau", tout ce que vous avez à dire est </font></font></p>
+
+<pre><font><font>/agneau/</font></font></pre>
+
+<p><font><font>FRED répondra avec </font></font></p>
+
+<pre><font><font>Mary avait un petit agneau</font></font></pre>
+
+<p><font><font>qui est la première ligne dans le tampon contenant le mot "agneau". </font><font>FRED rend cette ligne la ligne actuelle, donc si vous souhaitez apporter des modifications tout ce que vous avez à dire est «c». </font><font>Si vous dites "/ agneau /" à nouveau, vous obtiendrez</font></font></p>
+
+<pre><font><font>L'agneau était sûr d'aller.</font></font></pre>
+
+<p><font><font>qui est la ligne suivante contenant "l'agneau". </font><font>Tout ce que vous avez à faire est enfermer le mot que vous voulez trouver dans les barres obliques et FRED va chercher dans votre texte pour le prochain lieu ce mot apparaît.</font></font></p>
+
+<p><font><font>La recherche de votre mot commence à la ligne après la ligne courante. </font><font>À cause de cela, FRED trouverez le lieu SUIVANT où votre mot de recherche apparaît dans le texte. </font><font>Si FRED recherches jusqu'à la fin de la mémoire tampon et ne trouve pas votre parole, il va poursuivre la recherche à la première ligne dans la mémoire tampon. </font><font>Si FRED ne trouve pas le mot dans votre texte du tout, il vous donnera un</font></font></p>
+
+<pre><font><font>? </font><font>recherche a échoué</font></font></pre>
+
+<p><font><font>Erreur. </font></font></p>
+
+<p><font><font>Vous pouvez rechercher plus d'un mot si vous le souhaitez; </font><font>en fait, vous pouvez rechercher une chaîne de caractères. </font><font>"/ /" recherche deux espaces. </font><font>"/ Vous% /" recherche le mot «vous» suivi d'un «%». </font><font>Nous vous avertissons maintenant qu'il ya un petit nombre de caractères non alphabétiques non numériques qui ont une signification particulière dans la ligne des recherches: "." "^", "$", "*" Et "[" pour nommer un peu. </font><font>Si vous essayez de chercher des chaînes contenant ces caractères spéciaux, attendre à des résultats inhabituels (rien de mauvais va se passer à votre texte, mais vous ne pourriez pas trouver la ligne que vous cherchez). </font><font>Si vous essayez de rechercher la barre en tapant "///" vous aurez des problèmes aussi - voyez si vous pouvez comprendre pourquoi.</font></font></p>
+
+<p><font><font>Très souvent, vous aurez à parcourir un certain nombre de lignes avant de trouver la ligne que vous voulez. </font><font>Par exemple, si vous êtes à la recherche de "la" vous devez vous attendre à voir beaucoup de lignes contenant "la" avant de trouver la ligne que vous voulez. </font><font>Pour éviter de taper "/ la /" à chaque fois que vous souhaitez regarder plus loin, FRED va vous permettre de taper</font></font></p>
+
+<pre><font><font>//</font></font></pre>
+
+<p><font><font>Lorsque FRED voit cela, il va rechercher la chaîne que vous vouliez plus récemment. </font><font>Ainsi</font></font></p>
+
+<pre><font><font>/chaîne/</font></font><font></font><font><font>
+//</font></font><font></font><font><font>
+//</font></font></pre>
+
+<p><font><font>trouveront trois occurrences successives de "string" dans votre texte. </font></font></p>
+
+<p><font><font>FRED se souvient toujours de ce que vous avez cherché pour la fin. </font><font>Si vous avez fait beaucoup de annexant, suppression, etc., et ne me souviens pas ce que vous étiez la dernière recherche pour, vous pouvez utiliser la commande</font></font></p>
+
+<pre><font><font>fe</font></font></pre>
+
+<p><font><font>(impression Faits sur les expressions). </font><font>FRED répondra</font></font></p>
+
+<pre><font><font>/chaîne/</font></font></pre>
+
+<p><font><font>Ainsi en tapant "//" de nouveau pour lancer une recherche de la ligne suivante contenant "string", même si elle a été un certain temps depuis la dernière recherche. </font></font></p>
+
+<p><font><font>Nous pourrions dire que vous pouvez perdre beaucoup de temps à chercher un mot commun comme "la". </font><font>Vous trouverez la ligne que vous voulez beaucoup plus rapidement si vous recherchez un mot ou groupe de mots qui ne semble pas très souvent dans votre texte. </font><font>En outre, vous devez réaliser que FRED recherche la chaîne de caractères voulez vous partout où ils apparaissent. </font><font>Par exemple, si vous recherchez «le», il va localiser les lignes contenant des mots comme «ils», «eux», «autre», et ainsi de suite: où les lettres "t", "h" et "e" apparaissent dans cet ordre.</font></font></p>
+
+<p><font><font>Si vous souhaitez rechercher la première occurrence d'une chaîne avant la ligne courante, vous pouvez taper </font></font></p>
+
+<pre><font><font>-/chaîne/</font></font></pre>
+
+<p><font><font>Lorsque FRED voit cela, il va commencer à chercher en arrière dans la mémoire tampon pour "string". </font><font>S'il arrive à la première ligne dans le tampon sans trouver "string" encore, il va continuer à chercher vers l'arrière à partir de la fin du tampon. </font><font>Encore une fois s'il ne peut pas trouver "string" du tout, il vous donnera un message d'erreur.</font></font></p>
+
+<p><font><font>Dans toutes les recherches en ligne, aussi bien en avant et en arrière dans votre texte, FRED ignorera si les lettres sont en majuscules ou en minuscules. </font><font>Ainsi, la recherche en ligne</font></font></p>
+
+<pre><font><font>/ce/</font></font></pre>
+
+<p><font><font>trouvera les lignes contenant "ce", "CE", "Ce", "ça", et ainsi de suite. </font></font></p>
+
+<h3><font><font>Exercice 4:</font></font></h3>
+
+<p><font><font>Lire ou ajouter quelques lignes dans votre tampon. </font><font>Utilisez une recherche en ligne de recherche à travers le tampon pour une ligne particulière. </font><font>Modifiez cette ligne en utilisant la commande C. </font><font>Expérimentez avec modification et suppression de lignes. </font><font>Ne pas oublier que vous pouvez utiliser "* p" pour montrer ce qui est arrivé à la mémoire tampon après un certain nombre de modifications et suppressions.</font></font></p>
+
+<h3><font><font>Le commandement S:</font></font></h3>
+
+<p><font><font>L'une des tâches les plus courantes d'édition est la correction des fautes de frappe. </font><font>La commande C peut être utilisé pour corriger ces erreurs comme nous l'avons déjà vu. </font><font>Cependant, en tapant une ligne entière est beaucoup de travail pour corriger une petite erreur (et si vous ne faites pas attention, vous pouvez faire plus d'erreurs la deuxième fois par le biais). </font><font>Qu'est-ce que vous voulez faire est de dire FRED changer un seul mot ou groupe de mots sans avoir à changer une ligne entière.</font></font></p>
+
+<p><font><font>Cela se fait avec la commande S (S pour substitut). </font><font>Supposons que nous avons tapé dans</font></font></p>
+
+<pre><font><font>Mary avait un agneau littel</font></font></pre>
+
+<p><font><font>Nous aimerions être en mesure de changer le "littel" à "peu". </font><font>Vous faites cela avec la commande</font></font></p>
+
+<pre><font><font>s / littel / peu /</font></font></pre>
+
+<p><font><font>Cela dit FRED de remplacer "littel" avec "peu" partout dans la ligne courante. </font><font>Après avoir fait la substitution, vous pouvez imprimer la ligne avec "p" et de voir qu'il lit maintenant</font></font></p>
+
+<pre><font><font>Mary avait un petit agneau</font></font></pre>
+
+<p><font><font>comme il est censé le faire. </font></font></p>
+
+<p><font><font>Nous ne sommes pas vraiment à taper autant que nous l'avons fait dans la commande S ci-dessus. </font><font>Nous aurions pu écrire</font></font></p>
+
+<pre><font><font>s / el / le /</font></font></pre>
+
+<p><font><font>et il aurait changé "littel" à "peu". </font><font>En fait, nous pouvons changer toute chaîne de caractères à une autre chaîne.</font></font></p>
+
+<p><font><font>Supposons que vous essayez la substitution </font></font></p>
+
+<pre><font><font>s / a / la /</font></font></pre>
+
+<p><font><font>sur "Mary avait un petit agneau". </font><font>Vous pourriez penser que vous souhaitez obtenir "Mary avait le petit agneau», mais vous auriez tort. </font><font>Si vous imprimez la ligne en utilisant "p", vous verrez que vous avez</font></font></p>
+
+<pre><font><font>Mthery hthed le petit lthemb</font></font></pre>
+
+<p><font><font>Ce qui est arrivé est que FRED a changé tous les "a" dans la ligne de «la». </font><font>Si vous voulez changer juste le mot "a" à "la", vous pouvez taper</font></font></p>
+
+<pre><font><font>s / a / la /</font></font></pre>
+
+<p><font><font>Cela va changer un «a» est entouré par des espaces dans "le" entouré par des espaces. </font><font>Si vous avez laissé les espaces autour de "la" vous obtiendrez "Mary hadthelittle agneau". </font><font>Les erreurs de ce genre sont très faciles à faire, même pour les utilisateurs FRED expérimentés. </font><font>Il est bon de prendre l'habitude d'imprimer une ligne après avoir effectué une substitution en elle, juste pour vérifier que vous ne l'avez pas fait une erreur.</font></font></p>
+
+<p><font><font>Une erreur que les débutants font parfois pense qu'il ya un espace à la fin d'une ligne. </font><font>Vous pouvez certainement taper des caractères d'espace à la fin de vos lignes si vous voulez, mais les espaces ne sont pas mis automatiquement. </font><font>Si vous essayez la déclaration</font></font></p>
+
+<pre><font><font>s / agneau / canard /</font></font></pre>
+
+<p><font><font>sur "Mary avait un petit agneau", vous trouverez, vous obtiendrez une erreur. </font><font>La raison en est qu'il n'y a pas de caractère d'espace après "l'agneau", même si il peut y avoir beaucoup d'espace après "l'agneau" lorsque la ligne est imprimée sur le terminal. </font><font>Dans votre texte, il est en fait une "nouvelle ligne" caractère après le mot "agneau". </font><font>Cette «nouvelle ligne» est un personnage invisible qui raconte FRED qu'une ligne est terminée et une nouvelle ligne est sur le point de commencer. </font><font>Chaque fois que vous tapez dans un retour chariot, un caractère "nouvelle ligne" est automatiquement mis dans votre texte pour maintenir des lignes séparées.</font></font></p>
+
+<p><font><font>Nous avons déjà dit que la commande S sans un numéro de ligne fait ses changements dans la ligne actuelle. </font><font>Si vous fournissez un numéro de ligne comme dans</font></font></p>
+
+<pre><font><font>2s / chien / chat /</font></font></pre>
+
+<p><font><font>les substitutions seront effectués uniquement sur la ligne que vous spécifiez. </font><font>Dans le cas ci-dessus, tous les «chien» dans la ligne 2 serait remplacé par "chat". </font><font>Vous pouvez également faire des substitutions sur une série de lignes, comme dans</font></font></p>
+
+<pre><font><font>3,5s / boo / hoo /</font></font></pre>
+
+<p><font><font>qui change "boo" à "hoo" dans les lignes 3 à 5 inclusivement. </font><font>Ceci est très pratique si vous décidez de changer le nom de l'héroïne de votre grand roman canadien pendant que vous éditez. </font><font>La commande</font></font></p>
+
+<pre><font><font>* S / Alice / Ethel /</font></font></pre>
+
+<p><font><font>va changer le nom partout où il apparaît dans votre texte. </font><font>(Au lieu de "*" vous pouvez aussi avoir utilisé "1, $".)
+</font></font></p>
+
+<p><font><font>Si vous donnez FRED une commande S pour changer une chaîne dans une autre chaîne et FRED ne pouvez pas trouver la première chaîne dans les lignes que vous spécifiez, vous obtiendrez un message d'erreur </font></font></p>
+
+<pre><font><font>? </font><font>aucun texte modifié</font></font></pre>
+
+<p><font><font>La plupart du temps, cela se produit parce que vous avez tapé dans la première chaîne incorrecte. </font></font></p>
+
+<p><font><font>Par ailleurs, il n'a pas d'importance si vous tapez la première chaîne d'une commande S en majuscules ou en minuscules. </font></font></p>
+
+<pre><font><font>s / cette / x /</font></font></pre>
+
+<p><font><font>va changer "ce", "CE", "ça", et ainsi de suite. </font><font>La deuxième chaîne (celui qui est mis dans votre texte à la place de la première) devrait être dans le cas que vous voulez qu'il apparaisse dans le texte. </font><font>Ainsi, par exemple,
+</font></font></p>
+
+<pre><font><font>s / h / h /</font></font></pre>
+
+<p><font><font>change tous les </font><font>"h" (cas supérieur ou inférieur) dans un minuscule "h". </font><font>La première chaîne est vraiment juste un </font></font><em><font><font>motif</font></font></em><font><font> 
+indiquant le "look" approximatif de toutes les chaînes que </font><font>vous souhaitez modifier.</font></font></p>
+
+<p><font><font>Vous devez passer un temps considérable à expérimenter avec la commande S. </font><font>Il est une commande très pratique et facile à utiliser une fois que vous avez un peu d'expérience avec elle.</font></font></p>
+
+<h3><font><font>Remplacements Plus compliquées:</font></font></h3>
+
+<p><font><font>Les substitutions, nous avons parlé jusqu'à présent sont très simples. </font><font>Une chaîne est remplacée par une autre chaîne partout la première chaîne se produit sur la ligne. </font><font>Nous sommes maintenant prêts pour les substitutions plus ambitieuses.</font></font></p>
+
+<p><font><font>Une simple variation de la commande S ordinaire a la forme </font></font></p>
+
+<pre><font><font>s3 / a / la /</font></font></pre>
+
+<p><font><font>Le "3" après le "s" indique FRED changer seulement le troisième "a" dans une ligne dans «la». </font><font>Cette commande va changer "Mary avait un petit agneau" en "Mary avait le petit agneau", puisque seul le troisième "a" est changé. </font><font>Nous pourrions aussi avons dit</font></font></p>
+
+<pre><font><font>s-2 / A / l /</font></font></pre>
+
+<p><font><font>Cette commande ne change que le second "a" de la fin de la ligne. </font><font>Ainsi vous voyez que d'un nombre positif &lt;n&gt; après le "s" ne change que la &lt;n&gt; e occurrence de la première chaîne. </font><font>Un négatif &lt;-n&gt; change la &lt;n&gt; e occurrence de la première chaîne à partir de la fin de la ligne.</font></font></p>
+
+<p><font><font>Nous sommes maintenant prêts à parler de certains caractères spéciaux qui peuvent être utilisés dans la commande S. </font><font>Ces caractères sont appelés caractères «motif» dans FRED et la première chaîne dans une commande S est appelé le modèle qui est changé.</font></font></p>
+
+<p><font><font>Le premier caractère spécial que nous allons examiner est "^". </font><font>"^" Correspond au début d'une ligne. </font><font>Ainsi, si nous avons dit</font></font></p>
+
+<pre><font><font>s / ^ / a /</font></font></pre>
+
+<p><font><font>nous serions en train de mettre un «a» au début de la ligne. </font><font>Ce n'est pas la même chose que de changer le premier caractère de la ligne "a". </font><font>"^" Est en fait un personnage invisible qui apparaît avant le premier caractère de la ligne. </font><font>Ainsi</font></font></p>
+
+<pre><font><font>s / ^ / mon ami /</font></font></pre>
+
+<p><font><font>changerait "Mary avait un petit agneau" à "Mon amie Mary avait un petit agneau". </font></font></p>
+
+<p><font><font>Vous pouvez également utiliser "^" avec plus de caractères après elle. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>* S / ^% /? /</font></font></pre>
+
+<p><font><font>changerait tous les signes de «%» au début des lignes de texte dans "?" </font><font>des notes. </font><font>Notez que le "^" ne figure pas dans la chaîne qui remplace "%".</font></font></p>
+
+<p><font><font>Tout comme "^" représente un caractère invisible au début d'une ligne, "$" représente un caractère invisible à la fin d'une ligne. </font><font>Ainsi</font></font></p>
+
+<pre><font><font>s / $ / et ainsi on./</font></font></pre>
+
+<p><font><font>changerait "Mary avait un petit agneau" à "Mary avait un petit agneau et ainsi de suite." </font></font></p>
+
+<pre><font><font>* S /: $ /; /</font></font></pre>
+
+<p><font><font>changerait tout ":" à la fin d'une ligne dans un ";". </font></font></p>
+
+<p><font><font>Le prochain caractère spécial de modèle que nous allons voir est ".". </font><font>Quand "." </font><font>est utilisé dans le côté du motif d'une commande S, il signifie tout caractère. </font><font>Par exemple, essayez</font></font></p>
+
+<pre><font><font>s /./ x /</font></font></pre>
+
+<p><font><font>sur la ligne "Mary avait un petit agneau". </font><font>Le résultat sera</font></font></p>
+
+<pre><font><font>xxxxxxxxxxxxxxxxxxxxxx</font></font></pre>
+
+<p><font><font>qui est pas tout à fait inspirant une ligne. </font><font>Notez que tous les personnages, que ce soit une lettre ou un espace, est transformé en un "x". </font><font>De toute évidence, vous devez être prudent lorsque vous utilisez le "." </font><font>dans un motif. </font><font>Beaucoup de débutants sont venus à la douleur en essayant de changer d'une période à une virgule avec l'instruction "s /./,/" et de se retrouver avec une ligne de virgules.</font></font></p>
+
+<p><font><font>Cependant, le "." </font><font>peut être un grand épargnant de frappe lorsqu'il est utilisé avec précaution. </font><font>Supposons que vous voulez effacer le dernier caractère de chaque ligne dans votre texte. </font><font>Tout ce que vous avez à dire FRED est</font></font></p>
+
+<pre><font><font>* S /.$//</font></font></pre>
+
+<p><font><font>Littéralement, cela signifie trouver un caractère immédiatement suivie par la fin de la ligne et le remplacer par rien. </font><font>Ceci est beaucoup plus facile que de passer par votre ligne de texte en ligne pour trouver le caractère exact qui se termine la ligne, puis de supprimer ce caractère spécifiquement.</font></font></p>
+
+<p><font><font>Une autre fois, vous pouvez utiliser le "." </font><font>est lorsque votre texte contient une ligne comme</font></font></p>
+
+<pre><font><font>J'ai 5 $ ma poche.</font></font></pre>
+
+<p><font><font>et vous voudriez changer "$ 5" pour les mots «cinq dollars». </font><font>Si tu le dis</font></font></p>
+
+<pre><font><font>5 s / $ / cinq dollars /</font></font></pre>
+
+<p><font><font>FRED pense de la signification spéciale de «$» et croit que vous voulez lui de regarder pour la fin de la ligne suivie par le caractère "5". </font><font>De toute évidence, cela vous donnera une erreur. </font><font>Toutefois, la commande</font></font></p>
+
+<pre><font><font>s / .5 / cinq dollars /</font></font></pre>
+
+<p><font><font>dit FRED à rechercher un caractère suivi d'un "5". </font><font>Cela correspond à vos "5 $" et votre texte est modifié de la manière que vous voulez.</font></font></p>
+
+<p><font><font>Le dernier caractère spécial de modèle que nous allons prendre pour le moment est "*". </font><font>Essayez la commande</font></font></p>
+
+<pre><font><font>s /.*/ bonjour /</font></font></pre>
+
+<p><font><font>sur une ligne et vous trouverez que la ligne a été modifiée simplement </font></font></p>
+
+<pre><font><font>Bonjour</font></font></pre>
+
+<p><font><font>De toute évidence ". *" Dit FRED de tout changer! </font></font></p>
+
+<p><font><font>La raison est que tout caractère suivi de "*" correspond à toute chaîne de ces caractères. </font><font>Par exemple, "b *" correspond à "b", "bb", "bbb", et ainsi de suite. </font><font>Elle correspond également à "" (rien) qui compte comme zéro "b" s '.</font></font></p>
+
+<p><font><font>Prenons un exemple simple où le "*" peut être utile. </font><font>Très souvent, les lignes de texte auront des blancs sur la fin qui occupent de l'espace intérieur de l'ordinateur, mais vraiment ne pas avoir de fin. </font><font>Si vous pouviez supprimer ces espaces, vous pourriez économiser tout cet espace dans vos fichiers. </font><font>La commande</font></font></p>
+
+<pre><font><font>* S / * $ //</font></font></pre>
+
+<p><font><font>passera par tout votre texte et supprimer un nombre quelconque d'espaces FRED trouve à la fin de chaque ligne. </font><font>Il n'y aura pas de problème avec les lignes qui ne disposent pas d'espaces sur la fin, car "*" correspond à zéro espaces aussi.</font></font></p>
+
+<p><font><font>Pour en revenir à notre premier exemple, penser à ce que ". *" Correspondra. </font><font>"." </font><font>correspond à tout caractère, donc ". *" correspond à tout nombre de caractères (y compris aucun caractère du tout). </font><font>Si vous utilisez la commande</font></font></p>
+
+<pre><font><font>s / y. * / s /</font></font></pre>
+
+<p><font><font>sur la ligne "Mary avait un petit agneau", ce qui se passera? </font><font>FRED trouverez un "y" et un certain nombre de caractères après le "y" et remplacer le tout avec juste "s". </font><font>Ainsi, la commande ci-dessus tourne "Mary avait un petit agneau" dans "Mars".</font></font></p>
+
+<p><font><font>Le ". *" Construction peut être utilisé pour enregistrer la saisie de plusieurs façons différentes. </font><font>La commande</font></font></p>
+
+<pre><font><font>s / y. * la / y possédait un minuscule la /</font></font></pre>
+
+<p><font><font>changements "Mary avait un petit agneau" en "Mary avait un petit agneau". </font><font>Ainsi, lorsque vous modifiez une grande partie d'une ligne, il vous suffit de taper le premier peu et le dernier peu, et utiliser ". *" Pour défendre ce qui est entre les deux.</font></font></p>
+
+<p><font><font>Étant donné le choix, un "*" - motif de type correspondra à la chaîne la plus longue possible. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>s / a. * a / x /</font></font></pre>
+
+<p><font><font>va changer "Mary avait un petit agneau" pour </font></font></p>
+
+<pre><font><font>Mxmb</font></font></pre>
+
+<p><font><font>"A. * A" a été prise comme tout, depuis le premier "a" au dernier "a" dans la ligne, la plus longue chaîne dans la ligne commençant et se terminant par "a". </font><font>D'une manière générale, cela fonctionne est exactement ce que vous voulez - vous avez juste à être prudent de temps en temps.</font></font></p>
+
+<h3><font><font>Exercice 5:</font></font></h3>
+
+<p><font><font>Expérience avec la commande S. </font><font>Utilisez tous les différents caractères de motif, "^", "$", "." </font><font>et "*". </font><font>Essayez ces caractères de motif dans la ligne des recherches aussi. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>/ ^ Commencer /</font></font></pre>
+
+<p><font><font>dit FRED pour rechercher une ligne commençant par "commencer". </font><font>Assurez-vous de passer un temps considérable à apprendre tous ces personnages travaillent. </font><font>La commande S est une commande que vous utiliserez tout le temps dans l'édition avec FRED, et savoir comment utiliser les caractères spéciaux peuvent économiser beaucoup de temps.</font></font></p>
+
+<h3><font><font>Échapper:</font></font></h3>
+
+<p><font><font>Nous arrivons maintenant à l'idée de caractères "échappent". </font><font>Ceux qui ont une certaine expérience d'autres langages informatiques peuvent déjà comprendre ce concept, mais pour les débutants, nous allons expliquer la notion en détail.</font></font></p>
+
+<p><font><font>Il y a tellement de caractères sur le clavier du terminal, et la plupart d'entre eux sont utilisés par FRED pour quelque chose. </font><font>Presque toutes les lettres sont des commandes FRED. </font><font>Les chiffres et les symboles arithmétiques comme "+" et "-" sont utilisées pour les opérations arithmétiques. </font><font>Nous avons déjà vu que "^", "$", "." </font><font>et "*" avoir des utilisations spéciales dans FRED, à la fois en tant que caractères de modèle et le numéro de ligne sténographies. </font><font>La plupart des autres caractères sur le clavier ont des utilisations spéciales, nous avons pas encore parlé.</font></font></p>
+
+<p><font><font>Finalement, les concepteurs d'une langue viennent au point où ils veulent installer des fonctionnalités spéciales que il y a des caractères sur le clavier. </font><font>En FRED ce problème a été résolu par la définition d'un nouvel ensemble de symboles qui sont tapés comme deux caractères. </font><font>Le premier caractère est appelé le caractère «d'évasion» (ce n'est pas la même chose que la clé marquée «fuite» sur certains terminaux). </font><font>Dans FRED, le caractère d'échappement est la barre oblique inverse "\". </font><font>Lorsque FRED voit un antislash suivi par un autre personnage, il prend les deux comme un symbole. </font><font>A l'intérieur de l'ordinateur, la combinaison est stockée sous la forme d'un seul caractère, même si vous tapez dans que deux. </font><font>Tout cela se fait tout simplement parce qu'il n'y a pas assez de caractères sur le clavier pour faire tout ce que nous voulons, nous devons donc fabriquer quelques personnages nous.</font></font></p>
+
+<p><font><font>Vous avez déjà vu un exemple de ce genre de symbole. </font><font>"\ F" est le symbole que vous utilisez pour terminer l'entrée de texte après un A ou commande C. </font><font>Un autre symbole que vous êtes apte à utiliser fréquemment est "\ C". </font><font>(Rappelez-vous, ceci est juste un personnage aussi loin que FRED est concerné, même si vous tapez comme deux.) "\ C" indique FRED que le caractère suivant est à prendre littéralement, sans aucune signification particulière. </font><font>Un caractère précédé d'un "\ C" est dit être "échappée".</font></font></p>
+
+<p><font><font>Maintenant, nous allons donner quelques exemples de la façon dont les œuvres échappent. </font><font>Normalement</font></font></p>
+
+<pre><font><font>s / ^ / a /</font></font></pre>
+
+<p><font><font>placerait un «a» au début d'une ligne. </font><font>Si tu le dis</font></font></p>
+
+<pre><font><font>s / \ C ^ / a /</font></font></pre>
+
+<p><font><font>vous dites FRED d'ignorer la signification spéciale du caractère "^" (le début de la ligne) et de prendre "^" littéralement. </font><font>Ainsi, la seconde commande S changerait le caractère "^" en un "a". </font><font>De la même manière,</font></font></p>
+
+<pre><font><font>s / \ C $ / x /</font></font></pre>
+
+<p><font><font>change le caractère "$" dans un "x", et ignore le sens particulier "$" a habituellement dans les commandes S. </font><font>Pour modifier une période dans une virgule, on pourrait dire</font></font></p>
+
+<pre><font><font>s / \ C ./,/</font></font></pre>
+
+<p><font><font>"\ C" peuvent être utilisés dans le même but dans les recherches en ligne; </font><font>par exemple,</font></font></p>
+
+<pre><font><font>/ \ C * /</font></font></pre>
+
+<p><font><font>recherche une ligne contenant un "*". </font></font></p>
+
+<p><font><font>Une autre utilisation de "\ C" est en rupture de longues lignes en deux lignes plus courtes. </font><font>En tapant</font></font></p>
+
+<pre><font><font>s / ab / a \ C</font></font><font></font><font><font>
+b /</font></font></pre>
+
+<p><font><font>vous pouvez mettre un caractère "nouvelle ligne" entre les caractères "a" et "b", rompant ainsi la ligne en deux à ce moment-là. </font><font>Normalement, le &lt;cr&gt; est le personnage qui raconte FRED il y a du travail à faire; </font><font>cependant, le "\ C" devant le &lt;cr&gt; dit FRED de le traiter comme un autre caractère. </font><font>Si vous avez essayé de taper</font></font></p>
+
+<pre><font><font>s / ab / a</font></font><font></font><font><font>
+b /</font></font></pre>
+
+<p><font><font>sans le "\ C", FRED serait jeter un oeil à la première ligne, déciderait que vous aviez oublié quelque chose, et vous donnera une erreur avant d'avoir vu même le "b /" sur la ligne suivante. </font></font></p>
+
+<p><font><font>Nous allons parler de plusieurs de ces symboles spéciaux qui utilisent "\" qu'ils deviennent utiles pour nous. </font><font>Pour l'instant, nous allons simplement vous rappeler que d'entrer le caractère "\" dans votre texte, vous devez taper deux, comme dans "\\". </font><font>Si vous ne tapez un, FRED pense que vous parlez de l'un des symboles spéciaux qui sont constitués de "\" plus un autre personnage, et les choses surprenantes pourraient se produire.</font></font></p>
+
+<h3><font><font>Quelques commandes Plus utiles:</font></font></h3>
+
+<p><font><font>Nous allons maintenant décrire quelques autres commandes qui sont également utiles pour l'édition avec FRED. </font></font></p>
+
+<p><font><font>La commande I (Insertion) est similaire à la commande A, sauf qu'il met votre texte avant une ligne, et non après. </font><font>Par exemple, si votre tampon contient</font></font></p>
+
+<pre><font><font>Hé dupez dupent</font></font><font></font><font><font>
+Le chat et le violon</font></font><font></font><font><font>
+La vache a sauté sur la lune</font></font></pre>
+
+<p><font><font>vous pouvez taper </font></font></p>
+
+<pre><font><font>2i</font></font><font></font><font><font>
+&gt; Chanter une chanson de sixpence</font></font><font></font><font><font>
+&gt; A Pocketful of seigle</font></font><font></font><font><font>
+&gt; \ F</font></font></pre>
+
+<p><font><font>pour obtenir ce qui suit: </font></font></p>
+
+<pre><font><font>Hé dupez dupent</font></font><font></font><font><font>
+Chanter une chanson de sixpence</font></font><font></font><font><font>
+Une poche de seigle</font></font><font></font><font><font>
+Le chat et le violon</font></font><font></font><font><font>
+La vache a sauté sur la lune</font></font></pre>
+
+<p><font><font>Notez qu'un "\ F" est nécessaire pour terminer votre saisie de texte comme avec les commandes A et C. </font></font></p>
+
+<p><font><font>La commande G exécutera une liste d'autres commandes pour une sélection de lignes dans votre tampon. </font><font>Vous sélectionnez les lignes avec le même genre de modèle que vous utilisez dans les commandes S et les recherches en ligne. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>g / ^% / p</font></font></pre>
+
+<p><font><font>passe par votre texte à la recherche de lignes commençant par "%" et les imprime. </font><font>La commande</font></font></p>
+
+<pre><font><font>g / fin $ / s / fin / finition / p</font></font></pre>
+
+<p><font><font>passe par votre texte à la recherche de lignes qui se terminent en «fin». </font><font>Sur ces lignes, il exécute la commande S changer "fin" pour "finir", puis il exécute la commande P impression de la ligne. </font><font>Une commande comme</font></font></p>
+
+<pre><font><font>* S / fin $ / finition /</font></font></pre>
+
+<p><font><font>rendrait les mêmes substitutions que la commande globale, mais il ne serait pas imprimer les lignes dans lesquelles il fait des substitutions. </font></font></p>
+
+<p><font><font>Vous pouvez mettre toutes les instructions que vous voulez dans une commande globale, y compris les recherches en ligne. </font><font>Par exemple</font></font></p>
+
+<pre><font><font>g / ^ salut / p. + 1p. + 1p / bonjour / p</font></font></pre>
+
+<p><font><font>passe par votre texte à la recherche de lignes commençant par "salut". </font><font>Quand il trouve un, le "p" imprime la ligne, la première ". + 1p" imprime la ligne suivante, et la suivante ". + 1p" imprime la ligne après. </font><font>Enfin, le "/ bonjour / p" indique FRED de recherche à travers le tampon et imprimer la ligne suivante qui contient "bonjour". </font><font>(Notez que cette commande vous donnera une erreur si l'une des deux dernières lignes dans le tampon a commencé avec "salut", depuis le ". + 1p" commandes essaieraient de lignes d'impression au-delà de la fin de la mémoire tampon).</font></font></p>
+
+<p><font><font>Il y a une autre forme de la commande globale qui exécutera votre liste de commandes pour toutes les lignes qui ne correspondent pas à un modèle donné. </font><font>Sous cette forme, vous mettez un "~" après le "g" comme dans</font></font></p>
+
+<pre><font><font>g ~ /? / p. + 1d</font></font></pre>
+
+<p><font><font>Cette commande recherche toute ligne qui ne contient pas un "?", Imprime la ligne, et supprime la ligne après. </font><font>(Encore une fois, vous pourriez obtenir une erreur si vous dépassez la fin de votre tampon.)</font></font></p>
+
+<p><font><font>Si vous ne spécifiez pas de numéros de ligne pour une commande G ou G ~, FRED va scanner l'ensemble de votre mémoire tampon pour les lignes qui correspondent ou ne correspondent pas au motif que vous donnez. </font><font>Vous pouvez également spécifier une plage de lignes, comme dans</font></font></p>
+
+<pre><font><font>2,5g / ^ / s / ^ /; / s / $ /: /</font></font></pre>
+
+<p><font><font>Cette commande (ce qui peut paraître un peu comme du charabia au premier abord) dit FRED de regarder à travers les lignes 2 à 5 inclus pour un début de caractère de ligne "^". </font><font>De toute évidence, toutes les lignes commencent de cette façon, de sorte que les commandes suivantes de la "g / ^ /" seront effectués pour chaque ligne de 2 à 5. La première commande S met un ";" </font><font>au début de la ligne et la seconde met un ":" à la fin. </font><font>Ainsi, la commande donnée fera en sorte que les lignes 2 à 5 commencent par ";" </font><font>et se terminent par ":". </font><font>Vous pouvez également faire une commande globale sur une seule ligne, même si nous ne savons pas pourquoi vous voudriez.</font></font></p>
+
+<p><font><font>La dernière commande nous allons parler dans cette section est le "!" </font><font>commander. </font><font>Lorsque FRED voit un "!" </font><font>au début d'une commande, il envoie le reste de la ligne pour le système TSS pour le traitement. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>! Liste / myfile</font></font></pre>
+
+<p><font><font>listera le contenu de "myfile" sur votre terminal, comme si vous aviez répondu «liste / myfile" à l'invite de système "*". </font><font>Lorsque la liste est terminée, une autre "!" </font><font>est imprimé et vous serez de retour dans FRED nouveau. </font><font>Ceci est pratique, par exemple, si vous préparez un rapport à l'aide du formateur de texte de TF. </font><font>Tu peux dire</font></font></p>
+
+<pre><font><font>! Tf myfile&gt; Rapport</font></font><font></font><font><font>
+!</font></font><font></font><font><font>
+! Rapport de liste</font></font><font></font><font><font>
+... Rapport énumérant ...</font></font></pre>
+
+<p><font><font>Ce formats "myfile" dans un autre fichier appelé «rapport» puis listes «rapport» sur votre terminal. </font><font>S'il y a quelque chose de mal avec le rapport répertorié, vous pouvez éditer "myfile" en utilisant FRED, puis TF à nouveau. </font><font>De cette façon, vous pouvez utiliser toutes les installations de TSS sans jamais quitter FRED.</font></font></p>
+
+<h3><font><font>Exercice 6:</font></font></h3>
+
+<p><font><font>Lire dans un fichier en utilisant la commande R. </font><font>Insérer un texte avec la commande I, et assurez-vous que le texte contient des caractères spéciaux de motifs tels que "^", "$" et "*". </font><font>Faites des recherches en ligne pour ces caractères en utilisant le symbole "\ C" pour échapper à leurs significations particulières. </font><font>Faites des opérations mondiales, comme mettre un "%" au début de chaque ligne et un "?" </font><font>à la fin. </font><font>Assurez-vous que vous utilisez la commande G sur les paragraphes de votre texte, ainsi que le tampon entier.</font></font></p>
+
+<h3><font><font>Quelques courts-formes pratiques:</font></font></h3>
+
+<p><font><font>Dans cette section, nous allons en apprendre davantage sur certaines fonctionnalités de FRED qui aident à réduire votre frappe. </font><font>Nous allons d'abord regarder les adresses en ligne.</font></font></p>
+
+<p><font><font>Nous avons déjà parlé de numéros de ligne et les caractères spéciaux "." </font><font>(La ligne en cours), "$" (la dernière ligne dans le tampon), et "*" (qui est court pour "1, $", chaque ligne dans la mémoire tampon). </font><font>Les numéros de ligne et les caractères spéciaux sont des formes d'adresses de ligne. </font><font>Une adresse de ligne est juste une façon de se référer à une ligne particulière du texte à dire FRED où il est censé faire quelque chose.</font></font></p>
+
+<p><font><font>Une recherche en ligne comme "/ string /" est une autre forme d'adresse de ligne. </font><font>Comme nous l'avons dit précédemment, la dactylographie</font></font></p>
+
+<pre><font><font>/chaîne/</font></font></pre>
+
+<p><font><font>fera FRED pour trouver la ligne suivante contenant "string" et l'imprimer. </font><font>Nous pourrions aussi dire</font></font></p>
+
+<pre><font><font>/ String / s / string / corde /</font></font></pre>
+
+<p><font><font>Ceci indique FRED pour trouver la ligne suivante contenant "string", puis changer cette "chaîne" à "corde". </font></font></p>
+
+<pre><font><font>/ ^ Bonjour / d</font></font></pre>
+
+<p><font><font>va supprimer la ligne suivante en commençant par "bonjour". </font><font>Vous pouvez également utiliser une instruction comme</font></font></p>
+
+<pre><font><font>- / Fin $ / a</font></font></pre>
+
+<p><font><font>Cette commande indique FRED pour rechercher en arrière dans la mémoire tampon pour trouver la première ligne avant "." </font><font>se terminant en «fin», puis de commencer à ajouter du texte après cette ligne.</font></font></p>
+
+<p><font><font>Nous voyons donc que la ligne des recherches comme "/ string /" et "- / corde /" peut être utilisé de la même manière que les numéros de ligne et les caractères spéciaux d'adresse de ligne que nous connaissons. </font><font>On peut même dire quelque chose comme</font></font></p>
+
+<pre><font><font>- / Bonjour /, / au revoir / p</font></font></pre>
+
+<p><font><font>Cela dit FRED à la recherche à travers le tampon pour une ligne contenant "bonjour", pour rechercher en avant de la ligne "bonjour" pour une ligne contenant «au revoir», et enfin d'imprimer tout de la ligne "bonjour" au "au revoir" ligne. </font></font></p>
+
+<p><font><font>Un autre type d'adresse de ligne est le symbole "^". </font><font>Ceci est un raccourci pour ".-1". </font><font>Ainsi la commande</font></font></p>
+
+<pre><font><font>^</font></font></pre>
+
+<p><font><font>va monter une ligne (à la ligne avant la ligne courante) et l'imprimer. </font><font>La commande</font></font></p>
+
+<pre><font><font>^^</font></font></pre>
+
+<p><font><font>montera deux lignes de la ligne actuelle, et ainsi de suite. </font><font>Ainsi, "^" vous permet de revenir en arrière à travers un tampon aussi facilement que &lt;cr&gt; (ce qui signifie ". + 1") vous permet d'aller vers l'avant.</font></font></p>
+
+<p><font><font>Le prochain caractère spécial d'adresse de ligne, nous allons regarder est "&amp;". </font><font>"&amp;" Est un raccourci pratique pour la paire d'adresses ". + 1,. + 20". </font><font>Tout comme "3,5" est l'abréviation de "3,5p", "&amp;" est l'abréviation de "&amp; p" ou ". + 1,. + 20p". </font><font>En d'autres termes, il suffit de taper</font></font></p>
+
+<pre><font><font>&amp;</font></font></pre>
+
+<p><font><font>imprimera les vingt lignes immédiatement après la ligne courante. </font><font>S'il n'y a pas vingt lignes avant la fin de la mémoire tampon, la commande "et" va imprimer à partir. "+ 1" jusqu'à la fin de la mémoire tampon, puis arrêter.</font></font></p>
+
+<p><font><font>Utilisation de "&amp;" est un moyen très pratique de la lecture à travers votre texte. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>1</font></font><font></font><font><font>
+&amp;</font></font></pre>
+
+<p><font><font>imprime la première ligne de votre texte, puis les lignes 2 à 21. Pour imprimer les vingt prochaines lignes, il suffit de taper "et" à nouveau. </font><font>De cette façon, vous pouvez regarder à travers un fichier en groupes de vingt lignes à la fois. </font><font>Cela est souvent plus souhaitable que de passer par une ligne à la fois avec &lt;cr&gt; (qui est lent) ou en passant par le fichier tout à la fois avec "* p" (ce qui rend les difficultés si vous arrive de travailler à un terminal CRT qui imprime plus vite que vous pouvez lire).</font></font></p>
+
+<p><font><font>Une autre forme d'adresse de ligne est entré comme "- et". </font><font>Ceci est équivalent à «.-20". </font><font>Si, par exemple, vous tapez
+</font></font></p>
+
+<pre><font><font>- &amp;&amp;</font></font></pre>
+
+<p><font><font>le "- et" nous dira FRED pour sauvegarder vingt lignes et la seconde "et" nous dira FRED d'imprimer une vingtaine de lignes. </font><font>Ainsi "- &amp;&amp;" imprime vingt lignes de texte se terminant par la ligne actuelle. </font><font>Ceci est très pratique si vous voulez lire ce que vous venez d'être en train de taper. Vous pouvez également dire</font></font></p>
+
+<pre><font><font>$ - &amp;&amp;</font></font></pre>
+
+<p><font><font>Cette commande imprime les vingt dernières lignes dans votre tampon, un bon moyen de voir où vous en étiez tapant votre texte si vous ne vous souvenez pas. </font></font></p>
+
+<h3><font><font>Remplacement Short Forms:</font></font></h3>
+
+<p><font><font>Nous avons mentionné que une commande comme </font></font></p>
+
+<pre><font><font>s / h / h /</font></font></pre>
+
+<p><font><font>tourne tous les "h" dans une ligne dans une minuscule «h», si le "h" original était majuscules ou en minuscules. </font><font>De la même manière,</font></font></p>
+
+<pre><font><font>s / h / H /</font></font></pre>
+
+<p><font><font>met tous les "h" en majuscules. </font></font></p>
+
+<p><font><font>Une façon plus courte de faire la même chose est avec le ZU (Zap Majuscules) et ZL (Zap Minuscules) commandes. </font></font></p>
+
+<pre><font><font>3,5zu / l /</font></font></pre>
+
+<p><font><font>mettra tous les "l" dans les lignes 3 à 5 inclusivement en majuscules. </font></font></p>
+
+<pre><font><font>$ Zl / j /</font></font></pre>
+
+<p><font><font>mettra tous les «j» dans la dernière ligne en minuscules. </font><font>Vous pouvez zapper le cas d'une chaîne de caractères. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>* Zu / fred /</font></font></pre>
+
+<p><font><font>fera tourner tous les "fred" dans votre tampon dans "FRED". </font><font>Il tire également "Fred", "fred", et ainsi de suite.</font></font></p>
+
+<p><font><font>Si vous ne spécifiez pas de chaîne après un ZL ou commande ZU, toute la ligne est mis en un cas ou l'autre. </font></font></p>
+
+<pre><font><font>* zl</font></font><font></font><font><font>
+17, $ zu</font></font></pre>
+
+<p><font><font>met d'abord toutes les lignes dans la mémoire tampon en minuscules, puis met les lignes 17 à la fin en majuscules. </font></font></p>
+
+<p><font><font>Tout comme la commande S donne une erreur si elle ne peut pas faire des substitutions, ZL et ZU donnent une erreur si elles ne changent pas le cas d'une lettre. </font></font></p>
+
+<p><font><font>Nous devons souligner que ZL et ZU changent seulement des lettres. </font><font>"Zu / 6 /" ne vous donne pas le caractère que vous obtiendrez sur votre terminal en tapant un "6" avec la touche de changement de vitesse. </font><font>ZL et ZU laissent simplement des caractères non alphabétiques seul. </font><font>Pour cette raison, "zu / 6 /" sera toujours obtenir une erreur, car il ne changera jamais rien. </font><font>la commande ne fait pas de changements à quoi que ce soit.</font></font></p>
+
+<p><font><font>Nous devons souligner que ZL et ZU sont vraiment les versions de la commande S déguisés. </font><font>Ainsi, vous pouvez utiliser tous les caractères spéciaux de modèle que nous avons parlé dans ZL et les commandes ZU, tout comme vous pouvez les utiliser dans les commandes S. </font><font>Ainsi</font></font></p>
+
+<pre><font><font>* Zu /^./</font></font></pre>
+
+<p><font><font>majuscule la première lettre de chaque ligne dans la mémoire tampon, et </font></font></p>
+
+<pre><font><font>^ Zl / a. * $ /</font></font></pre>
+
+<p><font><font>met toutes les lettres dans la ligne avant la ligne courante en minuscules, en commençant par le premier "a" dans la ligne et continue jusqu'à la fin de la ligne. </font></font></p>
+
+<p><font><font>Une autre forme courte qui peut être utilisé dans le cadre de substitutions est le modèle null "//". </font><font>Nous avons déjà mentionné que dans les recherches en ligne "//" se réfère à la dernière chaîne que vous recherchez. </font><font>En fait, "//" se réfère au dernier motif FRED a vu, que ce soit dans une recherche en ligne, une commande S, une commande de ZL, ou une commande ZU. </font><font>Ainsi</font></font></p>
+
+<pre><font><font>/Bonjour/</font></font><font></font><font><font>
+s // salut /</font></font></pre>
+
+<p><font><font>recherche une ligne contenant "bonjour", puis change "bonjour" à "salut". </font><font>Le "//" dans le motif partie de la commande S représente le dernier motif FRED a vu, et ce modèle est "bonjour". </font><font>De la même manière</font></font></p>
+
+<pre><font><font>zu / fred /</font></font><font></font><font><font>
+//</font></font></pre>
+
+<p><font><font>tourne "fred" dans la ligne courante dans "FRED" puis recherche pour la prochaine fois "fred" apparaît dans votre texte. </font></font></p>
+
+<p><font><font>Rappelez-vous, "//" se réfère au dernier motif FRED a vu, que ce soit dans un S, ZL, ZU, G, ou la recherche en ligne. </font><font>Si vous n'êtes pas sûr de ce que ce modèle est, vous pouvez utiliser la commande FE pour avoir FRED vous rappeler.</font></font></p>
+
+<p><font><font>Une autre forme courte utile dans le cadre de la commande S est "&amp;". </font><font>Quand un "&amp;" apparaît sur le côté droit d'une commande S, il est synonyme de la chaîne qui a été compensée par le côté gauche. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>s / abc / &amp; d /</font></font></pre>
+
+<p><font><font>va changer "abc" à "abcd" depuis le "&amp;" signifie "abc" dans ce cas. </font><font>La commande</font></font></p>
+
+<pre><font><font>s / xyz / &amp;&amp; /</font></font></pre>
+
+<p><font><font>va changer "xyz" à "xyzxyz" en raison des deux "et" caractères. </font></font></p>
+
+<p><font><font>Parce que "&amp;" a une signification spéciale sur le côté droit d'une commande S, vous devez utiliser un "\ C" pour désigner le caractère "&amp;" elle-même. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>s / esperluette / \ C &amp; /</font></font></pre>
+
+<p><font><font>change le mot "esperluette" dans le caractère "&amp;". </font><font>Saisir</font></font></p>
+
+<pre><font><font>s / esperluette / &amp; /</font></font></pre>
+
+<p><font><font>ne fera rien; </font><font>le mot "esperluette" sera remplacé par lui-même!</font></font></p>
+
+<p><font><font>Nous avons déjà mentionné qu'il est une bonne idée d'imprimer les résultats de chaque substitution que vous faites, juste pour faire en sorte que la substitution a fait ce que vous vouliez. </font><font>Vous pouvez gagner du temps en tapant le S et P commandes sur la même ligne que dans</font></font></p>
+
+<pre><font><font>s / ce / que / p</font></font></pre>
+
+<p><font><font>La commande S fait la substitution et de la commande P qui suit imprime la ligne actuelle. </font><font>Depuis la ligne courante est celle où vous venez de faire la substitution, le «p» imprime les résultats de la substitution. </font><font>Si vous essayez une commande comme
+</font></font></p>
+
+<pre><font><font>* S / ce / que / p</font></font></pre>
+
+<p><font><font>la seule ligne imprimée sera la dernière ligne dans laquelle «ceci» a été changé pour "que". </font><font>Le P imprime uniquement quelle que soit la ligne est en cours après la S est terminée. </font><font>Si vous souhaitez imprimer chaque ligne où une substitution est faite, vous devez utiliser une commande comme</font></font></p>
+
+<pre><font><font>g / cette / s / ce / que / p</font></font></pre>
+
+<p><font><font>Ceci est équivalent à </font></font></p>
+
+<pre><font><font>g / cette / s // que / p</font></font></pre>
+
+<h3><font><font>Short Forms pour lire et écrire:</font></font></h3>
+
+<p><font><font>FRED se souvient du nom du dernier fichier que vous avez utilisé soit dans une lecture ou d'écriture. </font><font>Pour voir le nom de ce fichier, utilisez la commande</font></font></p>
+
+<pre><font><font>F</font></font></pre>
+
+<p><font><font>qui signifie «faits». </font><font>Assurez-vous qu'il n'y a pas d'espace entre le "f" et &lt;cr&gt; immédiatement après. </font><font>FRED dira quelque chose comme</font></font></p>
+
+<pre><font><font>b (0) rvanwinkle / myfile</font></font></pre>
+
+<p><font><font>où "rvanwinkle" est votre nom d'utilisateur et "myfile" est le nom de votre fichier. </font><font>Nous allons vous expliquer ce que le "b (0)" signifie dans une section ultérieure.</font></font></p>
+
+<p><font><font>Il est également possible qu'il y ait un "?" </font><font>imprimé après le nom du fichier. </font><font>Cela signifie que vous avez changé votre tampon depuis la dernière fois que vous lisez un fichier ou écrit votre tampon sur. </font><font>Essentiellement donc, le "?" </font><font>signifie qu'il ya eu des modifications apportées à votre texte qui n'a pas été enregistré dans un fichier. </font><font>Ceci est juste un rappel que vous devez écrire votre texte pour conserver les modifications que vous avez apportées.</font></font></p>
+
+<p><font><font>Si vous voulez écrire votre texte pour le nom du fichier associé à votre mémoire tampon, vous ne devez pas taper ce nom dans la commande W. </font><font>Tout ce que vous avez à dire est</font></font></p>
+
+<pre><font><font>w</font></font></pre>
+
+<p><font><font>(Assurez-vous qu'il n'y a pas d'espace entre le "w" et &lt;cr&gt; qui vient après). </font><font>Si vous voulez lire le fichier associé à votre tampon, tout ce que vous avez à dire est</font></font></p>
+
+<pre><font><font>r</font></font></pre>
+
+<p><font><font>Si vous voulez lire ou écrire un fichier différent de celui associé à votre tampon, tout ce que vous avez à faire est de spécifier le nom de fichier approprié dans votre R ou commande W comme nous l'avons décrit précédemment. </font><font>S'il n'y a pas adresses de lignes spécifiées pour R ou W commande, le nom du fichier associé à votre tampon sera changé à ce nouveau nom.</font></font></p>
+
+<p><font><font>Vous pouvez également modifier le nom du fichier associé à votre tampon en disant </font></font></p>
+
+<pre><font><font>f / newfile</font></font></pre>
+
+<p><font><font>Cela va changer le nom de fichier associé à "/ newfile". </font><font>La prochaine fois que vous faites une lecture ou d'écriture en utilisant seulement "r" ou "w", FRED utilisera "rvanwinkle / newfile" pour l'opération.</font></font></p>
+
+<h3><font><font>Exercice 7:</font></font></h3>
+
+<p><font><font>Lire dans un fichier et utilisez la commande F pour vérifier que le nom du fichier est associé à votre tampon. </font><font>Faire quelques substitutions dans le texte, en utilisant le caractère "&amp;" et le motif null "//". </font><font>Essayez aussi le ZL et les commandes ZU. </font><font>Imprimez votre fichier sur le terminal en utilisant le caractère "&amp;" d'adresse de ligne. </font><font>Utilisez des modèles de recherche de ligne traite en ligne pour les commandes de S.</font></font></p>
+
+<h3><font><font>Tampons multiples:</font></font></h3>
+
+<p><font><font>Jusqu'à présent, nous avons toujours travaillé avec un seul tampon. </font><font>FRED vous permet d'avoir autant de tampons que vous le souhaitez. </font><font>Chaque nouveau tampon est exactement comme celle du tampon vous avez utilisé tout le long. </font><font>Chaque tampon peut contenir un grand nombre de lignes. </font><font>Chaque tampon a une ligne qui est la ligne courante ".". </font><font>Chaque tampon peut avoir un nom de fichier qui lui est associé pour la lecture et l'écriture.</font></font></p>
+
+<p><font><font>Pour créer un nouveau tampon, tout ce que vous avez à faire est de penser à un nom (par exemple, "mybuff") et tapez la commande </font></font></p>
+
+<pre><font><font>b (mybuff)</font></font></pre>
+
+<p><font><font>(Où B représente naturellement Buffer). </font><font>Notez que le nom du nouveau tampon est entre parenthèses. </font><font>Un nom de tampon peut être jusqu'à seize caractères, mais partout où le nom est utilisé, il doit être contenue entre parenthèses. </font><font>Habituellement, nous pensons que des parenthèses dans le nom de la mémoire tampon.</font></font></p>
+
+<p><font><font>Supposons maintenant que vous avez donné FRED la commande B ci-dessus. </font><font>Qu'est-ce qui se passe si vous essayez "* p"? </font><font>Vous verrez que vous aurez un message d'erreur. </font><font>Pourquoi? </font><font>Parce que vous avez entré un nouveau tampon et il n'y a rien dans ce tampon pour imprimer encore! </font><font>Vous pourriez dire que vous aviez beaucoup de texte dans votre ancien tampon, et cela peut être parfaitement vrai. </font><font>Lancement d'une commande B est comme dire FRED de mettre de côté un tampon et de regarder une autre, tout comme vous pourriez mettre de côté un morceau de papier quand vous voulez travailler sur un autre. </font><font>Vous ne pouvez travailler sur un morceau de papier à la fois, et FRED ne pouvez travailler avec un tampon à la fois. </font><font>Comme un morceau de papier qui a été mis de côté, le vieux tampon est encore quelque part; </font><font>vous ne vous avez pas devant vous pour le moment. </font><font>En ce qui concerne FRED, il n'y a qu'un tampon sur les nombreux tampons que vous pourriez avoir créé ce qui est "le tampon courant". </font><font>Vous pouvez changer les tampons actuels en utilisant la commande B, mais vous ne pouvez pas avoir plus d'un tampon en face de vous à la fois.</font></font></p>
+
+<p><font><font>Lorsque vous entrez FRED, vous êtes automatiquement donné un tampon appelé "(0)". </font><font>Rappelez-vous le "b (0)" qui a été imprimé par la commande F ainsi que le nom du fichier associé au tampon? </font><font>Cela a été tout simplement dire ce que le nom de votre tampon courant était. </font><font>Si vous tapez</font></font></p>
+
+<pre><font><font>b (mybuff)</font></font><font></font><font><font>
+F</font></font></pre>
+
+<p><font><font>FRED répondra </font></font></p>
+
+<pre><font><font>b (mybuff)</font></font></pre>
+
+<p><font><font>Il ne sera pas imprimé sur un nom de fichier parce que ce nouveau tampon n'a pas de nom de fichier encore associé. </font></font></p>
+
+<p><font><font>Vous pouvez utiliser le nouveau tampon de la même façon que vous avez utilisé l'ancien. </font><font>Vous pouvez lire dans les fichiers, écrire votre texte, ajouter, modifier, supprimer, faire des substitutions, et ainsi de suite. </font><font>Ces commandes ne toucheront que votre nouveau tampon; </font><font>comme nous le disions, votre ancien tampon est hors de l'image pour le moment. </font><font>Bien sûr, vous pouvez toujours revenir à l'ancien tampon en disant simplement</font></font></p>
+
+<pre><font><font>b (0)</font></font></pre>
+
+<p><font><font>Cette commande vous remis en mémoire tampon "(0)" exactement au même endroit que vous étiez lorsque vous avez quitté - votre ligne actuelle sera exactement la même chose que ce qu'elle était avant vous avez émis le "b (mybuff)" commande. </font><font>En outre, si vous revenez à "(mybuff)" vous verrez que (mybuff) de la ligne actuelle est la même que celle lors de la dernière quitté le tampon. </font><font>FRED se souvient où son doigt était pointé dans un tampon à chaque fois que vous revenez à un tampon.</font></font></p>
+
+<p><font><font>Vous pourriez vous demander pourquoi vous auriez besoin d'avoir plus d'un tampon quand vous pouvez faire beaucoup d'édition avec un seul tampon. </font><font>Une application peut être si vous vous préparez un texte qui peut être divisé en plusieurs parties, par exemple un document avec plusieurs sections à lui, un programme d'ordinateur avec plusieurs sous-programmes, ou des données provenant de plusieurs sources différentes. </font><font>Si vous gardez chaque partie dans un tampon séparé vous pouvez les modifier séparément (qui tend à être plus rapide car FRED travaille avec des fichiers plus petits) et pourtant vous avez encore toutes les pièces disponibles si vous voulez faire référence de l'un à l'autre.</font></font></p>
+
+<p><font><font>Si vous travaillez dans une mémoire tampon et que vous souhaitez imprimer une autre, vous pouvez utiliser la commande ZP (Zap Imprimer). </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>zp (part5)</font></font></pre>
+
+<p><font><font>va imprimer le contenu du tampon "(Part5)" quel que soit le tampon que vous avez en cours. </font><font>Bien sûr, vous pouvez également passer à tampon "(part5)" en utilisant la commande B, regardez ce que vous voulez, et revenir à la mémoire tampon où vous travaillez.</font></font></p>
+
+<h3><font><font>Transfert texte d'un tampon à un autre:</font></font></h3>
+
+<p><font><font>Alors que la plupart des commandes de FRED ne fonctionnent que sur le tampon courant, certains vous permettent de déplacer du texte d'un tampon à un autre. </font><font>Le premier est le commandement M (Move). </font><font>Dactylographie</font></font></p>
+
+<pre><font><font>3,5m (lignes)</font></font></pre>
+
+<p><font><font>déplace les lignes 3 à 5 inclus sur le tampon courant (quel qu'il soit) dans un tampon appelé "(lignes)". </font><font>Si "(lignes)" n'a pas été créée avant, cette commande va créer le tampon. </font><font>Si "(lignes)" était autour de vous avant lancé la commande de mouvement, tout texte qui était en "(lignes)" précédemment est effacé que le nouveau texte est déplacé dans. Ainsi, vous devez être prudent que vous ne déplacez pas les lignes en un tampon qui contient déjà du texte que vous souhaitez conserver. </font><font>Vous pouvez également déplacer une seule ligne, comme dans</font></font></p>
+
+<pre><font><font>$ M (fin)</font></font></pre>
+
+<p><font><font>qui se déplace la dernière ligne du tampon courant dans un tampon appelé "(fin)". </font><font>Tout ce qui était auparavant "(fin)" est effacé dans le processus.</font></font></p>
+
+<p><font><font>La commande Déplacer est pratique si vous avez une grande quantité de texte que vous voulez diviser en sections. </font><font>Supposons vos sections finissent tous avec les mots «fin de l'article". </font><font>Vous pouvez taper une série de commandes comme</font></font></p>
+
+<pre><font><font>1, / fin de la section / m (section1)</font></font><font></font><font><font>
+1, / fin de la section / m (section2)</font></font><font></font><font><font>
+1, / fin de la section / m (section3)</font></font></pre>
+
+<p><font><font>et ainsi de suite pour briser votre texte. </font><font>Notez qu'une fois que la section 1 a été déplacé sur la ligne 1 de votre tampon courant sera la première ligne de la section 2. Lorsque la section 2 est parti, la ligne 1 sera la première ligne de la section 3. Ainsi, la section suivante pour déplacer sera toujours commencer à la ligne 1 et se terminent à des mots «fin de l'article".</font></font></p>
+
+<p><font><font>La commande K (Kopy) est similaire à la commande M, sauf qu'il copie des lignes de texte à partir de la mémoire tampon en cours au lieu de les déplacer. </font><font>Ainsi</font></font></p>
+
+<pre><font><font>^,. + 3k (salut maman)</font></font></pre>
+
+<p><font><font>copie des lignes ".-1" à ". + 3" dans un tampon appelé "(maman salut)". </font><font>Tout ce qui était en "(salut maman)" précédemment est effacé que les lignes sont copiées. Vous pouvez également copier une seule ligne comme dans</font></font></p>
+
+<pre><font><font>- &amp; K (frodo)</font></font></pre>
+
+<p><font><font>où la ligne ".-20" est copiée dans un tampon appelé "(frodo)". </font></font></p>
+
+<p><font><font>Les commandes M et K effacent le contenu d'un tampon où les lignes sont déplacés ou copiés. </font><font>Souvent, vous voulez être en mesure de déplacer les lignes d'un tampon dans un autre tout en conservant le contenu du second tampon intact. </font><font>Une commande qui fait cela est la commande ZA (Zap Append).</font></font></p>
+
+<pre><font><font>$ Za (choses)</font></font></pre>
+
+<p><font><font>ajoute le contenu du tampon "(substance)" immédiatement après la dernière ligne du tampon courant. </font><font>Le texte "(choses)" ne change pas du tout. </font><font>Tout comme nous avons utilisé la commande M pour briser un rapport en sections il y a un peu de temps, nous pouvons remonter le rapport en utilisant Zap Append. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>b (FullReport)</font></font><font></font><font><font>
+$ Za (section1)</font></font><font></font><font><font>
+$ Za (section2)</font></font><font></font><font><font>
+$ Za (section3)</font></font></pre>
+
+<p><font><font>et ainsi de suite crée une version assemblée du rapport dans un tampon appelé "(FullReport)". </font><font>(Dans le cas où vous êtes intéressé, voici comment les sections de ce tutoriel ont été assemblés dans le produit final.)</font></font></p>
+
+<h3><font><font>Le commandement FB:</font></font></h3>
+
+<p><font><font>Maintenant, vous demandez peut-être comment vous allez garder une trace de tous les tampons que vous avez créés lors de l'édition. </font><font>La réponse est simple: FRED garde la trace pour vous! </font><font>Type Tout</font></font></p>
+
+<pre><font><font>fb</font></font></pre>
+
+<p><font><font>(Pour «Faits sur Tampons») et FRED listera les informations suivantes: le nom de chaque tampon qui a quelque chose en elle, en commençant par le tampon courant; </font><font>la valeur de "." </font><font>dans chaque mémoire tampon; </font><font>la valeur de «$» dans chaque tampon; </font><font>le nom du fichier associé à chaque tampon; </font><font>et si un tampon est discutable ou non (à savoir si le tampon a été modifié depuis la dernière lecture ou écriture). </font><font>Par exemple, vous pourriez avoir</font></font></p>
+
+<pre><font><font>fb</font></font><font></font><font><font>
+b (henry) 23,45 rvanwinkle / snore1</font></font><font></font><font><font>
+b (hudson) 66,66 rvanwinkle / snore2?</font></font></pre>
+
+<p><font><font>Cela dit que votre tampon courant est nommé "(henry)", que votre ligne actuelle est 23, qu'il ya 45 lignes dans ce tampon tout à fait, et que le nom de fichier associé à ce tampon est "rvanwinkle / snore1". </font><font>Vous avez également un second tampon appelé "(hudson)". </font><font>Sa ligne courante est la dernière ligne de la mémoire tampon, la ligne 66. Le nom de fichier associé avec le tampon "(hudson)" est "rvanwinkle / snore2" et le "?" </font><font>signifie que vous avez modifié le contenu de "(hudson)" depuis la dernière fois que vous avez lu ou écrit "snore2".</font></font></p>
+
+<h3><font><font>ZM et ZK:</font></font></h3>
+
+<p><font><font>Les dernières commandes que nous allons discuter dans cette section sont ZM (Zap Move) et ZK (Zap Kopy). </font><font>ZM déplace les lignes du tampon courant et les ajoute après "." </font><font>dans un autre tampon. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>4, $ zm (déjeuner)</font></font></pre>
+
+<p><font><font>se déplace toutes les lignes du tampon courant de la ligne 4 à la fin dans un tampon appelé "(déjeuner)". </font><font>Ainsi, le tampon courant sera laissé avec seulement trois lignes. </font><font>Comme pour "(déjeuner)", les lignes qui sont déplacées en sont ajoutés après la ligne courante, quelle que soit cette ligne est. </font><font>La commande FB est un bon moyen de découvrir ce que la ligne actuelle "(déjeuner)" est. </font><font>Bien sûr,</font></font></p>
+
+<pre><font><font>b (déjeuner)</font></font><font></font><font><font>
+p</font></font></pre>
+
+<p><font><font>aussi vous dire ce que la ligne actuelle est, en allant dans le déjeuner et l'impression de ce que la ligne est en cours. </font></font></p>
+
+<p><font><font>La commande ZK est similaire à ZM, sauf que les lignes données sont copiées à partir du tampon courant, pas déplacé à l'endroit. </font></font></p>
+
+<pre><font><font>&amp; Zk (albatros)</font></font></pre>
+
+<p><font><font>copie les vingt prochaines lignes du tampon courant dans un tampon appelé "(albatros)", ajoutant les lignes copiées immédiatement après la ligne actuelle »(albatros)". </font></font></p>
+
+<h3><font><font>Cesser avec Tampons multiples:</font></font></h3>
+
+<p><font><font>Vous vous souviendrez que FRED ne vous laisserait pas quitter avec "q" quand vous avez eu un seul tampon qui n'a pas été écrit dans un fichier depuis sa dernière modification. </font><font>Si vous avez plus d'un tampon, FRED ne vous permettra pas de quitter avec "q" Si l'un de vos tampons ont été modifiés depuis leur dernière lecture ou écrite. </font><font>Encore une fois, la raison en est simple: FRED suppose que vous ne seriez pas apporter des modifications à votre texte si vous ne souhaitez pas conserver ces modifications sur le fichier.</font></font></p>
+
+<p><font><font>Toutefois, les choses ne sont pas toujours facile de garder une trace de multiples tampons. </font><font>Vous pouvez apporter des modifications dans une mémoire tampon, transférer ce texte à un autre tampon en utilisant K, M, ZA, ZM, ou ZK, puis écrire le deuxième tampon. </font><font>Vos changements ont été conservés, mais FRED ne le réalise pas.</font></font></p>
+
+<p><font><font>Si vous essayez de quitter avec "q" et FRED ne vous laissera pas, utilisez la commande FB pour voir si vous avez des tampons contenant du texte qui n'a pas encore été conservée dans le dossier. </font><font>Si vous êtes certain que vous avez enregistré tout ce que vous voulez enregistrer, puis la commande</font></font></p>
+
+<pre><font><font>qq</font></font></pre>
+
+<p><font><font>dira FRED de quitter, même si certains de vos tampons sont marqués d'un "?" </font><font>dans votre liste de FB.</font></font></p>
+
+<p><font><font>Nous vous recommandons d'éviter d'utiliser "qq" du tout, et certainement jamais l'utiliser avant que vous avez utilisé la commande FB pour vous assurer que vous avez enregistré tout ce dont vous avez besoin. </font><font>Si vous prenez l'habitude d'utiliser "qq", tôt ou tard, vous êtes lié à quitter avant que vous avez enregistré quelque chose d'important et cela signifie que vous aurez à faire beaucoup de travail encore une fois. </font><font>Pas même la commande V peut vous aider si vous faites ce genre d'erreur.</font></font></p>
+
+<h3><font><font>Exercice 8:</font></font></h3>
+
+<p><font><font>Créer un certain nombre de tampons avec des noms de votre choix et de mettre un texte en les utilisant R et A. Utilisez FB pour lister les tampons que vous avez créés. </font><font>Transfert texte d'un tampon à un autre en utilisant M, K, ZA, ZM, et ZK. </font><font>Ne pas oublier que vous pouvez imprimer le contenu d'un tampon avec la commande ZP. </font><font>Après chaque transfert de texte, vérifier pour voir ce qui est arrivé à "." </font><font>dans votre tampon courant.</font></font></p>
+
+<h3><font><font>options:</font></font></h3>
+
+<p><font><font>L'utilisateur dispose d'un certain choix d'options pour contrôler la façon dont FRED fonctionne. </font><font>Jusqu'à présent, nous avons supposé que vous avez utilisé le standard (par défaut) options pour FRED. </font><font>Dans cette section, nous allons décrire quelques-unes des façons dont vous pouvez changer la façon dont fonctionne FRED.</font></font></p>
+
+<h3><font><font>Pagination:</font></font></h3>
+
+<p><font><font>Pour les gros travaux d'impression comme "* p" et "fb" (si vous avez beaucoup de tampons), il est souvent commode d'être en mesure d'avoir FRED imprimer un petit nombre de lignes, puis attendez jusqu'à ce que vous indiquez que vous avez lu ce qui a été imprimé et sont prêts à voir plus. </font></font></p>
+
+<p><font><font>La façon d'avoir FRED faire est de taper quelque chose comme </font></font></p>
+
+<pre><font><font>o + p20</font></font></pre>
+
+<p><font><font>Le "o" signifie Option, le "+ p" dit allumer la pagination, et le "20" signifie que vous veut pages qui sont vingt longues lignes (ce qui est de la taille de nombreux écrans CRT). </font><font>Bien sûr, vous pouvez spécifier un nombre quelconque à la place du "20".</font></font></p>
+
+<p><font><font>Maintenant, quand vous faites un "* p", FRED imprimera vingt lignes et faire une pause. </font><font>Pour obtenir les vingt prochaines lignes, il suffit de taper un &lt;cr&gt;. </font><font>De cette façon, vous pouvez lire le texte dans votre tampon courant vingt lignes à la fois. </font><font>Si vous voulez arrêter cette impression avant d'arriver à la fin de votre texte, il suffit de taper autre qu'un &lt;cr&gt; quoi que ce soit. </font><font>FRED émet un bip, tapez un "?", Puis prendre toute nouvelle commande que vous lui donnez. </font><font>Lorsque FRED est en pause au milieu de l'impression comme ça, le curseur de votre terminal n'avancer d'une ligne au-delà de la dernière ligne imprimée; </font><font>lorsque FRED fin de l'impression, il avancera. </font><font>Ceci est le moyen de dire si FRED est fini ou tout simplement vous attend pour lui dire de continuer.</font></font></p>
+
+<p><font><font>Utilisation de "o + p" pour définir cette "pagesize" affecte également l'utilisation de "&amp;" comme une adresse de ligne. </font><font>Lorsque le pagesize est réglé, "&amp;" a le sens ". + 1,. + Pagesize". </font><font>Ainsi, si vous vous définissez un pagesize de dix lignes avec</font></font></p>
+
+<pre><font><font>o + p10</font></font></pre>
+
+<p><font><font>"&amp;" Serait équivalent à ". + 1,. + 10".
+</font></font></p>
+
+<p><font><font>Si vous souhaitez modifier le pagesize à tout moment, tout ce que vous avez à faire est de taper "o + p» suivi par le pagesize que vous voulez. </font><font>Si pour une raison quelconque vous souhaitez désactiver cette fonctionnalité de pagination, tapez simplement</font></font></p>
+
+<pre><font><font>op</font></font></pre>
+
+<p><font><font>et FRED retournera à sa méthode précédente d'impression. </font></font></p>
+
+<h3><font><font>Options cordes:</font></font></h3>
+
+<p><font><font>Nous avons dit précédemment que FRED ne se soucie pas de savoir si les lettres sont en majuscules ou en minuscules dans les recherches en ligne et sur le côté gauche de commandes S. </font><font>Si vous voulez FRED de prêter attention à la casse des lettres dans ces situations, le type</font></font></p>
+
+<pre><font><font>o-sd</font></font></pre>
+
+<p><font><font>(Où les "-" est synonyme de "désactiver" et le "sd" pour "string dualité"). </font><font>A partir de ce moment-là, FRED portera son attention sur le cas de lettres: "/ cette /" ne correspondra "this" et non "CE", "ça", et ainsi de suite. </font><font>La commande</font></font></p>
+
+<pre><font><font>o + sd</font></font></pre>
+
+<p><font><font>tourne sur "la dualité de chaîne" à nouveau et FRED sera une fois de plus ignorer le cas de lettres. </font></font></p>
+
+<p><font><font>Nous avons déjà mentionné que vous pouvez dire FRED ignorer la signification spéciale des caractères de modèle comme "^" et "$" en utilisant "\ C". </font><font>Cependant, "\ C" ne fonctionne qu'une fois, pour le caractère de modèle suivant immédiatement. </font><font>Si vous souhaitez désactiver une signification spéciale d'un caractère de modèle en permanence, vous pouvez dire (par exemple)</font></font></p>
+
+<pre><font><font>os ^</font></font></pre>
+
+<p><font><font>Cela dit FRED d'oublier la signification spéciale de "^" dans les commandes S et les recherches en ligne. </font><font>Avec cette option, une recherche en ligne comme "/ ^ /" va chercher le caractère "^", pas le début d'une ligne. </font><font>Vous pouvez désactiver comme bon nombre de ces caractères spéciaux que vous voulez. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>os $. *</font></font></pre>
+
+<p><font><font>désactive les significations de motif spécial de "$", "." </font><font>et "*". </font><font>Pour activer ces significations particulières à nouveau, le type</font></font></p>
+
+<pre><font><font>o + s ^ $. *</font></font></pre>
+
+<p><font><font>ou toute combinaison des caractères spéciaux que vous voulez. </font></font></p>
+
+<p><font><font>Le dernier caractère spécial dont nous avons parlé dans le cadre de la commande S était "&amp;", debout pour la chaîne qui a été compensée par la commande S. </font><font>Si vous souhaitez désactiver cette signification spéciale,</font></font></p>
+
+<pre><font><font>os &amp;</font></font></pre>
+
+<p><font><font>fera l'affaire. </font><font>Une fois que vous avez émis cette commande,</font></font></p>
+
+<pre><font><font>s / xyz / &amp;&amp; /</font></font></pre>
+
+<p><font><font>tournera "xyz" dans "&amp;&amp;", pas "xyzxyz" comme avant. </font><font>Pour activer la signification spéciale de "et" de retour sur, l'utilisation</font></font></p>
+
+<pre><font><font>o + s &amp;</font></font></pre>
+
+<h3><font><font>Options d'entrée:</font></font></h3>
+
+<p><font><font>Si vous ne voulez pas le "&gt;" que FRED utilise pour demander la saisie de texte après A, C, ou des commandes I, vous pouvez désactiver cette invite avec la commande </font></font></p>
+
+<pre><font><font>o-ia</font></font></pre>
+
+<p><font><font>Cela signifie ne demande pas d'entrée lors de l'ajout. </font><font>Si vous préférez FRED dire autre chose lors de la demande pour le texte (par exemple, "le texte, se il te plaît&gt;"), vous pouvez lui dire de le faire avec la commande</font></font></p>
+
+<pre><font><font>o + ia / texte, s'il vous plaît -&gt; /</font></font></pre>
+
+<p><font><font>A partir de maintenant, FRED tapera </font></font></p>
+
+<pre><font><font>du texte, se il te plaît&gt;</font></font></pre>
+
+<p><font><font>quand il est prêt pour une autre ligne de saisie de texte. </font><font>Touchez-dactylographes trouvent souvent pratique d'utiliser la &lt;cloche&gt; (contrôle g) comme caractère prompt - de cette façon, FRED émet un bip quand il est prêt à prendre plus de texte et vous ne pas avoir à garder les yeux sur l'écran pour une invite visuelle. </font><font>Si vous avez désactivé incitant, FRED va juste donner une ligne d'alimentation quand il est prêt pour plus d'entrée de texte.</font></font></p>
+
+<p><font><font>Si vous ne voulez pas "\" comme caractère d'échappement (certains terminaux n'ont même pas un "\"), vous pouvez changer votre caractère d'échappement en utilisant la commande "O + IE". </font><font>Par exemple,
+</font></font></p>
+
+<pre><font><font>o + ie '</font></font></pre>
+
+<p><font><font>définit votre caractère d'échappement pour '. </font><font>Quel que soit votre caractère d'échappement, rappelez-vous que vous devez taper deux d'entre eux pour représenter le caractère lui-même. </font><font>Lorsque FRED voit un seul caractère d'évasion, il suppose que vous construisez un de ces symboles spéciaux qui se composent du caractère d'échappement suivi d'une autre lettre. </font><font>Si vous changez votre caractère d'échappement pour ', rappelez-vous aussi que vous devez taper «F», «C», etc. à partir de là.</font></font></p>
+
+<h3><font><font>Tabs:</font></font></h3>
+
+<p><font><font>Si votre terminal ne dispose pas d'une touche de tabulation, vous pouvez toujours mettre des onglets dans votre texte en tapant "&lt;commande&gt; i" où &lt;commande&gt; est la clé "de contrôle" de votre terminal (maintenez enfoncée la touche CTRL et puis tapez " je"). </font><font>FRED sera également vous permettre de taper dans un onglet comme "\", le backslash suivi d'un espace. </font><font>Les magasins d'ordinateurs chaque onglet comme &lt;onglet&gt; caractère, le même que tout autre personnage comme "a" ou "!". </font><font>Cependant, FRED est assez intelligent pour développer une &lt;tab&gt; caractères dans le nombre correct d'espaces quand il types de lignes sur votre terminal, à condition que vous lui dites ce que le nombre exact de places est.</font></font></p>
+
+<p><font><font>Lorsque vous entrez FRED, tabulations sont fixés tous les quatre colonnes le long de la ligne, à savoir dans les colonnes 5, 9, 13, 17, etc. Vous pouvez modifier cette disposition en utilisant la commande "T O +". </font></font></p>
+
+<p><font><font>La forme la plus simple de cette commande est juste "O + T &lt;n&gt;" où &lt;n&gt; est un nombre. </font><font>Cet onglet jeux de commandes arrête toutes les &lt;n&gt; colonnes le long d'une ligne, à partir de &lt;n&gt; +1. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>o + t6</font></font></pre>
+
+<p><font><font>ensembles de tabulation dans les colonnes 7, 13, 19, 25, etc. </font></font></p>
+
+<p><font><font>Une deuxième façon de définir les taquets de tabulation est de préciser les numéros explicitement. </font><font>Par exemple,</font></font></p>
+
+<pre><font><font>o + t5,10,15,20,24</font></font></pre>
+
+<p><font><font>définit des arrêts dans les colonnes 5, 10, 15, 20 et 24 (naturellement!). </font><font>En outre, cependant, FRED prend la différence entre les deux derniers chiffres et fixe tabulation tout au long du reste de la ligne à des intervalles de cette différence. </font><font>Puisque la différence entre 20 et 24 est 4, la commande ci-dessus serait également définir des taquets de tabulation dans les colonnes 28, 32, 36, 40, etc. Si vous voulez tabulation SEULEMENT dans les lignes que vous spécifiez, vous devez taper deux fois le dernier numéro (de sorte que la différence entre les deux derniers nombres est égale à zéro). </font><font>Ainsi</font></font></p>
+
+<pre><font><font>o + t5,10,10</font></font></pre>
+
+<p><font><font>définit les onglets dans les colonnes SEULEMENT 5 et 10, tandis que </font></font></p>
+
+<pre><font><font>o + t5,10</font></font></pre>
+
+<p><font><font>définit les onglets dans les colonnes 5, 10, 15, 20, etc. </font></font></p>
+
+<p><font><font>Les taquets de tabulation sont locaux à chaque tampon. </font><font>Cela signifie que différents tampons peuvent avoir des taquets de tabulation. </font><font>Lorsque vous créez un tampon en utilisant B, K ou M, le nouveau tampon hérite sa tabulation du tampon courant. </font><font>Une fois que la mémoire tampon est créé cependant, vous pouvez utiliser la commande "O + T" pour définir de nouveaux onglets.</font></font></p>
+
+<p><font><font>Rappelez-vous, l'onglet cesse fixé par "O + T" seulement dire FRED comment formater une ligne quand il imprime quelque chose à votre terminal. </font><font>A l'intérieur de l'ordinateur, les onglets sont stockés sous forme &lt;onglet&gt; caractères, pas le nombre correct d'espaces. </font><font>Si vous souhaitez activer les onglets dans les espaces, la commande</font></font></p>
+
+<pre><font><font>zo</font></font></pre>
+
+<p><font><font>zap vos caractères de tabulation et de les convertir dans le bon nombre de caractères d'espace. </font><font>D'autre part, si vous voulez transformer des espaces en onglets, vous pouvez utiliser la commande ZI (Zap In) en tapant simplement</font></font></p>
+
+<pre><font><font>zi</font></font></pre>
+
+<p><font><font>Pour dire FRED ne pas étendre les onglets dans les espaces lors de l'impression à la borne, vous pouvez utiliser l'instruction </font></font></p>
+
+<pre><font><font>ot</font></font></pre>
+
+<p><font><font>Une fois FRED voit cela, il commencera onglets d'impression que &lt;&gt; onglet caractères plutôt que le nombre approprié d'espaces. </font><font>Qu'est-ce qui se passe dans ce cas dépend de votre terminal. </font><font>Certains terminaux print &lt;tab&gt; onglet caractères comme des espaces simples, certains terminaux ont préréglé arrête, et certains terminaux n'imprimer des onglets du tout.</font></font></p>
+
+<h3><font><font>Le commandement FO:</font></font></h3>
+
+<p><font><font>Dactylographie </font></font></p>
+
+<pre><font><font>fo</font></font></pre>
+
+<p><font><font>(Faits sur Options) fourniront une liste des options qui sont actuellement en vigueur dans FRED. </font><font>On n'a pas décrit toutes les options disponibles par tous les moyens, et donc quelques-unes des lignes qui imprime FO peuvent ne pas signifier grand-chose à vous. </font><font>L'ensemble complet d'options FRED disponibles sont décrites dans le Manuel de référence FRED.</font></font></p>
+
+<h3><font><font>Conclusion:</font></font></h3>
+
+<p><font><font>Si vous avez lu ce tutoriel, fait les exercices, et expérimenté avec FRED sur votre propre, vous êtes très bien équipé pour faire à peu près tout travail d'édition que vous voulez. </font><font>Maintenant est le moment où nous vous disons que vous avez à peine effleuré la surface des capacités de FRED. </font><font>Les annexes de ce tutoriel va vous en dire un peu plus sur la langue; </font><font class="goog-text-highlight">cependant, pour découvrir le plein potentiel de FRED, vous devrez obtenir une copie du manuel de référence FRED et le lire. </font><font>Le manuel de référence est écrite à un niveau un peu plus avancé que ce tutoriel, mais maintenant que vous êtes un utilisateur expérimenté FRED, vous devriez avoir aucun problème à ramasser les nombreuses fonctionnalités que nous avons pas eu le temps de décrire ici.</font></font></p>
+
+<p><font><font>En plus du Manuel de référence, il y a aussi un tutoriel avancé qui vous apprendra à écrire des </font><font>programmes tampons FRED. </font><font>Ce manuel est disponible en tapant " </font></font><a href="http://www.thinkage.ca/english/gcos/expl/fred/buff/manu.html"><font><font>tampons expl fred</font></font></a><font><font> ". </font><font class="">Ce tutoriel avancé couvre un bon nombre de </font><font class="">commandes que nous avons pas eu le </font><font class="">temps de mentionner ici - toute personne qui va utiliser FRED au - </font><font class="">delà du niveau primaire devrait vraiment lire le guide de tampon.</font></font></p>
+
+<p><font><font>Que vous utilisiez FRED pour l'édition simple, ou quelque chose de plus fantaisistes, nous espérons que ce guide a fait votre travail plus facile. </font><font>Bonne chance!</font></font></p>
+
+<h1><font><font>Annexe A: FORMATS pour des caractères</font></font></h1>
+
+<p><font><font>Certains des personnages reconnus par FRED ne sont pas disponibles sur certains terminaux. </font><font>FRED vous permet de construire d'autres formes de ces personnages avec votre caractère d'échappement suivi d'un autre caractère. </font><font>Ci-dessous, nous listons les formats de caractères alternatives acceptées par FRED.</font></font></p>
+
+<dl>
+    <dt><font><font>\UNE </font></font></dt>
+    <dd><font><font>@ (Commercial au signe) </font></font></dd>
+    <dt><font><font>\G </font></font></dt>
+    <dd><font><font>(cloche) </font></font></dd>
+    <dt><font><font>\ H </font></font></dt>
+    <dd><font><font>(Espace arrière) </font></font></dd>
+    <dt><font><font>\\ </font></font></dt>
+    <dd><font><font>\ (Backslash) </font></font></dd>
+    <dt><font><font>\ ( </font></font></dt>
+    <dd><font><font>{(Accolade gauche) </font></font></dd>
+    <dt><font><font>\) </font></font></dt>
+    <dd><font><font>} (Accolade droite) </font></font></dd>
+    <dt><font><font>\! </font></font></dt>
+    <dd><font><font>| </font><font>(Ou bar)</font></font></dd>
+    <dt><font><font>\ = </font></font></dt>
+    <dd><font><font>~ (Tilde ou non signer) </font></font></dd>
+    <dt><font><font>\ _ </font></font></dt>
+    <dd><font><font>`(Accent grave) </font></font></dd>
+    <dt><font><font>\ </font></font></dt>
+    <dd><font><font>&lt;Tab&gt; (échapper à vide) </font></font></dd>
+    <dt><font><font>\; </font></font></dt>
+    <dd><font><font>&lt;Retour chariot&gt; </font></font></dd>
+    <dt><font><font>\ ddd </font></font></dt>
+    <dd><font><font>caractère ASCII ddd (octal) </font></font></dd>
+</dl><div id="goog-gt-tt" class="goog-tooltip skiptranslate" dir="ltr" style="visibility: visible; left: 1107px; top: 24860px; display: block;"><div style="padding: 8px;"><div><div class="logo"><img src="./FRED Text Editor Guide Tutorial_files/translate_24dp.png" width="20" height="20"></div></div></div><div class="top" style="padding: 8px; float: left; width: 100%;"><h1 class="title gray">Texte d'origine</h1></div><div class="middle" style="padding: 8px;"><div class="original-text">however, to find out about FRED's full potential, you'll have to get a copy of the FRED Reference Manual and read it.</div></div><div class="bottom" style="padding: 8px;"><div class="activity-links"><span class="activity-link">Proposer une meilleure traduction</span><span class="activity-link"></span></div><div class="started-activity-container"><hr style="color: #CCC; background-color: #CCC; height: 1px; border: none;"><div class="activity-root"></div></div></div><div class="status-message" style="display: none; opacity: 0;"></div></div>
+
+
+
+
+</body></html>
