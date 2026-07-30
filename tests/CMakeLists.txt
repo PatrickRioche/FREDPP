@@ -19,6 +19,7 @@ fredpp_add_test(test_command_parser test_command_parser.cpp)
 fredpp_add_test(test_runtime_context test_runtime_context.cpp)
 fredpp_add_test(test_command_executor test_command_executor.cpp)
 fredpp_add_test(test_append test_append.cpp)
+fredpp_add_test(test_insert test_insert.cpp)
 
 add_test(NAME cli_smoke COMMAND fredpp --version)
 set_tests_properties(cli_smoke PROPERTIES

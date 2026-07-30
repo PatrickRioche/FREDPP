@@ -1,74 +1,60 @@
-# FREDPP — Sprint 2.2 — Commande I (Insert)
+# FREDPP — Sprint 2.3 — Commande I (Insert)
 
 ## Objectif
 
-Ajouter la commande historique `I`, insérant les lignes saisies avant la ligne adressée.
+Valider et isoler l'implémentation de la commande historique `I`.
 
-## Fichiers à recopier
+## Comportement couvert
 
-Recopier le contenu de ce ZIP à la racine du dépôt FREDPP en conservant l'arborescence.
+- `I` : insère avant la ligne courante ;
+- `nI` : insère avant la ligne adressée ;
+- `0I` : insère au début du buffer ;
+- `I` sur buffer vide : crée les premières lignes ;
+- la saisie se termine avec `\\F` ;
+- la ligne courante devient la dernière ligne insérée ;
+- une saisie vide ne modifie pas le contenu.
 
-Fichiers modifiés :
+## Fichiers du sprint
 
-- `include/fred/ast/AstNode.hpp`
-- `include/fred/ast/CommandNode.hpp`
-- `include/fred/runtime/CommandExecutor.hpp`
-- `src/command/CommandRegistry.cpp`
-- `src/runtime/CommandExecutor.cpp`
-- `src/cli/main.cpp`
-- `tests/test_command_parser.cpp`
-- `tests/test_append.cpp`
+- `tests/test_insert.cpp` : tests unitaires dédiés à `I` ;
+- `tests/test_append.cpp` : retrait des tests de `I`, désormais isolés ;
+- `tests/CMakeLists.txt` : enregistrement de `test_insert`.
 
-## Comportement ajouté
+## Validation attendue sous Windows
 
-- `I` : insertion avant la ligne courante.
-- `nI` : insertion avant la ligne `n`.
-- `0I` : insertion au début du buffer.
-- `I` sur un buffer vide : création des premières lignes.
-- Commande insensible à la casse (`i`).
-- Lecture du texte jusqu'à une ligne contenant `\F`.
-- Les plages d'adresses sont refusées pour `I`.
-
-## Validation automatique effectuée
-
-Sous Linux :
-
-- configuration CMake : OK ;
-- compilation : OK ;
-- CTest : 13/13 tests réussis.
-
-## Commandes de test sous Windows
-
-```bat
-scripts\rebuild.bat
-```
-
-ou :
-
-```bat
-scripts\build.bat
-scripts\test.bat
-```
-
-## Test manuel conseillé
-
-```text
-A
-alpha
-beta
-gamma
-\F
-2I
-avant beta
-\F
-1,$P
+```powershell
+cd scripts
+.\rebuild.bat
 ```
 
 Résultat attendu :
 
 ```text
-alpha
-avant beta
-beta
-gamma
+100% tests passed out of 14
 ```
+
+## Recette fonctionnelle
+
+Dans `fredpp.exe` :
+
+```text
+A
+A
+B
+C
+D
+\F
+3I
+X
+Y
+\F
+1,$P
+1I
+FIRST
+\F
+$I
+BEFORE-LAST
+\F
+1,$P
+```
+
