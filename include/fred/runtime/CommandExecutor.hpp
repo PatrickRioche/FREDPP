@@ -14,6 +14,9 @@ public:
     void execute_append(const AppendCommandNode& command,
                         ExecutionContext& context,
                         std::vector<std::string> lines) const;
+    void execute_insert(const InsertCommandNode& command,
+                        ExecutionContext& context,
+                        std::vector<std::string> lines) const;
 };
 
 } // namespace fred

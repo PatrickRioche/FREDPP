@@ -58,4 +58,10 @@ public:
     [[nodiscard]] AstNodeKind kind() const noexcept override { return AstNodeKind::AppendCommand; }
 };
 
+class InsertCommandNode final : public CommandNode {
+public:
+    using CommandNode::CommandNode;
+    [[nodiscard]] AstNodeKind kind() const noexcept override { return AstNodeKind::InsertCommand; }
+};
+
 } // namespace fred

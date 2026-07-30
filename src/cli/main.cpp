@@ -124,6 +124,7 @@ void print_command(std::string_view source) {
     case fred::AstNodeKind::ListCommand: name = "List"; break;
     case fred::AstNodeKind::DeleteCommand: name = "Delete"; break;
     case fred::AstNodeKind::AppendCommand: name = "Append"; break;
+    case fred::AstNodeKind::InsertCommand: name = "Insert"; break;
     default: name = "Command"; break;
     }
 
@@ -158,7 +159,7 @@ int main(int argc, char** argv) {
     fred::CommandExecutor command_executor;
     const auto command_registry = fred::make_core_command_registry();
 
-    std::cout << "FREDPP v" << fredpp::version() << " - executable P, L, D and A commands\n";
+    std::cout << "FREDPP v" << fredpp::version() << " - executable P, L, D, A and I commands\n";
     std::cout << "Type :help for help; type :quit to exit.\n";
 
     std::string input;
@@ -169,8 +170,8 @@ int main(int argc, char** argv) {
                 break;
             }
             if (input == ":help") {
-                std::cout << "Commands: P, L filename, D, A (case-insensitive).\n"
-                          << "A enters text mode; finish with a line containing \\F.\n"
+                std::cout << "Commands: P, L filename, D, A, I (case-insensitive).\n"
+                          << "A and I enter text mode; finish with a line containing \\F.\n"
                           << "Development helpers: :append, :print, :buffers, :quit.\n";
                 continue;
             }
@@ -244,7 +245,8 @@ int main(int argc, char** argv) {
                 fred::TokenStream tokens(lexer);
                 fred::CommandParser parser(tokens, command_registry);
                 const auto node = parser.parse();
-                if (node->kind() == fred::AstNodeKind::AppendCommand) {
+                if (node->kind() == fred::AstNodeKind::AppendCommand ||
+                    node->kind() == fred::AstNodeKind::InsertCommand) {
                     std::cout << "-- text input; finish with \\F --\n";
                     std::vector<std::string> lines;
                     std::string text_line;
@@ -257,12 +259,18 @@ int main(int argc, char** argv) {
                         lines.push_back(std::move(text_line));
                     }
                     if (!terminated) {
-                        std::cerr << "error: end of input before \\F; append cancelled\n";
+                        std::cerr << "error: end of input before \\F; text command cancelled\n";
                         break;
                     }
-                    command_executor.execute_append(
-                        static_cast<const fred::AppendCommandNode&>(*node),
-                        execution_context, std::move(lines));
+                    if (node->kind() == fred::AstNodeKind::AppendCommand) {
+                        command_executor.execute_append(
+                            static_cast<const fred::AppendCommandNode&>(*node),
+                            execution_context, std::move(lines));
+                    } else {
+                        command_executor.execute_insert(
+                            static_cast<const fred::InsertCommandNode&>(*node),
+                            execution_context, std::move(lines));
+                    }
                 } else {
                     command_executor.execute(*node, execution_context);
                 }

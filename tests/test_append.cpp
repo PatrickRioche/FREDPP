@@ -55,4 +55,31 @@ int main() {
     executor.execute_append(append_after_zero, context, {});
     assert(buffers.current().line_count() == 5);
     assert(buffers.current().current_line() == 0);
+
+    // I inserts before the addressed line and selects the last inserted line.
+    buffers.current().set_current_line(3);
+    fred::InsertCommandNode insert_current(nullptr, fred::SourceLocation{});
+    executor.execute_insert(insert_current, context, {"before-current"});
+    assert(buffers.current().line(3) == "before-current");
+    assert(buffers.current().line(4) == "middle-1");
+    assert(buffers.current().current_line() == 3);
+
+    // 1I inserts at the beginning of a non-empty buffer.
+    fred::InsertCommandNode insert_before_one(
+        std::make_unique<fred::AbsoluteAddressNode>(1, fred::SourceLocation{}),
+        fred::SourceLocation{});
+    executor.execute_insert(insert_before_one, context, {"new-first", "new-second"});
+    assert(buffers.current().line(1) == "new-first");
+    assert(buffers.current().line(2) == "new-second");
+    assert(buffers.current().line(3) == "first");
+    assert(buffers.current().current_line() == 2);
+
+    // I on an empty buffer behaves like insertion at position zero.
+    fred::BufferManager empty_buffers;
+    fred::ExecutionContext empty_context(empty_buffers, output);
+    fred::InsertCommandNode insert_empty(nullptr, fred::SourceLocation{});
+    executor.execute_insert(insert_empty, empty_context, {"only"});
+    assert(empty_buffers.current().line_count() == 1);
+    assert(empty_buffers.current().line(1) == "only");
+    assert(empty_buffers.current().current_line() == 1);
 }

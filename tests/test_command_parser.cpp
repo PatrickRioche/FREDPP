@@ -73,6 +73,16 @@ int main() {
         assert(node->has_address());
     }
     {
+        const auto node = parse("I");
+        assert(node->kind() == fred::AstNodeKind::InsertCommand);
+        assert(!node->has_address());
+    }
+    {
+        const auto node = parse("2i");
+        assert(node->kind() == fred::AstNodeKind::InsertCommand);
+        assert(node->has_address());
+    }
+    {
         const auto node = parse("1p");
         assert(node->kind() == fred::AstNodeKind::PrintCommand);
         assert(node->has_address());
@@ -94,11 +104,12 @@ int main() {
     }
     {
         const auto registry = fred::make_core_command_registry();
-        assert(registry.size() == 4);
+        assert(registry.size() == 5);
         assert(registry.contains('P'));
         assert(registry.contains('L'));
         assert(registry.contains('D'));
         assert(registry.contains('A'));
+        assert(registry.contains('I'));
         assert(!registry.contains('Z'));
         assert(registry.find('P')->name == "Print");
     }

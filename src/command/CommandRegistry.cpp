@@ -75,6 +75,16 @@ CommandRegistry make_core_command_registry() {
                 std::move(address), location);
         }});
 
+    registry.register_command(CommandDescriptor{
+        'I', "Insert",
+        [](std::unique_ptr<AddressNode> address, SourceLocation location) {
+            if (address && address->kind() == AstNodeKind::RangeAddress) {
+                throw std::invalid_argument("I accepts at most one line address");
+            }
+            return std::make_unique<InsertCommandNode>(
+                std::move(address), location);
+        }});
+
     return registry;
 }
 

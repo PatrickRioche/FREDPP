@@ -68,6 +68,25 @@ Buffer::LineNumber evaluate_append_address(const AppendCommandNode& command,
     return AddressEvaluator{}.evaluate(address, buffer).first;
 }
 
+Buffer::LineNumber evaluate_insert_position(const InsertCommandNode& command,
+                                            const Buffer& buffer) {
+    const auto* address = command.address();
+    if (address == nullptr) {
+        if (buffer.empty()) {
+            return 0;
+        }
+        return buffer.current_line() - 1;
+    }
+    if (address->kind() == AstNodeKind::RangeAddress) {
+        throw CommandExecutionError("I accepts at most one line address");
+    }
+    if (address->kind() == AstNodeKind::AbsoluteAddress &&
+        static_cast<const AbsoluteAddressNode&>(*address).line() == 0) {
+        return 0;
+    }
+    return AddressEvaluator{}.evaluate(address, buffer).first - 1;
+}
+
 } // namespace
 
 void CommandExecutor::execute(const CommandNode& command,
@@ -84,6 +103,8 @@ void CommandExecutor::execute(const CommandNode& command,
         return;
     case AstNodeKind::AppendCommand:
         throw CommandExecutionError("A requires text input mode");
+    case AstNodeKind::InsertCommand:
+        throw CommandExecutionError("I requires text input mode");
     default:
         throw CommandExecutionError("unsupported command node");
     }
@@ -94,6 +115,14 @@ void CommandExecutor::execute_append(const AppendCommandNode& command,
                                      std::vector<std::string> lines) const {
     auto& buffer = context.current_buffer();
     const auto after = evaluate_append_address(command, buffer);
+    buffer.insert_after(after, std::move(lines));
+}
+
+void CommandExecutor::execute_insert(const InsertCommandNode& command,
+                                     ExecutionContext& context,
+                                     std::vector<std::string> lines) const {
+    auto& buffer = context.current_buffer();
+    const auto after = evaluate_insert_position(command, buffer);
     buffer.insert_after(after, std::move(lines));
 }
 
