@@ -1,0 +1,5 @@
+Placeholder for GNU GPL v3.
+Replace this file with the official GPL-3.0 text from https://www.gnu.org/licenses/gpl-3.0.txt
+
+Recommended SPDX identifier:
+GPL-3.0-only

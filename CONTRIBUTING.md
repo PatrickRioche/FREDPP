@@ -1,7 +1,13 @@
 # Contributing
 
-FREDPP follows an incremental workflow:
+Before submitting changes:
 
-SPEC → Tests → Implementation → Compilation → Validation
+1. Build successfully.
+2. Run all tests.
+3. Add tests for new functionality.
+4. Keep commits focused.
 
-Every change must compile and pass CTest. Historical behavior must be supported by QED, Multics, or FRED documentation rather than invention.
+Commit style examples:
+
+Sprint 2.5 - Implement Move command
+Sprint 2.5 - Fix Move regression
