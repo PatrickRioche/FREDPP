@@ -103,6 +103,22 @@ Buffer::LineNumber evaluate_move_destination(const MoveCommandNode& command,
     return AddressEvaluator{}.evaluate(destination, buffer).first;
 }
 
+Buffer::LineNumber evaluate_transfer_destination(
+    const TransferCommandNode& command, const Buffer& buffer) {
+    const auto* destination = command.destination();
+    if (destination == nullptr) {
+        throw CommandExecutionError("T requires a destination address");
+    }
+    if (destination->kind() == AstNodeKind::RangeAddress) {
+        throw CommandExecutionError("T destination must be a single line address");
+    }
+    if (destination->kind() == AstNodeKind::AbsoluteAddress &&
+        static_cast<const AbsoluteAddressNode&>(*destination).line() == 0) {
+        return 0;
+    }
+    return AddressEvaluator{}.evaluate(destination, buffer).first;
+}
+
 void execute_move(const MoveCommandNode& command, ExecutionContext& context) {
     auto& buffer = context.current_buffer();
     const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
@@ -124,6 +140,21 @@ void execute_move(const MoveCommandNode& command, ExecutionContext& context) {
         destination -= moved_count;
     }
     buffer.insert_after(destination, std::move(moved_lines));
+}
+
+void execute_transfer(const TransferCommandNode& command,
+                      ExecutionContext& context) {
+    auto& buffer = context.current_buffer();
+    const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
+    const auto destination = evaluate_transfer_destination(command, buffer);
+
+    std::vector<std::string> copied_lines;
+    copied_lines.reserve(range.last - range.first + 1);
+    for (auto line = range.first; line <= range.last; ++line) {
+        copied_lines.push_back(buffer.line(line));
+    }
+
+    buffer.insert_after(destination, std::move(copied_lines));
 }
 
 } // namespace
@@ -148,6 +179,9 @@ void CommandExecutor::execute(const CommandNode& command,
         throw CommandExecutionError("C requires text input mode");
     case AstNodeKind::MoveCommand:
         execute_move(static_cast<const MoveCommandNode&>(command), context);
+        return;
+    case AstNodeKind::TransferCommand:
+        execute_transfer(static_cast<const TransferCommandNode&>(command), context);
         return;
     default:
         throw CommandExecutionError("unsupported command node");

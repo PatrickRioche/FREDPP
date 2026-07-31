@@ -24,7 +24,8 @@ enum class AstNodeKind {
     AppendCommand,
     InsertCommand,
     ChangeCommand,
-    MoveCommand
+    MoveCommand,
+    TransferCommand
 };
 
 class AstNode {

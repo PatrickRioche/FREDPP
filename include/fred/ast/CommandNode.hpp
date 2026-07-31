@@ -85,4 +85,19 @@ private:
     std::unique_ptr<AddressNode> destination_;
 };
 
+class TransferCommandNode final : public CommandNode {
+public:
+    TransferCommandNode(std::unique_ptr<AddressNode> source,
+                        std::unique_ptr<AddressNode> destination,
+                        SourceLocation location) noexcept
+        : CommandNode(std::move(source), location),
+          destination_(std::move(destination)) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override { return AstNodeKind::TransferCommand; }
+    [[nodiscard]] const AddressNode* destination() const noexcept { return destination_.get(); }
+
+private:
+    std::unique_ptr<AddressNode> destination_;
+};
+
 } // namespace fred

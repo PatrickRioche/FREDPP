@@ -45,21 +45,28 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                              command.location);
         }
 
-        if (mnemonic == 'M') {
+        if (mnemonic == 'M' || mnemonic == 'T') {
+            const char* command_name = mnemonic == 'M' ? "M" : "T";
             if (!begins_address(tokens_->peek())) {
-                throw ParseError("M requires a destination address",
+                throw ParseError(std::string(command_name) +
+                                     " requires a destination address",
                                  tokens_->peek().location);
             }
 
             AddressParser destination_parser(*tokens_);
             auto destination = destination_parser.parse_prefix();
             if (destination->kind() == AstNodeKind::RangeAddress) {
-                throw ParseError("M destination must be a single line address",
+                throw ParseError(std::string(command_name) +
+                                     " destination must be a single line address",
                                  destination->location());
             }
 
             require_command_end();
-            return std::make_unique<MoveCommandNode>(
+            if (mnemonic == 'M') {
+                return std::make_unique<MoveCommandNode>(
+                    std::move(address), std::move(destination), command.location);
+            }
+            return std::make_unique<TransferCommandNode>(
                 std::move(address), std::move(destination), command.location);
         }
 

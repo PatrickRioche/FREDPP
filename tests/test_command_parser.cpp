@@ -112,6 +112,24 @@ int main() {
         assert(destination.line() == 0);
     }
     {
+        const auto node = parse("2,3T5");
+        assert(node->kind() == fred::AstNodeKind::TransferCommand);
+        assert(node->has_address());
+        assert(node->address()->kind() == fred::AstNodeKind::RangeAddress);
+        const auto& transfer = static_cast<const fred::TransferCommandNode&>(*node);
+        assert(transfer.destination() != nullptr);
+        assert(transfer.destination()->kind() == fred::AstNodeKind::AbsoluteAddress);
+    }
+    {
+        const auto node = parse("t0");
+        assert(node->kind() == fred::AstNodeKind::TransferCommand);
+        assert(!node->has_address());
+        const auto& transfer = static_cast<const fred::TransferCommandNode&>(*node);
+        const auto& destination =
+            static_cast<const fred::AbsoluteAddressNode&>(*transfer.destination());
+        assert(destination.line() == 0);
+    }
+    {
         const auto node = parse("1p");
         assert(node->kind() == fred::AstNodeKind::PrintCommand);
         assert(node->has_address());
@@ -133,7 +151,7 @@ int main() {
     }
     {
         const auto registry = fred::make_core_command_registry();
-        assert(registry.size() == 7);
+        assert(registry.size() == 8);
         assert(registry.contains('P'));
         assert(registry.contains('L'));
         assert(registry.contains('D'));
@@ -141,6 +159,7 @@ int main() {
         assert(registry.contains('I'));
         assert(registry.contains('C'));
         assert(registry.contains('M'));
+        assert(registry.contains('T'));
         assert(!registry.contains('Z'));
         assert(registry.find('P')->name == "Print");
     }
@@ -151,6 +170,8 @@ int main() {
     expect_error("P D", "unexpected token after command: 'D'");
     expect_error("M", "M requires a destination address");
     expect_error("1M2,3", "M destination must be a single line address");
+    expect_error("T", "T requires a destination address");
+    expect_error("1T2,3", "T destination must be a single line address");
     expect_error("1L", "L does not accept a line address");
     expect_error("print", "expected a command, got 'print'");
 

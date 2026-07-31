@@ -99,6 +99,13 @@ CommandRegistry make_core_command_registry() {
                 std::move(address), nullptr, location);
         }});
 
+    registry.register_command(CommandDescriptor{
+        'T', "Transfer",
+        [](std::unique_ptr<AddressNode> address, SourceLocation location) {
+            return std::make_unique<TransferCommandNode>(
+                std::move(address), nullptr, location);
+        }});
+
     return registry;
 }
 

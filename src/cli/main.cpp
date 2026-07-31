@@ -161,7 +161,7 @@ int main(int argc, char** argv) {
     fred::CommandExecutor command_executor;
     const auto command_registry = fred::make_core_command_registry();
 
-    std::cout << "FREDPP v" << fredpp::version() << " - executable P, L, D, A, I, C and M commands\n";
+    std::cout << "FREDPP v" << fredpp::version() << " - executable P, L, D, A, I, C, M and T commands\n";
     std::cout << "Type :help for help; type :quit to exit.\n";
 
     std::string input;
@@ -172,7 +172,7 @@ int main(int argc, char** argv) {
                 break;
             }
             if (input == ":help") {
-                std::cout << "Commands: P, L filename, D, A, I, C, M destination (case-insensitive).\n"
+                std::cout << "Commands: P, L filename, D, A, I, C, M destination, T destination (case-insensitive).\n"
                           << "A, I and C enter text mode; finish with a line containing \\F.\n"
                           << "Development helpers: :append, :print, :buffers, :quit.\n";
                 continue;
