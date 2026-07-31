@@ -70,4 +70,19 @@ public:
     [[nodiscard]] AstNodeKind kind() const noexcept override { return AstNodeKind::ChangeCommand; }
 };
 
+class MoveCommandNode final : public CommandNode {
+public:
+    MoveCommandNode(std::unique_ptr<AddressNode> source,
+                    std::unique_ptr<AddressNode> destination,
+                    SourceLocation location) noexcept
+        : CommandNode(std::move(source), location),
+          destination_(std::move(destination)) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override { return AstNodeKind::MoveCommand; }
+    [[nodiscard]] const AddressNode* destination() const noexcept { return destination_.get(); }
+
+private:
+    std::unique_ptr<AddressNode> destination_;
+};
+
 } // namespace fred

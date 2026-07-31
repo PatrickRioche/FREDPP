@@ -45,6 +45,24 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                              command.location);
         }
 
+        if (mnemonic == 'M') {
+            if (!begins_address(tokens_->peek())) {
+                throw ParseError("M requires a destination address",
+                                 tokens_->peek().location);
+            }
+
+            AddressParser destination_parser(*tokens_);
+            auto destination = destination_parser.parse_prefix();
+            if (destination->kind() == AstNodeKind::RangeAddress) {
+                throw ParseError("M destination must be a single line address",
+                                 destination->location());
+            }
+
+            require_command_end();
+            return std::make_unique<MoveCommandNode>(
+                std::move(address), std::move(destination), command.location);
+        }
+
         if (mnemonic == 'L') {
             if (address) {
                 throw ParseError("L does not accept a line address", address->location());

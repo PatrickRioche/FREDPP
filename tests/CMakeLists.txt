@@ -21,6 +21,7 @@ fredpp_add_test(test_command_executor test_command_executor.cpp)
 fredpp_add_test(test_append test_append.cpp)
 fredpp_add_test(test_insert test_insert.cpp)
 fredpp_add_test(test_change test_change.cpp)
+fredpp_add_test(test_move test_move.cpp)
 
 add_test(NAME cli_smoke COMMAND fredpp --version)
 set_tests_properties(cli_smoke PROPERTIES

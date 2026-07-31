@@ -87,6 +87,45 @@ Buffer::LineNumber evaluate_insert_position(const InsertCommandNode& command,
     return AddressEvaluator{}.evaluate(address, buffer).first - 1;
 }
 
+Buffer::LineNumber evaluate_move_destination(const MoveCommandNode& command,
+                                             const Buffer& buffer) {
+    const auto* destination = command.destination();
+    if (destination == nullptr) {
+        throw CommandExecutionError("M requires a destination address");
+    }
+    if (destination->kind() == AstNodeKind::RangeAddress) {
+        throw CommandExecutionError("M destination must be a single line address");
+    }
+    if (destination->kind() == AstNodeKind::AbsoluteAddress &&
+        static_cast<const AbsoluteAddressNode&>(*destination).line() == 0) {
+        return 0;
+    }
+    return AddressEvaluator{}.evaluate(destination, buffer).first;
+}
+
+void execute_move(const MoveCommandNode& command, ExecutionContext& context) {
+    auto& buffer = context.current_buffer();
+    const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
+    auto destination = evaluate_move_destination(command, buffer);
+
+    if (destination >= range.first && destination <= range.last) {
+        throw CommandExecutionError("M destination lies inside the moved range");
+    }
+
+    std::vector<std::string> moved_lines;
+    moved_lines.reserve(range.last - range.first + 1);
+    for (auto line = range.first; line <= range.last; ++line) {
+        moved_lines.push_back(buffer.line(line));
+    }
+
+    const auto moved_count = range.last - range.first + 1;
+    buffer.erase(range.first, range.last);
+    if (destination > range.last) {
+        destination -= moved_count;
+    }
+    buffer.insert_after(destination, std::move(moved_lines));
+}
+
 } // namespace
 
 void CommandExecutor::execute(const CommandNode& command,
@@ -107,6 +146,9 @@ void CommandExecutor::execute(const CommandNode& command,
         throw CommandExecutionError("I requires text input mode");
     case AstNodeKind::ChangeCommand:
         throw CommandExecutionError("C requires text input mode");
+    case AstNodeKind::MoveCommand:
+        execute_move(static_cast<const MoveCommandNode&>(command), context);
+        return;
     default:
         throw CommandExecutionError("unsupported command node");
     }

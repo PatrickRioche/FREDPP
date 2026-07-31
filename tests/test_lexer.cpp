@@ -56,6 +56,18 @@ int main() {
     }
 
     {
+        fred::Lexer lexer("M5");
+        const auto tokens = lexer.tokenize();
+        expect(tokens.size() == 3, "compact command token count");
+        expect_token(tokens[0], fred::TokenType::Command, "M",
+                     1, 1, 0, "compact move command");
+        expect_token(tokens[1], fred::TokenType::Number, "5",
+                     1, 2, 0, "compact move destination");
+        expect_token(tokens[2], fred::TokenType::End, "",
+                     1, 3, 0, "compact move end");
+    }
+
+    {
         fred::Lexer lexer("abc_12");
         const auto tokens = lexer.tokenize();
         expect_token(tokens[0], fred::TokenType::Identifier, "abc_12",

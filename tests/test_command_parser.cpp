@@ -94,6 +94,24 @@ int main() {
         assert(node->address()->kind() == fred::AstNodeKind::RangeAddress);
     }
     {
+        const auto node = parse("2,3M5");
+        assert(node->kind() == fred::AstNodeKind::MoveCommand);
+        assert(node->has_address());
+        assert(node->address()->kind() == fred::AstNodeKind::RangeAddress);
+        const auto& move = static_cast<const fred::MoveCommandNode&>(*node);
+        assert(move.destination() != nullptr);
+        assert(move.destination()->kind() == fred::AstNodeKind::AbsoluteAddress);
+    }
+    {
+        const auto node = parse("m0");
+        assert(node->kind() == fred::AstNodeKind::MoveCommand);
+        assert(!node->has_address());
+        const auto& move = static_cast<const fred::MoveCommandNode&>(*node);
+        const auto& destination =
+            static_cast<const fred::AbsoluteAddressNode&>(*move.destination());
+        assert(destination.line() == 0);
+    }
+    {
         const auto node = parse("1p");
         assert(node->kind() == fred::AstNodeKind::PrintCommand);
         assert(node->has_address());
@@ -115,13 +133,14 @@ int main() {
     }
     {
         const auto registry = fred::make_core_command_registry();
-        assert(registry.size() == 6);
+        assert(registry.size() == 7);
         assert(registry.contains('P'));
         assert(registry.contains('L'));
         assert(registry.contains('D'));
         assert(registry.contains('A'));
         assert(registry.contains('I'));
         assert(registry.contains('C'));
+        assert(registry.contains('M'));
         assert(!registry.contains('Z'));
         assert(registry.find('P')->name == "Print");
     }
@@ -130,6 +149,8 @@ int main() {
     expect_error("1", "expected a command");
     expect_error("Z", "unknown command 'Z'");
     expect_error("P D", "unexpected token after command: 'D'");
+    expect_error("M", "M requires a destination address");
+    expect_error("1M2,3", "M destination must be a single line address");
     expect_error("1L", "L does not accept a line address");
     expect_error("print", "expected a command, got 'print'");
 

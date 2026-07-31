@@ -56,6 +56,16 @@ Token Lexer::next() {
         return lex_number();
     }
 
+    // A historical command can be immediately followed by a numeric
+    // argument (for example, 2,3M5). Keep the command letter separate
+    // instead of lexing the pair as an identifier such as "M5".
+    if (is_ascii_letter(current) && is_ascii_digit(peek(1))) {
+        const Character consumed = advance();
+        return make_token(TokenType::Command,
+                          std::string(1, consumed.value),
+                          start_location);
+    }
+
     if (is_ascii_letter(current) || current == '_') {
         return lex_identifier_or_command();
     }
