@@ -105,6 +105,8 @@ void CommandExecutor::execute(const CommandNode& command,
         throw CommandExecutionError("A requires text input mode");
     case AstNodeKind::InsertCommand:
         throw CommandExecutionError("I requires text input mode");
+    case AstNodeKind::ChangeCommand:
+        throw CommandExecutionError("C requires text input mode");
     default:
         throw CommandExecutionError("unsupported command node");
     }
@@ -124,6 +126,19 @@ void CommandExecutor::execute_insert(const InsertCommandNode& command,
     auto& buffer = context.current_buffer();
     const auto after = evaluate_insert_position(command, buffer);
     buffer.insert_after(after, std::move(lines));
+}
+
+void CommandExecutor::execute_change(const ChangeCommandNode& command,
+                                     ExecutionContext& context,
+                                     std::vector<std::string> lines) const {
+    auto& buffer = context.current_buffer();
+    const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
+    const auto insertion_after = range.first - 1;
+
+    buffer.erase(range.first, range.last);
+    if (!lines.empty()) {
+        buffer.insert_after(insertion_after, std::move(lines));
+    }
 }
 
 } // namespace fred
