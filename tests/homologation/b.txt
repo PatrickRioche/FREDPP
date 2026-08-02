@@ -1,0 +1,39 @@
+"==============================================================
+" S2.7 - Homologation de la commande B
+"==============================================================
+
+" H1 - Le buffer initial est 0
+:print
+
+" H2 - Création implicite et saisie
+B(alpha)
+A
+A1
+A2
+\F
+1,$P
+
+" H3 - Création d'un second buffer
+B(beta)
+A
+B1
+\F
+1,$P
+
+" H4 - Retour dans alpha, contenu et ligne courante conservés
+B(alpha)
+1,$P
+
+" H5 - Nom contenant un espace
+B(mon buffer)
+A
+ESPACE
+\F
+1,$P
+
+" H6 - Buffer provisoire vide supprimé lorsqu'il est quitté
+B(temp)
+B(alpha)
+:buffers
+
+:quit

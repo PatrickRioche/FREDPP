@@ -5,6 +5,7 @@
 #include "fred/lexer/TokenStream.hpp"
 
 #include <memory>
+#include <string>
 
 namespace fred {
 
@@ -16,6 +17,7 @@ public:
 
 private:
     [[nodiscard]] bool begins_address(const Token& token) const noexcept;
+    [[nodiscard]] std::string parse_parenthesized_buffer_name();
     void require_command_end();
 
     TokenStream* tokens_;

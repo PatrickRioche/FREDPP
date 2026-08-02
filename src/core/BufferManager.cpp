@@ -1,4 +1,5 @@
 #include "fred/core/BufferManager.hpp"
+#include "fred/core/Limits.hpp"
 
 #include <algorithm>
 #include <stdexcept>
@@ -14,12 +15,33 @@ Buffer& BufferManager::create_or_select(std::string name) {
     if (name.empty()) {
         throw std::invalid_argument("buffer name must not be empty");
     }
+    if (name.size() > limits::max_buffer_name_length) {
+        throw std::invalid_argument(
+            "buffer name exceeds historical limit of " +
+            std::to_string(limits::max_buffer_name_length) + " characters");
+    }
+
+    std::string previous_name;
+    bool remove_previous = false;
+    if (current_ != nullptr && current_->name() != name &&
+        current_->name() != "0" && current_->empty()) {
+        previous_name = current_->name();
+        remove_previous = true;
+    }
 
     auto [it, inserted] = buffers_.try_emplace(name, nullptr);
     if (inserted) {
-        it->second = std::make_unique<Buffer>(std::move(name));
+        it->second = std::make_unique<Buffer>(name);
     }
     current_ = it->second.get();
+
+    // FR-0006: a transient empty buffer is removed when it is left.
+    // File association is not implemented yet; until then, empty means
+    // "no data and no associated file".
+    if (remove_previous) {
+        buffers_.erase(previous_name);
+    }
+
     return *current_;
 }
 

@@ -86,6 +86,15 @@ CommandRegistry make_core_command_registry() {
         }});
 
     registry.register_command(CommandDescriptor{
+        'B', "Buffer",
+        [](std::unique_ptr<AddressNode> address, SourceLocation location) {
+            if (address) {
+                throw std::invalid_argument("B does not accept a line address");
+            }
+            return std::make_unique<BufferCommandNode>("", location);
+        }});
+
+    registry.register_command(CommandDescriptor{
         'C', "Change",
         [](std::unique_ptr<AddressNode> address, SourceLocation location) {
             return std::make_unique<ChangeCommandNode>(

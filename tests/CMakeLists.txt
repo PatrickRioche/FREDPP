@@ -23,6 +23,7 @@ fredpp_add_test(test_insert test_insert.cpp)
 fredpp_add_test(test_change test_change.cpp)
 fredpp_add_test(test_move test_move.cpp)
 fredpp_add_test(test_transfer test_transfer.cpp)
+fredpp_add_test(test_buffer_command test_buffer_command.cpp)
 
 add_test(NAME cli_smoke COMMAND fredpp --version)
 set_tests_properties(cli_smoke PROPERTIES

@@ -157,6 +157,14 @@ void execute_transfer(const TransferCommandNode& command,
     buffer.insert_after(destination, std::move(copied_lines));
 }
 
+void execute_buffer(const BufferCommandNode& command, ExecutionContext& context) {
+    try {
+        (void)context.buffers().create_or_select(command.buffer_name());
+    } catch (const std::exception& error) {
+        throw CommandExecutionError(error.what());
+    }
+}
+
 } // namespace
 
 void CommandExecutor::execute(const CommandNode& command,
@@ -182,6 +190,9 @@ void CommandExecutor::execute(const CommandNode& command,
         return;
     case AstNodeKind::TransferCommand:
         execute_transfer(static_cast<const TransferCommandNode&>(command), context);
+        return;
+    case AstNodeKind::BufferCommand:
+        execute_buffer(static_cast<const BufferCommandNode&>(command), context);
         return;
     default:
         throw CommandExecutionError("unsupported command node");

@@ -16,6 +16,8 @@
 #include "fred/runtime/ConsoleOutput.hpp"
 #include "fred/runtime/ExecutionContext.hpp"
 
+#include <filesystem>
+#include <fstream>
 #include <iostream>
 #include <sstream>
 #include <stdexcept>
@@ -127,6 +129,8 @@ void print_command(std::string_view source) {
     case fred::AstNodeKind::InsertCommand: name = "Insert"; break;
     case fred::AstNodeKind::ChangeCommand: name = "Change"; break;
     case fred::AstNodeKind::MoveCommand: name = "Move"; break;
+    case fred::AstNodeKind::TransferCommand: name = "Transfer"; break;
+    case fred::AstNodeKind::BufferCommand: name = "Buffer"; break;
     default: name = "Command"; break;
     }
 
@@ -145,6 +149,29 @@ void print_pattern(std::string_view source) {
     std::cout << fred::describe_pattern(*node) << '\n';
 }
 
+bool print_help_topic(std::string topic) {
+    if (topic.empty() || topic == "h" || topic == "help") {
+        topic = "index";
+    }
+
+    for (auto& ch : topic) {
+        ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
+    }
+
+    const std::filesystem::path path =
+        std::filesystem::path("docs") / "fr" / (topic + ".md");
+    std::ifstream input(path, std::ios::binary);
+    if (!input) {
+        return false;
+    }
+
+    std::cout << input.rdbuf();
+    if (std::cout.good()) {
+        std::cout << '\n';
+    }
+    return true;
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -161,20 +188,37 @@ int main(int argc, char** argv) {
     fred::CommandExecutor command_executor;
     const auto command_registry = fred::make_core_command_registry();
 
-    std::cout << "FREDPP v" << fredpp::version() << " - executable P, L, D, A, I, C, M and T commands\n";
-    std::cout << "Type :help for help; type :quit to exit.\n";
+    std::cout << "FREDPP v" << fredpp::version() << " - executable P, L, D, A, B, I, C, M and T commands\n";
+    std::cout << "Type ? for help; type :quit to exit.\n";
 
     std::string input;
     while (std::cout << manager.current().name() << "> " &&
            std::getline(std::cin, input)) {
         try {
+            const auto first_non_space = input.find_first_not_of(" \t\r");
+            if (first_non_space != std::string::npos &&
+                input[first_non_space] == '"') {
+                continue;
+            }
+            if (first_non_space != std::string::npos &&
+                input[first_non_space] == '?') {
+                std::string topic = input.substr(first_non_space + 1);
+                const auto topic_start = topic.find_first_not_of(" \t");
+                topic = topic_start == std::string::npos ? std::string{}
+                                                        : topic.substr(topic_start);
+                if (topic == "version") {
+                    std::cout << "FREDPP v" << fredpp::version() << '\n';
+                } else if (!print_help_topic(topic)) {
+                    std::cout << "Aucune rubrique d'aide : "
+                              << (topic.empty() ? "index" : topic) << '\n';
+                }
+                continue;
+            }
             if (input == ":quit") {
                 break;
             }
             if (input == ":help") {
-                std::cout << "Commands: P, L filename, D, A, I, C, M destination, T destination (case-insensitive).\n"
-                          << "A, I and C enter text mode; finish with a line containing \\F.\n"
-                          << "Development helpers: :append, :print, :buffers, :quit.\n";
+                std::cout << "Use ? or ?index for FREDPP documentation.\n";
                 continue;
             }
             if (input == ":buffers") {

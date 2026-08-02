@@ -100,4 +100,18 @@ private:
     std::unique_ptr<AddressNode> destination_;
 };
 
+class BufferCommandNode final : public CommandNode {
+public:
+    BufferCommandNode(std::string buffer_name,
+                      SourceLocation location) noexcept
+        : CommandNode(nullptr, location),
+          buffer_name_(std::move(buffer_name)) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override { return AstNodeKind::BufferCommand; }
+    [[nodiscard]] const std::string& buffer_name() const noexcept { return buffer_name_; }
+
+private:
+    std::string buffer_name_;
+};
+
 } // namespace fred

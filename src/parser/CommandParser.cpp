@@ -5,6 +5,7 @@
 
 #include <cctype>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <utility>
 
@@ -43,6 +44,17 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         if (descriptor == nullptr) {
             throw ParseError(std::string("unknown command '") + mnemonic + "'",
                              command.location);
+        }
+
+        if (mnemonic == 'B') {
+            if (address) {
+                throw ParseError("B does not accept a line address",
+                                 address->location());
+            }
+            auto buffer_name = parse_parenthesized_buffer_name();
+            require_command_end();
+            return std::make_unique<BufferCommandNode>(
+                std::move(buffer_name), command.location);
         }
 
         if (mnemonic == 'M' || mnemonic == 'T') {
@@ -104,6 +116,40 @@ bool CommandParser::begins_address(const Token& token) const noexcept {
     return token.type == TokenType::Symbol &&
            (token.lexeme == "." || token.lexeme == "$" ||
             token.lexeme == "+" || token.lexeme == "-");
+}
+
+std::string CommandParser::parse_parenthesized_buffer_name() {
+    const auto opening = tokens_->consume();
+    if (opening.type != TokenType::LeftParenthesis) {
+        throw ParseError("B requires a buffer name in parentheses",
+                         opening.location);
+    }
+
+    std::string name;
+    std::size_t previous_end_column = opening.location.column + opening.lexeme.size();
+
+    while (true) {
+        const auto& next = tokens_->peek();
+        if (next.type == TokenType::RightParenthesis) {
+            (void)tokens_->consume();
+            break;
+        }
+        if (next.type == TokenType::End || next.type == TokenType::NewLine) {
+            throw ParseError("unterminated buffer name", next.location);
+        }
+
+        const auto token = tokens_->consume();
+        if (!name.empty() && token.location.column > previous_end_column) {
+            name.append(token.location.column - previous_end_column, ' ');
+        }
+        name += token.lexeme;
+        previous_end_column = token.location.column + token.lexeme.size();
+    }
+
+    if (name.empty()) {
+        throw ParseError("buffer name must not be empty", opening.location);
+    }
+    return name;
 }
 
 void CommandParser::require_command_end() {

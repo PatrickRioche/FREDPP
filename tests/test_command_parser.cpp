@@ -83,6 +83,12 @@ int main() {
         assert(node->has_address());
     }
     {
+        const auto node = parse("B(mon buffer)");
+        assert(node->kind() == fred::AstNodeKind::BufferCommand);
+        const auto& buffer = static_cast<const fred::BufferCommandNode&>(*node);
+        assert(buffer.buffer_name() == "mon buffer");
+    }
+    {
         const auto node = parse("C");
         assert(node->kind() == fred::AstNodeKind::ChangeCommand);
         assert(!node->has_address());
@@ -151,13 +157,14 @@ int main() {
     }
     {
         const auto registry = fred::make_core_command_registry();
-        assert(registry.size() == 8);
+        assert(registry.size() == 9);
         assert(registry.contains('P'));
         assert(registry.contains('L'));
         assert(registry.contains('D'));
         assert(registry.contains('A'));
         assert(registry.contains('I'));
         assert(registry.contains('C'));
+        assert(registry.contains('B'));
         assert(registry.contains('M'));
         assert(registry.contains('T'));
         assert(!registry.contains('Z'));
