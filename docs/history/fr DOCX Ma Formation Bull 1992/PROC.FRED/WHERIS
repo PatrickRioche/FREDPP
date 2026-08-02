@@ -1,0 +1,32 @@
+ " Auteur : RIOCHE.P           a Champs/Marne      le 09/11/92          V1.1
+"WHERIS - Recherche ou il y a un fichier de ce nom la, dans l'umc.
+"
+" Mode d'emploi de WHERIS :
+"        FRED WHERIS xyz [[dans] nom_de_catalogue]
+"        Et l'on obtient la magnifique liste des fichiers du catalogue designe,
+"        ou de l'umc sous laquelle on est connecte a defaut de nom de catalogue,
+"        dont les noms comportent la chaine de caracteres   xyz
+"        P.S. 1- La liste se trouve aussi dans le fichier courant (*src).
+"             2- Le temps de reponse depend grandement du catalogue a examiner.
+o+q
+n(np):$>0 j(param)t
+jm/ Mode d'emploi :/
+jm/      FRED WHERIS xyz [[dans] nom_de_catalogue] /
+qq
+
+@(param)
+*zl
+1m(xyz)
+n(np):$>0  j(file)f
+1t/^dans$/ jf 1d
+n(np):$>0  jf 1m(cat)
+n(np):$>0  jf *s/$/ /
+
+@(file)
+zg(file)!file (cat)
+b(xyz) s/\c//  s/\o//  s/
+//                                " Enleve le CR a la fin de la ligne
+b(file)  g~/(xyz)/d
+n(nl):$>0 jt                      jm/YA pas de (xyz)/  qq
+w *src
+q!list

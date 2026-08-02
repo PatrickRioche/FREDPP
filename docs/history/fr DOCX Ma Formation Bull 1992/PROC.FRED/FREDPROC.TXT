@@ -1,0 +1,862 @@
+[65130/fred/aide]
+ " Auteur : RIOCHE.P           a Champs/Marne      le 09/11/92          V1.1
+"AIDE - Aide sur une procedure FRED.
+"
+"Syntaxe:
+"     FRED AIDE <procedure> [+Page]
+"
+"Options:
+"   +Page
+"       Indique a AIDE d'observer une pause entre chaque
+"       page.
+"
+"Description:
+"     FRED AIDE donne des explications sur la procedure specifiee
+"en affichant les commentaires commencant en debut de ligne.
+"AIDE recherche un fichier de nom "<procedure>", ou "/fred/"<procedure>",
+""library/fred/"<procedure>" et en dernier "fred/"<procedure>".
+"
+
+ " =====================================================================
+ " Stockage et initialisation pour FRED
+ " Positionnement des options par defaut de FRED
+ " =====================================================================
+o+q o-p o+i\F o-ia o-i( o+s(){[|$^& o-s+@#<>
+
+ " =====================================================================
+ " Definition de quelques modeles generaux
+ " =====================================================================
+e(nl)/\C
+/                                                  " Retour Chariot
+ea/[abcdefghijlkmopqrstuvwxyz]/                    " Alphabetique
+eb/[	 ]/                                          " Blanc espace et tabulateur
+ed/[0123456789]/                                   " Numerique
+
+ " =====================================================================
+ " Constitution des buffers avec execution du programme principal
+ " =====================================================================
+b.
+g/^>./ .s/^.//m(name) t/^>/ jt .,/^>/-1m(\C\S(name))\C
+       d                       " supprime la ligne de terminaison ">"
+b(strings) g/^{[^ 	]*}q[ 	]*=/ s//q\C\C\C
+/^,.s/\C\C\C
+// ^m(name) .m(\C\B(name))
+zd(strings) zd(name) b0
+\B(main) q
+
+ " =====================================================================
+ " Analyse des parametres selon la norme du B package :
+ " =Valeur   : option par valeur  => saisie utilisateur : v=20 ou V=20 ou va=20
+ " +Flag     : option par drapeau => saisie utilisateur : +f ou -F ou +flag
+ " _Lettre   : option par lettres => saisie utilisateur : L ou let ou lettre
+ "
+ " Pour les options par valeur : le resultat est place dans un buffer ayant
+ " le nom de l'option. Il y a en plus un registre de meme nom egal a 1.
+ "
+ " Pour les options par drapeau : un registre est assigne a +1 ou -1
+ " en fonction du + ou -. Si l'option n'est pas specifiee le registre sera a 0.
+ "
+ " Pour les options par lettres : un registre est assigne a +1 si l'option
+ " est specifiee. Si l'option n'est pas specifiee le registre sera a 0.
+ "
+ " NB : Pour l'option par valeur, si vous voulez utiliser des valeurs par
+ "      defaut dans la section string, il suffit de remplacer dans
+ "      le buffer getopt le ".zm" par ".m".
+ " =====================================================================
+>getopt
+b(opts)
+g/^=.*$/ s/^=// k(pat) k(name) b(name) .zl \C
+    b(pat) o-sd s/[abcdefghijklmnopqrstuvwxyz]/(&|)/ s/\E(nl)//\C
+    b(0) o+sd g/^\C\B(pat)=/ s/// s/\E(nl)// .zm(\C\S(name)) n(\C\S(name))+1\C
+    b(\C\S(name)) $nxa nx<2 jt je parametre \C\S(name)= specifie 2 fois!
+g/^+.*$/ s/^+// k(pat) k(name) b(name) .zl \C
+    b(pat) o-sd s/[abcdefghijklmnopqrstuvwxyz]/(&|)/ s/\E(nl)//\C
+    b(0) o+sd nx:0 g/^+\C\B(pat)$/ n(\C\S(name))+1 d nx+1\C
+                   g/^-\C\B(pat)$/ n(\C\S(name))-1 d nx+1\C
+    b(\C\S(name)) nx<2 jt je parametre +-\C\S(name) specifie 2 fois!
+g/^_.*$/ s/^_// k(pat) k(name) b(name) .zl \C
+    b(pat) o-sd s/[abcdefghijklmnopqrstuvwxyz]/(&|)/ s/\E(nl)//\C
+    b(0) o+sd nx:0 g/^\C\B(pat)$/ n(\C\S(name))+1 d nx+1\C
+    b(\C\S(name)) nx<2 jt je parametre \C\S(name) specifie 2 fois!
+b0
+>
+
+ " =====================================================================
+ " Procedure de redirection de l'affichage. Ce buffer regarde si">file" ou
+ " ">>file" est present sur la ligne de commande dans b(0) et prepare un
+ " buffer b(write) qui peut etre utilise pour afficher le buffer 'courant'.
+ " Le buffer sera imprime sur le terminal, ecrit dans "file"
+ " ou ajoute a la suite du fichier redirige specifie.
+ " =====================================================================
+>redirect
+b(0) nx:0 g/^>/ nx+1
+nx>1 jf je redirection specifie plus d'une fois
+nx=0 jf b(write) a *t/^/ jf *p zc \F b(0) jo " imprime sur le terminal
+.m(write) b(write) s/^>/*w / s/w >/zw / b(0)
+>
+
+>strings
+nomfic =\S(f),/fred/\S(f),library/fred/\S(f),fred/\S(f)
+>
+
+>opts
++Page
+>
+
+>main
+
+o-i\F
+
+\B(redirect)
+\B(getopt)
+
+n(page)>0 jf o+p
+n(page)<0 jf o-p
+
+*t/./ jt a expl
+u1e 2*s;^;/;
+*m(f)
+r \B(nomfic) jt y je
+*t/^"/ jt je Pas de commentaire dans le fichier \S(f)
+g~//d
+*s///
+\B(write)
+qq
+>
+[65130/fred/edt8]
+ " Auteur : RIOCHE.P           a Champs/Marne      le 09/11/92          V1.1
+"EDT8 - Utilisation EDT8 pour faire des procedures FRED.
+n(np):$>0 j(param)t
+jm!Mode d'emploi :                                                      !
+jm! FRED EDT8 string_de_fichier                                         !
+qq
+
+@(param)
+o+q o-sd
+
+       " S1
+b(frededt8)r \S(0) jt
+n(yalig):$>0 j(yalig)t
+a
+ " Auteur : xxxxxxxxxxxxx      a xxxxxxxxxxx       le xx/xx/xx          Vx.x
+"xxxxx - xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.
+"
+"
+\F
+
+@(yalig)
+       " T1
+*s!\C\B!\B!
+*s!\C\C!\C!
+*s!\C\F!\F!
+*s!\C\L!\L!
+*s!\C\N!\N!
+*s!\C\R!\R!
+*s!\C\E!\E!
+*s!\C\O!\O!
+*s!\C\W!\W!
+*s!\C\S!\S!
+*s!\C!\H!
+*s!	!\011!
+*s!\014!\014!
+wa \S(0)           jt jm!PB ecriture dans conversion FRED vers EDT8! qq
+
+       " P1
+!edt8 \S(0)
+
+       " S2
+b(editfred)r \S(0)  jt jm!PB lecture  dans conversion EDT8 vers FRED! qq
+
+       " T2
+*s!\B!\C\B!
+*s!\C!\C\C!
+*s!\F!\C\F!
+*s!\L!\C\L!
+*s!\N!\C\N!
+*s!\R!\C\R!
+*s!\E!\C\E!
+*s!\O!\C\O!
+*s!\W!\C\W!
+*s!\S!\C\S!
+*s!\H!\C!
+*s!\011!	!
+*s!\014!\014!
+*s! *$!!            " enleve les blancs en fin de ligne
+wa \S(0)             jt jm!PB lecture  dans conversion EDT8 vers FRED! qq
+qq
+[65130/fred/filsys]
+ " Auteur : RIOCHE.P           a Champs/Marne      le 09/11/92          V1.1
+"FILSYS - Genere un Jcl Filsys de List, Save, ou Restore.
+"
+" FRED FILSYS permet de creer des Jcl de List, Save, Restore
+" d'umc, de Pack, ou des permanents.
+" Mode d'emploi :
+"             { List }  { PErm                                  }
+" FRED FILSYS { Save }  { PAck=nom_de_pack [Type_de_pack=xxxPK] } [{+|-}TMs] (-)
+"             { Rest }  { Umc=nom_d'umc                         }
+"      et on vous genere dans le fichier courant un petit JCL
+"      (par defaut type_de_pack = k2cpk)
+"
+
+ " =====================================================================
+ " Stockage et initialisation pour FRED
+ " Positionnement des options par defaut de FRED
+ " =====================================================================
+o+q o-p o+i\F o-ia o-i( o+s(){[|$^& o-s+@#<>
+
+ " =====================================================================
+ " Definition de quelques modeles generaux
+ " =====================================================================
+e(nl)/\C
+/                                                  " Retour Chariot
+ea/[abcdefghijlkmopqrstuvwxyz]/                    " Alphabetique
+eb/[	 ]/                                          " Blanc espace et tabulateur
+ed/[0123456789]/                                   " Numerique
+
+ " =====================================================================
+ " Constitution des buffers avec execution du programme principal
+ " =====================================================================
+b.
+g/^>./ .s/^.//m(name) t/^>/ jt .,/^>/-1m(\C\S(name))\C
+       d                       " supprime la ligne de terminaison ">"
+b(strings) g/^{[^ 	]*}q[ 	]*=/ s//q\C\C\C
+/^,.s/\C\C\C
+// ^m(name) .m(\C\B(name))
+zd(strings) zd(name) b0
+\B(main) q
+
+ " =====================================================================
+ " Analyse des parametres selon la norme du B package :
+ " =Valeur   : option par valeur  => saisie utilisateur : v=20 ou V=20 ou va=20
+ " +Flag     : option par drapeau => saisie utilisateur : +f ou -F ou +flag
+ " _Lettre   : option par lettres => saisie utilisateur : L ou let ou lettre
+ "
+ " Pour les options par valeur : le resultat est place dans un buffer ayant
+ " le nom de l'option. Il y a en plus un registre de meme nom egal a 1.
+ "
+ " Pour les options par drapeau : un registre est assigne a +1 ou -1
+ " en fonction du + ou -. Si l'option n'est pas specifiee le registre sera a 0.
+ "
+ " Pour les options par lettres : un registre est assigne a +1 si l'option
+ " est specifiee. Si l'option n'est pas specifiee le registre sera a 0.
+ "
+ " NB : Pour l'option par valeur, si vous voulez utiliser des valeurs par
+ "      defaut dans la section string, il suffit de remplacer dans
+ "      le buffer getopt le ".zm" par ".m".
+ " =====================================================================
+>getopt
+b(opts)
+g/^=.*$/ s/^=// k(pat) k(name) b(name) .zl \C
+    b(pat) o-sd s/[abcdefghijklmnopqrstuvwxyz]/(&|)/ s/\E(nl)//\C
+    b(0) o+sd g/^\C\B(pat)=/ s/// s/\E(nl)// .zm(\C\S(name)) n(\C\S(name))+1\C
+    b(\C\S(name)) $nxa nx<2 jt je parametre \C\S(name)= specifie 2 fois!
+g/^+.*$/ s/^+// k(pat) k(name) b(name) .zl \C
+    b(pat) o-sd s/[abcdefghijklmnopqrstuvwxyz]/(&|)/ s/\E(nl)//\C
+    b(0) o+sd nx:0 g/^+\C\B(pat)$/ n(\C\S(name))+1 d nx+1\C
+                   g/^-\C\B(pat)$/ n(\C\S(name))-1 d nx+1\C
+    b(\C\S(name)) nx<2 jt je parametre +-\C\S(name) specifie 2 fois!
+g/^_.*$/ s/^_// k(pat) k(name) b(name) .zl \C
+    b(pat) o-sd s/[abcdefghijklmnopqrstuvwxyz]/(&|)/ s/\E(nl)//\C
+    b(0) o+sd nx:0 g/^\C\B(pat)$/ n(\C\S(name))+1 d nx+1\C
+    b(\C\S(name)) nx<2 jt je parametre \C\S(name) specifie 2 fois!
+b0
+>
+
+ " =====================================================================
+ " Procedure de redirection de l'affichage. Ce buffer regarde si">file" ou
+ " ">>file" est present sur la ligne de commande dans b(0) et prepare un
+ " buffer b(write) qui peut etre utilise pour afficher le buffer 'courant'.
+ " Le buffer sera imprime sur le terminal, ecrit dans "file"
+ " ou ajoute a la suite du fichier redirige specifie.
+ " =====================================================================
+>redirect
+b(0) nx:0 g/^>/ nx+1
+nx>1 jf je redirection specifie plus d'une fois
+nx=0 jf b(write) a *t/^/ jf *p zc \F b(0) jo " imprime sur le terminal
+.m(write) b(write) s/^>/*w / s/w >/zw / b(0)
+>
+
+>strings
+ident   =exps......tss
+poub    =bs
+>
+
+>opts
++TMs
+_List
+_Save
+_Rest
+_PErm
+=PAck
+=Type
+=Umc
+>
+
+>main
+o-i\F
+
+\B(redirect)
+\B(getopt)
+
+b(action)
+n(list)=1 jf a list
+n(save)=1 jf a save
+n(rest)=1 jf a rest
+
+b(surqui)
+n(umc)=1  jf a umc
+n(pack)=1 jf a pack
+n(perm)=1 jf a perm
+
+       " Options par defaut
+n(type)=0 jf b(type) a k2c
+n(tms)=0  jf n(tms):-1
+
+b(\S(action)\S(surqui))
+n(bufvide):$=0 jf q!fred expl filsys
+
+n(tms)=1 jf *s!tape9!tapec!
+
+b(stdout)
+\B(\S(action)\S(surqui))
+\B(write)
+>
+
+>saveumc
+a
+$ **   save        de l'Umc \S(umc)
+$      ident   \S(ident),sav.\S(umc)
+$      filsys
+$      privity
+$      tape9   ps,x1d,,99999,,sav.\S(umc),,den62
+$      tape9   xs,x2d,,99999,,cop.\S(umc),,den62
+save   \S(umc),reset/rfiles/
+$      sysout  j*,\S(poub)
+$      sysout  p*,\S(poub)
+\F
+>
+
+>savepack
+a
+$ **           Save Pack \S(pack)
+$      ident   \S(ident),sav.\S(pack)
+$      filsys
+$      privity
+savemast device/\S(type)pk,\S(pack)/,inclsys_,
+reset/rfiles/
+$      tape9   ps,p1d,,99999,,sav.\S(pack),,den62
+$      tape9   xs,p2d,,99999,,cop.\S(pack),,den62
+$      sysout  j*,\S(poub)
+$      sysout  p*,\S(poub)
+\F
+>
+
+>saveperm
+a
+$ **           Save des Permanents
+$      ident   \S(ident),sav.permaments
+$      filsys
+$      privity
+$      tape9   ps,p1d,,99999,,sav.perm,,den62
+$      tape9   xs,p2d,,99999,,cop.perm,,den62
+savemast listopt/no/,inclsys_,reset/rfiles/
+$      sysout  j*,\S(poub)
+$      sysout  p*,\S(poub)
+$      endjob
+\F
+>
+
+>restumc
+a
+$ **   Restore     de l'Umc \S(umc)
+$      ident   \S(ident),res.\S(umc)
+$      filsys
+$      privity
+$      tape9   pr,x1d,,99999,,res.\S(umc),,den62
+restore \S(umc),reset/rfiles/,reset/denied/,reset/device/
+$      sysout  j*,\S(poub)
+$      sysout  p*,\S(poub)
+\F
+>
+
+>restpack
+a
+$ **   Restore      Pack \S(pack)
+$      ident   \S(ident),res.\S(pack)
+$      filsys
+$      privity
+restoremast device/\S(type)pk,\S(pack)/,inclsys_/all/,
+reset/rfiles/
+$      tape9   pr,p1d,,99999,,res.\S(pack),,den62
+$      sysout  j*,\S(poub)
+$      sysout  p*,\S(poub)
+\F
+>
+
+>restperm
+a
+$ **   Restore des Permanents  ****
+$      ident   \S(ident),res.permaments
+$      filsys
+$      privity
+$      tape9   pr,p1d,,99999,,res.perm,,den62
+restoremast listopt/no/,reset/rfiles/,inclsys_/all/
+$      sysout  j*,\S(poub)
+$      sysout  p*,\S(poub)
+\F
+>
+
+>listumc
+a
+$ **   List        de l'Umc \S(umc)
+$      ident   \S(ident),lis.\S(umc)
+$      filsys
+$      privity
+maslst \S(umc)
+$      sysout  j*,\S(poub)
+$      sysout  p*,\S(poub)
+\F
+>
+
+>listpack
+a
+$ **           List  Pack \S(pack)
+$      ident   \S(ident),lis.\S(pack)
+$      filsys
+$      privity
+maslst device/\S(type)pk,\S(pack)/
+$      sysout  j*,\S(poub)
+$      sysout  p*,\S(poub)
+\F
+>
+
+>listperm
+a
+$ **           Liste des Permanents
+$      ident   \S(ident),lis.permaments
+$      filsys
+$      privity
+maslst
+$      sysout  j*,\S(poub)
+$      sysout  p*,\S(poub)
+\F
+>
+[65130/fred/page]
+ " Auteur : RIOCHE.P           le 22/04/92         a Trelaze
+"PAGE - Editeur Pleine Page Domaine Public.
+"
+" Mode d'emploi de Fred PAGE :
+"        Lancement        : FRED PAGE nom_de_fichier
+"        Edition de texte :
+" Modifier l'ecran presente en utilisant les touches de fonctions
+" du clavier : suppression de ligne, insertion de caracteres, ...
+" sans toutefois faire sortir la fleche (<===) de l'ecran,
+"   et sans rien mettre sur la premiere ligne.
+" Appuyer sur TRANSmit pour valider les modifs.
+" Si on met quelque chose sur la premiere ligne,
+"  les eventuelles  modifications faites dans le reste de l'ecran
+"  sont ignorees.
+" Sur la premiere ligne, on peut entrer une commande FRED,
+" ou  .  pour passer a la page suivante, ou - pour revenir a la page precedente;
+" ou \BL pour passer en mode ligne;
+"        (quand on est en mode ligne, il faut faire \BP pour revenir en mode
+"         page);
+" ou  /  pour faire une nouvelle fois la derniere commande executee,
+" ou  Q  pour abandonner FRED P,
+" ou QQ  pour abandonner FRED P, quelque soit l'etat des buffers.
+"
+" Il existe aussi :
+"
+" ! <commandes_fred>  qui permet de passer en mode ligne juste le
+"     temps d'execution des dites commandes.
+"   (bien mettre un blanc apres le !).
+"
+" Si pour une raison ou pour une autre vous etes perdu, par suite d'appui
+" intempestif sur une mauvaise touche de fonction, par exemple, pour vous
+" remettre en selle, faites $*$brk, ou la touche de fonction adequate de
+" de votre terminal; quand vous obtenez le ?, faites  B0 \B(page)
+"
+" Pour les textes contenant des caracteres speciaux ( code ascii de 000 a 037)
+" ou des \, pour ceux dont les lignes font plus de 80 caracteres, ou dont
+" certaines lignes commencent par <===, il est preferable de travailler en
+" mode ligne.
+"
+" ?   qui raple la derniere commande execute dans le champ de commande FRED,
+"     ceci permet de la modifier, pour la re-executer.
+"
+" Addendum technique a l'intention des feles de Fred :
+"
+" L'utilisateur ne doit pas utiliser les buffers et les registres
+" composes d'une seule lettre aphanumerique.
+" Le buffer x contient le nom du buffer courant. Si l'utilisateur veut
+" travailler sur plusieurs buffers, pour changer de buffer courant, il
+" peut faire  BXC B(nom_du_nouveau_buffer_courant)\F
+"
+" Il est possible de creer ses propres commandes dans son environnement de
+" travail. Pour cela il suffit de creer un fichier .init sous le catalogue
+" FRED, qui sera charge avant d'executer n'importe qu'elle procedure.
+" Dans ce fichier vous initialiserez des buffers d'au moins 2 caracteres
+"
+"   EX: De creation d'un commande PL, qui recherchera "toto" a partir de
+"       la ligne courante.
+"
+" Commande:
+"  PL
+"
+"  b(pl)a
+"  \C\Bx  " positionnement sur le buffer contenant le buffer courant ex: B0
+"  ./toto/z
+"  \F
+"
+" Il est egalement possible de recuperer les parametres derriere la commande,
+" voici un petit exemple :
+"
+" Commande:
+" \B(DUP)/string_debut/string_fin/string_insertion_apres/
+"   ou
+" \B(DUP)!string_debut!string_fin!string_insertion_apres!
+"
+"  b(dup) a
+"  zd(cmdfred) zd(copyde) zd(copya) zd(apres)
+"  b(cmd) 1k(cmdfred) b(cmdfred) *s:/\O|!:\C\C
+"  :
+"  b(cmdfred)
+"  2k(copyde) 3k(copya) 4k(apres)
+"
+"  \C\Bx
+"  /\C\S(copyde)/,/\C\S(copya)/k(tampon)
+"  /\C\S(apres)/za(tampon)
+"  \F
+"
+
+       " ========================================= option par defauts
+
+o-s/
+o-r
+o+s[
+o+s{|
+o+o	\
+o-i(
+
+b(cr)a \C
+\F
+b(mode_sdp)    a \233[?=h\F
+b(mode_vip)    a \233[?=l\F
+b(bip)         a \207\F
+b(hom)         a \224\F
+b(cls)         a \214\F
+b(ret)         a \215\F
+b(stx)         a \233T\F
+b(etx)         a \233U\F
+b(cls_tab)     a \2332\F
+b(pos_tab)     a \2331\F
+b(vdo_nor)     a \233[0m\F
+b(vdo_inv)     a \233[7m\F
+b(vdo_sbr)     a \233[2m\F
+b(adr_l24_c78) a \2237m\F
+b(adr_l24_c01) a \2237 \F
+
+       " ========================================== pose tab 8 16 32 52 73
+
+b(tabu) a
+\S(cls_tab)\S(ret)\S(pos_tab)       \S(pos_tab)        \S(pos_tab)
+                \S(pos_tab)                    \S(pos_tab)
+                     \S(pos_tab)       \S(cls)
+\F
+
+       " ========================================== Init buffer(eff)
+
+b(eff) a o-oo jm/\S(cls)\S(vdo_nor)/ o+oo !nscroll
+\F
+
+       " ========================================== Init buffer(transit)
+
+b(transmit) a
+jm/TRANSmit pour continuer/ b(tampon)*d a \C\C\C\R\C\C\C\F
+!scroll
+!lcas
+o-oo jp!\S(mode_sdp)\S(tabu)! o+oo \0
+\F
+
+       " ========================================== Init buffer(ligne)
+
+b(ligne) a
+z
+!nscroll
+!send
+o+ie	 o+ia/>/
+o-oo jm/\S(cls)\S(vdo_inv)Retour au mode Ligne.\S(vdo_nor)/ o+oo
+f
+je
+\F
+
+       " ========================================== Init buffer(page)
+
+b(page) a
+z
+!scroll
+!hold
+o-ia
+zd(nomfic)
+zg(nomfic)f
+b(nomfic) s/ .*// kx
+\C\Bx
+
+@(do)
+
+n(deb)a
+n(lig)<1  jf n(lig):1
+n(lig)>20 jf n(lig):20
+n(num):\C\N(lig)-1
+zd(cmd-1)
+zg(cmd-1)zp(cmd)
+b(cmd-1) u1e *s!\C\O@(45).*$!!
+\C\Bx
+o-oo
+jm/\S(cls)\S(adr_l24_c01)\S(vdo_sbr)Fred_PAGE :\S(vdo_nor) \C\S(cmd-1)\S(hom)/
+o+oo
+n(deb)<1 j(eof)t
+p
+u\C\N(num)e .1p
+
+@(eof)
+
+n(fin)a
+n(fin)=$ jf jm/<===  fin de fichier ===/
+\C\N(deb)z
+o-oo jp/\S(vdo_inv)<===`....1....`. \S(vdo_nor) / o+oo f
+
+@(ini_ecr)
+
+o-oo
+\1
+jp/\S(adr_l24_c78)\S(etx)\S(hom)\S(stx)\S(vdo_inv) \S(vdo_nor)\S(hom)/
+o+oo
+
+@(aff_cmd)
+
+b(cmd)*d
+a \C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+\C\R
+<===   " ========================================== fin demande reponse bp
+<===
+\C\F
+1t/^$/   j(pas_cmd)f
+/^<===/,$d
+1d
+\C\Bx
+n(fin)>0 jt a \C\L(cmd)\C\F t/^/ j(do)f 1z j(do)
+\C\N(deb),\C\N(fin)c
+\C\L(cmd)\C\F
+n(fin)a
+n(deb)>\C\N(fin) j(do)t  \C\N(deb)z j(ini_ecr)
+
+@(pas_cmd)
+
+2,$d
+1t/^\C\C.$/ jf \C\Bx \C\N(fin)z j(do)
+1t/^-$/     j(bac_cmd)t
+1t!^?$!     j(rap_cmd)t
+1t!^/$!     jt 1k(cmd-1)
+1t!^/$!     jf s!/!\C\S(cmd-1)!
+1t!^qq$!    jf o-oo jp!\S(mode_vip)! o+oo q!nscroll
+1t/^q$/     j(bye_cmd)t
+1t/^[q!]/   jf s/^! // i \C\B(eff)\C\F $a \C\B(transmit)\C\F
+\C\Bx
+u1e \C\N(deb)z
+u1e \C\L(cmd)
+n(err):#>-1 j(err_cmd)f
+\C\Bx
+j(do)
+
+@(err_cmd)
+nt*-1
+o-oo jp/\S(cls)\S(bip)/ o+oo
+jp/?\C\Nt/ y
+b(tampon)a  \C\R\C\F
+!scroll
+
+@(bac_cmd)
+\C\Bx n(deb)<1 j(do)t 1z n(deb)-\C\N(lig)<1 j(do)t
+\C\N(deb)z
+j(do)
+
+@(bye_cmd)
+bz zc
+zd(quit) zg(quit)fb
+bq *t!?! jt o-oo jp!\S(mode_vip)! o+oo q!nscroll
+o-oo jp/\S(cls)\S(bip)/ o+oo
+jm/?18? questionable buffers/ \0
+b(tampon)*d a \C\R\C\F
+\C\Bx
+\C\N(deb)z
+j(do)
+
+@(rap_cmd)
+\1
+o-oo jp/\S(adr_l24_c78)\S(etx)\S(hom)\S(stx)\C\S(cmd-1)\S(hom)/ o+oo
+j(aff_cmd)
+\F
+
+       " ========================================== C'est parti
+
+b0
+n(param):$>0 j(param)t
+q!fred expl page
+
+@(param)
+1m(nomfic)
+n(param):$=0 jt b. 1k(exec) b(exec) s/^".* \S(nomfic)// s/^ *//
+
+zd0
+b0 rx \S(nomfic) j(ya_fic)t
+
+@(yapas_fic)
+b0 a
+Le fichier demande est inaccessible.
+(Pour un mode d'emploi de Fred P, c'est !FRED EXPL PAGE qu'il faut faire.)
+
+
+
+\F
+zc
+
+@(ya_fic)
+n(exec):$=0 j(yapas_fic)t
+1z
+u1e \C\B(exec)
+n(err):#>-1 jt n(err)*-1 jm/?\N(err) :\S(exec)/
+
+       " ========================================== Initialisation ecran
+!lcas
+o-oo jp!\S(mode_sdp)\S(tabu)! o+oo
+n(lig):15  n(col):1
+zdt zdu zd.
+\B(page)
+je
+[65130/fred/wheris]
+ " Auteur : RIOCHE.P           a Champs/Marne      le 09/11/92          V1.1
+"WHERIS - Recherche ou il y a un fichier de ce nom la, dans l'umc.
+"
+" Mode d'emploi de WHERIS :
+"        FRED WHERIS xyz [[dans] nom_de_catalogue]
+"        Et l'on obtient la magnifique liste des fichiers du catalogue designe,
+"        ou de l'umc sous laquelle on est connecte a defaut de nom de catalogue,
+"        dont les noms comportent la chaine de caracteres   xyz
+"        P.S. 1- La liste se trouve aussi dans le fichier courant (*src).
+"             2- Le temps de reponse depend grandement du catalogue a examiner.
+o+q
+n(np):$>0 j(param)t
+jm/ Mode d'emploi :/
+jm/      FRED WHERIS xyz [[dans] nom_de_catalogue] /
+qq
+
+@(param)
+*zl
+1m(xyz)
+n(np):$>0  j(file)f
+1t/^dans$/ jf 1d
+n(np):$>0  jf 1m(cat)
+n(np):$>0  jf *s/$/ /
+
+@(file)
+zg(file)!file \S(cat)
+b(xyz) s/\c/\C\C/  s/\o/\C\O/  s/\C
+//                                " Enleve le CR a la fin de la ligne
+b(file)  g~/\B(xyz)/d
+n(nl):$>0 jt                      jm/YA pas de \S(xyz)/  qq
+w *src
+q!list
+[65130/fred/xtree]
+ " Auteur : RIOCHE.P           a Champs/Marne      le 09/11/92          V1.1
+"XTREE - Liste les fichiers et catalogues sous forme arborescente.
+"
+" Mode d'emploi :
+"  FRED XTREE [chemin_d'acces|option_de_clis_tss]*
+"
+"    Cette procedure visualise les structures FMS sous forme d'arbre.
+"      Le resultat est visualise a l'ecran, mais sera egalement dans un
+"      fichier temporaire (*xtree).
+"
+o+q
+n(np):$>0 j(arg1)t
+b(0) a \S(u)\F
+
+@(arg1)
+g/^$/d
+*s/$/ /
+
+zg(clis)!clis \S(0)
+b(clis)
+n(nd):$=1 jf jm/\S(clis)/ qq
+
+@(ttq) b(clis) n(clis):$=0 j(fttq)t
+       1m(1clis)
+       b(1clis)
+       *t/^ ->/          j(catalosup)t
+       *t/^ <-/          j(cataloinf)t
+       *t/^\S(1clis-1) / j(ttq)t
+       *t/^$/            j(ttq)t
+       *t/^ \O+/         j(ttq)t
+       *t/^Total.*:/     j(ttq)t
+
+       *s/ .*$//
+       *s/^/\S(+)     |-/
+       b(xtree)
+       za(1clis)
+       j(ttq)
+
+       @(catalosup)
+       b(1clis) *k(numniv) *k(1clis-1) *k(1cata)
+       b(1clis-1) *s/^.*start //
+       b(1cata)   *s/^.*start // *zu
+       b(numniv)  *s/^ -> //     *s/ start.*$//
+       n(numniv):\S(numniv)
+       zd(+) b(+) a +\F
+       @(ttqniv) n(numniv)=0 j(fttqniv)t
+                 b(+)
+                 *s/^/     |-/
+                 n(numniv)-1
+                 j(ttqniv)
+          
+       @(fttqniv)
+       b(+) *s/+//
+       b(1cata) *s/^/\S(+)/
+       b(xtree)
+       za(1cata)
+       j(ttq)
+
+       @(cataloinf)
+       b(1clis) *k(numniv)
+       b(numniv) *t/^ <- 0 / j(ttq)t
+       b(+)
+       *s/     |-$//
+       j(ttq)
+
+@(fttq)
+b(xtree)
+*s!|-     !|     !
+wa *xtree
+q!l *xtree

@@ -1,0 +1,495 @@
+>
+zg(fo)fo
+Fred
+       " aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+b(buf)
+a
+>
+Ajout  ligne de texte numero 1
+>
+\F
+$a
+>
+Ajout  ligne de texte numero 2
+>
+Ajout  ligne de texte numero 3
+>
+\F
+o-i\F
+$a Ajout  ligne de texte numero 4
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+*k(bufi)
+       " bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+b(buf)*dza(bufi)
+b0
+? buff/reg name invalid
+o-i(
+b0
+       " ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+b(buf)*dza(bufi)
+1c
+>
+Change ligne de texte numero 1
+>
+\F
+1,2c
+>
+Change ligne de texte numero 1
+>
+Change ligne de texte numero 2
+>
+\F
+o-i\F
+$c Change ligne de texte numero 4
+*
+Change ligne de texte numero 1
+Change ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Change ligne de texte numero 4
+       " ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+b(buf)*dza(bufi)
+4d
+b(buf1)
+*d
+*
+? empty buffer
+       " eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee
+b(buf)*dza(bufi)
+e(term par 1)/1$/
+/(term par 1)/
+Ajout  ligne de texte numero 1
+       " fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff
+b(buf)*dza(bufi)
+f
+b(buf) 4,4 ?
+       "
+f /fred/parex
+       "
+fb
+b(buf) 4,4 /fred/parex ?
+b(bufi) 4,4
+b(fo) 15,15
+       "
+fe
+/\E(term par 1)/
+e(term par 1)/1$/
+       "
+ff
+b(buf) /fred/parex ?
+       "
+n(reg1):5
+n(reg2):10
+fn
+n(reg1):5
+n(reg2):10
+       "
+fo
+o-i\F
+o-i.
+o-i(
+o+ia/>/
+o-ic/</
+o+ie\
+o+if
+o-m
+o+oo\B\C\F\L\N\R\E\O\W\S
+o-p21
+o-q
+o+r
+o+s/&d^.*$\E[
+o-s-+|@#<>{(
+o+t5,9
+       "
+fv
+compiled Fri May  3 15:11:45 1991 using workfile fc*wk
+       "
+f?
+b(buf) /fred/parex ?
+       " ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+b(buf)
+g/ligne/p
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+g~/1/p
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+       " iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+b(buf)*dza(bufi)
+1i
+>
+Insert ligne de texte numero 0
+>
+\F
+o-i(
+$i Insert ligne de texte numero $-1
+*
+Insert ligne de texte numero 0
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Insert ligne de texte numero $-1
+Ajout  ligne de texte numero 4
+       " jjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjjj
+       " kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+b(buf)*dza(bufi)
+1,2k(bufk)
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+b(bufk)
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+       " lllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll
+l2-4 /fred/parexemple
+$      program fred
+$      limits  10,40k
+$      prmfl   **,q,r,cmdlib/etc/qstar
+l2,2 /fred/parexemple
+$      program fred
+$      limits  10,40k
+       " mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+b(buf)*dza(bufi)
+1,2m(bufm)
+*
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+b(bufm)
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+       " nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn
+n(reg):-1
+n(reg)|    n(reg)p
+-1
+n(reg)+5   n(reg)p
+4
+n(reg)-3   n(reg)p
+1
+n(reg)*4   n(reg)p
+4
+n(reg)/5   n(reg)p
+0
+n(reg)%5   n(reg)p
+0
+n(reg)~    n(reg)p
+-1
+n(reg)&7   n(reg)p
+7
+n(reg)|8   n(reg)p
+15
+n(reg)^8   n(reg)p
+7
+n(reg){2   n(reg)p
+28
+n(reg)}2   n(reg)p
+7
+n(reg)=0   jt jm/pas egal      a zero/
+pas egal      a zero
+n(reg)>0   jf jm/superieur     a zero/
+superieur     a zero
+n(reg)<0   jt jm/pas inferieur a zero/
+pas inferieur a zero
+n(reg)b2   n(reg)p
+111
+n(reg)b8   n(reg)p
+7
+n(reg)d2   n(reg)p
+07
+n(reg)f.   n(reg)p
+.7
+b(buf)
+n(reg)a    n(reg)p
+.2
+1,$n(reg)l n(reg)p
+76
+       " ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+       " ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp
+b(buf)*dza(bufi)
+1,2p
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+       " qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqq
+       " rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+b(bufr)r library/fred/time
+40,1291 b(bufr) library/fred/time
+b(bufr)r library/fred/time jt jm/Pb de lecture du fichier/
+? buffer not empty
+       " sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+b(buf)*dza(bufi)
+1s/ligne/colonne/p
+Ajout  colonne de texte numero 1
+1s/.*/& &/p
+Ajout  colonne de texte numero 1 Ajout  colonne de texte numero 1
+       " ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
+b(buf)*dza(bufi)
+1t/^ajout/ jf jm/Ya ajout en debut de ligne/
+Ya ajout en debut de ligne
+       " uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu
+b(buf)*dza(bufi)
+u5t .+1p
+? address out of buffer
+
+
+
+u1e 20d
+       " vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+b(buf)*dza(bufi)
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+1d
+*
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+v
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+       " wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+b(buf)*dza(bufi)
+f
+b(buf) 4,4 /fred/parex ?
+w
+4,123 b(buf) /fred/parex
+wa
+4,123 b(buf) /fred/parex
+wb
+4,123 b(buf) /fred/parex BCD card
+wa /fred/parexa
+4,123 b(buf) /fred/parexa
+wb /fred/parexb
+4,123 b(buf) /fred/parexb BCD card
+       " yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy
+b(buf)*dza(bufi)
+/erreur/
+? search failed
+y
+? search failed at "/erreur/"
+       " zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+b(buf)*dza(bufi)
+2z
+p
+Ajout  ligne de texte numero 2
+       " zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz
+       " aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+b(buf)*dza(bufi)
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+1k(bufa)
+$za(bufa)
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+Ajout  ligne de texte numero 1
+       " bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+b(buf)*dza(bufi)
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+*zb
+*
+Ajout  ligne de texte numero 4
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 1
+       " ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+b(buf)*dza(bufi)
+f
+b(buf) 4,4 /fred/parexb ? BCD card
+zc
+f
+b(buf) 4,4 /fred/parexb BCD card
+       " ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+b(buf)*dza(bufi)
+f
+b(buf) 4,4 /fred/parexb ? BCD card
+zd(buf)
+f
+b(buf) 0,0
+       " ggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg
+b(buf)*dza(bufi)
+zg(bufg)fv
+b(bufg)
+*
+compiled Fri May  3 15:11:45 1991 using workfile fc*wk
+       " iiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii
+b(buf)*dza(bufi)
+*s! !\ !
+o+t10,20,30,40,50,60,70
+*zi
+? no text changed
+*
+Ajout              ligne     de        texte     numero    1
+Ajout              ligne     de        texte     numero    2
+Ajout              ligne     de        texte     numero    3
+Ajout              ligne     de        texte     numero    4
+       " kkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkkk
+b(buf)*dza(bufi) zd(bufk)
+1zk(bufk)
+3zk(bufk)
+b(bufk)
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 3
+       " lllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll
+b(buf)*dza(bufi)
+1zl
+2zl/^./
+1,2p
+ajout  ligne de texte numero 1
+ajout  ligne de texte numero 2
+       " mmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm
+b(buf)*dza(bufi) zd(bufm)
+1zm(bufm)
+3zk(bufm)
+*
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+b(bufm)
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 4
+       " ooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo
+b(buf)*dza(bufi)
+*s! !\ !
+o+t10,20,30,40,50,60,70
+*zi
+? no text changed
+*
+Ajout              ligne     de        texte     numero    1
+Ajout              ligne     de        texte     numero    2
+Ajout              ligne     de        texte     numero    3
+Ajout              ligne     de        texte     numero    4
+*zo
+*
+Ajout              ligne     de        texte     numero    1
+Ajout              ligne     de        texte     numero    2
+Ajout              ligne     de        texte     numero    3
+Ajout              ligne     de        texte     numero    4
+       " ppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppppp
+b(buf)*dza(bufi)
+1,2k(bufp)
+zp(bufp)
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+       " rrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
+zd(bufr)
+zr library/fred/time
+40,1291 ba library/fred/time
+zr library/fred/index
+77,2421 bb library/fred/index
+fb
+bb 77,77 library/fred/index
+ba 40,40 library/fred/time
+b(buf) 2,4
+b(bufa) 1,1
+b(bufg) 1,1
+b(bufi) 4,4
+b(bufk) 2,2
+b(bufm) 2,2
+b(bufp) 2,2
+b(fo) 15,15
+       " sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssss
+b(buf)*dza(bufi)
+*zb
+*
+Ajout  ligne de texte numero 4
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 1
+*zs
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+       " ttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttttt
+b(buf)*dza(bufi)
+*zt/ABCDEFGH/BCDEFGHI/
+*
+Bjout  ligne de texte numero 1
+Bjout  ligne de texte numero 2
+Bjout  ligne de texte numero 3
+Bjout  ligne de texte numero 4
+       " uuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuuu
+b(buf)*dza(bufi)
+1zu
+2zu/^./
+? no text changed
+1,2p
+AJOUT  LIGNE DE TEXTE NUMERO 1
+Ajout  ligne de texte numero 2
+       " vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
+b(buf)*dza(bufi)
+1d
+v
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+zv
+*
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+       " wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww
+b(buf)*dza(bufi)
+w /fred/parex
+4,123 b(buf) /fred/parex
+1,2zw /fred/parex
+2,61 
+b(bufw)r /fred/parex
+6,185 b(bufw) /fred/parex
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+       " !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!lc
+!
+? "!" cannot be used in batch
+       " =======================================================================
+b(buf)*dza(bufi)
+3z
+=
+3
+       " :::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+b(buf)*dza(bufi)
+=
+4
+:
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+=
+4
+       "
+End of File on Command input

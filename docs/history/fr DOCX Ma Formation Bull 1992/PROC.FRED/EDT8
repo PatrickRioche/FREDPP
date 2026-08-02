@@ -1,0 +1,60 @@
+ " Auteur : RIOCHE.P           a Champs/Marne      le 09/11/92          V1.1
+"EDT8 - Utilisation EDT8 pour faire des procedures FRED.
+n(np):$>0 j(param)t
+jm!Mode d'emploi :                                                      !
+jm! FRED EDT8 string_de_fichier                                         !
+qq
+
+@(param)
+o+q o-sd
+
+       " S1
+b(frededt8)r (0) jt
+n(yalig):$>0 j(yalig)t
+a
+ " Auteur : xxxxxxxxxxxxx      a xxxxxxxxxxx       le xx/xx/xx          Vx.x
+"xxxxx - xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.
+"
+"
+
+
+@(yalig)
+       " T1
+*s!!\B!
+*s!!\C!
+*s!!\F!
+*s!!\L!
+*s!!\N!
+*s!!\R!
+*s!!\E!
+*s!!\O!
+*s!!\W!
+*s!!\S!
+*s!!\H!
+*s!	!\011!
+*s!!\014!
+wa (0)           jt jm!PB ecriture dans conversion FRED vers EDT8! qq
+
+       " P1
+!edt8 (0)
+
+       " S2
+b(editfred)r (0)  jt jm!PB lecture  dans conversion EDT8 vers FRED! qq
+
+       " T2
+*s!\B!!
+*s!\C!!
+*s!\F!!
+*s!\L!!
+*s!\N!!
+*s!\R!!
+*s!\E!!
+*s!\O!!
+*s!\W!!
+*s!\S!!
+*s!\H!!
+*s!\011!	!
+*s!\014!!
+*s! *$!!            " enleve les blancs en fin de ligne
+wa (0)             jt jm!PB lecture  dans conversion EDT8 vers FRED! qq
+qq

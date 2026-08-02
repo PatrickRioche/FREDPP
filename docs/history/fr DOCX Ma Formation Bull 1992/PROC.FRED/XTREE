@@ -1,0 +1,70 @@
+ " Auteur : RIOCHE.P           a Champs/Marne      le 09/11/92          V1.1
+"XTREE - Liste les fichiers et catalogues sous forme arborescente.
+"
+" Mode d'emploi :
+"  FRED XTREE [chemin_d'acces|option_de_clis_tss]*
+"
+"    Cette procedure visualise les structures FMS sous forme d'arbre.
+"      Le resultat est visualise a l'ecran, mais sera egalement dans un
+"      fichier temporaire (*xtree).
+"
+o+q
+n(np):$>0 j(arg1)t
+b(0) a (u)
+
+@(arg1)
+g/^$/d
+*s/$/ /
+
+zg(clis)!clis (0)
+b(clis)
+n(nd):$=1 jf jm/(clis)/ qq
+
+@(ttq) b(clis) n(clis):$=0 j(fttq)t
+       1m(1clis)
+       b(1clis)
+       *t/^ ->/          j(catalosup)t
+       *t/^ <-/          j(cataloinf)t
+       *t/^(1clis-1) / j(ttq)t
+       *t/^$/            j(ttq)t
+       *t/^ +/         j(ttq)t
+       *t/^Total.*:/     j(ttq)t
+
+       *s/ .*$//
+       *s/^/(+)     |-/
+       b(xtree)
+       za(1clis)
+       j(ttq)
+
+       @(catalosup)
+       b(1clis) *k(numniv) *k(1clis-1) *k(1cata)
+       b(1clis-1) *s/^.*start //
+       b(1cata)   *s/^.*start // *zu
+       b(numniv)  *s/^ -> //     *s/ start.*$//
+       n(numniv):(numniv)
+       zd(+) b(+) a +
+       @(ttqniv) n(numniv)=0 j(fttqniv)t
+                 b(+)
+                 *s/^/     |-/
+                 n(numniv)-1
+                 j(ttqniv)
+          
+       @(fttqniv)
+       b(+) *s/+//
+       b(1cata) *s/^/(+)/
+       b(xtree)
+       za(1cata)
+       j(ttq)
+
+       @(cataloinf)
+       b(1clis) *k(numniv)
+       b(numniv) *t/^ <- 0 / j(ttq)t
+       b(+)
+       *s/     |-$//
+       j(ttq)
+
+@(fttq)
+b(xtree)
+*s!|-     !|     !
+wa *xtree
+q!l *xtree

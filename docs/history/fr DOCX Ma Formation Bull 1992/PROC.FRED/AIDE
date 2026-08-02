@@ -1,0 +1,124 @@
+ " Auteur : RIOCHE.P           a Champs/Marne      le 09/11/92          V1.1
+"AIDE - Aide sur une procedure FRED.
+"
+"Syntaxe:
+"     FRED AIDE <procedure> [+Page]
+"
+"Options:
+"   +Page
+"       Indique a AIDE d'observer une pause entre chaque
+"       page.
+"
+"Description:
+"     FRED AIDE donne des explications sur la procedure specifiee
+"en affichant les commentaires commencant en debut de ligne.
+"AIDE recherche un fichier de nom "<procedure>", ou "/fred/"<procedure>",
+""library/fred/"<procedure>" et en dernier "fred/"<procedure>".
+"
+
+ " =====================================================================
+ " Stockage et initialisation pour FRED
+ " Positionnement des options par defaut de FRED
+ " =====================================================================
+o+q o-p o+i o-ia o-i( o+s(){[|$^& o-s+@#<>
+
+ " =====================================================================
+ " Definition de quelques modeles generaux
+ " =====================================================================
+e(nl)/
+/                                                  " Retour Chariot
+ea/[abcdefghijlkmopqrstuvwxyz]/                    " Alphabetique
+eb/[	 ]/                                          " Blanc espace et tabulateur
+ed/[0123456789]/                                   " Numerique
+
+ " =====================================================================
+ " Constitution des buffers avec execution du programme principal
+ " =====================================================================
+b.
+g/^>./ .s/^.//m(name) t/^>/ jt .,/^>/-1m((name))
+       d                       " supprime la ligne de terminaison ">"
+b(strings) g/^{[^ 	]*}q[ 	]*=/ s//q
+/^,.s/
+// ^m(name) .m((name))
+zd(strings) zd(name) b0
+(main) q
+
+ " =====================================================================
+ " Analyse des parametres selon la norme du B package :
+ " =Valeur   : option par valeur  => saisie utilisateur : v=20 ou V=20 ou va=20
+ " +Flag     : option par drapeau => saisie utilisateur : +f ou -F ou +flag
+ " _Lettre   : option par lettres => saisie utilisateur : L ou let ou lettre
+ "
+ " Pour les options par valeur : le resultat est place dans un buffer ayant
+ " le nom de l'option. Il y a en plus un registre de meme nom egal a 1.
+ "
+ " Pour les options par drapeau : un registre est assigne a +1 ou -1
+ " en fonction du + ou -. Si l'option n'est pas specifiee le registre sera a 0.
+ "
+ " Pour les options par lettres : un registre est assigne a +1 si l'option
+ " est specifiee. Si l'option n'est pas specifiee le registre sera a 0.
+ "
+ " NB : Pour l'option par valeur, si vous voulez utiliser des valeurs par
+ "      defaut dans la section string, il suffit de remplacer dans
+ "      le buffer getopt le ".zm" par ".m".
+ " =====================================================================
+>getopt
+b(opts)
+g/^=.*$/ s/^=// k(pat) k(name) b(name) .zl 
+    b(pat) o-sd s/[abcdefghijklmnopqrstuvwxyz]/(&|)/ s/(nl)//
+    b(0) o+sd g/^(pat)=/ s/// s/(nl)// .zm((name)) n((name))+1
+    b((name)) $nxa nx<2 jt je parametre (name)= specifie 2 fois!
+g/^+.*$/ s/^+// k(pat) k(name) b(name) .zl 
+    b(pat) o-sd s/[abcdefghijklmnopqrstuvwxyz]/(&|)/ s/(nl)//
+    b(0) o+sd nx:0 g/^+(pat)$/ n((name))+1 d nx+1
+                   g/^-(pat)$/ n((name))-1 d nx+1
+    b((name)) nx<2 jt je parametre +-(name) specifie 2 fois!
+g/^_.*$/ s/^_// k(pat) k(name) b(name) .zl 
+    b(pat) o-sd s/[abcdefghijklmnopqrstuvwxyz]/(&|)/ s/(nl)//
+    b(0) o+sd nx:0 g/^(pat)$/ n((name))+1 d nx+1
+    b((name)) nx<2 jt je parametre (name) specifie 2 fois!
+b0
+>
+
+ " =====================================================================
+ " Procedure de redirection de l'affichage. Ce buffer regarde si">file" ou
+ " ">>file" est present sur la ligne de commande dans b(0) et prepare un
+ " buffer b(write) qui peut etre utilise pour afficher le buffer 'courant'.
+ " Le buffer sera imprime sur le terminal, ecrit dans "file"
+ " ou ajoute a la suite du fichier redirige specifie.
+ " =====================================================================
+>redirect
+b(0) nx:0 g/^>/ nx+1
+nx>1 jf je redirection specifie plus d'une fois
+nx=0 jf b(write) a *t/^/ jf *p zc  b(0) jo " imprime sur le terminal
+.m(write) b(write) s/^>/*w / s/w >/zw / b(0)
+>
+
+>strings
+nomfic =(f),/fred/(f),library/fred/(f),fred/(f)
+>
+
+>opts
++Page
+>
+
+>main
+
+o-i
+
+(redirect)
+(getopt)
+
+n(page)>0 jf o+p
+n(page)<0 jf o-p
+
+*t/./ jt a expl
+u1e 2*s;^;/;
+*m(f)
+r (nomfic) jt y je
+*t/^"/ jt je Pas de commentaire dans le fichier (f)
+g~//d
+*s///
+(write)
+qq
+>

@@ -1,0 +1,314 @@
+ " Auteur : RIOCHE.P           le 22/04/92         a Trelaze
+"PAGE - Editeur Pleine Page Domaine Public.
+"
+" Mode d'emploi de Fred PAGE :
+"        Lancement        : FRED PAGE nom_de_fichier
+"        Edition de texte :
+" Modifier l'ecran presente en utilisant les touches de fonctions
+" du clavier : suppression de ligne, insertion de caracteres, ...
+" sans toutefois faire sortir la fleche (<===) de l'ecran,
+"   et sans rien mettre sur la premiere ligne.
+" Appuyer sur TRANSmit pour valider les modifs.
+" Si on met quelque chose sur la premiere ligne,
+"  les eventuelles  modifications faites dans le reste de l'ecran
+"  sont ignorees.
+" Sur la premiere ligne, on peut entrer une commande FRED,
+" ou  .  pour passer a la page suivante, ou - pour revenir a la page precedente;
+" ou L pour passer en mode ligne;
+"        (quand on est en mode ligne, il faut faire P pour revenir en mode
+"         page);
+" ou  /  pour faire une nouvelle fois la derniere commande executee,
+" ou  Q  pour abandonner FRED P,
+" ou QQ  pour abandonner FRED P, quelque soit l'etat des buffers.
+"
+" Il existe aussi :
+"
+" ! <commandes_fred>  qui permet de passer en mode ligne juste le
+"     temps d'execution des dites commandes.
+"   (bien mettre un blanc apres le !).
+"
+" Si pour une raison ou pour une autre vous etes perdu, par suite d'appui
+" intempestif sur une mauvaise touche de fonction, par exemple, pour vous
+" remettre en selle, faites $*$brk, ou la touche de fonction adequate de
+" de votre terminal; quand vous obtenez le ?, faites  B0 (page)
+"
+" Pour les textes contenant des caracteres speciaux ( code ascii de 000 a 037)
+" ou des \, pour ceux dont les lignes font plus de 80 caracteres, ou dont
+" certaines lignes commencent par <===, il est preferable de travailler en
+" mode ligne.
+"
+" ?   qui raple la derniere commande execute dans le champ de commande FRED,
+"     ceci permet de la modifier, pour la re-executer.
+"
+" Addendum technique a l'intention des feles de Fred :
+"
+" L'utilisateur ne doit pas utiliser les buffers et les registres
+" composes d'une seule lettre aphanumerique.
+" Le buffer x contient le nom du buffer courant. Si l'utilisateur veut
+" travailler sur plusieurs buffers, pour changer de buffer courant, il
+" peut faire  BXC B(nom_du_nouveau_buffer_courant)
+"
+" Il est possible de creer ses propres commandes dans son environnement de
+" travail. Pour cela il suffit de creer un fichier .init sous le catalogue
+" FRED, qui sera charge avant d'executer n'importe qu'elle procedure.
+" Dans ce fichier vous initialiserez des buffers d'au moins 2 caracteres
+"
+"   EX: De creation d'un commande PL, qui recherchera "toto" a partir de
+"       la ligne courante.
+"
+" Commande:
+"  PL
+"
+"  b(pl)a
+"  x  " positionnement sur le buffer contenant le buffer courant ex: B0
+"  ./toto/z
+"  
+"
+" Il est egalement possible de recuperer les parametres derriere la commande,
+" voici un petit exemple :
+"
+" Commande:
+" (DUP)/string_debut/string_fin/string_insertion_apres/
+"   ou
+" (DUP)!string_debut!string_fin!string_insertion_apres!
+"
+"  b(dup) a
+"  zd(cmdfred) zd(copyde) zd(copya) zd(apres)
+"  b(cmd) 1k(cmdfred) b(cmdfred) *s:/|!:
+"  :
+"  b(cmdfred)
+"  2k(copyde) 3k(copya) 4k(apres)
+"
+"  x
+"  /(copyde)/,/(copya)/k(tampon)
+"  /(apres)/za(tampon)
+"  
+"
+
+       " ========================================= option par defauts
+
+o-s/
+o-r
+o+s[
+o+s{|
+o+o	\
+o-i(
+
+b(cr)a 
+
+b(mode_sdp)    a ›[?=h
+b(mode_vip)    a ›[?=l
+b(bip)         a ‡
+b(hom)         a ”
+b(cls)         a Œ
+b(ret)         a 
+b(stx)         a ›T
+b(etx)         a ›U
+b(cls_tab)     a ›2
+b(pos_tab)     a ›1
+b(vdo_nor)     a ›[0m
+b(vdo_inv)     a ›[7m
+b(vdo_sbr)     a ›[2m
+b(adr_l24_c78) a “7m
+b(adr_l24_c01) a “7 
+
+       " ========================================== pose tab 8 16 32 52 73
+
+b(tabu) a
+(cls_tab)(ret)(pos_tab)       (pos_tab)        (pos_tab)
+                (pos_tab)                    (pos_tab)
+                     (pos_tab)       (cls)
+
+
+       " ========================================== Init buffer(eff)
+
+b(eff) a o-oo jm/(cls)(vdo_nor)/ o+oo !nscroll
+
+
+       " ========================================== Init buffer(transit)
+
+b(transmit) a
+jm/TRANSmit pour continuer/ b(tampon)*d a 
+!scroll
+!lcas
+o-oo jp!(mode_sdp)(tabu)! o+oo \0
+
+
+       " ========================================== Init buffer(ligne)
+
+b(ligne) a
+z
+!nscroll
+!send
+o+ie	 o+ia/>/
+o-oo jm/(cls)(vdo_inv)Retour au mode Ligne.(vdo_nor)/ o+oo
+f
+je
+
+
+       " ========================================== Init buffer(page)
+
+b(page) a
+z
+!scroll
+!hold
+o-ia
+zd(nomfic)
+zg(nomfic)f
+b(nomfic) s/ .*// kx
+x
+
+@(do)
+
+n(deb)a
+n(lig)<1  jf n(lig):1
+n(lig)>20 jf n(lig):20
+n(num):(lig)-1
+zd(cmd-1)
+zg(cmd-1)zp(cmd)
+b(cmd-1) u1e *s!@(45).*$!!
+x
+o-oo
+jm/(cls)(adr_l24_c01)(vdo_sbr)Fred_PAGE :(vdo_nor) (cmd-1)(hom)/
+o+oo
+n(deb)<1 j(eof)t
+p
+u(num)e .1p
+
+@(eof)
+
+n(fin)a
+n(fin)=$ jf jm/<===  fin de fichier ===/
+(deb)z
+o-oo jp/(vdo_inv)<===`....1....`. (vdo_nor) / o+oo f
+
+@(ini_ecr)
+
+o-oo
+\1
+jp/(adr_l24_c78)(etx)(hom)(stx)(vdo_inv) (vdo_nor)(hom)/
+o+oo
+
+@(aff_cmd)
+
+b(cmd)*d
+a 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<===   " ========================================== fin demande reponse bp
+<===
+
+1t/^$/   j(pas_cmd)f
+/^<===/,$d
+1d
+x
+n(fin)>0 jt a (cmd) t/^/ j(do)f 1z j(do)
+(deb),(fin)c
+(cmd)
+n(fin)a
+n(deb)>(fin) j(do)t  (deb)z j(ini_ecr)
+
+@(pas_cmd)
+
+2,$d
+1t/^.$/ jf x (fin)z j(do)
+1t/^-$/     j(bac_cmd)t
+1t!^?$!     j(rap_cmd)t
+1t!^/$!     jt 1k(cmd-1)
+1t!^/$!     jf s!/!(cmd-1)!
+1t!^qq$!    jf o-oo jp!(mode_vip)! o+oo q!nscroll
+1t/^q$/     j(bye_cmd)t
+1t/^[q!]/   jf s/^! // i (eff) $a (transmit)
+x
+u1e (deb)z
+u1e (cmd)
+n(err):#>-1 j(err_cmd)f
+x
+j(do)
+
+@(err_cmd)
+nt*-1
+o-oo jp/(cls)(bip)/ o+oo
+jp/?t/ y
+b(tampon)a  
+!scroll
+
+@(bac_cmd)
+x n(deb)<1 j(do)t 1z n(deb)-(lig)<1 j(do)t
+(deb)z
+j(do)
+
+@(bye_cmd)
+bz zc
+zd(quit) zg(quit)fb
+bq *t!?! jt o-oo jp!(mode_vip)! o+oo q!nscroll
+o-oo jp/(cls)(bip)/ o+oo
+jm/?18? questionable buffers/ \0
+b(tampon)*d a 
+x
+(deb)z
+j(do)
+
+@(rap_cmd)
+\1
+o-oo jp/(adr_l24_c78)(etx)(hom)(stx)(cmd-1)(hom)/ o+oo
+j(aff_cmd)
+
+
+       " ========================================== C'est parti
+
+b0
+n(param):$>0 j(param)t
+q!fred expl page
+
+@(param)
+1m(nomfic)
+n(param):$=0 jt b. 1k(exec) b(exec) s/^".* (nomfic)// s/^ *//
+
+zd0
+b0 rx (nomfic) j(ya_fic)t
+
+@(yapas_fic)
+b0 a
+Le fichier demande est inaccessible.
+(Pour un mode d'emploi de Fred P, c'est !FRED EXPL PAGE qu'il faut faire.)
+
+
+
+
+zc
+
+@(ya_fic)
+n(exec):$=0 j(yapas_fic)t
+1z
+u1e (exec)
+n(err):#>-1 jt n(err)*-1 jm/?(err) :(exec)/
+
+       " ========================================== Initialisation ecran
+!lcas
+o-oo jp!(mode_sdp)(tabu)! o+oo
+n(lig):15  n(col):1
+zdt zdu zd.
+(page)
+je
