@@ -24,8 +24,9 @@ fredpp_add_test(test_change test_change.cpp)
 fredpp_add_test(test_move test_move.cpp)
 fredpp_add_test(test_transfer test_transfer.cpp)
 fredpp_add_test(test_buffer_command test_buffer_command.cpp)
+fredpp_add_test(test_help_manager test_help_manager.cpp)
 
 add_test(NAME cli_smoke COMMAND fredpp --version)
 set_tests_properties(cli_smoke PROPERTIES
-    PASS_REGULAR_EXPRESSION "FREDPP v0.0.2"
+    PASS_REGULAR_EXPRESSION "FREDPP v0.0.3"
 )

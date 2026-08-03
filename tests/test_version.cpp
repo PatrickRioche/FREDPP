@@ -3,7 +3,7 @@
 #include <iostream>
 
 int main() {
-    if (fredpp::version() != "0.0.2") {
+    if (fredpp::version() != "0.0.3") {
         std::cerr << "Unexpected version: " << fredpp::version() << '\n';
         return 1;
     }

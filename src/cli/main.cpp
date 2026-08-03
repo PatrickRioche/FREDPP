@@ -1,4 +1,5 @@
 #include "fredpp/version.hpp"
+#include "HelpManager.h"
 #include "fred/ast/AbsoluteAddressNode.hpp"
 #include "fred/ast/CommandNode.hpp"
 #include "fred/command/CommandRegistry.hpp"
@@ -149,27 +150,16 @@ void print_pattern(std::string_view source) {
     std::cout << fred::describe_pattern(*node) << '\n';
 }
 
-bool print_help_topic(std::string topic) {
-    if (topic.empty() || topic == "h" || topic == "help") {
-        topic = "index";
-    }
-
-    for (auto& ch : topic) {
-        ch = static_cast<char>(std::tolower(static_cast<unsigned char>(ch)));
-    }
-
-    const std::filesystem::path path =
-        std::filesystem::path("docs") / "fr" / (topic + ".md");
-    std::ifstream input(path, std::ios::binary);
-    if (!input) {
+bool print_help_topic(const fredpp::HelpManager& help, std::string_view topic) {
+    try {
+        std::cout << help.load(topic);
+        if (std::cout.good()) {
+            std::cout << '\n';
+        }
+        return true;
+    } catch (const std::exception&) {
         return false;
     }
-
-    std::cout << input.rdbuf();
-    if (std::cout.good()) {
-        std::cout << '\n';
-    }
-    return true;
 }
 
 } // namespace
@@ -182,6 +172,7 @@ int main(int argc, char** argv) {
         return 0;
     }
 
+    fredpp::HelpManager help_manager;
     fred::BufferManager manager;
     fred::ConsoleOutput output(std::cout);
     fred::ExecutionContext execution_context(manager, output);
@@ -208,7 +199,7 @@ int main(int argc, char** argv) {
                                                         : topic.substr(topic_start);
                 if (topic == "version") {
                     std::cout << "FREDPP v" << fredpp::version() << '\n';
-                } else if (!print_help_topic(topic)) {
+                } else if (!print_help_topic(help_manager, topic)) {
                     std::cout << "Aucune rubrique d'aide : "
                               << (topic.empty() ? "index" : topic) << '\n';
                 }
