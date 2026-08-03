@@ -1,0 +1,56 @@
+name: Build and test
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  linux:
+    name: Linux - ${{ matrix.compiler }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [gcc, clang]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Select compiler
+        shell: bash
+        run: |
+          if [ "${{ matrix.compiler }}" = "gcc" ]; then
+            echo "CXX=g++" >> "$GITHUB_ENV"
+          else
+            echo "CXX=clang++" >> "$GITHUB_ENV"
+          fi
+
+      - name: Configure
+        run: >
+          cmake -S . -B out/build/ci-${{ matrix.compiler }}
+          -DCMAKE_CXX_COMPILER=${{ env.CXX }}
+          -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: cmake --build out/build/ci-${{ matrix.compiler }} --parallel
+
+      - name: Test
+        run: ctest --test-dir out/build/ci-${{ matrix.compiler }} --output-on-failure
+
+  windows:
+    name: Windows - MSVC
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure
+        run: cmake -S . -B out/build/ci-msvc -DCMAKE_BUILD_TYPE=Debug
+
+      - name: Build
+        run: cmake --build out/build/ci-msvc --config Debug --parallel
+
+      - name: Test
+        run: ctest --test-dir out/build/ci-msvc -C Debug --output-on-failure
