@@ -1,6 +1,6 @@
-# B — Positionnement sur un buffer (Buffer)
+# B — Positionnement sur un buffer ( Buffer )
 
-> Sélectionne un buffer existant ou crée un nouveau buffer.
+> La commande B permet de se positionner sur un buffer ou de le créer s'il n'existe pas déjà.
 
 ## Syntaxe
 
@@ -12,53 +12,38 @@ B<nom de buffer>
 
 | Élément | Description |
 |---|---|
-| `<nom de buffer>` | Nom du buffer à sélectionner ou à créer. |
+| `<nom de buffer>` | Nom du buffer concerné. |
 
 ## Description
 
-La commande **B** permet de se positionner sur un buffer. Si le buffer n'existe pas encore, il est créé automatiquement.
+La commande B permet de se positionner sur un buffer ou de le créer s'il n'existe pas déjà.
 
-Le nom d'un buffer peut comporter jusqu'à 15 caractères et doit normalement être placé entre parenthèses.
+Le nom des buffers peut faire 15 caractères maximum et doit être entre parenthèses.
 
 ## Exemples
 
 ```fred
 b(buf)
-b0
-```
-
-Si le nom n'est pas valide dans le mode courant :
-
-```text
-? buff/reg name invalid
-```
-
-Puis :
-
-```fred
-o-i(
-b0
+b0? buff/reg name invalido-i(b0
 ```
 
 ## Options
 
-### `O-I(`
-
-Lorsque l'option `O-I(` est activée, les parenthèses ne sont pas obligatoires pour les noms de buffers composés d'un seul caractère.
+Si l'option O-I( est validée, les parenthèses ne seront pas obligatoires pour les noms de buffers composés d'une seule lettre.
 
 ## Remarques
 
-Le buffer sélectionné devient le buffer courant.
+Aucune remarque spécifique n'est documentée.
 
 ## Compatibilité
 
 | Implémentation | Statut |
 |---|---|
 | FRED historique | Compatible |
-| FRED++ | Compatible si la gestion des buffers est implémentée |
+| FRED++ | À valider selon l'implémentation |
 
 ## Voir aussi
 
-- [A — Append](a.md)
-- [ZD — Suppression de buffer](zd.md)
-- [FB — Informations sur les buffers](fb.md)
+- [FB](fb.md)
+- [F](f.md)
+- [ZD](zd.md)

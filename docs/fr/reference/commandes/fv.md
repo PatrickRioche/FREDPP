@@ -1,6 +1,6 @@
-# FV — Version
+# FV — Impression de la Version
 
-> Affiche les informations de compilation de la version de FRED.
+> La commande FV imprime la date de compilation et le nom du file-code associé au load module d'exécution.
 
 ## Syntaxe
 
@@ -8,20 +8,19 @@
 FV
 ```
 
+## Paramètres
+
+Aucun paramètre explicite n'est documenté.
+
 ## Description
 
-La commande **FV** affiche la date de compilation ainsi que le nom du fichier de travail ou du module associé à la version exécutée.
+La commande FV imprime la date de compilation et le nom du file-code associé au load module d'exécution.
 
 ## Exemples
 
 ```fred
 fv
-```
-
-Résultat historique :
-
-```text
-compiled Fri May 3 15:11:45 1991 using workfile fc*wk
+compiled Fri May  3 15:11:45 1991 using workfile fc*wk
 ```
 
 ## Options
@@ -30,15 +29,15 @@ Aucune option spécifique n'est documentée.
 
 ## Remarques
 
-Dans FRED++, le contenu exact pourra être adapté au système de version moderne, tout en conservant la fonction d'information de version.
+Aucune remarque spécifique n'est documentée.
 
 ## Compatibilité
 
 | Implémentation | Statut |
 |---|---|
 | FRED historique | Compatible |
-| FRED++ | À adapter au système de build |
+| FRED++ | À valider selon l'implémentation |
 
 ## Voir aussi
 
-- [FO — Informations sur les options](fo.md)
+- [FO](fo.md)

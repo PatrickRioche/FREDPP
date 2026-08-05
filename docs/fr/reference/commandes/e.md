@@ -1,6 +1,6 @@
-# E — Définition de modèle (Pattern)
+# E — Définition de modèle ( Pattern )
 
-> Associe un nom à un modèle de recherche.
+> La commande E permet d'associer un nom à un jeu de caractères représentant un modèle.
 
 ## Syntaxe
 
@@ -12,27 +12,20 @@ E<nom de modèle>/<modèle>/
 
 | Élément | Description |
 |---|---|
-| `<nom de modèle>` | Nom logique attribué au modèle. |
-| `<modèle>` | Expression décrivant le jeu de caractères recherché. |
+| `<nom de modèle>` | Nom attribué au modèle. |
+| `<modèle>` | Modèle de recherche FRED. |
 
 ## Description
 
-La commande **E** permet d'associer un nom à un jeu de caractères représentant un modèle.
+La commande E permet d'associer un nom à un jeu de caractères représentant un modèle.
 
-Le nom du modèle peut comporter jusqu'à 15 caractères et doit être placé entre parenthèses.
+Le nom des modèles peut faire 15 caractères maximum et doit être entre parenthèses.
 
 ## Exemples
 
 ```fred
 b(buf)
-e(term par 1)/1$/
-/\E(term par 1)/
-```
-
-Résultat :
-
-```text
-Ajout ligne de texte numero 1
+e(term par 1)/1$//\E(term par 1)/Ajout  ligne de texte numero 1
 ```
 
 ## Options
@@ -41,17 +34,17 @@ Aucune option spécifique n'est documentée.
 
 ## Remarques
 
-Un modèle nommé peut ensuite être réutilisé à l'aide de la directive `\E`.
+Aucune remarque spécifique n'est documentée.
 
 ## Compatibilité
 
 | Implémentation | Statut |
 |---|---|
 | FRED historique | Compatible |
-| FRED++ | Compatible si les modèles nommés sont implémentés |
+| FRED++ | À valider selon l'implémentation |
 
 ## Voir aussi
 
-- [FE — Informations sur les modèles](fe.md)
-- [S — Substitution](s.md)
-- [T — Test](t.md)
+- [FE](fe.md)
+- [S](s.md)
+- [T](t.md)

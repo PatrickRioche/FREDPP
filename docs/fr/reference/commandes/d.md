@@ -1,6 +1,6 @@
-# D — Suppression de lignes (Delete)
+# D — Suppression de n lignes ( Delete )
 
-> Supprime une ligne ou un groupe de lignes du buffer courant.
+> La commande D permet de supprimer une ligne ou un groupe de lignes d'un buffer.
 
 ## Syntaxe
 
@@ -12,41 +12,17 @@
 
 | Élément | Description |
 |---|---|
-| `(.,.)` | Adresse ou plage de lignes optionnelle. |
+| `(.,.)` | Adresse ou plage de lignes optionnelle, selon la forme indiquée. |
 
 ## Description
 
-La commande **D** permet de supprimer une ligne ou un groupe de lignes dans le buffer courant.
-
-Sans adresse explicite, la commande s'applique à la ligne courante.
+La commande D permet de supprimer une ligne ou un groupe de lignes d'un buffer.
 
 ## Exemples
 
 ```fred
 b(buf)
-4d
-*
-```
-
-Résultat :
-
-```text
-Ajout ligne de texte numero 1
-Ajout ligne de texte numero 2
-Ajout ligne de texte numero 3
-```
-
-Suppression de toutes les lignes :
-
-```fred
-*d
-*
-```
-
-Résultat :
-
-```text
-? empty buffer
+4d*Ajout  ligne de texte numero 1Ajout  ligne de texte numero 2Ajout  ligne de texte numero 3*d*? empty buffer
 ```
 
 ## Options
@@ -55,17 +31,17 @@ Aucune option spécifique n'est documentée.
 
 ## Remarques
 
-Après suppression de toutes les lignes, le buffer est vide.
+Aucune remarque spécifique n'est documentée.
 
 ## Compatibilité
 
 | Implémentation | Statut |
 |---|---|
 | FRED historique | Compatible |
-| FRED++ | Compatible |
+| FRED++ | À valider selon l'implémentation |
 
 ## Voir aussi
 
-- [A — Append](a.md)
-- [C — Change](c.md)
-- [V — Annulation](v.md)
+- [A](a.md)
+- [C](c.md)
+- [V](v.md)

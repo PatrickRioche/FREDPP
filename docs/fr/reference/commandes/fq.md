@@ -1,6 +1,6 @@
 # F? — Liste des buffers modifiés
 
-> Affiche les buffers dont le contenu diffère du fichier associé.
+> La comande F?
 
 ## Syntaxe
 
@@ -8,24 +8,18 @@
 F?
 ```
 
+## Paramètres
+
+Aucun paramètre explicite n'est documenté.
+
 ## Description
 
-La commande **F?** affiche :
-
-- le nom du buffer courant ;
-- le nom du fichier associé ;
-- les noms des buffers dont le contenu est différent de celui de leur fichier associé ;
-- le nom des fichiers associés à ces buffers.
+La comande F? liste le nom du buffer courant, le nom du fichier associé, et les noms des buffers ( avec les noms des fichiers associés ) dont les contenus sont différents de ceux de leurs fichiers associés respectifs.
 
 ## Exemples
 
 ```fred
 f?
-```
-
-Résultat possible :
-
-```text
 b(buf) /fred/parex ?
 ```
 
@@ -35,17 +29,17 @@ Aucune option spécifique n'est documentée.
 
 ## Remarques
 
-L'indicateur `?` signale un buffer modifié.
+Aucune remarque spécifique n'est documentée.
 
 ## Compatibilité
 
 | Implémentation | Statut |
 |---|---|
 | FRED historique | Compatible |
-| FRED++ | À valider selon la gestion des fichiers |
+| FRED++ | À valider selon l'implémentation |
 
 ## Voir aussi
 
-- [F — Facts / File](f.md)
-- [FB — Informations sur les buffers](fb.md)
-- [FF — Informations sur les fichiers](ff.md)
+- [F](f.md)
+- [FB](fb.md)
+- [FF](ff.md)

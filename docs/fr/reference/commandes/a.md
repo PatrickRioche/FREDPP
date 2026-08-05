@@ -1,6 +1,6 @@
-# A — Insertion après la ligne courante (Append)
+# A — Insertion  après la ligne courante ( Append)
 
-> Insère une ou plusieurs lignes de texte après la ligne courante ou après une adresse explicitement indiquée.
+> La commande A permet d'entrer du texte dans un buffer.
 
 ## Syntaxe
 
@@ -12,50 +12,28 @@
 
 | Élément | Description |
 |---|---|
-| `(.)` | Adresse optionnelle. Si elle est omise, l'insertion s'effectue après la ligne courante. |
+| `(.)` | Adresse ou plage de lignes optionnelle, selon la forme indiquée. |
 | `<bl>` | Un espace. |
-| `<texte>` | Une ou plusieurs lignes de texte à insérer. |
+| `<texte>` | Texte ou lignes de texte traités par la commande. |
 
 ## Description
 
-La commande **A** permet d'entrer du texte dans un buffer.
-
-Si une adresse de ligne est précisée, le texte est inséré après cette ligne. Si aucune adresse n'est fournie, l'insertion s'effectue après la ligne courante.
+La commande A permet d'entrer du texte dans un buffer. On peut insérer ce texte après un numéro de ligne précis ou si aucun numéro de ligne n'est précisé l'insertion s'effectuera après la ligne courante.
 
 ## Exemples
 
 ```fred
 b(buf)
-a
-Ajout ligne de texte numero 1
-\F
-$a
-Ajout ligne de texte numero 2
-Ajout ligne de texte numero 3
-\F
-o-i\F
-$a Ajout ligne de texte numero 4
-*
-```
-
-Résultat attendu :
-
-```text
-Ajout ligne de texte numero 1
-Ajout ligne de texte numero 2
-Ajout ligne de texte numero 3
-Ajout ligne de texte numero 4
+a>Ajout  ligne de texte numero 1>\F$a>Ajout  ligne de texte numero 2Ajout  ligne de texte numero 3>\Fo-i\F$a Ajout  ligne de texte numero 4*Ajout  ligne de texte numero 1Ajout  ligne de texte numero 2Ajout  ligne de texte numero 3Ajout  ligne de texte numero 4
 ```
 
 ## Options
 
-### `O-I\F`
-
-Lorsque l'option `O-I\F` est activée, le texte peut être saisi directement après la commande `A`. Il n'est alors pas nécessaire de terminer l'entrée par `\F`.
+Si l'option O-I\F est validée, le texte pourra être entré directement derrière la commande A et il ne sera pas nécessaire de terminer l'entrée par un \F.
 
 ## Remarques
 
-Le buffer `buf` et son contenu servent de base aux exemples des autres commandes du manuel.
+Le buffer "buf" avec son contenu nous servira de base pour les exemples des autres commandes.
 
 ## Compatibilité
 
@@ -66,6 +44,6 @@ Le buffer `buf` et son contenu servent de base aux exemples des autres commandes
 
 ## Voir aussi
 
-- [I — Insertion avant la ligne courante](i.md)
-- [C — Remplacement de lignes](c.md)
-- [D — Suppression de lignes](d.md)
+- [I](i.md)
+- [C](c.md)
+- [D](d.md)

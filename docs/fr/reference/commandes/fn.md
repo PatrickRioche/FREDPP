@@ -1,6 +1,6 @@
-# FN — Informations sur les registres
+# FN — Impression d'informations sur les registres
 
-> Affiche le nom et la valeur de tous les registres créés.
+> La commande FN imprime le nom et la valeur de tous les registres créés.
 
 ## Syntaxe
 
@@ -8,35 +8,37 @@
 FN
 ```
 
+## Paramètres
+
+Aucun paramètre explicite n'est documenté.
+
 ## Description
 
-La commande **FN** affiche le nom et la valeur de tous les registres actuellement définis.
+La commande FN imprime le nom et la valeur de tous les registres créés.
 
 ## Exemples
 
 ```fred
 fn
-```
-
-Résultat possible :
-
-```text
-n(reg1):5
-n(reg2):10
+n(reg1):5n(reg2):10
 ```
 
 ## Options
 
 Aucune option spécifique n'est documentée.
 
+## Remarques
+
+Aucune remarque spécifique n'est documentée.
+
 ## Compatibilité
 
 | Implémentation | Statut |
 |---|---|
 | FRED historique | Compatible |
-| FRED++ | Compatible si les registres sont implémentés |
+| FRED++ | À valider selon l'implémentation |
 
 ## Voir aussi
 
-- [N — Registres numériques](n.md)
-- [NP — Impression d'un registre](np.md)
+- [N:](ncolon.md)
+- [NP](np.md)

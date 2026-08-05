@@ -1,6 +1,6 @@
-# C — Remplacement de lignes (Change)
+# C — Remplacement de n lignes ( Change )
 
-> Remplace une ligne ou un groupe de lignes par un nouveau texte.
+> La commande C permet de changer des lignes de texte dans un buffer.
 
 ## Syntaxe
 
@@ -12,60 +12,38 @@
 
 | Élément | Description |
 |---|---|
-| `(.,.)` | Adresse ou plage de lignes optionnelle. |
+| `(.,.)` | Adresse ou plage de lignes optionnelle, selon la forme indiquée. |
 | `<bl>` | Un espace. |
-| `<texte>` | Texte de remplacement. |
+| `<texte>` | Texte ou lignes de texte traités par la commande. |
 
 ## Description
 
-La commande **C** permet de remplacer des lignes de texte dans un buffer.
-
-Si une seule adresse est précisée, la ligne correspondante est remplacée. Si une plage est donnée, toutes les lignes de cette plage sont remplacées. Si aucune adresse n'est fournie, le remplacement s'applique à la ligne courante.
+La commande C permet de changer des lignes de texte dans un buffer. On peut changer ce texte après un numéro de ligne précis ou si aucun numéro de ligne n'est précisé le remplacement s'effectuera après la ligne courante. Il est également possible de remplacer un groupe de ligne.
 
 ## Exemples
 
 ```fred
 b(buf)
-1c
-Change ligne de texte numero 1
-\F
-1,2c
-Change ligne de texte numero 1
-Change ligne de texte numero 2
-\F
-o-i\F
-$c Change ligne de texte numero 4
-*
-```
-
-Résultat attendu :
-
-```text
-Change ligne de texte numero 1
-Change ligne de texte numero 2
-Ajout ligne de texte numero 3
-Change ligne de texte numero 4
+1c>Change ligne de texte numero 1>\F1,2c>Change ligne de texte numero 1Change ligne de texte numero 2>\Fo-i\F$c Change ligne de texte numero 4*Change ligne de texte numero 1Change ligne de texte numero 2Ajout  ligne de texte numero 3Change ligne de texte numero 4
 ```
 
 ## Options
 
-### `O-I\F`
-
-Lorsque l'option `O-I\F` est activée, le texte peut être saisi directement après la commande `C`. Il n'est alors pas nécessaire de terminer l'entrée par `\F`.
+Si l'option O-I\F est validée, le texte pourra être entré directement derrière la commande C et il ne sera pas nécessaire de terminer l'entrée par un \F.
 
 ## Remarques
 
-La commande peut remplacer une seule ligne ou un groupe de lignes.
+Aucune remarque spécifique n'est documentée.
 
 ## Compatibilité
 
 | Implémentation | Statut |
 |---|---|
 | FRED historique | Compatible |
-| FRED++ | Compatible si le remplacement de plages est implémenté |
+| FRED++ | À valider selon l'implémentation |
 
 ## Voir aussi
 
-- [A — Append](a.md)
-- [I — Insert](i.md)
-- [D — Delete](d.md)
+- [A](a.md)
+- [I](i.md)
+- [D](d.md)
