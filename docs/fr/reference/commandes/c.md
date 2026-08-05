@@ -24,7 +24,22 @@ La commande C permet de changer des lignes de texte dans un buffer. On peut chan
 
 ```fred
 b(buf)
-1c>Change ligne de texte numero 1>\F1,2c>Change ligne de texte numero 1Change ligne de texte numero 2>\Fo-i\F$c Change ligne de texte numero 4*Change ligne de texte numero 1Change ligne de texte numero 2Ajout  ligne de texte numero 3Change ligne de texte numero 4
+1c
+>
+Change ligne de texte numero 1
+>\F
+1,2c
+>
+Change ligne de texte numero 1
+Change ligne de texte numero 2
+>\F
+o-i\F
+$c Change ligne de texte numero 4
+*
+Change ligne de texte numero 1
+Change ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Change ligne de texte numero 4
 ```
 
 ## Options

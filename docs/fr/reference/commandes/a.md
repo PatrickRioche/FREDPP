@@ -24,7 +24,23 @@ La commande A permet d'entrer du texte dans un buffer. On peut insérer ce texte
 
 ```fred
 b(buf)
-a>Ajout  ligne de texte numero 1>\F$a>Ajout  ligne de texte numero 2Ajout  ligne de texte numero 3>\Fo-i\F$a Ajout  ligne de texte numero 4*Ajout  ligne de texte numero 1Ajout  ligne de texte numero 2Ajout  ligne de texte numero 3Ajout  ligne de texte numero 4
+a
+>
+Ajout  ligne de texte numero 1
+>
+\F
+$a 
+>
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+>\F
+o-i\F
+$a Ajout  ligne de texte numero 4
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
 ```
 
 ## Options

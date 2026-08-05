@@ -22,7 +22,14 @@ La commande D permet de supprimer une ligne ou un groupe de lignes d'un buffer.
 
 ```fred
 b(buf)
-4d*Ajout  ligne de texte numero 1Ajout  ligne de texte numero 2Ajout  ligne de texte numero 3*d*? empty buffer
+4d
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+*d
+*
+? empty buffer
 ```
 
 ## Options

@@ -24,7 +24,19 @@ La commande I permet d'entrer du texte dans un buffer. On peut insérer ce texte
 
 ```fred
 b(buf)
-1i>Insert ligne de texte numero 0>\Fo-i($i Insert ligne de texte numero $-1*Insert ligne de texte numero 0Ajout  ligne de texte numero 1Ajout  ligne de texte numero 2Ajout  ligne de texte numero 3Insert ligne de texte numero $-1Ajout  ligne de texte numero 4
+1i
+>
+Insert ligne de texte numero 0
+>\F
+o-i(
+$i Insert ligne de texte numero $-1
+*
+Insert ligne de texte numero 0
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Insert ligne de texte numero $-1
+Ajout  ligne de texte numero 4
 ```
 
 ## Options
