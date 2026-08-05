@@ -6,7 +6,7 @@ if(POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.3 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.4 LANGUAGES CXX)
 
 if(MSVC)
     set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
@@ -20,12 +20,51 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Embed the French Markdown help pages in the executable.
-file(GLOB FREDPP_HELP_FILES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/docs/fr/*.md"
+# Embed only the French reference pages for commands available in FREDPP.
+# Files under docs/fr/reference/commandes are source documentation and are
+# deliberately never modified by the build.
+set(FREDPP_IMPLEMENTED_HELP_TOPICS
+    a
+    b
+    c
+    d
+    g
+    i
+    l
+    m
+    p
+    t
+    z
 )
-list(SORT FREDPP_HELP_FILES)
+
+set(FREDPP_HELP_FILES)
+foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
+    set(help_file
+        "${CMAKE_CURRENT_SOURCE_DIR}/docs/fr/reference/commandes/${help_topic}.md"
+    )
+    if(NOT EXISTS "${help_file}")
+        message(FATAL_ERROR "Missing French help page: ${help_file}")
+    endif()
+    list(APPEND FREDPP_HELP_FILES "${help_file}")
+endforeach()
+
 list(LENGTH FREDPP_HELP_FILES FREDPP_HELP_FILES_LENGTH)
+math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 1")
+
+string(CONCAT FREDPP_HELP_INDEX
+"# Aide FREDPP\n\n"
+"Cette aide embarque uniquement les documentations françaises des commandes disponibles dans FREDPP.\n\n"
+"## Rubriques embarquées\n\n"
+)
+foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
+    string(TOUPPER "${help_topic}" help_topic_upper)
+    string(APPEND FREDPP_HELP_INDEX "- `?${help_topic}` — commande ${help_topic_upper}\n")
+endforeach()
+string(APPEND FREDPP_HELP_INDEX
+"\n## Consultation\n\n"
+"- `?` ou `?index` : afficher cet index ;\n"
+"- `?version` : afficher la version de l'exécutable.\n"
+)
 
 set(FREDPP_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 file(MAKE_DIRECTORY "${FREDPP_GENERATED_DIR}")
@@ -36,7 +75,9 @@ file(WRITE "${FREDPP_EMBEDDED_HELP_HPP}"
 "#pragma once\n#include <string>\n#include <string_view>\n#include <vector>\nnamespace fredpp::embedded_help {\nconst std::string_view* find(std::string_view topic) noexcept;\nstd::vector<std::string> topics();\n}\n")
 
 file(WRITE "${FREDPP_EMBEDDED_HELP_CPP}"
-"#include \"EmbeddedHelp.hpp\"\n#include <array>\n#include <utility>\nnamespace fredpp::embedded_help {\nnamespace {\nusing Entry = std::pair<std::string_view, std::string_view>;\nstatic constexpr std::array<Entry, ${FREDPP_HELP_FILES_LENGTH}> entries = {{\n")
+"#include \"EmbeddedHelp.hpp\"\n#include <array>\n#include <utility>\nnamespace fredpp::embedded_help {\nnamespace {\nusing Entry = std::pair<std::string_view, std::string_view>;\nstatic constexpr std::array<Entry, ${FREDPP_EMBEDDED_HELP_COUNT}> entries = {{\n"
+"    Entry{\"index\", R\"FREDPP_HELP(${FREDPP_HELP_INDEX})FREDPP_HELP\"},\n"
+)
 
 foreach(help_file IN LISTS FREDPP_HELP_FILES)
     get_filename_component(help_topic "${help_file}" NAME_WE)
@@ -73,6 +114,7 @@ add_library(fredpp_core
     src/runtime/ExecutionContext.cpp
     src/runtime/CommandExecutor.cpp
     src/runtime/AddressEvaluator.cpp
+    src/runtime/PatternMatcher.cpp
 )
 
 target_include_directories(fredpp_core PUBLIC

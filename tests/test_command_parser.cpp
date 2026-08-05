@@ -136,6 +136,26 @@ int main() {
         assert(destination.line() == 0);
     }
     {
+        const auto node = parse("1,$G/recherche$/D");
+        assert(node->kind() == fred::AstNodeKind::GlobalCommand);
+        assert(node->has_address());
+        const auto& global = static_cast<const fred::GlobalCommandNode&>(*node);
+        assert(!global.inverted());
+        assert(global.nested_command().kind() == fred::AstNodeKind::DeleteCommand);
+    }
+    {
+        const auto node = parse("G~/recherche$/P");
+        assert(node->kind() == fred::AstNodeKind::GlobalCommand);
+        const auto& global = static_cast<const fred::GlobalCommandNode&>(*node);
+        assert(global.inverted());
+        assert(global.nested_command().kind() == fred::AstNodeKind::PrintCommand);
+    }
+    {
+        const auto node = parse("2Z");
+        assert(node->kind() == fred::AstNodeKind::ZapCommand);
+        assert(node->has_address());
+    }
+    {
         const auto node = parse("1p");
         assert(node->kind() == fred::AstNodeKind::PrintCommand);
         assert(node->has_address());
@@ -157,7 +177,7 @@ int main() {
     }
     {
         const auto registry = fred::make_core_command_registry();
-        assert(registry.size() == 9);
+        assert(registry.size() == 11);
         assert(registry.contains('P'));
         assert(registry.contains('L'));
         assert(registry.contains('D'));
@@ -167,14 +187,17 @@ int main() {
         assert(registry.contains('B'));
         assert(registry.contains('M'));
         assert(registry.contains('T'));
-        assert(!registry.contains('Z'));
+        assert(registry.contains('G'));
+        assert(registry.contains('Z'));
         assert(registry.find('P')->name == "Print");
     }
 
     expect_error("", "expected a command");
     expect_error("1", "expected a command");
-    expect_error("Z", "unknown command 'Z'");
     expect_error("P D", "unexpected token after command: 'D'");
+    expect_error("G/a/", "G requires a command after the pattern");
+    expect_error("G/a/1P", "addressed commands inside G are not supported yet");
+    expect_error("1,2Z", "Z accepts at most one line address");
     expect_error("M", "M requires a destination address");
     expect_error("1M2,3", "M destination must be a single line address");
     expect_error("T", "T requires a destination address");

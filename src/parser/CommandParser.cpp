@@ -2,6 +2,7 @@
 
 #include "fred/parser/AddressParser.hpp"
 #include "fred/parser/ParseError.hpp"
+#include "fred/parser/PatternParser.hpp"
 
 #include <cctype>
 #include <optional>
@@ -44,6 +45,44 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         if (descriptor == nullptr) {
             throw ParseError(std::string("unknown command '") + mnemonic + "'",
                              command.location);
+        }
+
+        if (mnemonic == 'G') {
+            bool inverted = false;
+            if (tokens_->peek().type == TokenType::Symbol &&
+                tokens_->peek().lexeme == "~") {
+                (void)tokens_->consume();
+                inverted = true;
+            }
+
+            auto pattern = parse_delimited_pattern();
+            if (tokens_->peek().type == TokenType::End ||
+                tokens_->peek().type == TokenType::NewLine) {
+                throw ParseError("G requires a command after the pattern",
+                                 tokens_->peek().location);
+            }
+
+            CommandParser nested_parser(*tokens_, *registry_);
+            auto nested_command = nested_parser.parse();
+            if (nested_command->has_address()) {
+                throw ParseError(
+                    "addressed commands inside G are not supported yet",
+                    nested_command->location());
+            }
+
+            return std::make_unique<GlobalCommandNode>(
+                std::move(address), std::move(pattern), inverted,
+                std::move(nested_command), command.location);
+        }
+
+        if (mnemonic == 'Z') {
+            if (address && address->kind() == AstNodeKind::RangeAddress) {
+                throw ParseError("Z accepts at most one line address",
+                                 address->location());
+            }
+            require_command_end();
+            return std::make_unique<ZapCommandNode>(
+                std::move(address), command.location);
         }
 
         if (mnemonic == 'B') {
@@ -150,6 +189,50 @@ std::string CommandParser::parse_parenthesized_buffer_name() {
         throw ParseError("buffer name must not be empty", opening.location);
     }
     return name;
+}
+
+
+std::unique_ptr<PatternNode> CommandParser::parse_delimited_pattern() {
+    const auto opening = tokens_->consume();
+    if (opening.type != TokenType::Symbol ||
+        (opening.lexeme != "/" && opening.lexeme != "?")) {
+        throw ParseError("G requires a pattern delimited by '/' or '?'",
+                         opening.location);
+    }
+
+    const char delimiter = opening.lexeme.front();
+    std::string source = opening.lexeme;
+    std::size_t previous_end_column =
+        opening.location.column + opening.lexeme.size();
+
+    while (true) {
+        const auto& next = tokens_->peek();
+        if (next.type == TokenType::End || next.type == TokenType::NewLine) {
+            throw ParseError("unterminated FRED pattern", next.location);
+        }
+
+        const auto token = tokens_->consume();
+        if (token.location.column > previous_end_column) {
+            source.append(token.location.column - previous_end_column, ' ');
+        }
+
+        std::size_t preceding_backslashes = 0;
+        for (auto index = source.size(); index > 0 && source[index - 1] == '\\';
+             --index) {
+            ++preceding_backslashes;
+        }
+
+        source += token.lexeme;
+        previous_end_column = token.location.column + token.lexeme.size();
+
+        if (token.lexeme.size() == 1 && token.lexeme.front() == delimiter &&
+            preceding_backslashes % 2 == 0) {
+            break;
+        }
+    }
+
+    PatternParser parser(source, opening.location.flow_level);
+    return parser.parse();
 }
 
 void CommandParser::require_command_end() {

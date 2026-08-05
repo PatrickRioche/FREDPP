@@ -2,7 +2,9 @@
 
 **FREDPP** is a modern C++20 reimplementation of the historical FRED text editor.
 
-Current version: **v0.0.2-r1**.
+## Version
+
+Run FREDPP and enter `?version` to display the version of the executable.
 
 ## Historical lineage
 
@@ -20,7 +22,7 @@ The repository currently contains the migrated and validated Step 7.4A code:
 - AddressParser, PatternParser and CommandParser
 - AST nodes and address evaluation
 - ExecutionContext and CommandExecutor
-- Executable `P`, `L`, `D` and `A` commands
+- Executable `P`, `L`, `D`, `A`, `B`, `I`, `C`, `M`, `T`, `G` and `Z` commands
 - Automated tests through CTest
 
 ## Requirements

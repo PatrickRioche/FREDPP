@@ -115,6 +115,20 @@ CommandRegistry make_core_command_registry() {
                 std::move(address), nullptr, location);
         }});
 
+    registry.register_command(CommandDescriptor{
+        'G', "Global",
+        [](std::unique_ptr<AddressNode>, SourceLocation location) {
+            return std::make_unique<GlobalCommandNode>(
+                nullptr, nullptr, false, nullptr, location);
+        }});
+
+    registry.register_command(CommandDescriptor{
+        'Z', "Zap",
+        [](std::unique_ptr<AddressNode> address, SourceLocation location) {
+            return std::make_unique<ZapCommandNode>(
+                std::move(address), location);
+        }});
+
     return registry;
 }
 

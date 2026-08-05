@@ -3,6 +3,8 @@
 #include "fred/core/BufferManager.hpp"
 #include "fred/runtime/Output.hpp"
 
+#include <cstddef>
+
 namespace fred {
 
 // Services and mutable editor state made available to command execution.
@@ -19,9 +21,13 @@ public:
 
     [[nodiscard]] Output& output() noexcept;
 
+    void set_counter(std::size_t value) noexcept;
+    [[nodiscard]] std::size_t counter() const noexcept;
+
 private:
     BufferManager* buffers_;
     Output* output_;
+    std::size_t counter_{};
 };
 
 } // namespace fred

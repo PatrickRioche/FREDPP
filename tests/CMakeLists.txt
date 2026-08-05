@@ -15,6 +15,7 @@ fredpp_add_test(test_lexer test_lexer.cpp)
 fredpp_add_test(test_token_stream test_token_stream.cpp)
 fredpp_add_test(test_address_parser test_address_parser.cpp)
 fredpp_add_test(test_pattern_parser test_pattern_parser.cpp)
+fredpp_add_test(test_pattern_matcher test_pattern_matcher.cpp)
 fredpp_add_test(test_command_parser test_command_parser.cpp)
 fredpp_add_test(test_runtime_context test_runtime_context.cpp)
 fredpp_add_test(test_command_executor test_command_executor.cpp)
@@ -25,8 +26,10 @@ fredpp_add_test(test_move test_move.cpp)
 fredpp_add_test(test_transfer test_transfer.cpp)
 fredpp_add_test(test_buffer_command test_buffer_command.cpp)
 fredpp_add_test(test_help_manager test_help_manager.cpp)
+fredpp_add_test(test_global test_global.cpp)
+fredpp_add_test(test_zap test_zap.cpp)
 
 add_test(NAME cli_smoke COMMAND fredpp --version)
 set_tests_properties(cli_smoke PROPERTIES
-    PASS_REGULAR_EXPRESSION "FREDPP v0.0.3"
+    PASS_REGULAR_EXPRESSION "FREDPP v0.0.4"
 )

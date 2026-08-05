@@ -4,6 +4,7 @@
 
 #include "fred/runtime/AddressEvaluator.hpp"
 #include "fred/runtime/CommandExecutionError.hpp"
+#include "fred/runtime/PatternMatcher.hpp"
 
 #include <fstream>
 #include <string>
@@ -157,6 +158,80 @@ void execute_transfer(const TransferCommandNode& command,
     buffer.insert_after(destination, std::move(copied_lines));
 }
 
+
+void execute_zap(const ZapCommandNode& command, ExecutionContext& context) {
+    auto& buffer = context.current_buffer();
+    const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
+    if (range.first != range.last) {
+        throw CommandExecutionError("Z accepts at most one line address");
+    }
+    buffer.set_current_line(range.first);
+}
+
+LineRange evaluate_global_range(const GlobalCommandNode& command,
+                                const Buffer& buffer) {
+    if (buffer.empty()) {
+        throw CommandExecutionError("current buffer is empty");
+    }
+    if (command.address() == nullptr) {
+        return {1, buffer.line_count()};
+    }
+    return AddressEvaluator{}.evaluate(command.address(), buffer);
+}
+
+void execute_global(const GlobalCommandNode& command,
+                    ExecutionContext& context) {
+    auto& buffer = context.current_buffer();
+    auto range = evaluate_global_range(command, buffer);
+    const auto& nested = command.nested_command();
+
+    if (nested.has_address()) {
+        throw CommandExecutionError(
+            "addressed commands inside G are not supported yet");
+    }
+    if (nested.kind() != AstNodeKind::PrintCommand &&
+        nested.kind() != AstNodeKind::DeleteCommand &&
+        nested.kind() != AstNodeKind::ZapCommand) {
+        throw CommandExecutionError(
+            "G currently supports nested P, D and Z commands");
+    }
+
+    PatternMatcher matcher;
+    std::size_t selected_count = 0;
+    auto line = range.first;
+    auto last = range.last;
+
+    while (line <= last && !buffer.empty()) {
+        const bool pattern_found = matcher.search(command.pattern(), buffer.line(line));
+        const bool selected = command.inverted() ? !pattern_found : pattern_found;
+        if (!selected) {
+            ++line;
+            continue;
+        }
+
+        ++selected_count;
+        buffer.set_current_line(line);
+
+        if (nested.kind() == AstNodeKind::PrintCommand) {
+            context.output().write_line(buffer.line(line));
+            ++line;
+            continue;
+        }
+        if (nested.kind() == AstNodeKind::ZapCommand) {
+            ++line;
+            continue;
+        }
+
+        buffer.erase(line, line);
+        --last;
+        if (line > buffer.line_count()) {
+            break;
+        }
+    }
+
+    context.set_counter(selected_count);
+}
+
 void execute_buffer(const BufferCommandNode& command, ExecutionContext& context) {
     try {
         (void)context.buffers().create_or_select(command.buffer_name());
@@ -193,6 +268,12 @@ void CommandExecutor::execute(const CommandNode& command,
         return;
     case AstNodeKind::BufferCommand:
         execute_buffer(static_cast<const BufferCommandNode&>(command), context);
+        return;
+    case AstNodeKind::GlobalCommand:
+        execute_global(static_cast<const GlobalCommandNode&>(command), context);
+        return;
+    case AstNodeKind::ZapCommand:
+        execute_zap(static_cast<const ZapCommandNode&>(command), context);
         return;
     default:
         throw CommandExecutionError("unsupported command node");

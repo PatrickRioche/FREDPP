@@ -18,6 +18,7 @@ public:
 private:
     [[nodiscard]] bool begins_address(const Token& token) const noexcept;
     [[nodiscard]] std::string parse_parenthesized_buffer_name();
+    [[nodiscard]] std::unique_ptr<PatternNode> parse_delimited_pattern();
     void require_command_end();
 
     TokenStream* tokens_;

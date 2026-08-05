@@ -110,6 +110,8 @@ void print_address(std::string_view source) {
                   << "," << static_cast<int>(value.last().kind()) << ")\n";
         break;
     }
+    default:
+        throw std::logic_error("non-address AST node returned by AddressParser");
     }
 }
 
@@ -132,6 +134,8 @@ void print_command(std::string_view source) {
     case fred::AstNodeKind::MoveCommand: name = "Move"; break;
     case fred::AstNodeKind::TransferCommand: name = "Transfer"; break;
     case fred::AstNodeKind::BufferCommand: name = "Buffer"; break;
+    case fred::AstNodeKind::GlobalCommand: name = "Global"; break;
+    case fred::AstNodeKind::ZapCommand: name = "Zap"; break;
     default: name = "Command"; break;
     }
 
@@ -179,7 +183,7 @@ int main(int argc, char** argv) {
     fred::CommandExecutor command_executor;
     const auto command_registry = fred::make_core_command_registry();
 
-    std::cout << "FREDPP v" << fredpp::version() << " - executable P, L, D, A, B, I, C, M and T commands\n";
+    std::cout << "FREDPP v" << fredpp::version() << " - executable P, L, D, A, B, I, C, M, T, G and Z commands\n";
     std::cout << "Type ? for help; type :quit to exit.\n";
 
     std::string input;

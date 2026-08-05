@@ -1,6 +1,7 @@
 #pragma once
 
 #include "fred/ast/AddressNode.hpp"
+#include "fred/ast/PatternNodes.hpp"
 
 #include <memory>
 #include <optional>
@@ -112,6 +113,42 @@ public:
 
 private:
     std::string buffer_name_;
+};
+
+
+class GlobalCommandNode final : public CommandNode {
+public:
+    GlobalCommandNode(std::unique_ptr<AddressNode> address,
+                      std::unique_ptr<PatternNode> pattern,
+                      bool inverted,
+                      std::unique_ptr<CommandNode> nested_command,
+                      SourceLocation location) noexcept
+        : CommandNode(std::move(address), location),
+          pattern_(std::move(pattern)),
+          inverted_(inverted),
+          nested_command_(std::move(nested_command)) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::GlobalCommand;
+    }
+    [[nodiscard]] const PatternNode& pattern() const noexcept { return *pattern_; }
+    [[nodiscard]] bool inverted() const noexcept { return inverted_; }
+    [[nodiscard]] const CommandNode& nested_command() const noexcept {
+        return *nested_command_;
+    }
+
+private:
+    std::unique_ptr<PatternNode> pattern_;
+    bool inverted_{};
+    std::unique_ptr<CommandNode> nested_command_;
+};
+
+class ZapCommandNode final : public CommandNode {
+public:
+    using CommandNode::CommandNode;
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::ZapCommand;
+    }
 };
 
 } // namespace fred

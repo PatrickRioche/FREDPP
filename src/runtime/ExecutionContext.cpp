@@ -25,4 +25,12 @@ Output& ExecutionContext::output() noexcept {
     return *output_;
 }
 
+void ExecutionContext::set_counter(std::size_t value) noexcept {
+    counter_ = value;
+}
+
+std::size_t ExecutionContext::counter() const noexcept {
+    return counter_;
+}
+
 } // namespace fred
