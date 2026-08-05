@@ -156,7 +156,7 @@ void print_pattern(std::string_view source) {
 
 bool print_help_topic(const fredpp::HelpManager& help, std::string_view topic) {
     try {
-        std::cout << help.load(topic);
+        std::cout << help.load_for_terminal(topic);
         if (std::cout.good()) {
             std::cout << '\n';
         }
@@ -166,13 +166,21 @@ bool print_help_topic(const fredpp::HelpManager& help, std::string_view topic) {
     }
 }
 
+void print_version_info() {
+    std::cout << "FREDPP v" << fredpp::version() << '\n'
+              << "Commit Git : " << fredpp::git_commit() << '\n'
+              << "État des sources : " << fredpp::source_state() << '\n'
+              << "Feuille de route : ROADMAP.md — section v"
+              << fredpp::version() << '\n';
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
     configure_console_utf8();
 
     if (argc > 1 && std::string_view(argv[1]) == "--version") {
-        std::cout << "FREDPP v" << fredpp::version() << '\n';
+        print_version_info();
         return 0;
     }
 
@@ -184,7 +192,7 @@ int main(int argc, char** argv) {
     const auto command_registry = fred::make_core_command_registry();
 
     std::cout << "FREDPP v" << fredpp::version() << " - executable P, L, D, A, B, I, C, M, T, G and Z commands\n";
-    std::cout << "Type ? for help; type :quit to exit.\n";
+    std::cout << "Type ? for FRED help; type ?: for FREDPP commands; type :quit to exit.\n";
 
     std::string input;
     while (std::cout << manager.current().name() << "> " &&
@@ -202,7 +210,7 @@ int main(int argc, char** argv) {
                 topic = topic_start == std::string::npos ? std::string{}
                                                         : topic.substr(topic_start);
                 if (topic == "version") {
-                    std::cout << "FREDPP v" << fredpp::version() << '\n';
+                    print_version_info();
                 } else if (!print_help_topic(help_manager, topic)) {
                     std::cout << "Aucune rubrique d'aide : "
                               << (topic.empty() ? "index" : topic) << '\n';
@@ -213,7 +221,7 @@ int main(int argc, char** argv) {
                 break;
             }
             if (input == ":help") {
-                std::cout << "Use ? or ?index for FREDPP documentation.\n";
+                (void)print_help_topic(help_manager, ":");
                 continue;
             }
             if (input == ":buffers") {

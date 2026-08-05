@@ -2,9 +2,34 @@
 
 **FREDPP** is a modern C++20 reimplementation of the historical FRED text editor.
 
-## Version
+## Version and source identity
 
-Run FREDPP and enter `?version` to display the version of the executable.
+Run FREDPP and enter:
+
+```text
+?version
+```
+
+The command displays:
+
+- the software version;
+- the Git commit used to configure the build;
+- whether the source tree was clean or modified;
+- the matching section in `ROADMAP.md`.
+
+No version number is duplicated manually in this README.
+
+## Help
+
+Inside FREDPP:
+
+```text
+?       FRED command documentation currently embedded
+?:      FREDPP-specific development and diagnostic commands
+:help   same FREDPP-specific help as ?:
+```
+
+Only the French documentation of implemented FRED commands is embedded. The source files under `docs/fr/reference/commandes/` are not modified by the build.
 
 ## Historical lineage
 
@@ -14,22 +39,22 @@ Historical behavior is documented before implementation. The historical manuals 
 
 ## Implemented foundation
 
-The repository currently contains the migrated and validated Step 7.4A code:
+The repository currently contains:
 
-- Buffer and BufferManager
-- FlowEngine and nested input sources
-- CharacterStream, Lexer and TokenStream
-- AddressParser, PatternParser and CommandParser
-- AST nodes and address evaluation
-- ExecutionContext and CommandExecutor
-- Executable `P`, `L`, `D`, `A`, `B`, `I`, `C`, `M`, `T`, `G` and `Z` commands
-- Automated tests through CTest
+- Buffer and BufferManager;
+- FlowEngine and nested input sources;
+- CharacterStream, Lexer and TokenStream;
+- AddressParser, PatternParser and CommandParser;
+- AST nodes and address evaluation;
+- ExecutionContext and CommandExecutor;
+- executable `P`, `L`, `D`, `A`, `B`, `I`, `C`, `M`, `T`, `G` and `Z` commands;
+- automated tests through CTest.
 
 ## Requirements
 
-- CMake 3.24 or newer
-- A C++20 compiler
-- Visual Studio Community with the Desktop development with C++ workload on Windows
+- CMake 3.24 or newer;
+- a C++20 compiler;
+- Visual Studio Community with the Desktop development with C++ workload on Windows.
 
 ## Windows quick start
 
@@ -40,18 +65,37 @@ From PowerShell at the repository root:
 .\scripts\test.bat
 ```
 
-For a clean rebuild followed by tests (recommended before committing):
+For a clean rebuild followed by tests:
 
 ```powershell
 .\scripts\rebuild.bat
 ```
 
+## Linux quick start
+
+```bash
+./scripts/rebuild.sh gcc
+./scripts/rebuild.sh clang
+```
+
 ## Run the editor
 
-After a Debug build:
+Windows Debug build:
 
 ```powershell
 .\out\build\x64-Debug\Debug\fredpp.exe
+```
+
+Linux GCC build:
+
+```bash
+./out/build/linux-debug/fredpp
+```
+
+Linux Clang build:
+
+```bash
+./out/build/linux-clang/fredpp
 ```
 
 ## Architecture
@@ -64,6 +108,4 @@ The parser never accesses the Buffer. The Runtime never parses. AddressEvaluator
 
 ## Windows build reliability
 
-The Windows scripts build serially and MSVC uses embedded debug information.
-This prevents intermittent PDB creation failures that can occur when the repository
-is located in a synchronized folder such as Google Drive.
+The Windows scripts build serially and MSVC uses embedded debug information. This prevents intermittent PDB creation failures that can occur when the repository is located in a synchronized folder such as Google Drive.

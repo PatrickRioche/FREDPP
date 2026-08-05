@@ -3,7 +3,10 @@
 #include <string_view>
 
 namespace fredpp {
-[[nodiscard]] constexpr std::string_view version() noexcept {
-    return "0.0.4";
-}
-}
+
+[[nodiscard]] std::string_view version() noexcept;
+[[nodiscard]] std::string_view git_commit() noexcept;
+[[nodiscard]] std::string_view source_state() noexcept;
+[[nodiscard]] bool source_is_dirty() noexcept;
+
+} // namespace fredpp

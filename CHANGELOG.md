@@ -1,5 +1,23 @@
 # Changelog
 
+## v0.0.5
+
+### Added
+
+- Métadonnées de compilation contenant le commit Git et l'état des sources.
+- Aide `?:` consacrée aux commandes spéciales de FREDPP.
+- Documentation française `docs/fr/fredpp/commandes-speciales.md`.
+- Spécification `SPEC-023` sur l'identité de compilation.
+
+### Changed
+
+- La version est désormais définie uniquement par `project(FREDPP VERSION ...)` dans CMake.
+- `?version` et `--version` affichent la version, le commit, l'état des sources et la section de roadmap associée.
+- `:help` affiche la même rubrique que `?:`.
+- `ROADMAP.md` est entièrement actualisé en français avec le contenu de chaque version.
+- Les tests de version et d'aide couvrent les nouvelles informations.
+- Les index `?` et `?:` utilisent désormais une présentation alignée et lisible dans le terminal.
+
 ## v0.0.4
 
 ### Added
@@ -29,3 +47,5 @@
 ## v0.0.2
 
 - Commandes historiques initiales et gestion des buffers nommés.
+
+- amélioration de la lisibilité terminal des aides de commandes sans modification des Markdown de référence ;

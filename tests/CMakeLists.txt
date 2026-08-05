@@ -31,5 +31,5 @@ fredpp_add_test(test_zap test_zap.cpp)
 
 add_test(NAME cli_smoke COMMAND fredpp --version)
 set_tests_properties(cli_smoke PROPERTIES
-    PASS_REGULAR_EXPRESSION "FREDPP v0.0.4"
+    PASS_REGULAR_EXPRESSION "FREDPP v0.0.5"
 )

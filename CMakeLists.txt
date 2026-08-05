@@ -6,7 +6,7 @@ if(POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.4 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.5 LANGUAGES CXX)
 
 if(MSVC)
     set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
@@ -19,6 +19,55 @@ option(FREDPP_BUILD_TESTS "Build FREDPP tests" ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+# Build identity. The software version is defined only by project(... VERSION).
+# Git information is captured when CMake configures the build.
+set(FREDPP_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+file(MAKE_DIRECTORY "${FREDPP_GENERATED_DIR}")
+
+set(FREDPP_GIT_COMMIT "inconnu")
+set(FREDPP_GIT_STATE "inconnu")
+set(FREDPP_GIT_DIRTY 0)
+
+find_package(Git QUIET)
+if(GIT_FOUND AND EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/.git")
+    execute_process(
+        COMMAND "${GIT_EXECUTABLE}" rev-parse --short=7 HEAD
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        RESULT_VARIABLE FREDPP_GIT_COMMIT_RESULT
+        OUTPUT_VARIABLE FREDPP_GIT_COMMIT_OUTPUT
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+    )
+    if(FREDPP_GIT_COMMIT_RESULT EQUAL 0 AND NOT FREDPP_GIT_COMMIT_OUTPUT STREQUAL "")
+        set(FREDPP_GIT_COMMIT "${FREDPP_GIT_COMMIT_OUTPUT}")
+
+        execute_process(
+            COMMAND "${GIT_EXECUTABLE}" status --porcelain --untracked-files=normal
+            WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+            RESULT_VARIABLE FREDPP_GIT_STATUS_RESULT
+            OUTPUT_VARIABLE FREDPP_GIT_STATUS_OUTPUT
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+            ERROR_QUIET
+        )
+        if(FREDPP_GIT_STATUS_RESULT EQUAL 0)
+            if(FREDPP_GIT_STATUS_OUTPUT STREQUAL "")
+                set(FREDPP_GIT_STATE "propre")
+            else()
+                set(FREDPP_GIT_STATE "modifié")
+                set(FREDPP_GIT_DIRTY 1)
+            endif()
+        endif()
+    endif()
+endif()
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/VersionInfo.hpp.in"
+    "${FREDPP_GENERATED_DIR}/VersionInfo.hpp"
+    @ONLY
+)
+
+message(STATUS "FREDPP ${PROJECT_VERSION} - commit ${FREDPP_GIT_COMMIT} - sources ${FREDPP_GIT_STATE}")
 
 # Embed only the French reference pages for commands available in FREDPP.
 # Files under docs/fr/reference/commandes are source documentation and are
@@ -49,25 +98,46 @@ foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
 endforeach()
 
 list(LENGTH FREDPP_HELP_FILES FREDPP_HELP_FILES_LENGTH)
-math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 1")
+math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 2")
 
 string(CONCAT FREDPP_HELP_INDEX
-"# Aide FREDPP\n\n"
-"Cette aide embarque uniquement les documentations françaises des commandes disponibles dans FREDPP.\n\n"
-"## Rubriques embarquées\n\n"
+"============================================================\n"
+"AIDE FREDPP — COMMANDES FRED DISPONIBLES\n"
+"============================================================\n\n"
+"Cette aide embarque uniquement les documentations françaises\n"
+"des commandes disponibles dans FREDPP.\n\n"
+"COMMANDES IMPLÉMENTÉES\n\n"
 )
 foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
     string(TOUPPER "${help_topic}" help_topic_upper)
-    string(APPEND FREDPP_HELP_INDEX "- `?${help_topic}` — commande ${help_topic_upper}\n")
+    set(help_command "?${help_topic}")
+    string(LENGTH "${help_command}" help_command_length)
+    math(EXPR help_padding_length "12 - ${help_command_length}")
+    string(REPEAT " " ${help_padding_length} help_padding)
+    string(APPEND FREDPP_HELP_INDEX
+        "    ${help_command}${help_padding}Commande ${help_topic_upper}\n")
 endforeach()
 string(APPEND FREDPP_HELP_INDEX
-"\n## Consultation\n\n"
-"- `?` ou `?index` : afficher cet index ;\n"
-"- `?version` : afficher la version de l'exécutable.\n"
+"\nAUTRES AIDES\n\n"
+"    ?           Afficher cette liste\n"
+"    ?index      Afficher cette liste\n"
+"    ?:          Afficher les commandes spéciales de FREDPP\n"
+"    :help       Afficher les commandes spéciales de FREDPP\n"
+"    ?version    Afficher la version, le commit Git et l'état des sources\n"
 )
 
-set(FREDPP_GENERATED_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
-file(MAKE_DIRECTORY "${FREDPP_GENERATED_DIR}")
+set(FREDPP_SPECIAL_HELP_FILE
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/fr/fredpp/commandes-speciales.md"
+)
+if(NOT EXISTS "${FREDPP_SPECIAL_HELP_FILE}")
+    message(FATAL_ERROR "Missing FREDPP special-command help: ${FREDPP_SPECIAL_HELP_FILE}")
+endif()
+file(READ "${FREDPP_SPECIAL_HELP_FILE}" FREDPP_SPECIAL_HELP_CONTENT)
+string(FIND "${FREDPP_SPECIAL_HELP_CONTENT}" ")FREDPP_HELP\"" FREDPP_SPECIAL_HELP_COLLISION)
+if(NOT FREDPP_SPECIAL_HELP_COLLISION EQUAL -1)
+    message(FATAL_ERROR "Special-command help contains the reserved raw-string delimiter")
+endif()
+
 set(FREDPP_EMBEDDED_HELP_HPP "${FREDPP_GENERATED_DIR}/EmbeddedHelp.hpp")
 set(FREDPP_EMBEDDED_HELP_CPP "${FREDPP_GENERATED_DIR}/EmbeddedHelp.cpp")
 
@@ -77,6 +147,7 @@ file(WRITE "${FREDPP_EMBEDDED_HELP_HPP}"
 file(WRITE "${FREDPP_EMBEDDED_HELP_CPP}"
 "#include \"EmbeddedHelp.hpp\"\n#include <array>\n#include <utility>\nnamespace fredpp::embedded_help {\nnamespace {\nusing Entry = std::pair<std::string_view, std::string_view>;\nstatic constexpr std::array<Entry, ${FREDPP_EMBEDDED_HELP_COUNT}> entries = {{\n"
 "    Entry{\"index\", R\"FREDPP_HELP(${FREDPP_HELP_INDEX})FREDPP_HELP\"},\n"
+"    Entry{\":\", R\"FREDPP_HELP(${FREDPP_SPECIAL_HELP_CONTENT})FREDPP_HELP\"},\n"
 )
 
 foreach(help_file IN LISTS FREDPP_HELP_FILES)
