@@ -25,7 +25,16 @@ L'adresse de la ligne courante "." du buffer récepteur est positionnée sur la 
 
 ```fred
 b(buf)
-1,2k(bufk)*Ajout  ligne de texte numero 1Ajout  ligne de texte numero 2Ajout  ligne de texte numero 3Ajout  ligne de texte numero 4b(bufk)*Ajout  ligne de texte numero 1Ajout  ligne de texte numero 2
+1,2k(bufk)
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+b(bufk)
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
 ```
 
 ## Options

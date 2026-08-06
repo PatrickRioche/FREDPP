@@ -23,7 +23,8 @@ La commande JE imprime le message d'erreur utilisateur au terminal.
 
 ```fred
 o+q
-JE/Erreur Numero 5/Erreur Numero 5*
+JE/Erreur Numero 5/
+Erreur Numero 5
 ```
 
 ## Options

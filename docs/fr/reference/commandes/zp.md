@@ -22,7 +22,10 @@ La commande ZP imprime le contenu du buffer désigné sur le terminal .
 
 ```fred
 b(buf)
-1,2k(bufp)zp(bufp)Ajout  ligne de texte numero 1Ajout  ligne de texte numero 2
+1,2k(bufp)
+zp(bufp)
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
 ```
 
 ## Options

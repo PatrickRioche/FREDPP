@@ -22,7 +22,10 @@ La commande ZD supprime le contenu du buffer, puis le buffer lui-même.
 
 ```fred
 b(buf)
-fb(buf) 4,4 /fred/parexb ? BCD cardzd(buf)fb(buf) 0,0
+fb(buf) 4,4 /fred/parexb ? BCD card
+zd(buf)
+f
+b(buf) 0,0
 ```
 
 ## Options

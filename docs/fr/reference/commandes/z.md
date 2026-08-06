@@ -22,7 +22,9 @@ La commande Z fait pointer sur la ligne désignée sans afficher le contenu de l
 
 ```fred
 b(buf)
-2zpAjout  ligne de texte numero 2
+2z
+p
+Ajout  ligne de texte numero 2
 ```
 
 ## Options

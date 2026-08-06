@@ -20,7 +20,8 @@ La commande JB permet l'abandon de la commande U en fonction de l'indicateur boo
 
 ```fred
 b(buf)
-1zu10t .+1t/4$/ jf jm/Arret sur la ligne numero / = jbArret sur la ligne numero 4
+1zu10t .+1t/4$/ jf jm/Arret sur la ligne numero / = jb
+Arret sur la ligne numero 4
 ```
 
 ## Options

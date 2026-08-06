@@ -23,7 +23,8 @@ La commande N& fait un ET bit à bit du contenu du registre avec une valeur et m
 
 ```fred
 n(reg1):-1
-n(reg1)&7   n(reg1)p7
+n(reg1)&7   n(reg1)p
+7
 ```
 
 ## Options

@@ -23,7 +23,10 @@ La commande NB change de base le registre et son contenu. La base maximum est la
 
 ```fred
 n(reg1):7
-n(reg1)b2   n(reg1)p111n(reg1)b8   n(reg1)p7
+n(reg1)b2   n(reg1)p
+111
+n(reg1)b8   n(reg1)p
+7
 ```
 
 ## Options

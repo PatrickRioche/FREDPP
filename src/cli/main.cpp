@@ -191,7 +191,7 @@ int main(int argc, char** argv) {
     fred::CommandExecutor command_executor;
     const auto command_registry = fred::make_core_command_registry();
 
-    std::cout << "FREDPP v" << fredpp::version() << " - executable P, L, D, A, B, I, C, M, T, G and Z commands\n";
+    std::cout << "FREDPP v" << fredpp::version() << " - executable P, L, D, A, B, I, C, M, T, G and Z commands; * aliases 1,$\n";
     std::cout << "Type ? for FRED help; type ?: for FREDPP commands; type :quit to exit.\n";
 
     std::string input;

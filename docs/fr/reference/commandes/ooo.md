@@ -20,7 +20,9 @@ L'option OOO permet l'impression des caractères spéciaux en octal.
 
 ```fred
 o-oo
-jp/\014/<saut de page ou effacement d'écran>o+oo
+jp/\014/
+<saut de page ou effacement d'écran>
+o+oo
 ```
 
 ## Options

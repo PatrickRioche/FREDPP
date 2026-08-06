@@ -23,7 +23,10 @@ La commande N= effectue un test d'égalité entre un nombre et le contenu d'un r
 
 ```fred
 n(reg1):28
-n(reg1)=0 j(egal0)t....................@(egal0)
+n(reg1)=0 j(egal0)t
+...........
+...........
+@(egal0)
 ```
 
 ## Options

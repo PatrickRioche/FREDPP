@@ -22,7 +22,13 @@ L'option OP permet de fixer la taille de la page, pour les commandes  P et L.
 
 ```fred
 o+p2
-b(buf)*pAjout  ligne de texte numero 1Ajout  ligne de texte numero 2<transmit>Ajout  ligne de texte numero 3Ajout  ligne de texte numero 4
+b(buf)
+*p
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+<transmit>
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
 ```
 
 ## Options

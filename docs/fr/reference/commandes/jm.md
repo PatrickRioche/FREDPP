@@ -23,7 +23,9 @@ La commande JM envoie le message spécifié au terminal, suivi d'un retour chari
 
 ```fred
 jm Envoi d'un message
-Envoi d'un messagejm/Envoi d'un/ jm/message/Envoi d'unmessage
+Envoi d'un message
+jm/Envoi d'un/ jm/message/
+Envoi d'un message
 ```
 
 ## Options

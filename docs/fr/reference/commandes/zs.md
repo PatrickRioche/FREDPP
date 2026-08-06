@@ -24,7 +24,19 @@ Le registre de condition est chargé à "VRAI" (True) si les lignes triées sont
 
 ```fred
 b(buf)
-*zb*Ajout  ligne de texte numero 4Ajout  ligne de texte numero 3Ajout  ligne de texte numero 2Ajout  ligne de texte numero 1*zs*Ajout  ligne de texte numero 1Ajout  ligne de texte numero 2Ajout  ligne de texte numero 3Ajout  ligne de texte numero 4
+*zb
+*
+Ajout  ligne de texte numero 4
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 1
+*
+zs
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
 ```
 
 ## Options

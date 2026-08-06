@@ -22,7 +22,13 @@ L'option OIL permet la définition du caractère d'échappement pour entrer des 
 
 ```fred
 O+IL%
-B(BUFO)A>M%I%N%U%S%C%U%L%E>\FPMinuscule
+B(BUFO)
+A
+>
+M%I%N%U%S%C%U%L%E
+>\F
+P
+Minuscule
 ```
 
 ## Options

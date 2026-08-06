@@ -20,7 +20,12 @@ La commande # imprime la valeur contenue dans le registre compteur. Ce registre 
 
 ```fred
 b(buf)
-1pAjout  ligne de texte numero 11s/./&/#30n(car)lp31
+1p
+Ajout  ligne de texte numero 1
+1s/./&/#
+30
+n(car)lp
+31
 ```
 
 ## Options

@@ -23,7 +23,11 @@ La commande N+ additionne une valeur au contenu d'un registre et retourne le ré
 
 ```fred
 n(reg1):6
-n(reg1)+6 n(reg1)p12n(reg2):4n(reg2)+\N(reg1) n(reg2)p16
+n(reg1)+6 n(reg1)p
+12
+n(reg2):4
+n(reg2)+\N(reg1) n(reg2)p
+16
 ```
 
 ## Options

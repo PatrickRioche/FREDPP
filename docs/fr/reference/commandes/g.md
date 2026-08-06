@@ -31,7 +31,15 @@ L'adresse de la ligne courante (".") est chargée à la valeur qu'elle avait apr
 
 ```fred
 b(buf)
-g/ligne/pAjout  ligne de texte numero 1Ajout  ligne de texte numero 2Ajout  ligne de texte numero 3Ajout  ligne de texte numero 4g~/1/pAjout  ligne de texte numero 2Ajout  ligne de texte numero 3Ajout  ligne de texte numero 4
+g/ligne/p
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+g~/1/p
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
 ```
 
 ## Options

@@ -25,7 +25,12 @@ Si "~" précède <modèle>, le registre de condition est mis  à "FAUX" (False) 
 
 ```fred
 b(buf)
-1pAjout  ligne de texte numero 11t/^ajout/ jf jm/Ya ajout en debut de ligne/Ya ajout en debut de ligne1t~/colonne/ jf jm/Ya pas colonne dans la ligne/Ya pas colonne dans la ligne
+1p
+Ajout  ligne de texte numero 1
+1t/^ajout/ jf jm/Ya ajout en debut de ligne/
+Ya ajout en debut de ligne
+1t~/colonne/ jf jm/Ya pas colonne dans la ligne/
+Ya pas colonne dans la ligne
 ```
 
 ## Options

@@ -23,7 +23,11 @@ La commande N- soustrait une valeur au contenu d'un registre et retourne le rés
 
 ```fred
 n(reg1):10
-n(reg1)-6 n(reg1)p4n(reg2):10n(reg2)-\N(reg1) n(reg2)p6
+n(reg1)-6 n(reg1)p
+4
+n(reg2):10
+n(reg2)-\N(reg1) n(reg2)p
+6
 ```
 
 ## Options

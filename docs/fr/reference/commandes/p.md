@@ -26,7 +26,15 @@ NB : <nl> Impression de la ligne suivant la ligne courante( .+1 ).
 
 ```fred
 b(buf)
-1,2pAjout  ligne de texte numero 1Ajout  ligne de texte numero 2<transmit>Ajout  ligne de texte numero 31,/3/pAjout  ligne de texte numero 1Ajout  ligne de texte numero 2Ajout  ligne de texte numero 3
+1,2p
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+<transmit>
+Ajout  ligne de texte numero 3
+1,/3/p
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
 ```
 
 ## Options

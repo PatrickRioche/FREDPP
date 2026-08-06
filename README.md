@@ -26,6 +26,7 @@ Inside FREDPP:
 ```text
 ?       FRED command documentation currently embedded
 ?:      FREDPP-specific development and diagnostic commands
+?*      historical whole-buffer alias documentation
 :help   same FREDPP-specific help as ?:
 ```
 
@@ -48,6 +49,7 @@ The repository currently contains:
 - AST nodes and address evaluation;
 - ExecutionContext and CommandExecutor;
 - executable `P`, `L`, `D`, `A`, `B`, `I`, `C`, `M`, `T`, `G` and `Z` commands;
+- historical whole-buffer alias `*`, including bare `*` (`1,$P`) and forms such as `*D`;
 - automated tests through CTest.
 
 ## Requirements

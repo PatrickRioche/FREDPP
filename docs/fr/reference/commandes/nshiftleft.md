@@ -23,7 +23,8 @@ La commande N{ effectue un décalage bit à bit vers la gauche sur le contenu du
 
 ```fred
 n(reg1):7
-n(reg1){2   n(reg1)p28
+n(reg1){2   n(reg1)p
+28
 ```
 
 ## Options

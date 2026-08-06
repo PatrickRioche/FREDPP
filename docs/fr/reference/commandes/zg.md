@@ -24,7 +24,9 @@ La commande ZG exécute les commandes et met le résultat destiné à la visuali
 
 ```fred
 zg(bufg)fv
-b(bufg)*compiled Fri May  3 15:11:45 1991 using workfile fc*wk
+b(bufg)
+*
+compiled Fri May  3 15:11:45 1991 using workfile fc*wk
 ```
 
 ## Options

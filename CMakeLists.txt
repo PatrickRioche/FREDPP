@@ -6,7 +6,7 @@ if(POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.5 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.6 LANGUAGES CXX)
 
 if(MSVC)
     set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
@@ -98,7 +98,7 @@ foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
 endforeach()
 
 list(LENGTH FREDPP_HELP_FILES FREDPP_HELP_FILES_LENGTH)
-math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 2")
+math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 3")
 
 string(CONCAT FREDPP_HELP_INDEX
 "============================================================\n"
@@ -124,6 +124,8 @@ string(APPEND FREDPP_HELP_INDEX
 "    ?:          Afficher les commandes spéciales de FREDPP\n"
 "    :help       Afficher les commandes spéciales de FREDPP\n"
 "    ?version    Afficher la version, le commit Git et l'état des sources\n"
+"\nALIAS HISTORIQUE IMPLÉMENTÉ\n\n"
+"    ?*          Afficher l'aide de l'alias * (1,$)\n"
 )
 
 set(FREDPP_SPECIAL_HELP_FILE
@@ -138,6 +140,18 @@ if(NOT FREDPP_SPECIAL_HELP_COLLISION EQUAL -1)
     message(FATAL_ERROR "Special-command help contains the reserved raw-string delimiter")
 endif()
 
+set(FREDPP_STAR_ALIAS_HELP_FILE
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/fr/fredpp/alias-etoile.md"
+)
+if(NOT EXISTS "${FREDPP_STAR_ALIAS_HELP_FILE}")
+    message(FATAL_ERROR "Missing FRED star-alias help: ${FREDPP_STAR_ALIAS_HELP_FILE}")
+endif()
+file(READ "${FREDPP_STAR_ALIAS_HELP_FILE}" FREDPP_STAR_ALIAS_HELP_CONTENT)
+string(FIND "${FREDPP_STAR_ALIAS_HELP_CONTENT}" ")FREDPP_HELP\"" FREDPP_STAR_ALIAS_HELP_COLLISION)
+if(NOT FREDPP_STAR_ALIAS_HELP_COLLISION EQUAL -1)
+    message(FATAL_ERROR "Star-alias help contains the reserved raw-string delimiter")
+endif()
+
 set(FREDPP_EMBEDDED_HELP_HPP "${FREDPP_GENERATED_DIR}/EmbeddedHelp.hpp")
 set(FREDPP_EMBEDDED_HELP_CPP "${FREDPP_GENERATED_DIR}/EmbeddedHelp.cpp")
 
@@ -148,6 +162,7 @@ file(WRITE "${FREDPP_EMBEDDED_HELP_CPP}"
 "#include \"EmbeddedHelp.hpp\"\n#include <array>\n#include <utility>\nnamespace fredpp::embedded_help {\nnamespace {\nusing Entry = std::pair<std::string_view, std::string_view>;\nstatic constexpr std::array<Entry, ${FREDPP_EMBEDDED_HELP_COUNT}> entries = {{\n"
 "    Entry{\"index\", R\"FREDPP_HELP(${FREDPP_HELP_INDEX})FREDPP_HELP\"},\n"
 "    Entry{\":\", R\"FREDPP_HELP(${FREDPP_SPECIAL_HELP_CONTENT})FREDPP_HELP\"},\n"
+"    Entry{\"*\", R\"FREDPP_HELP(${FREDPP_STAR_ALIAS_HELP_CONTENT})FREDPP_HELP\"},\n"
 )
 
 foreach(help_file IN LISTS FREDPP_HELP_FILES)

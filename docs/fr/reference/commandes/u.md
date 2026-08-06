@@ -25,7 +25,15 @@ La commande "U<n>" répète les commandes  n  fois, les commandes listées sont 
 
 ```fred
 o-i\F (bufu) a Ajout de ligne dans buffer
-b(bufa)u3 $za(bufu)*Ajout de ligne dans bufferAjout de ligne dans bufferAjout de ligne dans bufferu1e 20dn(err):#=-6 jf jm/La ligne n'existe pas!/La ligne n'existe pas!
+b(bufa)
+u3 $za(bufu)
+*
+Ajout de ligne dans buffer
+Ajout de ligne dans buffer
+Ajout de ligne dans buffer
+u1e 20d
+n(err):#=-6 jf jm/La ligne n'existe pas!/
+La ligne n'existe pas!
 ```
 
 ## Options

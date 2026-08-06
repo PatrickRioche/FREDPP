@@ -23,7 +23,8 @@ La commande N^ fait un OU exclusif bit à bit du contenu du registre avec une va
 
 ```fred
 n(reg1):15
-n(reg1)^8   n(reg1)p7
+n(reg1)^8   n(reg1)p
+7
 ```
 
 ## Options

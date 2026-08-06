@@ -23,7 +23,8 @@ La commande N} effectue un décalage bit à bit vers la droite sur le contenu du
 
 ```fred
 n(reg1):28
-n(reg1)}2   n(reg1)p7
+n(reg1)}2   n(reg1)p
+7
 ```
 
 ## Options

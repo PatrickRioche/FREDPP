@@ -24,7 +24,10 @@ Le registre de condition est positionné à "VRAI" (True) si l'indicateur était
 
 ```fred
 b(buf)
-fb(buf) 4,4 /fred/parexb ? BCD cardzcfb(buf) 4,4 /fred/parexb BCD card
+fb(buf) 4,4 /fred/parexb ? BCD card
+zc
+f
+b(buf) 4,4 /fred/parexb BCD card
 ```
 
 ## Options

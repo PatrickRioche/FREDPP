@@ -20,7 +20,14 @@ L'option OOU permet la définition du caractère d'échappement pour imprimer de
 
 ```fred
 o+iu%
-o+oub(bufo)a>%majuscule>\Fp%majuscule
+o+ou
+b(bufo)
+a
+>
+%majuscule
+>
+\F
+p%majuscule
 ```
 
 ## Options

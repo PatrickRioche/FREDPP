@@ -23,7 +23,11 @@ La commande N% retourne le reste de la division entière d'une valeur par le con
 
 ```fred
 n(reg1):20
-n(reg1)%8 n(reg1)p4n(reg2):20n(reg2)*\N(reg1) n(reg2)p0
+n(reg1)%8 n(reg1)p
+4
+n(reg2):20
+n(reg2)*\N(reg1) n(reg2)p
+0
 ```
 
 ## Options

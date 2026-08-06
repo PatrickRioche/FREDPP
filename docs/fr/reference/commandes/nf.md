@@ -23,7 +23,9 @@ La commande NF définit le caractère de remplissage du registre.
 
 ```fred
 n(reg1):7
-n(reg1)d2n(reg1)f.   n(reg1)p.7
+n(reg1)d2
+n(reg1)f.   n(reg1)p
+.7
 ```
 
 ## Options

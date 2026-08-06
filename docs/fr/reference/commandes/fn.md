@@ -20,7 +20,8 @@ La commande FN imprime le nom et la valeur de tous les registres créés.
 
 ```fred
 fn
-n(reg1):5n(reg2):10
+n(reg1):5
+n(reg2):10
 ```
 
 ## Options

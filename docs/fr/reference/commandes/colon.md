@@ -22,7 +22,20 @@ La commande : imprime une fenêtre de <n> ligne autour de la ligne courante. L'a
 
 ```fred
 b(buf)
-:1Ajout  ligne de texte numero 1 Ajout  ligne de texte numero 2 :1Ajout  ligne de texte numero 1 Ajout  ligne de texte numero 2 Ajout  ligne de texte numero 3 :1Ajout  ligne de texte numero 2 Ajout  ligne de texte numero 3 Ajout  ligne de texte numero 4 :1Ajout  ligne de texte numero 3 Ajout  ligne de texte numero 4
+:1
+Ajout  ligne de texte numero 1 
+Ajout  ligne de texte numero 2 
+:1
+Ajout  ligne de texte numero 1 
+Ajout  ligne de texte numero 2 
+Ajout  ligne de texte numero 3 
+:1
+Ajout  ligne de texte numero 2 
+Ajout  ligne de texte numero 3 
+Ajout  ligne de texte numero 4 
+:1
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
 ```
 
 ## Options

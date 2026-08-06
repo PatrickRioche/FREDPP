@@ -23,7 +23,8 @@ La commande ND définit le nombre mimimum de chiffres significatifs du contenu d
 
 ```fred
 n(reg1):7
-n(reg1)d2   n(reg1)p07
+n(reg1)d2   n(reg1)p
+07
 ```
 
 ## Options

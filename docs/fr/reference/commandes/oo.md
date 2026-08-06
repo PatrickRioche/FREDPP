@@ -24,7 +24,17 @@ Voir la liste caractères d'échappements dans EXPL FRED ESCAPES.
 
 ```fred
 fo
-...o+oo\B\C\F\L\N\R\E\O\W\S...b(bufo)a>\C\B(bufe)>\fo-o\B*\030(bufe)
+...
+o+oo\B\C\F\L\N\R\E\O\W\S
+...
+b(bufo)
+a
+>\C\B(bufe)
+>
+\f
+o-o\B
+*
+\030(bufe)
 ```
 
 ## Options

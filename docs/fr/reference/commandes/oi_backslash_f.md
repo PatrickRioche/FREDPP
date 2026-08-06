@@ -20,7 +20,15 @@ L'option OI\F permet de rendre obligatoire ou non le \F pour délimiter la fin d
 
 ```fred
 b(buf)
-a Ajout  d'une ligne  1 dans un buffer>\fo-i\fa Ajout  d'une ligne 2 dans un buffer*Ajout  d'une ligne  1 dans un bufferAjout  d'une ligne  2 dans un buffer
+a 
+Ajout  d'une ligne  1 dans un buffer
+>
+\f
+o-i\f
+a Ajout  d'une ligne 2 dans un buffer
+*
+Ajout  d'une ligne  1 dans un buffer
+Ajout  d'une ligne  2 dans un buffer
 ```
 
 ## Options

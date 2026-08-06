@@ -20,7 +20,11 @@ La commande = imprime le numéro de la ligne courante.
 
 ```fred
 b(buf)
-2z=2$=4
+2z
+=
+2
+$=
+4
 ```
 
 ## Options

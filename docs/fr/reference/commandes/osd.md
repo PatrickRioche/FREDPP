@@ -20,7 +20,20 @@ L'option OSD permet de valider ou d'invalider la différentiation entre les maju
 
 ```fred
 o-sd
-b(bufo) a>MAJUSCULE>\f/maj/? search failed/MAJ/MAJUSCULEo+sd/maj/MAJUSCULE/MAJ/MAJUSCULE
+b(bufo) 
+a
+>
+MAJUSCULE
+>
+\f
+/maj/? search failed
+/MAJ/
+MAJUSCULE
+o+sd
+/maj/
+MAJUSCULE
+/MAJ/
+MAJUSCULE
 ```
 
 ## Options

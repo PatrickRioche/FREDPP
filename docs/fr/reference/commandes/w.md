@@ -28,7 +28,17 @@ La commande WA écrit en ASCII; WB écrit en BCD. Si ni A, ni B, ne sont spécif
 
 ```fred
 b(buf)
-fb(buf) 4,4 /fred/parex ?w4,123 b(buf) /fred/parexwa4,123 b(buf) /fred/parexwb4,123 b(buf) /fred/parex BCD cardwa /fred/parexa4,123 b(buf) /fred/parexawb /fred/parexb4,123 b(buf) /fred/parexb BCD card
+fb(buf) 4,4 /fred/parex ?
+w
+4,123 b(buf) /fred/parex
+wa
+4,123 b(buf) /fred/parex
+wb
+4,123 b(buf) /fred/parex BCD card
+wa /fred/parexa
+4,123 b(buf) /fred/parexa
+wb /fred/parexb
+4,123 b(buf) /fred/parexb BCD card
 ```
 
 ## Options

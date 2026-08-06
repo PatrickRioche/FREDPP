@@ -20,7 +20,17 @@ L'option OS& permet de valider ou d'invalider le sens spécial du caractère & d
 
 ```fred
 o-s&
-b(bufo) a>MAJUSCULE>\fs/.*/& &/p& &o+s&s/.*/& &/pMAJUSCULE MAJUSCULE
+b(bufo)
+a
+>
+MAJUSCULE
+>
+\f
+s/.*/& &/p
+& &
+o+s&
+s/.*/& &/p
+MAJUSCULE MAJUSCULE
 ```
 
 ## Options

@@ -8,10 +8,10 @@
 B<nom de buffer>
 ```
 
-## Paramètres
+fred## Paramètres
 
-| Élément | Description |
-|---|---|
+| Élément           | Description              |
+| ------------------- | ------------------------ |
 | `<nom de buffer>` | Nom du buffer concerné. |
 
 ## Description
@@ -24,7 +24,9 @@ Le nom des buffers peut faire 15 caractères maximum et doit être entre parenth
 
 ```fred
 b(buf)
-b0? buff/reg name invalido-i(b0
+b0? buff/reg name invalid
+o-i(
+b0
 ```
 
 ## Options
@@ -37,10 +39,10 @@ Aucune remarque spécifique n'est documentée.
 
 ## Compatibilité
 
-| Implémentation | Statut |
-|---|---|
-| FRED historique | Compatible |
-| FRED++ | À valider selon l'implémentation |
+| Implémentation | Statut                             |
+| --------------- | ---------------------------------- |
+| FRED historique | Compatible                         |
+| FRED++          | À valider selon l'implémentation |
 
 ## Voir aussi
 

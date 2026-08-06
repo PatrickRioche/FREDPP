@@ -22,7 +22,8 @@ La commande N~ prend le complément bit à bit de la valeur du registre et retou
 
 ```fred
 n(reg1):1
-n(reg1)~    n(reg1)p-2
+n(reg1)~    n(reg1)p
+-2
 ```
 
 ## Options

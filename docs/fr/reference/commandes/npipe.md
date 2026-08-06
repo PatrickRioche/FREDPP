@@ -27,10 +27,11 @@ La commande N| fait un OU inclusif bit à bit du contenu du registre avec une va
 
 ```fred
 n(reg1):-5
-n(reg1)|    n(reg1)p5
-
+n(reg1)|    n(reg1)p
+5
 n(reg1):7
-n(reg1)|8   n(reg1)p15
+n(reg1)|8   n(reg1)p
+15
 ```
 
 ## Options

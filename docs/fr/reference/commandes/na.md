@@ -22,7 +22,8 @@ La commande NA affecte le numéro de la ligne courante au registre.
 
 ```fred
 b(buf)
-n(reg1)a  n(reg1)p4
+n(reg1)a  n(reg1)p
+4
 ```
 
 ## Options

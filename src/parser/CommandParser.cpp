@@ -1,5 +1,8 @@
 #include "fred/parser/CommandParser.hpp"
 
+#include "fred/ast/AbsoluteAddressNode.hpp"
+#include "fred/ast/LastAddressNode.hpp"
+#include "fred/ast/RangeAddressNode.hpp"
 #include "fred/parser/AddressParser.hpp"
 #include "fred/parser/ParseError.hpp"
 #include "fred/parser/PatternParser.hpp"
@@ -11,6 +14,21 @@
 #include <utility>
 
 namespace fred {
+namespace {
+
+bool is_whole_buffer_alias(const Token& token) noexcept {
+    return token.type == TokenType::Symbol && token.lexeme == "*";
+}
+
+std::unique_ptr<AddressNode> make_whole_buffer_address(
+    SourceLocation location) {
+    return std::make_unique<RangeAddressNode>(
+        std::make_unique<AbsoluteAddressNode>(1, location),
+        std::make_unique<LastAddressNode>(location),
+        location);
+}
+
+} // namespace
 
 CommandParser::CommandParser(TokenStream& tokens,
                              const CommandRegistry& registry) noexcept
@@ -21,12 +39,22 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
 
     try {
         std::unique_ptr<AddressNode> address;
-        if (begins_address(tokens_->peek())) {
+        bool implicit_print = false;
+
+        if (is_whole_buffer_alias(tokens_->peek())) {
+            const Token star = tokens_->consume();
+            address = make_whole_buffer_address(star.location);
+            const auto next_type = tokens_->peek().type;
+            implicit_print = next_type == TokenType::End ||
+                             next_type == TokenType::NewLine;
+        } else if (begins_address(tokens_->peek())) {
             AddressParser address_parser(*tokens_);
             address = address_parser.parse_prefix();
         }
 
-        const Token command = tokens_->consume();
+        const Token command = implicit_print
+            ? Token{TokenType::Command, "P", address->location()}
+            : tokens_->consume();
         if (command.type == TokenType::End || command.type == TokenType::NewLine) {
             throw ParseError("expected a command", command.location);
         }

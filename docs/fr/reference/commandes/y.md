@@ -20,7 +20,10 @@ La commande Y  imprime la description complète de la dernière erreur .
 
 ```fred
 b(buf)*dza(bufi)
-/erreur/? search failedy? search failed at "/erreur/"
+/erreur/
+? search failed
+y
+? search failed at "/erreur/"
 ```
 
 ## Options

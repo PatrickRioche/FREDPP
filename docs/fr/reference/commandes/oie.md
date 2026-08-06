@@ -22,7 +22,14 @@ L'option OIE permet la définition du caractère d'échappement pour les entrée
 
 ```fred
 o+ie!
-b(bufo)a>Ajout ligne dans le buffer>!FpAjout ligne dans le buffer
+b(bufo)
+a
+>
+Ajout ligne dans le buffer
+>
+!F
+p
+Ajout ligne dans le buffer
 ```
 
 ## Options

@@ -23,7 +23,11 @@ La commande N/ divise un registre par une valeur ou le contenu d'un autre regist
 
 ```fred
 n(reg1):6
-n(reg1)/2 n(reg1)p3n(reg2):36n(reg2)*\N(reg1) n(reg2)p12
+n(reg1)/2 n(reg1)p
+3
+n(reg2):36
+n(reg2)*\N(reg1) n(reg2)
+p12
 ```
 
 ## Options

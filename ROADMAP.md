@@ -60,6 +60,18 @@ Modifications intégrées :
 - tests étendus pour l'identité de compilation et l'aide `?:` ;
 - présentation alignée des aides `?` et `?:` pour améliorer leur lisibilité dans le terminal.
 
+## Version v0.0.6 — Sprint 2.11
+
+### Modifications intégrées
+
+- implémentation de `*` comme alias de la plage complète `1,$` ;
+- forme seule `*` équivalente à `1,$P` ;
+- formes composées `*P`, `*D` et `*G/<modèle>/P` ;
+- transformation de l'alias en `RangeAddressNode` sans ajout d'une commande runtime ;
+- aide embarquée `?*`, conservée hors de `docs/fr/reference/commandes/` ;
+- ajout d'un test d'intégration et passage à 23 tests ;
+- validation attendue sous MSVC, GCC et Clang.
+
 ## État fonctionnel actuel
 
 Commandes FRED disponibles :
@@ -76,7 +88,6 @@ Les limites détaillées sont suivies dans `docs/project/COMMAND_STATUS.md`.
 
 - réaligner les commandes `M` et `T` sur leur comportement historique documenté ;
 - compléter les formes courtes de la commande `B` ;
-- intégrer les alias historiques comme `*` et `*D` ;
 - poursuivre l'implémentation des commandes historiques documentées ;
 - étendre `G` aux suites de commandes et aux comportements historiques complémentaires ;
 - embarquer uniquement la documentation française des commandes effectivement implémentées.

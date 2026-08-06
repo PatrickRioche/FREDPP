@@ -27,7 +27,11 @@ L'adresse de la ligne courante "." pointe sur la dernière ligne où des caract�
 
 ```fred
 b(buf)
-1zl2zl/^./1,2pajout  ligne de texte numero 1ajout  ligne de texte numero 2
+1zl
+2zl/^./
+1,2p
+ajout  ligne de texte numero 1
+ajout  ligne de texte numero 2
 ```
 
 ## Options

@@ -1,5 +1,6 @@
 #include "fred/ast/AbsoluteAddressNode.hpp"
 #include "fred/ast/CommandNode.hpp"
+#include "fred/ast/LastAddressNode.hpp"
 #include "fred/ast/RangeAddressNode.hpp"
 #include "fred/command/CommandRegistry.hpp"
 #include "fred/lexer/Lexer.hpp"
@@ -34,6 +35,29 @@ void expect_error(std::string_view source, std::string_view message) {
 } // namespace
 
 int main() {
+    {
+        const auto node = parse("*");
+        assert(node->kind() == fred::AstNodeKind::PrintCommand);
+        assert(node->has_address());
+        assert(node->address()->kind() == fred::AstNodeKind::RangeAddress);
+        const auto& range =
+            static_cast<const fred::RangeAddressNode&>(*node->address());
+        assert(range.first().kind() == fred::AstNodeKind::AbsoluteAddress);
+        assert(static_cast<const fred::AbsoluteAddressNode&>(range.first()).line() == 1);
+        assert(range.last().kind() == fred::AstNodeKind::LastAddress);
+    }
+    {
+        const auto node = parse("*d");
+        assert(node->kind() == fred::AstNodeKind::DeleteCommand);
+        assert(node->has_address());
+        assert(node->address()->kind() == fred::AstNodeKind::RangeAddress);
+    }
+    {
+        const auto node = parse("*G/recherche/P");
+        assert(node->kind() == fred::AstNodeKind::GlobalCommand);
+        assert(node->has_address());
+        assert(node->address()->kind() == fred::AstNodeKind::RangeAddress);
+    }
     {
         const auto node = parse("P");
         assert(node->kind() == fred::AstNodeKind::PrintCommand);

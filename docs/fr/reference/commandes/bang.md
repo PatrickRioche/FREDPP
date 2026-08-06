@@ -8,12 +8,12 @@
 !<TSS commande><nl>
 ```
 
-## Paramètres
+fred## Paramètres
 
-| Élément | Description |
-|---|---|
+| Élément          | Description                                                 |
+| ------------------ | ----------------------------------------------------------- |
 | `<TSS commande>` | Élément défini par la syntaxe historique de la commande. |
-| `<nl>` | Fin de ligne. |
+| `<nl>`           | Fin de ligne.                                               |
 
 ## Description
 
@@ -23,7 +23,10 @@ La commande ! permet d'appeler sous FRED un sous-système TSS.
 
 ```fred
 !lc
-Catalogs:sampleFiles:alter		backup	bootstrap	copytree	drundrw		expl		form		gtoa		head.charsheadline	libindex	magic		makeindex	minusr		regname	ruler		runo-tf	stamptictacto	time!
+Catalogs:
+sample
+Files:
+alter		backup	bootstrap	copytree	drundrw		expl		form		gtoa		head.charsheadline	libindex	magic		makeindex	minusr		regname	ruler	runo-tf	stamptictacto	time
 ```
 
 ## Options
@@ -36,10 +39,10 @@ Aucune remarque spécifique n'est documentée.
 
 ## Compatibilité
 
-| Implémentation | Statut |
-|---|---|
-| FRED historique | Compatible |
-| FRED++ | À valider selon l'implémentation |
+| Implémentation | Statut                             |
+| --------------- | ---------------------------------- |
+| FRED historique | Compatible                         |
+| FRED++          | À valider selon l'implémentation |
 
 ## Voir aussi
 

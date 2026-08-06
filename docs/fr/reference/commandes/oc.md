@@ -23,7 +23,13 @@ L'option OC transforme la <chaîne1> en <chaîne2> partout où elle apparait en 
 
 ```fred
 o+c/Bonjour/Au revoir/
-b(bufo)a>Bonjour>\fpAu revoir
+b(bufo)
+a
+>
+Bonjour
+>\f
+p
+Au revoir
 ```
 
 ## Options

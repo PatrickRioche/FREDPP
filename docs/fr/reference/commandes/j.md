@@ -41,13 +41,35 @@ La commande JF abandonne le reste de la ligne si le registre de condition est "F
 
 ```fred
 j(label)
-..............................@(label)
+..........
+..........
+..........
+@(label)
 
 b(buf)
-*t/^Ajout/ j(YaAjout)t                 j(YaPasAjout)@(YaAjout)....................j(FinSi)@(YaPasAjout)....................@(FinSi)
+*t/^Ajout/ j(YaAjout)t                 
+j(YaPasAjout)
+
+@(YaAjout)
+..........
+..........
+j(FinSi)
+
+@(YaPasAjout)
+..........
+..........
+@(FinSi)
 
 b(buf)
-*t/^Ajout/ jf j(YaAjout)....................j(FinSi)@(YaAjout)....................@(Finsi)
+*t/^Ajout/ jf j(YaAjout)
+..........
+..........
+j(FinSi)
+
+@(YaAjout)
+..........
+..........
+@(Finsi)
 ```
 
 ## Options

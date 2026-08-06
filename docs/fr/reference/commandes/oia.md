@@ -22,7 +22,14 @@ L'option OIA permet de définir la chaîne de caractères représentant le promp
 
 ```fred
 o+ia/Mode IN>/
-b(bufo)aMode IN>Ajout ligne dans le bufferMode IN>\FpAjout ligne dans le buffer
+b(bufo)
+a
+Mode IN>
+Ajout ligne dans le buffer
+Mode IN>
+\F
+p
+Ajout ligne dans le buffer
 ```
 
 ## Options

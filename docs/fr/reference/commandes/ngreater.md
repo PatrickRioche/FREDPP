@@ -23,7 +23,10 @@ La commande N> effectue un test de supériorité entre un nombre et le contenu d
 
 ```fred
 n(reg1):1
-n(reg1)>0 j(sup0)t....................@(sup0)
+n(reg1)>0 j(sup0)t
+.........
+.........
+@(sup0)
 ```
 
 ## Options

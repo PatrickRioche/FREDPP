@@ -20,7 +20,8 @@ La commande FE imprime l'ensemble des modèles définis par l'utilisateur. La pr
 
 ```fred
 fe
-/\E(term par 1)/e(term par 1)/1$/
+/\E(term par 1)/
+e(term par 1)/1$/
 ```
 
 ## Options

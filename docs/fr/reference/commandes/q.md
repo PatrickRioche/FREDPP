@@ -29,7 +29,11 @@ La commande Q! permet l'arrêt immédiat de FRED, sans considération pour l'ét
 
 ```fred
 fred
-q*fredq!bye$$ 0400 AU REVOIR
+q
+*
+fred
+q!bye
+$$ 0400 AU REVOIR
 ```
 
 ## Options

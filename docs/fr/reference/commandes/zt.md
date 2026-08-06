@@ -28,7 +28,12 @@ Le nombre de caractères convertis est mis dans le registre compteur. L'adresse 
 
 ```fred
 b(buf)
-*zt/ABCDEFGH/BCDEFGHI/*Bjout  ligne de texte numero 1Bjout  ligne de texte numero 2Bjout  ligne de texte numero 3Bjout  ligne de texte numero 4
+*zt/ABCDEFGH/BCDEFGHI/
+*
+Bjout  ligne de texte numero 1
+Bjout  ligne de texte numero 2
+Bjout  ligne de texte numero 3
+Bjout  ligne de texte numero 4
 ```
 
 ## Options

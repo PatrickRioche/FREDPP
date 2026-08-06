@@ -20,7 +20,8 @@ L'option OI( spécifie si oui ou non les parenthèses sont obligatoires pour les
 
 ```fred
 b(buf)
-b0? buff/reg name invalido-i(b0
+b0? buff/reg name invalid
+o-i(b0
 ```
 
 ## Options

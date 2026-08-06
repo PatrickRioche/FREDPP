@@ -23,7 +23,10 @@ La commande N< effectue un test d'infériorité entre un nombre et le contenu d'
 
 ```fred
 n(reg1):1
-n(reg1)<0 j(inf0)t....................@(inf0)
+n(reg1)<0 j(inf0)t
+..........
+..........
+@(inf0)
 ```
 
 ## Options

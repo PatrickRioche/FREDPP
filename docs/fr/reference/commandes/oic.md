@@ -22,7 +22,18 @@ L'option OIC permet de définir la chaîne de caractères représentant le promp
 
 ```fred
 o+ic/Mode CMD>/
-Mode CMD>b(bufo)Mode CMD>a>Ajout ligne dans le buffer>\FMode CMD>pAjout ligne dans le bufferMode CMD>
+Mode CMD>
+b(bufo)
+Mode CMD>
+a
+>
+Ajout ligne dans le buffer
+>
+\F
+Mode CMD>
+p
+Ajout ligne dans le buffer
+Mode CMD>
 ```
 
 ## Options

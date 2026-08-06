@@ -24,7 +24,13 @@ La commande N: permet l'affectation d'une valeur numérique à un registre. On p
 
 ```fred
 n(reg1):10
-n(reg2):20fnn(reg1):10n(reg2):20b(buf)n(nbbuf):$      n(nbbuf)p4
+n(reg2):20
+fn
+n(reg1):10
+n(reg2):20
+b(buf)
+n(nbbuf):$      n(nbbuf)p
+4
 ```
 
 ## Options

@@ -28,7 +28,17 @@ Si aucune substitution n'est faite, le registre de condition est chargé à "FAU
 
 ```fred
 b(buf)
-1s/ligne/colonne/pAjout  colonne de texte numero 11s/.*/& &/pAjout  colonne de texte numero 1 Ajout  colonne de texte numero 11s1/colonne/ligne/pAjout  ligne de texte numero 1 Ajout  colonne de texte numero 11s-1/de texte.*$//Ajout  ligne de texte numero 1 Ajout  colonne1s/paragraphe//? no text changed
+1s/ligne/colonne/p
+Ajout  colonne de texte numero 1
+1s/.*/& &/p
+Ajout  colonne de texte numero 1 
+Ajout  colonne de texte numero 1
+1s1/colonne/ligne/p
+Ajout  ligne de texte numero 1 Ajout  colonne de texte numero 1
+1s-1/de texte.*$//
+Ajout  ligne de texte numero 1 Ajout  colonne
+1s/paragraphe//
+? no text changed
 ```
 
 ## Options

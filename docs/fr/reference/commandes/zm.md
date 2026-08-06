@@ -25,7 +25,16 @@ Le <nom de buffer> peut désigner le buffer courant, mais alors les lignes spéc
 
 ```fred
 b(buf)
-1zm(bufm)3zk(bufm)*Ajout  ligne de texte numero 2Ajout  ligne de texte numero 3Ajout  ligne de texte numero 4b(bufm)*Ajout  ligne de texte numero 1Ajout  ligne de texte numero 4
+1zm(bufm)
+3zk(bufm)
+*
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+b(bufm)
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 4
 ```
 
 ## Options

@@ -26,7 +26,9 @@ S'il s'agit d'une liste de fichier, Fred essaie de lire le premier fichier de la
 
 ```fred
 b(bufr)r library/fred/time
-40,1291 b(bufr) library/fred/timeb(bufr)r library/fred/time jt jm/Pb de lecture du fichier/? buffer not empty
+40,1291 b(bufr) library/fred/timeb
+(bufr)r library/fred/time jt jm/Pb de lecture du fichier/
+? buffer not empty
 ```
 
 ## Options

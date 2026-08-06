@@ -23,7 +23,19 @@ La commande ZW écrit  les lignes spécifiées dans le fichier désigné, à la 
 
 ```fred
 b(buf)
-w /fred/parex4,123 b(buf) /fred/parex1,2zw /fred/parex2,61b(bufw)r /fred/parex6,185 b(bufw) /fred/parex*Ajout  ligne de texte numero 1Ajout  ligne de texte numero 2Ajout  ligne de texte numero 3Ajout  ligne de texte numero 4Ajout  ligne de texte numero 1Ajout  ligne de texte numero 2
+w /fred/parex
+4,123 b(buf) /fred/parex
+1,2zw /fred/parex
+2,61
+b(bufw)r /fred/parex
+6,185 b(bufw) /fred/parex
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
 ```
 
 ## Options

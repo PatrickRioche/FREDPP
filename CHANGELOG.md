@@ -1,5 +1,21 @@
 # Changelog
 
+## v0.0.6
+
+### Added
+
+- Alias historique `*` pour représenter la plage complète `1,$`.
+- Forme seule `*`, équivalente à `1,$P`.
+- Formes composées telles que `*P`, `*D` et `*G/<modèle>/P`.
+- Aide embarquée `?*` stockée hors des documentations de référence.
+- Test d'intégration `test_star_alias`.
+- Spécification `SPEC-024` consacrée à l'alias étoile.
+
+### Changed
+
+- Le parser transforme l'alias initial `*` en plage AST normale `1,$`.
+- La suite de tests passe de 22 à 23 tests.
+
 ## v0.0.5
 
 ### Added

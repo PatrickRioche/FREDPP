@@ -8,11 +8,11 @@
 \\<n>
 ```
 
-## Paramètres
+fredfred## Paramètres
 
-| Élément | Description |
-|---|---|
-| `<n>` | Nombre entier. |
+| Élément | Description    |
+| --------- | -------------- |
+| `<n>`   | Nombre entier. |
 
 ## Description
 
@@ -24,7 +24,8 @@ La commande \\0 provoque un vidage immédiat à l'écran des messages stockés d
 
 ```fred
 jm/J'attends 1 heure/ \\0
-\\3600jm/Deja un heure/ \\0
+\\3600
+jm/Deja un heure/ \\0
 ```
 
 ## Options
@@ -37,10 +38,10 @@ Aucune remarque spécifique n'est documentée.
 
 ## Compatibilité
 
-| Implémentation | Statut |
-|---|---|
-| FRED historique | Compatible |
-| FRED++ | À valider selon l'implémentation |
+| Implémentation | Statut                             |
+| --------------- | ---------------------------------- |
+| FRED historique | Compatible                         |
+| FRED++          | À valider selon l'implémentation |
 
 ## Voir aussi
 

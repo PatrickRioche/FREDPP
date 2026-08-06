@@ -20,7 +20,29 @@ L'option OQ permet l'abandon de la procédure en cas d'incident FRED.
 
 ```fred
 fred
-a>o+qa\c\r\c\fwa *listq!l *list>\fwa *proc1,5,28 t b(0) *proc !fred *proc><$*$brk>!1dw1,4,24 t b(0) *proc!fred *proc><$*$brk>?qq!qq
+a
+>
+o+q
+a
+\c\r\c\f
+wa *list
+q!l *list
+>
+\f
+wa *proc1,5,28 t b(0) *proc
+!fred *proc
+>
+<$*$brk>
+!1d
+w
+1,4,24 t b(0) *proc
+!fred *proc
+>
+<$*$brk>
+?
+qq
+!
+qq
 ```
 
 ## Options

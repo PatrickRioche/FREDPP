@@ -29,3 +29,9 @@ Les commandes imbriquées prises en charge sont `P`, `D` et `Z`, sans adresse
 propre. Le compteur interne reçoit le nombre de lignes sélectionnées. Les suites
 de plusieurs commandes et le rappel du modèle courant avec `//` seront ajoutés
 dans un sprint ultérieur.
+
+## Alias historiques
+
+| Alias | État dans FREDPP | Aide embarquée |
+|---|---|:---:|
+| `*` | Disponible comme équivalent de `1,$` ; utilisé seul, équivaut à `1,$P` | Oui (`?*`) |

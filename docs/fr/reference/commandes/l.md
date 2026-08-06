@@ -23,7 +23,12 @@ La commande L permet de lister un fichier au terminal. Cette commande ne modifie
 
 ```fred
 l2-4 /fred/parexemple
-$      program fred$      limits  10,40k$      prmfl   **,q,r,cmdlib/etc/qstarl2,2 /fred/parexemple$      program fred$      limits  10,40k
+$      program fred
+$      limits  10,40k
+$      prmfl   **,q,r,cmdlib/etc/qstar
+l2,2 /fred/parexemple
+$      program fred
+$      limits  10,40k
 ```
 
 ## Options

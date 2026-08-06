@@ -20,7 +20,22 @@ L'option OR permet de valider ou d'invalider les droits d'accès en lecture gén
 
 ```fred
 b(bufo)
-a>Creation d'un fichier>\fwa /fic11,1,22 b(0) 65130/fic1!clis \w +vName	Dev	Perms		Size	Max	Create	Modify	Changefic1		r  e		1c	u	03/Aug/92	03/Aug/92	03/Aug/92!o-rwa /fic21,1,22 b(0) 65130/fic2!clis \w +vName	Dev	Perms		Size	Max	Create	Modify	Changefic2		s none	1c	u	03/Aug/92	03/Aug/92	03/Aug/92!
+a
+>
+Creation d'un fichier
+>
+\f
+wa /fic1
+1,1,22 b(0) 65130/fic1
+!clis \w +v
+Name	Dev	Perms		Size	Max	Create	Modify	Change
+fic1		r  e		1c	u	03/Aug/92	03/Aug/92	03/Aug/92
+!
+o-r
+wa /fic21,1,22 b(0) 65130/fic2
+!clis \w +v
+Name	Dev	Perms		Size	Max	Create	Modify	Changefic2		s none	1c	u	03/Aug/92	03/Aug/92	03/Aug/92
+!
 ```
 
 ## Options

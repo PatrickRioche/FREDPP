@@ -22,7 +22,14 @@ L'option OIU permet la définition du caractère d'échappement pour entrer des 
 
 ```fred
 o+iu%
-b(bufo)a>%majuscule>\FpMajuscule
+b(bufo)
+a
+>
+%majuscule
+>
+\F
+p
+Majuscule
 ```
 
 ## Options

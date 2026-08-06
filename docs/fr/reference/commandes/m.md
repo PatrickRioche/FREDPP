@@ -25,7 +25,14 @@ L'adresse de la ligne courante "." du buffer désigné pointe sur la dernière l
 
 ```fred
 b(buf)
-1,2m(bufm)*Ajout  ligne de texte numero 3Ajout  ligne de texte numero 4b(bufm)*Ajout  ligne de texte numero 1Ajout  ligne de texte numero 2
+1,2m(bufm)
+*
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+b(bufm)
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
 ```
 
 ## Options

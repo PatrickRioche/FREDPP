@@ -20,7 +20,14 @@ L'option OOL permet la définition du caractère d'échappement pour imprimer de
 
 ```fred
 O+IL%
-O+OLB(BUFO)A>M%I%N%U%S%C%U%L%E>\FPM%I%N%U%S%C%U%L%E
+O+OL
+B(BUFO)
+A
+>
+M%I%N%U%S%C%U%L%E
+>
+\F
+PM%I%N%U%S%C%U%L%E
 ```
 
 ## Options

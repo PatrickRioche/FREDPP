@@ -20,7 +20,9 @@ La commande FB imprime l'ensemble des buffers ouverts par un utilisateur sous le
 
 ```fred
 fb
-b(buf) 4,4 /fred/parex ?b(bufi) 4,4b(fo) 15,15
+b(buf) 4,4 /fred/parex ?
+b(bufi) 4,4
+b(fo) 15,15
 ```
 
 ## Options

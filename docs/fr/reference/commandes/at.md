@@ -8,10 +8,10 @@
 @<label>
 ```
 
-## Paramètres
+fredfred## Paramètres
 
-| Élément | Description |
-|---|---|
+| Élément   | Description       |
+| ----------- | ----------------- |
 | `<label>` | Nom d'étiquette. |
 
 ## Description
@@ -22,7 +22,10 @@ La commande @ permet d'assigner un nom d'étiquette de positionnement dans un bu
 
 ```fred
 j(label)
-..............................@(label)
+...........
+...........
+...........
+@(label)
 ```
 
 ## Options
@@ -35,10 +38,10 @@ Aucune remarque spécifique n'est documentée.
 
 ## Compatibilité
 
-| Implémentation | Statut |
-|---|---|
-| FRED historique | Compatible |
-| FRED++ | À valider selon l'implémentation |
+| Implémentation | Statut                             |
+| --------------- | ---------------------------------- |
+| FRED historique | Compatible                         |
+| FRED++          | À valider selon l'implémentation |
 
 ## Voir aussi
 

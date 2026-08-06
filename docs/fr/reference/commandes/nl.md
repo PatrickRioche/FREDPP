@@ -22,7 +22,8 @@ La commande NL affecte le nombre de caractères total des lignes désignées au 
 
 ```fred
 b(buf)
-1,$n(reg1)l  n(reg1)p76
+1,$n(reg1)l  n(reg1)p
+76
 ```
 
 ## Options

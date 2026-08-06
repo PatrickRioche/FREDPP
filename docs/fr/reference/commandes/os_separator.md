@@ -19,8 +19,15 @@ L'option OS/ permet de valider ou d'invalider  le séparateur de fin dans la com
 ## Exemples
 
 ```fred
-b(bufo) a
->Majuscule>\fs!ajuscule!inusculepMinuscule
+b(bufo) 
+a
+>
+Majuscule
+>
+\f
+s!ajuscule!inuscule
+p
+Minuscule
 ```
 
 ## Options

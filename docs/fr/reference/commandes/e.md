@@ -25,7 +25,9 @@ Le nom des modèles peut faire 15 caractères maximum et doit être entre parent
 
 ```fred
 b(buf)
-e(term par 1)/1$//\E(term par 1)/Ajout  ligne de texte numero 1
+e(term par 1)/1$/
+/\E(term par 1)/
+Ajout  ligne de texte numero 1
 ```
 
 ## Options

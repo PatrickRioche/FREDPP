@@ -11,6 +11,7 @@ int main() {
 
     assert(help.exists("index"));
     assert(help.exists(":"));
+    assert(help.exists("*"));
     assert(help.exists("a"));
     assert(help.exists("b"));
     assert(help.exists("g"));
@@ -24,6 +25,7 @@ int main() {
     assert(index.find("AIDE FREDPP — COMMANDES FRED DISPONIBLES") != std::string::npos);
     assert(index.find("    ?g") != std::string::npos);
     assert(index.find("    ?z") != std::string::npos);
+    assert(index.find("    ?*") != std::string::npos);
     assert(index.find("    ?:") != std::string::npos);
     assert(index.find("    ?s") == std::string::npos);
     assert(index.find("- `?g`") == std::string::npos);
@@ -37,6 +39,11 @@ int main() {
     assert(special.find("    :pattern <modèle>") != std::string::npos);
     assert(special.find("| Commande |") == std::string::npos);
     assert(special.find("## GESTION") == std::string::npos);
+
+    const auto star = help.load_for_terminal("*");
+    assert(star.find("ALIAS DE LA TOTALITÉ DU BUFFER") != std::string::npos);
+    assert(star.find("1,$P") != std::string::npos);
+    assert(star.find("*D") != std::string::npos);
 
     // The embedded Markdown remains unchanged and can still be consumed raw.
     const auto raw_append = help.load("a");
@@ -81,6 +88,7 @@ int main() {
     assert(std::is_sorted(topics.begin(), topics.end()));
     assert(std::find(topics.begin(), topics.end(), "index") != topics.end());
     assert(std::find(topics.begin(), topics.end(), ":") != topics.end());
+    assert(std::find(topics.begin(), topics.end(), "*") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "b") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "g") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "z") != topics.end());

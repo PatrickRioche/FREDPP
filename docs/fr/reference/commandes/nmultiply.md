@@ -23,7 +23,10 @@ La commande N* multiplie un registre par une valeur ou le contenu d'un autre reg
 
 ```fred
 n(reg1):6
-n(reg1)*6 n(reg1)p36n(reg2):2n(reg2)*\N(reg1) n(reg2)p72
+n(reg1)*6 n(reg1)p
+36
+n(reg2):2n(reg2)*\N(reg1) n(reg2)p
+72
 ```
 
 ## Options

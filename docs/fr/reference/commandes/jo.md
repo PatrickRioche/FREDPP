@@ -20,7 +20,13 @@ La commande JO permet d'abandonner l'exécution du buffer en cours ou l'abandon 
 
 ```fred
 b(exec) a
->b(buf) *t/^Ajout/ jf jm/Ya Ajout/ jojm/Ya pas Ajout/>\f\B(exec)Ya Ajout
+>
+b(buf) *t/^Ajout/ jf jm/Ya Ajout/ jo
+jm/Ya pas Ajout/
+>
+\f
+\B(exec)
+Ya Ajout
 ```
 
 ## Options

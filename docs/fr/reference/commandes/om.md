@@ -20,7 +20,24 @@ L'option OM permet de valider ou d'invalider le mode trace des commandes exécut
 
 ```fred
 fred
-a>o+ma\c\r\c\fwa *listq!l *list>\fwa *proc1,5,28 t b(0) *proc !fred *proc>BonjourBonjour\Fwa *list q!l *listBonjour!
+a
+>
+o+m
+a
+\c\r\c\f
+wa *list
+q!l *list
+>
+\f
+wa *proc
+1,5,28 t b(0) *proc 
+!fred *proc
+>
+Bonjour
+Bonjour
+\F
+wa *list 
+q!l *listBonjour!
 ```
 
 ## Options

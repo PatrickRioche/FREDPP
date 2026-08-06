@@ -22,7 +22,19 @@ L'option OS permet de valider ou d'invalider le sens spécial ou littéral de ce
 
 ```fred
 fo
-....o+s/&d^.*$\E[ o-s+|@#<>{(   ....o+s@b(bufo) a>MAJUSCULE>\fs/@(4).*$//pMAJ
+....
+o+s/&d^.*$\E[ 
+o-s+|@#<>{(   
+....
+o+s@
+b(bufo)
+a
+>
+MAJUSCULE
+>
+\f
+s/@(4).*$//p
+MAJ
 ```
 
 ## Options

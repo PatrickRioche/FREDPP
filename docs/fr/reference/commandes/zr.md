@@ -26,7 +26,12 @@ Les nouveaux buffers sont : b(a), .. b(b), etc...  ou b(0), .. b(2). Si une lect
 
 ```fred
 zr library/fred/time
-40,1291 b(a) library/fred/timezr library/fred/index77,2421 b(b) library/fred/indexfbb(b) 77,77 library/fred/indexb(a) 40,40 library/fred/time
+40,1291 b(a) library/fred/time
+zr library/fred/index
+77,2421 b(b) library/fred/index
+fb
+b(b) 77,77 library/fred/index
+b(a) 40,40 library/fred/time
 ```
 
 ## Options

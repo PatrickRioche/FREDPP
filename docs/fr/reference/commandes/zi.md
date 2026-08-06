@@ -22,7 +22,20 @@ La commande ZI remplace les espaces par des tabulations si possible.
 
 ```fred
 b(buf)
-o+t7,13,16,22,29*zi*Ajout  ligne de texte numero 1Ajout  ligne de texte numero 2Ajout  ligne de texte numero 3Ajout  ligne de texte numero 4o+t10,20,30,40,50,60,70*Ajout              ligne     de        texte     numero    1Ajout              ligne     de        texte     numero    2Ajout              ligne     de        texte     numero    3Ajout              ligne     de        texte     numero    4
+o+t7,13,16,22,29
+*
+zi
+*
+Ajout  ligne de texte numero 1
+Ajout  ligne de texte numero 2
+Ajout  ligne de texte numero 3
+Ajout  ligne de texte numero 4
+o+t10,20,30,40,50,60,70
+*
+Ajout              ligne     de        texte     numero    1
+Ajout              ligne     de        texte     numero    2
+Ajout              ligne     de        texte     numero    3
+Ajout              ligne     de        texte     numero    4
 ```
 
 ## Options
