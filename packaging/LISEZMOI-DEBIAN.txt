@@ -1,0 +1,21 @@
+FREDPP — Kit Debian 13 amd64
+============================
+
+Archive portable
+----------------
+
+    tar -xzf FREDPP-vX.Y.Z-debian13-amd64.tar.gz
+    cd FREDPP-vX.Y.Z-debian13-amd64
+    ./fredpp
+
+Paquet Debian
+-------------
+
+    sudo apt install ./fredpp_X.Y.Z_amd64.deb
+    fredpp
+
+Dans FREDPP, utilisez ? pour l'aide, ?version pour identifier le binaire et Q
+pour quitter.
+
+Projet : https://github.com/PatrickRioche/FREDPP
+Licence : voir le fichier LICENSE inclus dans ce kit.

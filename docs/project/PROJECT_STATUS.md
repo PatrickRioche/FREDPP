@@ -2,7 +2,7 @@
 
 ## Sprint courant
 
-Sprint 2.13 — lecture et écriture de fichiers avec `R`, `W`, `WA` et `WU`.
+Sprint 2.14 — kits de livraison Windows et Debian et publication GitHub Releases.
 
 ## Version logicielle
 
@@ -14,18 +14,17 @@ La version exacte n'est pas recopiée dans ce document. Elle se consulte dans l'
 
 ## Validation attendue
 
-- Windows / MSVC : 26/26 tests ;
-- Debian / GCC : 26/26 tests ;
-- Debian / Clang : 26/26 tests.
+- Windows / MSVC Release : 27/27 tests et ZIP portable ;
+- Debian 13 / GCC Release : 27/27 tests, TAR.GZ et paquet DEB ;
+- Debian / Clang : 27/27 tests dans la validation générale ;
+- correspondance entre le tag `vX.Y.Z` et la version CMake ;
+- publication de `SHA256SUMS.txt`.
 
 ## Fonctions ajoutées
 
-- lecture de fichiers ASCII ou UTF-8 avec `R` ;
-- détection et suppression du BOM UTF-8 ;
-- écriture avec `W`, `WA` et l'extension `WU` ;
-- refus explicite de `WB` pour le format GCOS/BCD ;
-- conservation de LF ou CRLF ;
-- suivi des fichiers associés et des buffers modifiés ;
-- protection de la sortie normale `Q` ;
-- aides embarquées `?r`, `?w` et `?wu` ;
-- test dédié aux entrées-sorties de fichiers.
+- installation CMake et paquet Debian CPack ;
+- scripts locaux de création des kits Windows et Debian ;
+- workflow automatisé de publication ;
+- contrôle de version et de propreté des sources ;
+- statistiques de téléchargement des ressources ;
+- documentation de release et test du manifeste.

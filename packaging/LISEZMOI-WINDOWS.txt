@@ -1,0 +1,25 @@
+FREDPP — Kit portable Windows x64
+================================
+
+Installation
+------------
+
+1. Décompressez l'archive dans le dossier de votre choix.
+2. Lancez fredpp.exe.
+3. Dans FREDPP, utilisez ? pour l'aide et Q pour quitter.
+
+Identité du binaire
+-------------------
+
+Dans FREDPP, saisissez :
+
+    ?version
+
+La commande affiche la version, le commit Git et l'état des sources utilisés
+pour produire le binaire.
+
+Aucune installation n'est nécessaire. Le binaire Release utilise le runtime
+MSVC statique.
+
+Projet : https://github.com/PatrickRioche/FREDPP
+Licence : voir le fichier LICENSE inclus dans ce kit.

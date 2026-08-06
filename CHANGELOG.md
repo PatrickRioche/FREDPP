@@ -1,5 +1,26 @@
 # Changelog
 
+## v0.0.9
+
+### Added
+
+- Kits portables officiels pour Windows x64 et Debian 13 amd64.
+- Paquet Debian natif `fredpp_X.Y.Z_amd64.deb` généré avec CPack.
+- Workflow GitHub Actions de publication déclenché par les tags `v*`.
+- Vérification automatique de la cohérence entre le tag Git et la version CMake.
+- Manifeste `SHA256SUMS.txt` publié avec chaque release.
+- Scripts `package-release.ps1` et `package-release.sh` pour produire les kits localement.
+- Scripts `release-stats.ps1` et `release-stats.sh` pour consulter les téléchargements par ressource.
+- Documentation française `docs/project/RELEASES.md` et spécification `SPEC-027`.
+- Test `test_release_manifest` pour vérifier les fichiers obligatoires de livraison.
+
+### Changed
+
+- La version des tests n'est plus dupliquée manuellement : elle provient de `PROJECT_VERSION`.
+- Le binaire Windows Release utilise le runtime MSVC statique.
+- La suite passe de 26 à 27 tests.
+- Le workflow historique dupliqué `.github/workflows/build.yml` est supprimé ; `build-and-test.yml` reste le workflow de validation générale.
+
 ## v0.0.8
 
 ### Added

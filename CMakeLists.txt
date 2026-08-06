@@ -5,12 +5,20 @@ cmake_minimum_required(VERSION 3.24)
 if(POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)
 endif()
+if(POLICY CMP0091)
+    cmake_policy(SET CMP0091 NEW)
+endif()
 
-project(FREDPP VERSION 0.0.8 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.9 LANGUAGES CXX)
 
 if(MSVC)
     set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
         "$<$<CONFIG:Debug,RelWithDebInfo>:Embedded>"
+    )
+    # Release kits use the static MSVC runtime so the portable ZIP does not
+    # require a separate Visual C++ redistributable installation.
+    set(CMAKE_MSVC_RUNTIME_LIBRARY
+        "MultiThreaded$<$<CONFIG:Debug>:Debug>"
     )
 endif()
 
@@ -241,3 +249,45 @@ if(FREDPP_BUILD_TESTS)
     enable_testing()
     add_subdirectory(tests)
 endif()
+
+# Installation and release packaging. Portable ZIP/TGZ archives are assembled
+# by scripts/package-release.ps1 and scripts/package-release.sh. CPack provides
+# the native Debian package from the same install manifest.
+include(GNUInstallDirs)
+
+install(TARGETS fredpp
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+set(FREDPP_INSTALL_DOCDIR "${CMAKE_INSTALL_DATAROOTDIR}/doc/fredpp")
+install(FILES
+    LICENSE
+    NOTICE
+    README.md
+    CHANGELOG.md
+    ROADMAP.md
+    RELEASE_NOTES.md
+    docs/project/RELEASES.md
+    DESTINATION ${FREDPP_INSTALL_DOCDIR}
+)
+install(FILES packaging/LISEZMOI-DEBIAN.txt
+    DESTINATION ${FREDPP_INSTALL_DOCDIR}
+    RENAME LISEZMOI.txt
+)
+
+set(CPACK_PACKAGE_NAME "fredpp")
+set(CPACK_PACKAGE_VENDOR "FREDPP")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY
+    "Modern C++20 reimplementation of the historical FRED text editor"
+)
+set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_CONTACT "Patrick Rioche")
+set(CPACK_PACKAGE_HOMEPAGE_URL "https://github.com/PatrickRioche/FREDPP")
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/LICENSE")
+set(CPACK_DEBIAN_PACKAGE_MAINTAINER "Patrick Rioche")
+set(CPACK_DEBIAN_PACKAGE_SECTION "editors")
+set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
+set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/PatrickRioche/FREDPP")
+set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
+set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
+set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+include(CPack)

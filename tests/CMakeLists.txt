@@ -8,6 +8,7 @@ function(fredpp_add_test target source)
 endfunction()
 
 fredpp_add_test(test_version test_version.cpp)
+target_compile_definitions(test_version PRIVATE FREDPP_EXPECTED_VERSION="${PROJECT_VERSION}")
 fredpp_add_test(test_buffer test_buffer.cpp)
 fredpp_add_test(test_flow test_flow.cpp)
 fredpp_add_test(test_character_stream test_character_stream.cpp)
@@ -35,5 +36,12 @@ fredpp_add_test(test_file_io test_file_io.cpp)
 
 add_test(NAME cli_smoke COMMAND fredpp --version)
 set_tests_properties(cli_smoke PROPERTIES
-    PASS_REGULAR_EXPRESSION "FREDPP v0.0.8"
+    PASS_REGULAR_EXPRESSION "FREDPP v${PROJECT_VERSION}"
+)
+
+add_test(NAME test_release_manifest
+    COMMAND ${CMAKE_COMMAND}
+        -DFREDPP_SOURCE_DIR=${CMAKE_SOURCE_DIR}
+        -DFREDPP_VERSION=${PROJECT_VERSION}
+        -P ${CMAKE_CURRENT_SOURCE_DIR}/test_release_manifest.cmake
 )

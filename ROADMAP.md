@@ -118,6 +118,33 @@ Modifications intégrées :
 - `WX` et les listes avancées de fichiers de `R` seront traités ultérieurement ;
 - seuls l'ASCII et l'UTF-8 sont pris en charge.
 
+## Version v0.0.9 — Sprint 2.14
+
+### Modifications intégrées
+
+- première chaîne officielle de livraison binaire ;
+- ZIP portable Windows x64 construit en configuration Release ;
+- archive portable Debian 13 amd64 ;
+- paquet Debian natif installant `fredpp` dans le système ;
+- publication automatique sur GitHub Releases lors de l'envoi d'un tag `v*` ;
+- vérification stricte de la correspondance entre le tag et la version CMake ;
+- exécution des tests Release avant toute publication ;
+- génération d'un manifeste `SHA256SUMS.txt` ;
+- scripts PowerShell et Bash pour produire les paquets localement ;
+- scripts PowerShell et Bash pour suivre les téléchargements des ressources GitHub ;
+- centralisation de la version attendue par les tests à partir de `PROJECT_VERSION` ;
+- ajout du test `test_release_manifest` et passage à 27 tests ;
+- suppression du workflow de compilation historique dupliqué.
+
+### Artefacts officiels
+
+```text
+FREDPP-vX.Y.Z-windows-x64.zip
+FREDPP-vX.Y.Z-debian13-amd64.tar.gz
+fredpp_X.Y.Z_amd64.deb
+SHA256SUMS.txt
+```
+
 ## État fonctionnel actuel
 
 Commandes FRED disponibles :

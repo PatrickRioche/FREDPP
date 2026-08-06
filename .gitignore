@@ -29,3 +29,7 @@ Thumbs.db
 *.lib
 *.obj
 *.pdb
+# Release artifacts
+*.deb
+*.tar.gz
+SHA256SUMS.txt

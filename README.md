@@ -62,6 +62,31 @@ The repository currently contains:
 - historical whole-buffer alias `*`, including bare `*` (`1,$P`) and forms such as `*D`;
 - automated tests through CTest.
 
+## Official releases
+
+Ready-to-run packages are published from Git tags through GitHub Releases:
+
+- portable Windows x64 ZIP;
+- portable Debian 13 amd64 TAR.GZ;
+- Debian amd64 package;
+- SHA-256 checksum manifest.
+
+The release page is available at:
+
+```text
+https://github.com/PatrickRioche/FREDPP/releases/latest
+```
+
+Download statistics can be displayed with:
+
+```powershell
+.\scripts\release-stats.ps1
+```
+
+```bash
+./scripts/release-stats.sh
+```
+
 ## Requirements
 
 - CMake 3.24 or newer;
