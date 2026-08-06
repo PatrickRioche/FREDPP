@@ -6,7 +6,7 @@ if(POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.7 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.8 LANGUAGES CXX)
 
 if(MSVC)
     set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
@@ -83,8 +83,10 @@ set(FREDPP_IMPLEMENTED_HELP_TOPICS
     m
     p
     q
+    r
     s
     t
+    w
     z
 )
 
@@ -100,7 +102,7 @@ foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
 endforeach()
 
 list(LENGTH FREDPP_HELP_FILES FREDPP_HELP_FILES_LENGTH)
-math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 3")
+math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 4")
 
 string(CONCAT FREDPP_HELP_INDEX
 "============================================================\n"
@@ -126,6 +128,7 @@ string(APPEND FREDPP_HELP_INDEX
 "    ?:          Afficher les commandes spéciales de FREDPP\n"
 "    :help       Afficher les commandes spéciales de FREDPP\n"
 "    ?version    Afficher la version, le commit Git et l'état des sources\n"
+"    ?wu         Afficher l'extension UTF-8 de la commande W\n"
 "\nALIAS HISTORIQUE IMPLÉMENTÉ\n\n"
 "    ?*          Afficher l'aide de l'alias * (1,$)\n"
 )
@@ -140,6 +143,18 @@ file(READ "${FREDPP_SPECIAL_HELP_FILE}" FREDPP_SPECIAL_HELP_CONTENT)
 string(FIND "${FREDPP_SPECIAL_HELP_CONTENT}" ")FREDPP_HELP\"" FREDPP_SPECIAL_HELP_COLLISION)
 if(NOT FREDPP_SPECIAL_HELP_COLLISION EQUAL -1)
     message(FATAL_ERROR "Special-command help contains the reserved raw-string delimiter")
+endif()
+
+set(FREDPP_WU_HELP_FILE
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/fr/fredpp/extension-wu.md"
+)
+if(NOT EXISTS "${FREDPP_WU_HELP_FILE}")
+    message(FATAL_ERROR "Missing FREDPP WU help: ${FREDPP_WU_HELP_FILE}")
+endif()
+file(READ "${FREDPP_WU_HELP_FILE}" FREDPP_WU_HELP_CONTENT)
+string(FIND "${FREDPP_WU_HELP_CONTENT}" ")FREDPP_HELP\"" FREDPP_WU_HELP_COLLISION)
+if(NOT FREDPP_WU_HELP_COLLISION EQUAL -1)
+    message(FATAL_ERROR "WU help contains the reserved raw-string delimiter")
 endif()
 
 set(FREDPP_STAR_ALIAS_HELP_FILE
@@ -165,6 +180,7 @@ file(WRITE "${FREDPP_EMBEDDED_HELP_CPP}"
 "    Entry{\"index\", R\"FREDPP_HELP(${FREDPP_HELP_INDEX})FREDPP_HELP\"},\n"
 "    Entry{\":\", R\"FREDPP_HELP(${FREDPP_SPECIAL_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"*\", R\"FREDPP_HELP(${FREDPP_STAR_ALIAS_HELP_CONTENT})FREDPP_HELP\"},\n"
+"    Entry{\"wu\", R\"FREDPP_HELP(${FREDPP_WU_HELP_CONTENT})FREDPP_HELP\"},\n"
 )
 
 foreach(help_file IN LISTS FREDPP_HELP_FILES)

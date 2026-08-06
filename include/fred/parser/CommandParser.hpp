@@ -5,6 +5,7 @@
 #include "fred/lexer/TokenStream.hpp"
 
 #include <memory>
+#include <optional>
 #include <string>
 #include <utility>
 
@@ -19,6 +20,7 @@ public:
 private:
     [[nodiscard]] bool begins_address(const Token& token) const noexcept;
     [[nodiscard]] std::string parse_parenthesized_buffer_name();
+    [[nodiscard]] std::optional<std::string> parse_optional_filename();
     [[nodiscard]] std::unique_ptr<PatternNode> parse_delimited_pattern();
     [[nodiscard]] std::pair<std::unique_ptr<PatternNode>, std::string>
         parse_substitution_parts();

@@ -24,6 +24,7 @@ public:
     [[nodiscard]] Buffer& current();
     [[nodiscard]] const Buffer& current() const;
     [[nodiscard]] std::vector<std::string> names() const;
+    [[nodiscard]] std::vector<std::string> modified_names() const;
 
 private:
     using Storage = std::unordered_map<std::string, std::unique_ptr<Buffer>>;

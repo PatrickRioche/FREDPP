@@ -24,7 +24,8 @@ Buffer& BufferManager::create_or_select(std::string name) {
     std::string previous_name;
     bool remove_previous = false;
     if (current_ != nullptr && current_->name() != name &&
-        current_->name() != "0" && current_->empty()) {
+        current_->name() != "0" && current_->empty() &&
+        !current_->modified() && !current_->has_associated_file()) {
         previous_name = current_->name();
         remove_previous = true;
     }
@@ -35,9 +36,8 @@ Buffer& BufferManager::create_or_select(std::string name) {
     }
     current_ = it->second.get();
 
-    // FR-0006: a transient empty buffer is removed when it is left.
-    // File association is not implemented yet; until then, empty means
-    // "no data and no associated file".
+    // FR-0006: remove only a transient empty buffer with no file association
+    // and no unsaved state when it is left.
     if (remove_previous) {
         buffers_.erase(previous_name);
     }
@@ -103,6 +103,17 @@ std::vector<std::string> BufferManager::names() const {
     for (const auto& [name, value] : buffers_) {
         (void)value;
         result.push_back(name);
+    }
+    std::sort(result.begin(), result.end());
+    return result;
+}
+
+std::vector<std::string> BufferManager::modified_names() const {
+    std::vector<std::string> result;
+    for (const auto& [name, buffer] : buffers_) {
+        if (buffer->modified()) {
+            result.push_back(name);
+        }
     }
     std::sort(result.begin(), result.end());
     return result;

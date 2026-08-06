@@ -28,7 +28,10 @@ Inside FREDPP:
 ?:      FREDPP-specific development and diagnostic commands
 ?*      historical whole-buffer alias documentation
 ?q      historical Q command documentation
+?r      historical R command documentation
 ?s      historical S command documentation
+?w      historical W and WA documentation
+?wu     FREDPP UTF-8 write extension
 :help   same FREDPP-specific help as ?:
 ```
 
@@ -50,7 +53,11 @@ The repository currently contains:
 - AddressParser, PatternParser and CommandParser;
 - AST nodes and address evaluation;
 - ExecutionContext and CommandExecutor;
-- executable `P`, `L`, `D`, `A`, `B`, `I`, `C`, `M`, `T`, `G`, `Z`, `S` and `Q` commands;
+- executable `P`, `L`, `D`, `A`, `B`, `I`, `C`, `M`, `T`, `G`, `Z`, `S`, `Q`, `R` and `W` commands;
+- file reading with automatic ASCII or UTF-8 detection;
+- file writing with `W`, forced ASCII with `WA`, and UTF-8 without BOM with the FREDPP extension `WU`;
+- recognition of historical `WB` with an explicit unsupported GCOS/BCD diagnostic;
+- per-buffer file association, encoding, line-ending and modified-state tracking;
 - historical `Q` and `QQ` exit commands; the former FREDPP-specific `:quit` command has been removed;
 - historical whole-buffer alias `*`, including bare `*` (`1,$P`) and forms such as `*D`;
 - automated tests through CTest.
@@ -85,7 +92,7 @@ For a clean rebuild followed by tests:
 
 ## Exit the editor
 
-Inside FREDPP, use `Q` for a normal exit or `QQ` for an immediate exit.
+Inside FREDPP, use `Q` for a normal exit. `Q` refuses to leave while a buffer contains unsaved changes; use `W` to save or `QQ` for an immediate exit.
 
 ## Run the editor
 

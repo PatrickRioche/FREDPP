@@ -16,7 +16,10 @@ int main() {
     assert(help.exists("b"));
     assert(help.exists("g"));
     assert(help.exists("q"));
+    assert(help.exists("r"));
     assert(help.exists("s"));
+    assert(help.exists("w"));
+    assert(help.exists("wu"));
     assert(help.exists("z"));
     assert(help.exists("HELP"));
     assert(help.exists("  h  "));
@@ -26,7 +29,10 @@ int main() {
     assert(index.find("AIDE FREDPP — COMMANDES FRED DISPONIBLES") != std::string::npos);
     assert(index.find("    ?g") != std::string::npos);
     assert(index.find("    ?q") != std::string::npos);
+    assert(index.find("    ?r") != std::string::npos);
     assert(index.find("    ?s") != std::string::npos);
+    assert(index.find("    ?w") != std::string::npos);
+    assert(index.find("    ?wu") != std::string::npos);
     assert(index.find("    ?z") != std::string::npos);
     assert(index.find("    ?*") != std::string::npos);
     assert(index.find("    ?:") != std::string::npos);
@@ -76,11 +82,20 @@ int main() {
     const auto global = help.load_for_terminal("g");
     assert(global.find("G — GLOBAL COMMANDE") != std::string::npos);
 
+    const auto read = help.load_for_terminal("r");
+    assert(read.find("R — LECTURE") != std::string::npos);
+
     const auto substitute = help.load_for_terminal("s");
     assert(substitute.find("S — ( SUBSTITUTION )") != std::string::npos);
 
     const auto quit = help.load_for_terminal("q");
     assert(quit.find("Q — ARRÊT") != std::string::npos);
+
+    const auto write = help.load_for_terminal("w");
+    assert(write.find("W — ECRITURE") != std::string::npos);
+
+    const auto wu = help.load_for_terminal("wu");
+    assert(wu.find("WU — ÉCRITURE UTF-8") != std::string::npos);
 
     const auto zap = help.load_for_terminal("Z");
     assert(zap.find("Z — COMMANDES DIVERSES") != std::string::npos);
@@ -102,7 +117,10 @@ int main() {
     assert(std::find(topics.begin(), topics.end(), "b") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "g") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "q") != topics.end());
+    assert(std::find(topics.begin(), topics.end(), "r") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "s") != topics.end());
+    assert(std::find(topics.begin(), topics.end(), "w") != topics.end());
+    assert(std::find(topics.begin(), topics.end(), "wu") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "z") != topics.end());
 
     std::cout << "help manager tests passed\n";

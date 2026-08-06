@@ -200,8 +200,39 @@ int main() {
         assert(!list.filename());
     }
     {
+        const auto node = parse("R \"sample file.txt\"");
+        assert(node->kind() == fred::AstNodeKind::ReadCommand);
+        const auto& read = static_cast<const fred::ReadCommandNode&>(*node);
+        assert(read.filename() == "sample file.txt");
+    }
+    {
+        const auto node = parse("W");
+        assert(node->kind() == fred::AstNodeKind::WriteCommand);
+        const auto& write = static_cast<const fred::WriteCommandNode&>(*node);
+        assert(!write.filename());
+        assert(write.mode() == fred::FileWriteMode::Preserve);
+    }
+    {
+        const auto node = parse("1,$WA \"ascii output.txt\"");
+        assert(node->kind() == fred::AstNodeKind::WriteCommand);
+        assert(node->has_address());
+        const auto& write = static_cast<const fred::WriteCommandNode&>(*node);
+        assert(write.filename() && *write.filename() == "ascii output.txt");
+        assert(write.mode() == fred::FileWriteMode::Ascii);
+    }
+    {
+        const auto node = parse("WU utf8.txt");
+        const auto& write = static_cast<const fred::WriteCommandNode&>(*node);
+        assert(write.mode() == fred::FileWriteMode::Utf8);
+    }
+    {
+        const auto node = parse("WB legacy.bcd");
+        const auto& write = static_cast<const fred::WriteCommandNode&>(*node);
+        assert(write.mode() == fred::FileWriteMode::BcdUnsupported);
+    }
+    {
         const auto registry = fred::make_core_command_registry();
-        assert(registry.size() == 13);
+        assert(registry.size() == 15);
         assert(registry.contains('P'));
         assert(registry.contains('L'));
         assert(registry.contains('D'));
@@ -215,6 +246,8 @@ int main() {
         assert(registry.contains('Z'));
         assert(registry.contains('S'));
         assert(registry.contains('Q'));
+        assert(registry.contains('R'));
+        assert(registry.contains('W'));
         assert(registry.find('P')->name == "Print");
     }
 
@@ -229,6 +262,8 @@ int main() {
     expect_error("T", "T requires a destination address");
     expect_error("1T2,3", "T destination must be a single line address");
     expect_error("1L", "L does not accept a line address");
+    expect_error("R", "R requires a filename");
+    expect_error("1R file.txt", "R does not accept a line address");
     expect_error("print", "expected a command, got 'print'");
 
     std::cout << "command parser tests passed\n";

@@ -1,5 +1,34 @@
 # Changelog
 
+## v0.0.8
+
+### Added
+
+- Commande historique `R` pour charger un fichier dans un buffer vide et non associé.
+- Commande historique `W` pour écrire tout le buffer ou une plage de lignes.
+- Forme historique `WA` pour forcer une écriture ASCII stricte.
+- Extension FREDPP `WU` pour écrire en UTF-8 sans BOM.
+- Détection à la lecture des fichiers ASCII, UTF-8 et UTF-8 avec BOM.
+- Conservation des fins de ligne LF ou CRLF et de l'absence ou présence d'une fin de ligne finale.
+- Association d'un fichier, d'un encodage et d'un état modifié à chaque buffer.
+- Aides embarquées `?r`, `?w` et `?wu`.
+- Test `test_file_io` et couverture complémentaire de `Q` avec des buffers modifiés.
+- Spécification `SPEC-026` consacrée à la lecture, à l'écriture et aux encodages.
+
+### Changed
+
+- `Q` refuse désormais l'arrêt normal lorsqu'un buffer contient des modifications non enregistrées.
+- `QQ` conserve son comportement d'arrêt immédiat.
+- `W` sans option conserve l'encodage connu du buffer ; un nouveau fichier utilise UTF-8.
+- Une écriture complète réussie rend le buffer propre ; une écriture partielle ne le fait pas.
+- La suite passe de 25 à 26 tests.
+
+### Known limitations
+
+- `WB` est reconnu mais non implémenté, car il correspond au format historique GCOS/BCD.
+- `WX` et la lecture d'une liste de fichiers avec `R` sont reportés.
+- Les encodages autres que l'ASCII et l'UTF-8 ne sont pas pris en charge.
+
 ## v0.0.7
 
 ### Added

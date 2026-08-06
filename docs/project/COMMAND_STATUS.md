@@ -13,9 +13,11 @@ Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/ref
 | L | Disponible avec un nom de fichier | Oui |
 | M | Disponible sous forme provisoire, réalignement historique requis | Oui |
 | P | Disponible | Oui |
-| Q | Disponible pour `Q` et `QQ`; `Q!` reporté | Oui |
+| Q | Disponible pour `Q` et `QQ`; Q protège désormais les buffers modifiés; `Q!` reporté | Oui |
+| R | Disponible pour un fichier ASCII ou UTF-8 dans un buffer vide et non associé | Oui |
 | S | Disponible pour les substitutions globales, les plages, `&`, le suffixe P et l'emploi dans G | Oui |
 | T | Disponible sous forme provisoire, réalignement historique requis | Oui |
+| W | Disponible avec W, WA et l'extension WU; WB reconnu mais GCOS/BCD non pris en charge | Oui (`?w`, `?wu`) |
 | Z | Disponible | Oui |
 
 ## Limites actuelles de G
@@ -40,7 +42,11 @@ La substitution porte sur toutes les occurrences non chevauchantes. `&` réinsè
 
 ## Limites actuelles de Q
 
-`Q` demande un arrêt normal et `QQ` un arrêt immédiat. Comme FREDPP ne possède pas encore de liaison complète entre buffers et fichiers, le contrôle historique des fichiers modifiés sera finalisé avec les commandes de lecture et d'écriture. `Q!` est reporté au chantier d'exécution externe.
+`Q` demande un arrêt normal et refuse de quitter si un buffer est modifié. `QQ` force l'arrêt immédiat. `Q!` est reporté au chantier d'exécution externe.
+
+## Limites actuelles de R et W
+
+`R` lit un fichier unique dans un buffer vide, non associé et non modifié. `W` écrit le buffer complet ou une plage. `WA` force l'ASCII et `WU` force l'UTF-8 sans BOM. `WB` reste réservé au GCOS/BCD historique et n'est pas implémenté. `WX`, les listes de fichiers et les encodages autres que l'ASCII ou l'UTF-8 sont reportés.
 
 ## Alias historiques
 

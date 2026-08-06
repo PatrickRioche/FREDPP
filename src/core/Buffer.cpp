@@ -1,7 +1,7 @@
 #include "fred/core/Buffer.hpp"
 
-#include <stdexcept>
 #include <iterator>
+#include <stdexcept>
 #include <utility>
 
 namespace fred {
@@ -26,9 +26,21 @@ const std::vector<std::string>& Buffer::lines() const noexcept {
     return lines_;
 }
 
+bool Buffer::modified() const noexcept { return modified_; }
+bool Buffer::has_associated_file() const noexcept {
+    return associated_file_.has_value();
+}
+const std::optional<std::string>& Buffer::associated_file() const noexcept {
+    return associated_file_;
+}
+TextEncoding Buffer::encoding() const noexcept { return encoding_; }
+LineEnding Buffer::line_ending() const noexcept { return line_ending_; }
+bool Buffer::final_newline() const noexcept { return final_newline_; }
+
 void Buffer::append(std::string text) {
     lines_.push_back(std::move(text));
     current_line_ = lines_.size();
+    mark_modified();
 }
 
 void Buffer::insert_before(LineNumber number, std::string text) {
@@ -40,6 +52,7 @@ void Buffer::insert_before(LineNumber number, std::string text) {
     lines_.insert(lines_.begin() + static_cast<std::ptrdiff_t>(number - 1),
                   std::move(text));
     current_line_ = number;
+    mark_modified();
 }
 
 void Buffer::insert_after(LineNumber number, std::vector<std::string> text) {
@@ -52,16 +65,21 @@ void Buffer::insert_after(LineNumber number, std::vector<std::string> text) {
         return;
     }
 
+    const auto inserted_count = text.size();
     const auto position = lines_.begin() + static_cast<std::ptrdiff_t>(number);
     lines_.insert(position,
                   std::make_move_iterator(text.begin()),
                   std::make_move_iterator(text.end()));
-    current_line_ = number + text.size();
+    current_line_ = number + inserted_count;
+    mark_modified();
 }
 
 void Buffer::replace(LineNumber number, std::string text) {
     require_existing_line(number);
-    lines_.at(number - 1) = std::move(text);
+    if (lines_.at(number - 1) != text) {
+        lines_.at(number - 1) = std::move(text);
+        mark_modified();
+    }
     current_line_ = number;
 }
 
@@ -84,6 +102,7 @@ void Buffer::erase(LineNumber first, LineNumber last) {
     } else {
         current_line_ = lines_.size();
     }
+    mark_modified();
 }
 
 void Buffer::set_current_line(LineNumber number) {
@@ -92,6 +111,33 @@ void Buffer::set_current_line(LineNumber number) {
     }
     current_line_ = number;
 }
+
+void Buffer::load_file(std::vector<std::string> lines,
+                       std::string filename,
+                       TextEncoding encoding,
+                       LineEnding line_ending,
+                       bool final_newline) {
+    lines_ = std::move(lines);
+    current_line_ = lines_.size();
+    associated_file_ = std::move(filename);
+    encoding_ = encoding;
+    line_ending_ = line_ending;
+    final_newline_ = final_newline;
+    modified_ = false;
+}
+
+void Buffer::associate_file(std::string filename,
+                            TextEncoding encoding,
+                            LineEnding line_ending,
+                            bool final_newline) {
+    associated_file_ = std::move(filename);
+    encoding_ = encoding;
+    line_ending_ = line_ending;
+    final_newline_ = final_newline;
+}
+
+void Buffer::mark_clean() noexcept { modified_ = false; }
+void Buffer::mark_modified() noexcept { modified_ = true; }
 
 void Buffer::require_existing_line(LineNumber number) const {
     if (number == 0 || number > lines_.size()) {

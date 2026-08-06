@@ -2,7 +2,7 @@
 
 ## Sprint courant
 
-Sprint 2.12 — commandes historiques `S` et `Q`.
+Sprint 2.13 — lecture et écriture de fichiers avec `R`, `W`, `WA` et `WU`.
 
 ## Version logicielle
 
@@ -14,17 +14,18 @@ La version exacte n'est pas recopiée dans ce document. Elle se consulte dans l'
 
 ## Validation attendue
 
-- Windows / MSVC : 25/25 tests ;
-- Debian / GCC : 25/25 tests ;
-- Debian / Clang : 25/25 tests.
+- Windows / MSVC : 26/26 tests ;
+- Debian / GCC : 26/26 tests ;
+- Debian / Clang : 26/26 tests.
 
 ## Fonctions ajoutées
 
-- substitutions sur une ligne ou une plage avec `S` ;
-- `&` pour réinsérer le texte trouvé ;
-- séparateurs symboliques et suffixe optionnel `P` ;
-- utilisation de `S` dans `G` ;
-- sortie avec `Q` ou `QQ` ;
-- suppression de `:quit` ;
-- aides embarquées `?s` et `?q` ;
-- tests dédiés à S et Q.
+- lecture de fichiers ASCII ou UTF-8 avec `R` ;
+- détection et suppression du BOM UTF-8 ;
+- écriture avec `W`, `WA` et l'extension `WU` ;
+- refus explicite de `WB` pour le format GCOS/BCD ;
+- conservation de LF ou CRLF ;
+- suivi des fichiers associés et des buffers modifiés ;
+- protection de la sortie normale `Q` ;
+- aides embarquées `?r`, `?w` et `?wu` ;
+- test dédié aux entrées-sorties de fichiers.

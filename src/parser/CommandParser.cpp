@@ -56,12 +56,24 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             ? Token{TokenType::Command, "P", address->location()}
             : tokens_->consume();
         bool immediate_quit = false;
-        if (command.type == TokenType::Identifier && command.lexeme.size() == 2 &&
-            std::toupper(static_cast<unsigned char>(command.lexeme[0])) == 'Q' &&
-            std::toupper(static_cast<unsigned char>(command.lexeme[1])) == 'Q') {
-            command.type = TokenType::Command;
-            command.lexeme = "Q";
-            immediate_quit = true;
+        FileWriteMode write_mode = FileWriteMode::Preserve;
+        if (command.type == TokenType::Identifier && command.lexeme.size() == 2) {
+            const char first = static_cast<char>(std::toupper(
+                static_cast<unsigned char>(command.lexeme[0])));
+            const char second = static_cast<char>(std::toupper(
+                static_cast<unsigned char>(command.lexeme[1])));
+            if (first == 'Q' && second == 'Q') {
+                command.type = TokenType::Command;
+                command.lexeme = "Q";
+                immediate_quit = true;
+            } else if (first == 'W' &&
+                       (second == 'A' || second == 'U' || second == 'B')) {
+                command.type = TokenType::Command;
+                command.lexeme = "W";
+                write_mode = second == 'A' ? FileWriteMode::Ascii
+                           : second == 'U' ? FileWriteMode::Utf8
+                                           : FileWriteMode::BcdUnsupported;
+            }
         }
         if (command.type == TokenType::End || command.type == TokenType::NewLine) {
             throw ParseError("expected a command", command.location);
@@ -81,6 +93,28 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         if (descriptor == nullptr) {
             throw ParseError(std::string("unknown command '") + mnemonic + "'",
                              command.location);
+        }
+
+        if (mnemonic == 'R') {
+            if (address) {
+                throw ParseError("R does not accept a line address",
+                                 address->location());
+            }
+            auto filename = parse_optional_filename();
+            if (!filename) {
+                throw ParseError("R requires a filename", command.location);
+            }
+            require_command_end();
+            return std::make_unique<ReadCommandNode>(std::move(*filename),
+                                                      command.location);
+        }
+
+        if (mnemonic == 'W') {
+            auto filename = parse_optional_filename();
+            require_command_end();
+            return std::make_unique<WriteCommandNode>(
+                std::move(address), std::move(filename), write_mode,
+                command.location);
         }
 
         if (mnemonic == 'S') {
@@ -194,16 +228,8 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 throw ParseError("L does not accept a line address", address->location());
             }
 
-            std::string filename;
-            while (tokens_->peek().type != TokenType::End &&
-                   tokens_->peek().type != TokenType::NewLine) {
-                filename += tokens_->consume().lexeme;
-            }
+            auto filename = parse_optional_filename();
             require_command_end();
-            if (filename.empty()) {
-                return std::make_unique<ListCommandNode>(std::nullopt,
-                                                         command.location);
-            }
             return std::make_unique<ListCommandNode>(std::move(filename),
                                                      command.location);
         }
@@ -257,6 +283,54 @@ std::string CommandParser::parse_parenthesized_buffer_name() {
         throw ParseError("buffer name must not be empty", opening.location);
     }
     return name;
+}
+
+
+std::optional<std::string> CommandParser::parse_optional_filename() {
+    if (tokens_->peek().type == TokenType::End ||
+        tokens_->peek().type == TokenType::NewLine) {
+        return std::nullopt;
+    }
+
+    std::string filename;
+    bool quoted = false;
+    bool closed_quote = false;
+    std::size_t previous_end_column = 0;
+
+    if (tokens_->peek().type == TokenType::Symbol &&
+        tokens_->peek().lexeme == "\"") {
+        const auto opening = tokens_->consume();
+        quoted = true;
+        previous_end_column = opening.location.column + opening.lexeme.size();
+    }
+
+    while (tokens_->peek().type != TokenType::End &&
+           tokens_->peek().type != TokenType::NewLine) {
+        const auto token = tokens_->consume();
+        if (quoted && token.type == TokenType::Symbol && token.lexeme == "\"") {
+            closed_quote = true;
+            break;
+        }
+        if (!filename.empty() && token.location.column > previous_end_column) {
+            filename.append(token.location.column - previous_end_column, ' ');
+        }
+        filename += token.lexeme;
+        previous_end_column = token.location.column + token.lexeme.size();
+    }
+
+    if (quoted && !closed_quote) {
+        throw ParseError("unterminated quoted filename", tokens_->peek().location);
+    }
+    if (quoted && tokens_->peek().type != TokenType::End &&
+        tokens_->peek().type != TokenType::NewLine) {
+        throw ParseError("unexpected token after filename: '" +
+                             tokens_->peek().lexeme + "'",
+                         tokens_->peek().location);
+    }
+    if (filename.empty()) {
+        throw ParseError("filename must not be empty", tokens_->peek().location);
+    }
+    return filename;
 }
 
 

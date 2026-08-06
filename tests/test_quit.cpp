@@ -5,6 +5,7 @@
 #include "fred/lexer/TokenStream.hpp"
 #include "fred/parser/CommandParser.hpp"
 #include "fred/parser/ParseError.hpp"
+#include "fred/runtime/CommandExecutionError.hpp"
 #include "fred/runtime/CommandExecutor.hpp"
 #include "fred/runtime/ExecutionContext.hpp"
 #include "fred/runtime/Output.hpp"
@@ -53,6 +54,20 @@ int main() {
         executor.execute(*command, context);
         assert(context.exit_requested());
         assert(!context.immediate_exit_requested());
+    }
+
+    buffers.current().append("unsaved");
+    {
+        fred::ExecutionContext context(buffers, output);
+        const auto command = parse("Q");
+        try {
+            executor.execute(*command, context);
+            assert(false && "Q must refuse modified buffers");
+        } catch (const fred::CommandExecutionError& error) {
+            assert(std::string_view(error.what()).find("modified buffer") !=
+                   std::string_view::npos);
+        }
+        assert(!context.exit_requested());
     }
 
     {

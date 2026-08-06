@@ -31,8 +31,9 @@ fredpp_add_test(test_zap test_zap.cpp)
 fredpp_add_test(test_star_alias test_star_alias.cpp)
 fredpp_add_test(test_substitute test_substitute.cpp)
 fredpp_add_test(test_quit test_quit.cpp)
+fredpp_add_test(test_file_io test_file_io.cpp)
 
 add_test(NAME cli_smoke COMMAND fredpp --version)
 set_tests_properties(cli_smoke PROPERTIES
-    PASS_REGULAR_EXPRESSION "FREDPP v0.0.7"
+    PASS_REGULAR_EXPRESSION "FREDPP v0.0.8"
 )

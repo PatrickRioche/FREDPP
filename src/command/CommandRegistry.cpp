@@ -130,6 +130,23 @@ CommandRegistry make_core_command_registry() {
         }});
 
     registry.register_command(CommandDescriptor{
+        'R', "Read",
+        [](std::unique_ptr<AddressNode> address, SourceLocation location) {
+            if (address) {
+                throw std::invalid_argument("R does not accept a line address");
+            }
+            return std::make_unique<ReadCommandNode>(std::string{}, location);
+        }});
+
+    registry.register_command(CommandDescriptor{
+        'W', "Write",
+        [](std::unique_ptr<AddressNode> address, SourceLocation location) {
+            return std::make_unique<WriteCommandNode>(
+                std::move(address), std::nullopt, FileWriteMode::Preserve,
+                location);
+        }});
+
+    registry.register_command(CommandDescriptor{
         'S', "Substitute",
         [](std::unique_ptr<AddressNode> address, SourceLocation location) {
             return std::make_unique<SubstituteCommandNode>(

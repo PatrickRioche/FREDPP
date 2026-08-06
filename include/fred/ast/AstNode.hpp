@@ -30,6 +30,8 @@ enum class AstNodeKind {
     GlobalCommand,
     ZapCommand,
     SubstituteCommand,
+    ReadCommand,
+    WriteCommand,
     QuitCommand
 };
 

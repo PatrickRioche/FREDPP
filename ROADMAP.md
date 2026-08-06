@@ -95,12 +95,35 @@ Modifications intégrées :
 - le contrôle des buffers associés à des fichiers sera complété avec les commandes historiques de lecture et d'écriture ;
 - les suites générales de commandes restent à généraliser au-delà du suffixe `P` pris en charge par `S`.
 
+## Version v0.0.8 — Sprint 2.13
+
+### Modifications intégrées
+
+- commande historique `R` pour lire un fichier dans un buffer vide, non associé et non modifié ;
+- détection automatique de l'ASCII, de l'UTF-8 et du BOM UTF-8 ;
+- commande historique `W` avec nom de fichier optionnel et écriture d'une plage ;
+- forme `WA` pour forcer l'ASCII avec refus des caractères non représentables ;
+- extension FREDPP `WU` pour écrire en UTF-8 sans BOM ;
+- reconnaissance de `WB` avec un diagnostic explicite indiquant que GCOS/BCD n'est pas pris en charge ;
+- conservation de LF ou CRLF et de la fin de ligne finale lors d'une réécriture complète ;
+- suivi, pour chaque buffer, du fichier associé, de l'encodage et de l'état propre ou modifié ;
+- protection de `Q` contre la perte de buffers modifiés, avec `QQ` comme sortie immédiate ;
+- intégration sélective des aides `?r`, `?w` et `?wu` ;
+- ajout de `test_file_io` et passage à 26 tests ;
+- validation attendue sous MSVC, GCC et Clang.
+
+### Limites reportées
+
+- `WB` reste réservé à sa signification historique GCOS/BCD et n'est pas implémenté ;
+- `WX` et les listes avancées de fichiers de `R` seront traités ultérieurement ;
+- seuls l'ASCII et l'UTF-8 sont pris en charge.
+
 ## État fonctionnel actuel
 
 Commandes FRED disponibles :
 
 ```text
-P, L, D, A, B, I, C, M, T, G, Z, S, Q
+P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, WA, WU
 ```
 
 Les limites détaillées sont suivies dans `docs/project/COMMAND_STATUS.md`.
@@ -110,6 +133,7 @@ Les limites détaillées sont suivies dans `docs/project/COMMAND_STATUS.md`.
 ### Prochaines versions 0.0.x
 
 - réaligner les commandes `M` et `T` sur leur comportement historique documenté ;
+- compléter les formes avancées de `R` et `W`, notamment `WX` ;
 - compléter les formes courtes de la commande `B` ;
 - poursuivre l'implémentation des commandes historiques documentées ;
 - étendre `G` aux suites de commandes et aux comportements historiques complémentaires ;

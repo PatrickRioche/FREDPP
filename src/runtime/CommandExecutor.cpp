@@ -6,9 +6,13 @@
 #include "fred/runtime/CommandExecutionError.hpp"
 #include "fred/runtime/PatternMatcher.hpp"
 
+#include <algorithm>
+#include <cstdint>
 #include <fstream>
+#include <iterator>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <utility>
 #include <vector>
 
@@ -51,6 +55,241 @@ void execute_list(const ListCommandNode& command, ExecutionContext& context) {
 
     if (input.bad()) {
         throw CommandExecutionError("error while reading file: " + *command.filename());
+    }
+}
+
+
+struct DecodedFile {
+    std::vector<std::string> lines;
+    TextEncoding encoding{TextEncoding::Unknown};
+    LineEnding line_ending{LineEnding::Lf};
+    bool final_newline{false};
+};
+
+bool is_valid_utf8(std::string_view text) noexcept {
+    std::size_t index = 0;
+    while (index < text.size()) {
+        const auto first = static_cast<std::uint8_t>(text[index]);
+        if (first <= 0x7F) {
+            ++index;
+            continue;
+        }
+
+        std::size_t length = 0;
+        std::uint32_t code_point = 0;
+        if (first >= 0xC2 && first <= 0xDF) {
+            length = 2;
+            code_point = first & 0x1F;
+        } else if (first >= 0xE0 && first <= 0xEF) {
+            length = 3;
+            code_point = first & 0x0F;
+        } else if (first >= 0xF0 && first <= 0xF4) {
+            length = 4;
+            code_point = first & 0x07;
+        } else {
+            return false;
+        }
+
+        if (index + length > text.size()) {
+            return false;
+        }
+        for (std::size_t offset = 1; offset < length; ++offset) {
+            const auto continuation =
+                static_cast<std::uint8_t>(text[index + offset]);
+            if ((continuation & 0xC0) != 0x80) {
+                return false;
+            }
+            code_point = (code_point << 6) | (continuation & 0x3F);
+        }
+
+        if ((length == 3 && code_point < 0x800) ||
+            (length == 4 && code_point < 0x10000) ||
+            (code_point >= 0xD800 && code_point <= 0xDFFF) ||
+            code_point > 0x10FFFF) {
+            return false;
+        }
+        index += length;
+    }
+    return true;
+}
+
+DecodedFile decode_file(std::string bytes, const std::string& filename) {
+    if (bytes.find('\0') != std::string::npos) {
+        throw CommandExecutionError("binary file is not supported: " + filename);
+    }
+
+    bool had_bom = false;
+    if (bytes.size() >= 3 &&
+        static_cast<unsigned char>(bytes[0]) == 0xEF &&
+        static_cast<unsigned char>(bytes[1]) == 0xBB &&
+        static_cast<unsigned char>(bytes[2]) == 0xBF) {
+        bytes.erase(0, 3);
+        had_bom = true;
+    }
+
+    const bool ascii = std::all_of(bytes.begin(), bytes.end(), [](char value) {
+        return static_cast<unsigned char>(value) <= 0x7F;
+    });
+    if (!ascii && !is_valid_utf8(bytes)) {
+        throw CommandExecutionError(
+            "file is neither ASCII nor valid UTF-8: " + filename);
+    }
+
+    DecodedFile result;
+    result.encoding = (ascii && !had_bom) ? TextEncoding::Ascii
+                                          : TextEncoding::Utf8;
+    result.line_ending = bytes.find("\r\n") != std::string::npos
+        ? LineEnding::CrLf : LineEnding::Lf;
+    result.final_newline = !bytes.empty() && bytes.back() == '\n';
+
+    std::size_t start = 0;
+    while (start < bytes.size()) {
+        const auto newline = bytes.find('\n', start);
+        if (newline == std::string::npos) {
+            result.lines.push_back(bytes.substr(start));
+            break;
+        }
+        auto line = bytes.substr(start, newline - start);
+        if (!line.empty() && line.back() == '\r') {
+            line.pop_back();
+        }
+        result.lines.push_back(std::move(line));
+        start = newline + 1;
+    }
+    return result;
+}
+
+DecodedFile read_file(const std::string& filename) {
+    std::ifstream input(filename, std::ios::binary);
+    if (!input) {
+        throw CommandExecutionError("cannot open file: " + filename);
+    }
+    std::string bytes((std::istreambuf_iterator<char>(input)),
+                      std::istreambuf_iterator<char>());
+    if (input.bad()) {
+        throw CommandExecutionError("error while reading file: " + filename);
+    }
+    return decode_file(std::move(bytes), filename);
+}
+
+void execute_read(const ReadCommandNode& command, ExecutionContext& context) {
+    auto& buffer = context.current_buffer();
+    if (!buffer.empty() || buffer.modified() || buffer.has_associated_file()) {
+        throw CommandExecutionError(
+            "R requires an empty, unassociated, unmodified current buffer");
+    }
+
+    auto decoded = read_file(command.filename());
+    const auto line_count = decoded.lines.size();
+    buffer.load_file(std::move(decoded.lines), command.filename(),
+                     decoded.encoding, decoded.line_ending,
+                     decoded.final_newline);
+    context.set_counter(line_count);
+    context.set_condition(true);
+}
+
+bool contains_non_ascii(const Buffer& buffer, LineRange range) {
+    for (auto line = range.first; line <= range.last; ++line) {
+        const auto& text = buffer.line(line);
+        if (std::any_of(text.begin(), text.end(), [](char value) {
+                return static_cast<unsigned char>(value) > 0x7F;
+            })) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void validate_utf8_lines(const Buffer& buffer, LineRange range) {
+    for (auto line = range.first; line <= range.last; ++line) {
+        if (!is_valid_utf8(buffer.line(line))) {
+            throw CommandExecutionError(
+                "buffer contains invalid UTF-8 text at line " +
+                std::to_string(line));
+        }
+    }
+}
+
+void execute_write(const WriteCommandNode& command, ExecutionContext& context) {
+    auto& buffer = context.current_buffer();
+    if (command.mode() == FileWriteMode::BcdUnsupported) {
+        throw CommandExecutionError(
+            "WB is the historical GCOS/BCD format and is not supported; "
+            "use WA for ASCII or WU for UTF-8");
+    }
+
+    std::string filename;
+    if (command.filename()) {
+        filename = *command.filename();
+    } else if (buffer.associated_file()) {
+        filename = *buffer.associated_file();
+    } else {
+        throw CommandExecutionError(
+            "W requires a filename when the buffer has no associated file");
+    }
+
+    const bool empty_buffer = buffer.empty();
+    if (empty_buffer && command.address() != nullptr) {
+        throw CommandExecutionError("cannot address lines in an empty buffer");
+    }
+
+    LineRange range{0, 0};
+    bool full_buffer = true;
+    if (!empty_buffer) {
+        range = command.address() == nullptr
+            ? LineRange{1, buffer.line_count()}
+            : AddressEvaluator{}.evaluate(command.address(), buffer);
+        full_buffer = range.first == 1 && range.last == buffer.line_count();
+    }
+
+    TextEncoding encoding = TextEncoding::Utf8;
+    if (command.mode() == FileWriteMode::Ascii) {
+        encoding = TextEncoding::Ascii;
+    } else if (command.mode() == FileWriteMode::Utf8) {
+        encoding = TextEncoding::Utf8;
+    } else if (buffer.encoding() == TextEncoding::Ascii) {
+        encoding = TextEncoding::Ascii;
+    }
+
+    if (!empty_buffer) {
+        if (encoding == TextEncoding::Ascii && contains_non_ascii(buffer, range)) {
+            throw CommandExecutionError(
+                "text cannot be represented in ASCII; use WU for UTF-8");
+        }
+        if (encoding == TextEncoding::Utf8) {
+            validate_utf8_lines(buffer, range);
+        }
+    }
+
+    std::ofstream output(filename, std::ios::binary | std::ios::trunc);
+    if (!output) {
+        throw CommandExecutionError("cannot create file: " + filename);
+    }
+
+    const std::string_view newline =
+        buffer.line_ending() == LineEnding::CrLf ? "\r\n" : "\n";
+    if (!empty_buffer) {
+        for (auto line = range.first; line <= range.last; ++line) {
+            output.write(buffer.line(line).data(),
+                         static_cast<std::streamsize>(buffer.line(line).size()));
+            const bool write_newline = line < range.last || !full_buffer ||
+                                       buffer.final_newline();
+            if (write_newline) {
+                output.write(newline.data(),
+                             static_cast<std::streamsize>(newline.size()));
+            }
+        }
+    }
+    if (!output) {
+        throw CommandExecutionError("error while writing file: " + filename);
+    }
+
+    context.set_counter(empty_buffer ? 0 : range.last - range.first + 1);
+    context.set_condition(true);
+    if (full_buffer) {
+        buffer.associate_file(filename, encoding, buffer.line_ending(),
+                              buffer.final_newline());
+        buffer.mark_clean();
     }
 }
 
@@ -257,6 +496,20 @@ void execute_substitute(const SubstituteCommandNode& command,
 }
 
 void execute_quit(const QuitCommandNode& command, ExecutionContext& context) {
+    if (!command.immediate()) {
+        const auto modified = context.buffers().modified_names();
+        if (!modified.empty()) {
+            std::string names;
+            for (const auto& name : modified) {
+                if (!names.empty()) {
+                    names += ", ";
+                }
+                names += name;
+            }
+            throw CommandExecutionError(
+                "modified buffer(s): " + names + "; use W or QQ");
+        }
+    }
     context.request_exit(command.immediate());
 }
 
@@ -358,6 +611,12 @@ void CommandExecutor::execute(const CommandNode& command,
         return;
     case AstNodeKind::ListCommand:
         execute_list(static_cast<const ListCommandNode&>(command), context);
+        return;
+    case AstNodeKind::ReadCommand:
+        execute_read(static_cast<const ReadCommandNode&>(command), context);
+        return;
+    case AstNodeKind::WriteCommand:
+        execute_write(static_cast<const WriteCommandNode&>(command), context);
         return;
     case AstNodeKind::DeleteCommand:
         execute_delete(static_cast<const DeleteCommandNode&>(command), context);
