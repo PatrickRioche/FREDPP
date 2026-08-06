@@ -36,4 +36,4 @@ B(temp)
 B(alpha)
 :buffers
 
-:quit
+Q

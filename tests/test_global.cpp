@@ -78,7 +78,7 @@ int main() {
             assert(false && "unsupported nested command should fail");
         } catch (const fred::CommandExecutionError& error) {
             assert(std::string_view(error.what()) ==
-                   "G currently supports nested P, D and Z commands");
+                   "G currently supports nested P, D, Z and S commands");
         }
     }
 }

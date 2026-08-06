@@ -17,7 +17,7 @@ bool is_git_hash(std::string_view value) {
 } // namespace
 
 int main() {
-    if (fredpp::version() != "0.0.6") {
+    if (fredpp::version() != "0.0.7") {
         std::cerr << "Unexpected version: " << fredpp::version() << '\n';
         return 1;
     }

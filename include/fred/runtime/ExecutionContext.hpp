@@ -24,10 +24,20 @@ public:
     void set_counter(std::size_t value) noexcept;
     [[nodiscard]] std::size_t counter() const noexcept;
 
+    void set_condition(bool value) noexcept;
+    [[nodiscard]] bool condition() const noexcept;
+
+    void request_exit(bool immediate) noexcept;
+    [[nodiscard]] bool exit_requested() const noexcept;
+    [[nodiscard]] bool immediate_exit_requested() const noexcept;
+
 private:
     BufferManager* buffers_;
     Output* output_;
     std::size_t counter_{};
+    bool condition_{};
+    bool exit_requested_{};
+    bool immediate_exit_requested_{};
 };
 
 } // namespace fred

@@ -6,6 +6,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 namespace fred {
 
@@ -19,6 +20,8 @@ private:
     [[nodiscard]] bool begins_address(const Token& token) const noexcept;
     [[nodiscard]] std::string parse_parenthesized_buffer_name();
     [[nodiscard]] std::unique_ptr<PatternNode> parse_delimited_pattern();
+    [[nodiscard]] std::pair<std::unique_ptr<PatternNode>, std::string>
+        parse_substitution_parts();
     void require_command_end();
 
     TokenStream* tokens_;

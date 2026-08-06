@@ -72,12 +72,35 @@ Modifications intégrées :
 - ajout d'un test d'intégration et passage à 23 tests ;
 - validation attendue sous MSVC, GCC et Clang.
 
+## Version v0.0.7 — Sprint 2.12
+
+### Modifications intégrées
+
+- commande historique `S` sur la ligne courante, une adresse ou une plage ;
+- remplacement de toutes les occurrences non chevauchantes ;
+- prise en charge de `&` dans la chaîne de remplacement ;
+- séparateurs symboliques tels que `/`, `?`, `!` et `;` ;
+- affichage optionnel avec la forme `S/<modèle>/<chaîne>/P` ;
+- exécution de `S` à l'intérieur de `G` ;
+- commande historique `Q` pour l'arrêt normal ;
+- commande historique `QQ` pour l'arrêt immédiat ;
+- suppression de la commande spéciale `:quit` ;
+- intégration sélective des aides françaises `?s` et `?q` ;
+- ajout de deux tests et passage à 25 tests ;
+- validation attendue sous MSVC, GCC et Clang.
+
+### Limites reportées
+
+- `Q!<commande TSS>` dépendra du futur mécanisme portable d'exécution externe ;
+- le contrôle des buffers associés à des fichiers sera complété avec les commandes historiques de lecture et d'écriture ;
+- les suites générales de commandes restent à généraliser au-delà du suffixe `P` pris en charge par `S`.
+
 ## État fonctionnel actuel
 
 Commandes FRED disponibles :
 
 ```text
-P, L, D, A, B, I, C, M, T, G, Z
+P, L, D, A, B, I, C, M, T, G, Z, S, Q
 ```
 
 Les limites détaillées sont suivies dans `docs/project/COMMAND_STATUS.md`.

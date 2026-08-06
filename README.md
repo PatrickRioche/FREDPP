@@ -27,6 +27,8 @@ Inside FREDPP:
 ?       FRED command documentation currently embedded
 ?:      FREDPP-specific development and diagnostic commands
 ?*      historical whole-buffer alias documentation
+?q      historical Q command documentation
+?s      historical S command documentation
 :help   same FREDPP-specific help as ?:
 ```
 
@@ -48,7 +50,8 @@ The repository currently contains:
 - AddressParser, PatternParser and CommandParser;
 - AST nodes and address evaluation;
 - ExecutionContext and CommandExecutor;
-- executable `P`, `L`, `D`, `A`, `B`, `I`, `C`, `M`, `T`, `G` and `Z` commands;
+- executable `P`, `L`, `D`, `A`, `B`, `I`, `C`, `M`, `T`, `G`, `Z`, `S` and `Q` commands;
+- historical `Q` and `QQ` exit commands; the former FREDPP-specific `:quit` command has been removed;
 - historical whole-buffer alias `*`, including bare `*` (`1,$P`) and forms such as `*D`;
 - automated tests through CTest.
 
@@ -79,6 +82,10 @@ For a clean rebuild followed by tests:
 ./scripts/rebuild.sh gcc
 ./scripts/rebuild.sh clang
 ```
+
+## Exit the editor
+
+Inside FREDPP, use `Q` for a normal exit or `QQ` for an immediate exit.
 
 ## Run the editor
 

@@ -6,7 +6,7 @@ if(POLICY CMP0141)
     cmake_policy(SET CMP0141 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.6 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.7 LANGUAGES CXX)
 
 if(MSVC)
     set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
@@ -82,6 +82,8 @@ set(FREDPP_IMPLEMENTED_HELP_TOPICS
     l
     m
     p
+    q
+    s
     t
     z
 )

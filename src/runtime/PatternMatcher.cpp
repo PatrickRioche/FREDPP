@@ -135,14 +135,26 @@ Positions match_from(const PatternNode& node,
 
 } // namespace
 
-bool PatternMatcher::search(const PatternNode& pattern,
-                            std::string_view text) const {
-    for (std::size_t start = 0; start <= text.size(); ++start) {
-        if (!match_from(pattern, text, start).empty()) {
-            return true;
+std::optional<PatternMatch> PatternMatcher::find(
+    const PatternNode& pattern,
+    std::string_view text,
+    std::size_t start_offset) const {
+    if (start_offset > text.size()) {
+        return std::nullopt;
+    }
+
+    for (std::size_t start = start_offset; start <= text.size(); ++start) {
+        const auto ends = match_from(pattern, text, start);
+        if (!ends.empty()) {
+            return PatternMatch{start, *std::max_element(ends.begin(), ends.end())};
         }
     }
-    return false;
+    return std::nullopt;
+}
+
+bool PatternMatcher::search(const PatternNode& pattern,
+                            std::string_view text) const {
+    return find(pattern, text).has_value();
 }
 
 } // namespace fred

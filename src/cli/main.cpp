@@ -136,6 +136,8 @@ void print_command(std::string_view source) {
     case fred::AstNodeKind::BufferCommand: name = "Buffer"; break;
     case fred::AstNodeKind::GlobalCommand: name = "Global"; break;
     case fred::AstNodeKind::ZapCommand: name = "Zap"; break;
+    case fred::AstNodeKind::SubstituteCommand: name = "Substitute"; break;
+    case fred::AstNodeKind::QuitCommand: name = "Quit"; break;
     default: name = "Command"; break;
     }
 
@@ -191,8 +193,9 @@ int main(int argc, char** argv) {
     fred::CommandExecutor command_executor;
     const auto command_registry = fred::make_core_command_registry();
 
-    std::cout << "FREDPP v" << fredpp::version() << " - executable P, L, D, A, B, I, C, M, T, G and Z commands; * aliases 1,$\n";
-    std::cout << "Type ? for FRED help; type ?: for FREDPP commands; type :quit to exit.\n";
+    std::cout << "FREDPP v" << fredpp::version()
+              << " - executable P, L, D, A, B, I, C, M, T, G, Z, S and Q commands; * aliases 1,$\n";
+    std::cout << "Type ? for FRED help; type ?: for FREDPP commands; type Q to exit.\n";
 
     std::string input;
     while (std::cout << manager.current().name() << "> " &&
@@ -216,9 +219,6 @@ int main(int argc, char** argv) {
                               << (topic.empty() ? "index" : topic) << '\n';
                 }
                 continue;
-            }
-            if (input == ":quit") {
-                break;
             }
             if (input == ":help") {
                 (void)print_help_topic(help_manager, ":");
@@ -327,6 +327,9 @@ int main(int argc, char** argv) {
                     }
                 } else {
                     command_executor.execute(*node, execution_context);
+                    if (execution_context.exit_requested()) {
+                        break;
+                    }
                 }
             }
         } catch (const std::exception& error) {

@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.0.7
+
+### Added
+
+- Commande historique `S` pour substituer un modèle dans la ligne courante ou une plage.
+- Remplacement de toutes les occurrences non chevauchantes et prise en charge de `&` pour réinsérer le texte trouvé.
+- Séparateurs symboliques pour `S`, notamment `/`, `?`, `!` et `;`.
+- Forme `S/<modèle>/<chaîne>/P` pour afficher la dernière ligne modifiée.
+- Exécution de `S` à l'intérieur de `G`.
+- Commandes historiques `Q` et `QQ` pour quitter FREDPP.
+- Tests `test_substitute` et `test_quit`.
+- Spécification `SPEC-025` consacrée aux commandes `S` et `Q`.
+
+### Changed
+
+- Suppression de la commande spéciale `:quit` et remplacement par `Q`.
+- Ajout des aides françaises `?s` et `?q`, sans modification des fichiers de référence.
+- Le moteur de modèles expose désormais la position des correspondances pour permettre les substitutions.
+- La suite passe de 23 à 25 tests.
+
+### Known limitations
+
+- `Q!<commande TSS>` n'est pas encore disponible et sera traité avec l'exécution externe historique.
+- La vérification des buffers associés à des fichiers sera complétée avec les futures commandes de lecture et d'écriture.
+
 ## v0.0.6
 
 ### Added

@@ -74,6 +74,10 @@ int main() {
         require(node->kind() == fred::AstNodeKind::PatternSequence, "question delimiter");
     }
     {
+        const auto node = parse("!hello!");
+        require(node->kind() == fred::AstNodeKind::PatternSequence, "symbolic delimiter");
+    }
+    {
         const auto node = parse("/\\./");
         require(node->kind() == fred::AstNodeKind::PatternLiteral, "escaped literal");
         require(static_cast<const fred::LiteralPatternNode&>(*node).value() == '.', "escaped dot");

@@ -33,4 +33,25 @@ std::size_t ExecutionContext::counter() const noexcept {
     return counter_;
 }
 
+void ExecutionContext::set_condition(bool value) noexcept {
+    condition_ = value;
+}
+
+bool ExecutionContext::condition() const noexcept {
+    return condition_;
+}
+
+void ExecutionContext::request_exit(bool immediate) noexcept {
+    exit_requested_ = true;
+    immediate_exit_requested_ = immediate;
+}
+
+bool ExecutionContext::exit_requested() const noexcept {
+    return exit_requested_;
+}
+
+bool ExecutionContext::immediate_exit_requested() const noexcept {
+    return immediate_exit_requested_;
+}
+
 } // namespace fred

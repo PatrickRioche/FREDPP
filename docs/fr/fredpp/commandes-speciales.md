@@ -7,7 +7,6 @@ Elles ne sont pas des commandes historiques de FRED.
 
 GESTION DU PROGRAMME
 
-    :quit                    Quitter FREDPP
     :help                    Afficher cette aide, comme ?:
 
 GESTION DES BUFFERS
@@ -28,6 +27,11 @@ DIAGNOSTIC DU LANGAGE
     :address <adresse>       Analyser une adresse FRED
     :command <commande>      Analyser une commande FRED
     :pattern <modèle>        Analyser un modèle FRED
+
+SORTIE
+
+    Q                        Quitter normalement avec la commande historique FRED
+    QQ                       Quitter immédiatement avec la commande historique FRED
 
 AUTRES AIDES
 

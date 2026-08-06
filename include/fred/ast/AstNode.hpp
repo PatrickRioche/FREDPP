@@ -28,7 +28,9 @@ enum class AstNodeKind {
     TransferCommand,
     BufferCommand,
     GlobalCommand,
-    ZapCommand
+    ZapCommand,
+    SubstituteCommand,
+    QuitCommand
 };
 
 class AstNode {

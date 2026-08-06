@@ -1,6 +1,7 @@
 #include "fred/parser/PatternParser.hpp"
 #include "fred/parser/ParseError.hpp"
 
+#include <cctype>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -88,8 +89,11 @@ PatternParser::PatternParser(std::string_view source, std::size_t flow_level) no
 std::unique_ptr<PatternNode> PatternParser::parse() {
     if (source_.empty()) fail("expected a delimited FRED pattern");
     delimiter_ = consume();
-    if (delimiter_ != '/' && delimiter_ != '?') {
-        fail("a FRED pattern must begin with '/' or '?'");
+    const auto delimiter_byte = static_cast<unsigned char>(delimiter_);
+    if (std::isalnum(delimiter_byte) != 0 ||
+        std::isspace(delimiter_byte) != 0 || delimiter_ == '_' ||
+        delimiter_ == '\\') {
+        fail("a FRED pattern must begin with a symbolic delimiter");
     }
 
     auto expression = parse_alternation();

@@ -129,6 +129,22 @@ CommandRegistry make_core_command_registry() {
                 std::move(address), location);
         }});
 
+    registry.register_command(CommandDescriptor{
+        'S', "Substitute",
+        [](std::unique_ptr<AddressNode> address, SourceLocation location) {
+            return std::make_unique<SubstituteCommandNode>(
+                std::move(address), nullptr, std::string{}, false, location);
+        }});
+
+    registry.register_command(CommandDescriptor{
+        'Q', "Quit",
+        [](std::unique_ptr<AddressNode> address, SourceLocation location) {
+            if (address) {
+                throw std::invalid_argument("Q does not accept a line address");
+            }
+            return std::make_unique<QuitCommandNode>(false, location);
+        }});
+
     return registry;
 }
 

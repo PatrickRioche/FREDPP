@@ -7,6 +7,7 @@
 #include "fred/runtime/PatternMatcher.hpp"
 
 #include <fstream>
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -159,6 +160,106 @@ void execute_transfer(const TransferCommandNode& command,
 }
 
 
+
+std::string expand_substitution_replacement(std::string_view replacement,
+                                            std::string_view matched_text) {
+    std::string result;
+    for (std::size_t index = 0; index < replacement.size(); ++index) {
+        const char value = replacement[index];
+        if (value == '\\' && index + 1 < replacement.size()) {
+            result.push_back(replacement[++index]);
+        } else if (value == '&') {
+            result.append(matched_text);
+        } else {
+            result.push_back(value);
+        }
+    }
+    return result;
+}
+
+std::optional<std::string> substitute_all(const PatternNode& pattern,
+                                          std::string_view replacement,
+                                          std::string_view text) {
+    PatternMatcher matcher;
+    std::string result;
+    std::size_t copied_until = 0;
+    std::size_t search_from = 0;
+    bool matched = false;
+
+    while (search_from <= text.size()) {
+        const auto match = matcher.find(pattern, text, search_from);
+        if (!match) {
+            break;
+        }
+
+        matched = true;
+        result.append(text.substr(copied_until, match->start - copied_until));
+        result += expand_substitution_replacement(
+            replacement, text.substr(match->start, match->end - match->start));
+
+        if (match->end > match->start) {
+            copied_until = match->end;
+            if (match->end == text.size()) {
+                search_from = text.size() + 1;
+                break;
+            }
+            search_from = match->end;
+            continue;
+        }
+
+        // A zero-length match must still advance through the input to avoid an
+        // infinite loop while retaining the character at the match position.
+        copied_until = match->start;
+        if (match->start == text.size()) {
+            search_from = text.size() + 1;
+            break;
+        }
+        result.push_back(text[match->start]);
+        copied_until = match->start + 1;
+        search_from = copied_until;
+    }
+
+    if (!matched) {
+        return std::nullopt;
+    }
+    result.append(text.substr(copied_until));
+    return result;
+}
+
+void execute_substitute(const SubstituteCommandNode& command,
+                        ExecutionContext& context) {
+    auto& buffer = context.current_buffer();
+    const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
+    bool changed = false;
+    Buffer::LineNumber last_changed = 0;
+
+    for (auto line = range.first; line <= range.last; ++line) {
+        const std::string original = buffer.line(line);
+        const auto replacement = substitute_all(
+            command.pattern(), command.replacement(), original);
+        if (!replacement) {
+            continue;
+        }
+        buffer.replace(line, *replacement);
+        changed = true;
+        last_changed = line;
+    }
+
+    context.set_condition(changed);
+    if (!changed) {
+        throw CommandExecutionError("no text changed");
+    }
+
+    buffer.set_current_line(last_changed);
+    if (command.print_after()) {
+        context.output().write_line(buffer.line(last_changed));
+    }
+}
+
+void execute_quit(const QuitCommandNode& command, ExecutionContext& context) {
+    context.request_exit(command.immediate());
+}
+
 void execute_zap(const ZapCommandNode& command, ExecutionContext& context) {
     auto& buffer = context.current_buffer();
     const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
@@ -191,9 +292,10 @@ void execute_global(const GlobalCommandNode& command,
     }
     if (nested.kind() != AstNodeKind::PrintCommand &&
         nested.kind() != AstNodeKind::DeleteCommand &&
-        nested.kind() != AstNodeKind::ZapCommand) {
+        nested.kind() != AstNodeKind::ZapCommand &&
+        nested.kind() != AstNodeKind::SubstituteCommand) {
         throw CommandExecutionError(
-            "G currently supports nested P, D and Z commands");
+            "G currently supports nested P, D, Z and S commands");
     }
 
     PatternMatcher matcher;
@@ -218,6 +320,12 @@ void execute_global(const GlobalCommandNode& command,
             continue;
         }
         if (nested.kind() == AstNodeKind::ZapCommand) {
+            ++line;
+            continue;
+        }
+        if (nested.kind() == AstNodeKind::SubstituteCommand) {
+            execute_substitute(
+                static_cast<const SubstituteCommandNode&>(nested), context);
             ++line;
             continue;
         }
@@ -274,6 +382,13 @@ void CommandExecutor::execute(const CommandNode& command,
         return;
     case AstNodeKind::ZapCommand:
         execute_zap(static_cast<const ZapCommandNode&>(command), context);
+        return;
+    case AstNodeKind::SubstituteCommand:
+        execute_substitute(static_cast<const SubstituteCommandNode&>(command),
+                           context);
+        return;
+    case AstNodeKind::QuitCommand:
+        execute_quit(static_cast<const QuitCommandNode&>(command), context);
         return;
     default:
         throw CommandExecutionError("unsupported command node");

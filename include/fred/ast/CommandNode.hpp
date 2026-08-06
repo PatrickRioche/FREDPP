@@ -151,4 +151,46 @@ public:
     }
 };
 
+
+class SubstituteCommandNode final : public CommandNode {
+public:
+    SubstituteCommandNode(std::unique_ptr<AddressNode> address,
+                          std::unique_ptr<PatternNode> pattern,
+                          std::string replacement,
+                          bool print_after,
+                          SourceLocation location) noexcept
+        : CommandNode(std::move(address), location),
+          pattern_(std::move(pattern)),
+          replacement_(std::move(replacement)),
+          print_after_(print_after) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::SubstituteCommand;
+    }
+    [[nodiscard]] const PatternNode& pattern() const noexcept { return *pattern_; }
+    [[nodiscard]] const std::string& replacement() const noexcept {
+        return replacement_;
+    }
+    [[nodiscard]] bool print_after() const noexcept { return print_after_; }
+
+private:
+    std::unique_ptr<PatternNode> pattern_;
+    std::string replacement_;
+    bool print_after_{};
+};
+
+class QuitCommandNode final : public CommandNode {
+public:
+    QuitCommandNode(bool immediate, SourceLocation location) noexcept
+        : CommandNode(nullptr, location), immediate_(immediate) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::QuitCommand;
+    }
+    [[nodiscard]] bool immediate() const noexcept { return immediate_; }
+
+private:
+    bool immediate_{};
+};
+
 } // namespace fred
