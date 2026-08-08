@@ -232,7 +232,7 @@ int main() {
     }
     {
         const auto registry = fred::make_core_command_registry();
-        assert(registry.size() == 15);
+        assert(registry.size() == 17);
         assert(registry.contains('P'));
         assert(registry.contains('L'));
         assert(registry.contains('D'));
@@ -242,12 +242,14 @@ int main() {
         assert(registry.contains('B'));
         assert(registry.contains('M'));
         assert(registry.contains('T'));
+        assert(registry.contains('F'));
         assert(registry.contains('G'));
         assert(registry.contains('Z'));
         assert(registry.contains('S'));
         assert(registry.contains('Q'));
         assert(registry.contains('R'));
         assert(registry.contains('W'));
+        assert(registry.contains('O'));
         assert(registry.find('P')->name == "Print");
     }
 

@@ -2,6 +2,16 @@
 
 La version exacte et le commit de construction se consultent avec `?version`.
 
+## Sprint 2.15 — Options et informations sur les buffers
+
+- `O+I(` / `O-I(` et noms courts de buffers ;
+- `FO` pour afficher les options actives ;
+- `FB` pour afficher l'état des buffers et leur fichier associé ;
+- suppression de `:buffers` ;
+- aides `?fb`, `?fo` et `?oi(` ;
+- tableau de couverture de la référence ;
+- passage à 29 tests.
+
 ## Sprint 2.14 — Première distribution officielle
 
 - publication automatique des versions depuis un tag Git `vX.Y.Z` ;

@@ -495,6 +495,47 @@ void execute_substitute(const SubstituteCommandNode& command,
     }
 }
 
+std::string describe_buffer(const Buffer& buffer) {
+    std::string result =
+        "b(" + buffer.name() + ") " +
+        std::to_string(buffer.current_line()) + "," +
+        std::to_string(buffer.line_count());
+
+    if (buffer.associated_file()) {
+        result += " " + *buffer.associated_file();
+    }
+    if (buffer.modified()) {
+        result += " ?";
+    }
+    return result;
+}
+
+void execute_facts(const FactsCommandNode& command,
+                   ExecutionContext& context) {
+    switch (command.facts()) {
+    case FactsKind::Options:
+        context.output().write_line(
+            context.input_parentheses_required() ? "o+i(" : "o-i(");
+        return;
+
+    case FactsKind::Buffers:
+        for (const auto& name : context.buffers().recent_names()) {
+            context.output().write_line(
+                describe_buffer(context.buffers().get(name)));
+        }
+        return;
+    }
+}
+
+void execute_option(const OptionCommandNode& command,
+                    ExecutionContext& context) {
+    switch (command.option()) {
+    case OptionKind::InputParenthesis:
+        context.set_input_parentheses_required(command.enabled());
+        return;
+    }
+}
+
 void execute_quit(const QuitCommandNode& command, ExecutionContext& context) {
     if (!command.immediate()) {
         const auto modified = context.buffers().modified_names();
@@ -594,6 +635,10 @@ void execute_global(const GlobalCommandNode& command,
 }
 
 void execute_buffer(const BufferCommandNode& command, ExecutionContext& context) {
+    if (command.short_form() && context.input_parentheses_required()) {
+        throw CommandExecutionError("buff/reg name invalid");
+    }
+
     try {
         (void)context.buffers().create_or_select(command.buffer_name());
     } catch (const std::exception& error) {
@@ -645,6 +690,12 @@ void CommandExecutor::execute(const CommandNode& command,
     case AstNodeKind::SubstituteCommand:
         execute_substitute(static_cast<const SubstituteCommandNode&>(command),
                            context);
+        return;
+    case AstNodeKind::FactsCommand:
+        execute_facts(static_cast<const FactsCommandNode&>(command), context);
+        return;
+    case AstNodeKind::OptionCommand:
+        execute_option(static_cast<const OptionCommandNode&>(command), context);
         return;
     case AstNodeKind::QuitCommand:
         execute_quit(static_cast<const QuitCommandNode&>(command), context);

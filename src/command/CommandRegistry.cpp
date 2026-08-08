@@ -154,6 +154,24 @@ CommandRegistry make_core_command_registry() {
         }});
 
     registry.register_command(CommandDescriptor{
+        'F', "Facts",
+        [](std::unique_ptr<AddressNode> address, SourceLocation location) {
+            if (address) {
+                throw std::invalid_argument("F does not accept a line address");
+            }
+            return std::make_unique<FactsCommandNode>(
+                FactsKind::Buffers, location);
+        }});
+    registry.register_command(CommandDescriptor{
+        'O', "Option",
+        [](std::unique_ptr<AddressNode> address, SourceLocation location) {
+            if (address) {
+                throw std::invalid_argument("O does not accept a line address");
+            }
+            return std::make_unique<OptionCommandNode>(
+                OptionKind::InputParenthesis, true, location);
+        }});
+    registry.register_command(CommandDescriptor{
         'Q', "Quit",
         [](std::unique_ptr<AddressNode> address, SourceLocation location) {
             if (address) {

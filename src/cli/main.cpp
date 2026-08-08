@@ -139,6 +139,8 @@ void print_command(std::string_view source) {
     case fred::AstNodeKind::SubstituteCommand: name = "Substitute"; break;
     case fred::AstNodeKind::ReadCommand: name = "Read"; break;
     case fred::AstNodeKind::WriteCommand: name = "Write"; break;
+    case fred::AstNodeKind::FactsCommand: name = "Facts"; break;
+    case fred::AstNodeKind::OptionCommand: name = "Option"; break;
     case fred::AstNodeKind::QuitCommand: name = "Quit"; break;
     default: name = "Command"; break;
     }
@@ -196,7 +198,7 @@ int main(int argc, char** argv) {
     const auto command_registry = fred::make_core_command_registry();
 
     std::cout << "FREDPP v" << fredpp::version()
-              << " - executable P, L, D, A, B, I, C, M, T, G, Z, S, Q, R and W commands; * aliases 1,$\n";
+              << " - executable P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, FB and FO commands; OI( option; * aliases 1,$\n";
     std::cout << "Type ? for FRED help; type ?: for FREDPP commands; type Q to exit.\n";
 
     std::string input;
@@ -224,13 +226,6 @@ int main(int argc, char** argv) {
             }
             if (input == ":help") {
                 (void)print_help_topic(help_manager, ":");
-                continue;
-            }
-            if (input == ":buffers") {
-                for (const auto& name : manager.names()) {
-                    std::cout << (name == manager.current().name() ? "* " : "  ")
-                              << name << '\n';
-                }
                 continue;
             }
             if (input == ":print") {

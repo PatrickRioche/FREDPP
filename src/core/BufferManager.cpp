@@ -11,6 +11,14 @@ BufferManager::BufferManager() {
     create_or_select("0");
 }
 
+void BufferManager::touch(std::string_view name) {
+    const std::string value(name);
+    usage_order_.erase(
+        std::remove(usage_order_.begin(), usage_order_.end(), value),
+        usage_order_.end());
+    usage_order_.insert(usage_order_.begin(), value);
+}
+
 Buffer& BufferManager::create_or_select(std::string name) {
     if (name.empty()) {
         throw std::invalid_argument("buffer name must not be empty");
@@ -35,11 +43,15 @@ Buffer& BufferManager::create_or_select(std::string name) {
         it->second = std::make_unique<Buffer>(name);
     }
     current_ = it->second.get();
+    touch(name);
 
     // FR-0006: remove only a transient empty buffer with no file association
     // and no unsaved state when it is left.
     if (remove_previous) {
         buffers_.erase(previous_name);
+        usage_order_.erase(
+            std::remove(usage_order_.begin(), usage_order_.end(), previous_name),
+            usage_order_.end());
     }
 
     return *current_;
@@ -51,6 +63,7 @@ Buffer& BufferManager::select(std::string_view name) {
         throw std::out_of_range("unknown buffer");
     }
     current_ = it->second.get();
+    touch(name);
     return *current_;
 }
 
@@ -73,7 +86,11 @@ void BufferManager::erase(std::string_view name) {
     }
 
     const bool deleting_current = current_ == it->second.get();
+    const std::string erased_name = it->first;
     buffers_.erase(it);
+    usage_order_.erase(
+        std::remove(usage_order_.begin(), usage_order_.end(), erased_name),
+        usage_order_.end());
 
     if (buffers_.empty()) {
         current_ = nullptr;
@@ -106,6 +123,10 @@ std::vector<std::string> BufferManager::names() const {
     }
     std::sort(result.begin(), result.end());
     return result;
+}
+
+std::vector<std::string> BufferManager::recent_names() const {
+    return usage_order_;
 }
 
 std::vector<std::string> BufferManager::modified_names() const {

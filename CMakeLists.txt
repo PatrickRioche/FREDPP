@@ -9,7 +9,7 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.9 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.10 LANGUAGES CXX)
 
 if(MSVC)
     set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
@@ -85,6 +85,8 @@ set(FREDPP_IMPLEMENTED_HELP_TOPICS
     b
     c
     d
+    fb
+    fo
     g
     i
     l
@@ -110,7 +112,7 @@ foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
 endforeach()
 
 list(LENGTH FREDPP_HELP_FILES FREDPP_HELP_FILES_LENGTH)
-math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 4")
+math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 5")
 
 string(CONCAT FREDPP_HELP_INDEX
 "============================================================\n"
@@ -137,6 +139,8 @@ string(APPEND FREDPP_HELP_INDEX
 "    :help       Afficher les commandes spéciales de FREDPP\n"
 "    ?version    Afficher la version, le commit Git et l'état des sources\n"
 "    ?wu         Afficher l'extension UTF-8 de la commande W\n"
+"\nOPTION HISTORIQUE IMPLÉMENTÉE\n\n"
+"    ?oi(        Afficher l'aide de l'option OI(\n"
 "\nALIAS HISTORIQUE IMPLÉMENTÉ\n\n"
 "    ?*          Afficher l'aide de l'alias * (1,$)\n"
 )
@@ -151,6 +155,18 @@ file(READ "${FREDPP_SPECIAL_HELP_FILE}" FREDPP_SPECIAL_HELP_CONTENT)
 string(FIND "${FREDPP_SPECIAL_HELP_CONTENT}" ")FREDPP_HELP\"" FREDPP_SPECIAL_HELP_COLLISION)
 if(NOT FREDPP_SPECIAL_HELP_COLLISION EQUAL -1)
     message(FATAL_ERROR "Special-command help contains the reserved raw-string delimiter")
+endif()
+
+set(FREDPP_OI_HELP_FILE
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/fr/reference/commandes/oi_parenthesis.md"
+)
+if(NOT EXISTS "${FREDPP_OI_HELP_FILE}")
+    message(FATAL_ERROR "Missing historical OI( help: ${FREDPP_OI_HELP_FILE}")
+endif()
+file(READ "${FREDPP_OI_HELP_FILE}" FREDPP_OI_HELP_CONTENT)
+string(FIND "${FREDPP_OI_HELP_CONTENT}" ")FREDPP_HELP\"" FREDPP_OI_HELP_COLLISION)
+if(NOT FREDPP_OI_HELP_COLLISION EQUAL -1)
+    message(FATAL_ERROR "OI( help contains the reserved raw-string delimiter")
 endif()
 
 set(FREDPP_WU_HELP_FILE
@@ -188,6 +204,7 @@ file(WRITE "${FREDPP_EMBEDDED_HELP_CPP}"
 "    Entry{\"index\", R\"FREDPP_HELP(${FREDPP_HELP_INDEX})FREDPP_HELP\"},\n"
 "    Entry{\":\", R\"FREDPP_HELP(${FREDPP_SPECIAL_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"*\", R\"FREDPP_HELP(${FREDPP_STAR_ALIAS_HELP_CONTENT})FREDPP_HELP\"},\n"
+"    Entry{\"oi(\", R\"FREDPP_HELP(${FREDPP_OI_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"wu\", R\"FREDPP_HELP(${FREDPP_WU_HELP_CONTENT})FREDPP_HELP\"},\n"
 )
 

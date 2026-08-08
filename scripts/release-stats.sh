@@ -1,4 +1,3 @@
-#!/usr/bin/env bash
 set -euo pipefail
 
 REPOSITORY="${1:-PatrickRioche/FREDPP}"

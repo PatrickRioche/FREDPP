@@ -28,6 +28,23 @@ std::unique_ptr<AddressNode> make_whole_buffer_address(
         location);
 }
 
+bool is_adjacent(const Token& first, const Token& second) noexcept {
+    return second.location.offset ==
+           first.location.offset + first.lexeme.size();
+}
+
+bool is_short_buffer_name_token(const Token& command,
+                                const Token& token) noexcept {
+    if (!is_adjacent(command, token) || token.lexeme.size() != 1) {
+        return false;
+    }
+
+    return token.type != TokenType::End &&
+           token.type != TokenType::NewLine &&
+           token.type != TokenType::LeftParenthesis &&
+           token.type != TokenType::RightParenthesis;
+}
+
 } // namespace
 
 CommandParser::CommandParser(TokenStream& tokens,
@@ -57,6 +74,8 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             : tokens_->consume();
         bool immediate_quit = false;
         FileWriteMode write_mode = FileWriteMode::Preserve;
+        std::optional<std::string> compact_buffer_name;
+        std::optional<FactsKind> facts_kind;
         if (command.type == TokenType::Identifier && command.lexeme.size() == 2) {
             const char first = static_cast<char>(std::toupper(
                 static_cast<unsigned char>(command.lexeme[0])));
@@ -73,6 +92,15 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 write_mode = second == 'A' ? FileWriteMode::Ascii
                            : second == 'U' ? FileWriteMode::Utf8
                                            : FileWriteMode::BcdUnsupported;
+            } else if (first == 'F' && (second == 'B' || second == 'O')) {
+                facts_kind = second == 'B' ? FactsKind::Buffers
+                                           : FactsKind::Options;
+                command.type = TokenType::Command;
+                command.lexeme = "F";
+            } else if (first == 'B') {
+                compact_buffer_name = std::string(1, command.lexeme[1]);
+                command.type = TokenType::Command;
+                command.lexeme = "B";
             }
         }
         if (command.type == TokenType::End || command.type == TokenType::NewLine) {
@@ -149,6 +177,51 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                                                       command.location);
         }
 
+        if (mnemonic == 'F') {
+            if (address) {
+                throw ParseError("F does not accept a line address",
+                                 address->location());
+            }
+            if (!facts_kind) {
+                throw ParseError("only FB and FO are implemented",
+                                 command.location);
+            }
+            require_command_end();
+            return std::make_unique<FactsCommandNode>(
+                *facts_kind, command.location);
+        }
+
+        if (mnemonic == 'O') {
+            if (address) {
+                throw ParseError("O does not accept a line address",
+                                 address->location());
+            }
+
+            const auto sign = tokens_->consume();
+            if (sign.type != TokenType::Symbol ||
+                (sign.lexeme != "+" && sign.lexeme != "-")) {
+                throw ParseError("O requires '+' or '-'", sign.location);
+            }
+
+            const auto option = tokens_->consume();
+            if (option.type != TokenType::Command ||
+                option.lexeme.size() != 1 ||
+                std::toupper(static_cast<unsigned char>(
+                    option.lexeme.front())) != 'I') {
+                throw ParseError("only OI( is implemented", option.location);
+            }
+
+            const auto opening = tokens_->consume();
+            if (opening.type != TokenType::LeftParenthesis) {
+                throw ParseError("OI( requires '('", opening.location);
+            }
+
+            require_command_end();
+            return std::make_unique<OptionCommandNode>(
+                OptionKind::InputParenthesis,
+                sign.lexeme == "+",
+                command.location);
+        }
         if (mnemonic == 'G') {
             bool inverted = false;
             if (tokens_->peek().type == TokenType::Symbol &&
@@ -192,10 +265,29 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 throw ParseError("B does not accept a line address",
                                  address->location());
             }
-            auto buffer_name = parse_parenthesized_buffer_name();
+
+            std::string buffer_name;
+            bool short_form = false;
+
+            if (compact_buffer_name) {
+                buffer_name = std::move(*compact_buffer_name);
+                short_form = true;
+            } else if (tokens_->peek().type == TokenType::LeftParenthesis) {
+                buffer_name = parse_parenthesized_buffer_name();
+            } else {
+                const auto short_name = tokens_->consume();
+                if (!is_short_buffer_name_token(command, short_name)) {
+                    throw ParseError(
+                        "B requires a buffer name in parentheses",
+                        short_name.location);
+                }
+                buffer_name = short_name.lexeme;
+                short_form = true;
+            }
+
             require_command_end();
             return std::make_unique<BufferCommandNode>(
-                std::move(buffer_name), command.location);
+                std::move(buffer_name), short_form, command.location);
         }
 
         if (mnemonic == 'M' || mnemonic == 'T') {

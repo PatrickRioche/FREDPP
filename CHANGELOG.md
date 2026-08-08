@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.0.10
+### Added
+
+- Option historique `O+I(` / `O-I(` et noms courts de buffers à un caractère.
+- Commandes historiques `FB` et `FO`.
+- Aides embarquées `?fb`, `?fo` et `?oi(`.
+- Tableau de couverture de la référence historique.
+
+### Changed
+
+- `FB` remplace la commande de développement `:buffers`.
+- La suite passe de 27 à 29 tests.
+
 ## v0.0.9
 
 ### Added

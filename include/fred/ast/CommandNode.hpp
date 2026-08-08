@@ -105,14 +105,22 @@ class BufferCommandNode final : public CommandNode {
 public:
     BufferCommandNode(std::string buffer_name,
                       SourceLocation location) noexcept
+        : BufferCommandNode(std::move(buffer_name), false, location) {}
+
+    BufferCommandNode(std::string buffer_name,
+                      bool short_form,
+                      SourceLocation location) noexcept
         : CommandNode(nullptr, location),
-          buffer_name_(std::move(buffer_name)) {}
+          buffer_name_(std::move(buffer_name)),
+          short_form_(short_form) {}
 
     [[nodiscard]] AstNodeKind kind() const noexcept override { return AstNodeKind::BufferCommand; }
     [[nodiscard]] const std::string& buffer_name() const noexcept { return buffer_name_; }
+    [[nodiscard]] bool short_form() const noexcept { return short_form_; }
 
 private:
     std::string buffer_name_;
+    bool short_form_{};
 };
 
 
@@ -222,6 +230,49 @@ public:
 private:
     std::optional<std::string> filename_;
     FileWriteMode mode_{FileWriteMode::Preserve};
+};
+
+enum class FactsKind {
+    Buffers,
+    Options
+};
+
+class FactsCommandNode final : public CommandNode {
+public:
+    FactsCommandNode(FactsKind facts,
+                     SourceLocation location) noexcept
+        : CommandNode(nullptr, location), facts_(facts) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::FactsCommand;
+    }
+
+    [[nodiscard]] FactsKind facts() const noexcept { return facts_; }
+
+private:
+    FactsKind facts_;
+};
+
+enum class OptionKind {
+    InputParenthesis
+};
+
+class OptionCommandNode final : public CommandNode {
+public:
+    OptionCommandNode(OptionKind option,
+                      bool enabled,
+                      SourceLocation location) noexcept
+        : CommandNode(nullptr, location), option_(option), enabled_(enabled) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::OptionCommand;
+    }
+    [[nodiscard]] OptionKind option() const noexcept { return option_; }
+    [[nodiscard]] bool enabled() const noexcept { return enabled_; }
+
+private:
+    OptionKind option_;
+    bool enabled_{};
 };
 
 class QuitCommandNode final : public CommandNode {

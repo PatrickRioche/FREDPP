@@ -145,15 +145,28 @@ fredpp_X.Y.Z_amd64.deb
 SHA256SUMS.txt
 ```
 
+## Version v0.0.10 — Sprint 2.15
+### Modifications intégrées
+
+- option `O+I(` / `O-I(` et noms courts de buffers ;
+- `FO` pour afficher les options actuellement en service ;
+- `FB` pour afficher les buffers par ordre décroissant de dernière utilisation, avec ligne courante, nombre de lignes, fichier associé et indicateur de modification ;
+- suppression de `:buffers` ;
+- aides `?fb`, `?fo` et `?oi(` ;
+- tableau d'avancement par rapport à la référence historique ;
+- passage à 29 tests.
+
 ## État fonctionnel actuel
 
 Commandes FRED disponibles :
 
 ```text
-P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, WA, WU
+P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, WA, WU, FB, FO
 ```
 
 Les limites détaillées sont suivies dans `docs/project/COMMAND_STATUS.md`.
+
+L'option `OI(` est disponible sous les formes `O+I(` et `O-I(`.
 
 ## Prochains jalons
 

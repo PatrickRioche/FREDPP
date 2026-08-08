@@ -41,6 +41,14 @@ bool ExecutionContext::condition() const noexcept {
     return condition_;
 }
 
+void ExecutionContext::set_input_parentheses_required(bool value) noexcept {
+    input_parentheses_required_ = value;
+}
+
+bool ExecutionContext::input_parentheses_required() const noexcept {
+    return input_parentheses_required_;
+}
+
 void ExecutionContext::request_exit(bool immediate) noexcept {
     exit_requested_ = true;
     immediate_exit_requested_ = immediate;

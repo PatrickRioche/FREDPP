@@ -14,12 +14,15 @@ int main() {
     assert(help.exists("*"));
     assert(help.exists("a"));
     assert(help.exists("b"));
+    assert(help.exists("fb"));
+    assert(help.exists("fo"));
     assert(help.exists("g"));
     assert(help.exists("q"));
     assert(help.exists("r"));
     assert(help.exists("s"));
     assert(help.exists("w"));
     assert(help.exists("wu"));
+    assert(help.exists("oi("));
     assert(help.exists("z"));
     assert(help.exists("HELP"));
     assert(help.exists("  h  "));
@@ -27,12 +30,15 @@ int main() {
 
     const auto index = help.load_for_terminal("");
     assert(index.find("AIDE FREDPP — COMMANDES FRED DISPONIBLES") != std::string::npos);
+    assert(index.find("    ?fb") != std::string::npos);
+    assert(index.find("    ?fo") != std::string::npos);
     assert(index.find("    ?g") != std::string::npos);
     assert(index.find("    ?q") != std::string::npos);
     assert(index.find("    ?r") != std::string::npos);
     assert(index.find("    ?s") != std::string::npos);
     assert(index.find("    ?w") != std::string::npos);
     assert(index.find("    ?wu") != std::string::npos);
+    assert(index.find("    ?oi(") != std::string::npos);
     assert(index.find("    ?z") != std::string::npos);
     assert(index.find("    ?*") != std::string::npos);
     assert(index.find("    ?:") != std::string::npos);
@@ -43,7 +49,7 @@ int main() {
     assert(special.find("    :quit") == std::string::npos);
     assert(special.find("    Q") != std::string::npos);
     assert(special.find("    QQ") != std::string::npos);
-    assert(special.find("    :buffers") != std::string::npos);
+    assert(special.find("    :buffers") == std::string::npos);
     assert(special.find("    :print") != std::string::npos);
     assert(special.find("    :flow <buffer>") != std::string::npos);
     assert(special.find("    :pattern <modèle>") != std::string::npos);
@@ -78,6 +84,15 @@ int main() {
 
     const auto buffers = help.load_for_terminal("B");
     assert(buffers.find("B — POSITIONNEMENT SUR UN BUFFER") != std::string::npos);
+
+    const auto facts_buffers = help.load_for_terminal("fb");
+    assert(facts_buffers.find("FB") != std::string::npos);
+
+    const auto facts_options = help.load_for_terminal("fo");
+    assert(facts_options.find("FO") != std::string::npos);
+
+    const auto option_parenthesis = help.load_for_terminal("oi(");
+    assert(option_parenthesis.find("OI(") != std::string::npos);
 
     const auto global = help.load_for_terminal("g");
     assert(global.find("G — GLOBAL COMMANDE") != std::string::npos);
@@ -115,12 +130,15 @@ int main() {
     assert(std::find(topics.begin(), topics.end(), ":") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "*") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "b") != topics.end());
+    assert(std::find(topics.begin(), topics.end(), "fb") != topics.end());
+    assert(std::find(topics.begin(), topics.end(), "fo") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "g") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "q") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "r") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "s") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "w") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "wu") != topics.end());
+    assert(std::find(topics.begin(), topics.end(), "oi(") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "z") != topics.end());
 
     std::cout << "help manager tests passed\n";

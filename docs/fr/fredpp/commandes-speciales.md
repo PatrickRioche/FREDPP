@@ -11,7 +11,6 @@ GESTION DU PROGRAMME
 
 GESTION DES BUFFERS
 
-    :buffers                 Lister les buffers et identifier le buffer courant
     :print                   Afficher le buffer courant avec les numéros de ligne
     :new <nom>               Créer ou sélectionner un buffer
     :use <nom>               Sélectionner un buffer existant

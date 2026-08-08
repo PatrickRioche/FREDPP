@@ -24,12 +24,16 @@ public:
     [[nodiscard]] Buffer& current();
     [[nodiscard]] const Buffer& current() const;
     [[nodiscard]] std::vector<std::string> names() const;
+    [[nodiscard]] std::vector<std::string> recent_names() const;
     [[nodiscard]] std::vector<std::string> modified_names() const;
 
 private:
     using Storage = std::unordered_map<std::string, std::unique_ptr<Buffer>>;
 
+    void touch(std::string_view name);
+
     Storage buffers_;
+    std::vector<std::string> usage_order_;
     Buffer* current_{nullptr};
 };
 
