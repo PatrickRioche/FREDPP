@@ -154,6 +154,15 @@ CommandRegistry make_core_command_registry() {
         }});
 
     registry.register_command(CommandDescriptor{
+        'J', "Jump",
+        [](std::unique_ptr<AddressNode> address, SourceLocation location) {
+            if (address) {
+                throw std::invalid_argument("J does not accept a line address");
+            }
+            return std::make_unique<MessageCommandNode>(
+                std::string{}, true, location);
+        }});
+    registry.register_command(CommandDescriptor{
         'F', "Facts",
         [](std::unique_ptr<AddressNode> address, SourceLocation location) {
             if (address) {

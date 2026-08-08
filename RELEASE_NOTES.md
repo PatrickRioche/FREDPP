@@ -2,6 +2,17 @@
 
 La version exacte et le commit de construction se consultent avec `?version`.
 
+## Sprint 2.16 — Commentaires et messages de procédures
+
+- commande `"` pour les commentaires ;
+- `JM` avec retour à la ligne ;
+- `JP` sans retour à la ligne ;
+- aides `?"`, `?jm` et `?jp` ;
+- couverture portée à 21/103 ;
+- passage à 30 tests.
+
+Jalon intermédiaire : la prochaine release officielle est prévue après le Sprint 2.17.
+
 ## Sprint 2.15 — Options et informations sur les buffers
 
 - `O+I(` / `O-I(` et noms courts de buffers ;

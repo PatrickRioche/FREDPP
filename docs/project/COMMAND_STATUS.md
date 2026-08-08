@@ -7,15 +7,15 @@ Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/ref
 | Famille | Total référence | Implémenté / homologué | Reste |
 |---|---:|---:|---:|
 | Commandes principales | 22 | 15 | 7 |
-| Commandes spéciales | 7 | 0 | 7 |
+| Commandes spéciales | 7 | 1 (`\"`) | 6 |
 | Famille F | 7 | 2 (`FB`, `FO`) | 5 |
-| Famille J | 5 | 0 | 5 |
+| Famille J | 5 | 2 (`JM`, `JP`) | 3 |
 | Famille N | 21 | 0 | 21 |
 | Famille O | 24 | 1 (`OI(`) | 23 |
 | Famille Z | 17 | 0 | 17 |
-| **Total** | **103** | **18** | **85** |
+| **Total** | **103** | **21** | **82** |
 
-La couverture fonctionnelle de la référence est de **18 / 103**, soit environ **17,5 %**.
+La couverture fonctionnelle de la référence est de **21 / 103**, soit environ **20,4 %**.
 
 | Commande | État dans FREDPP | Aide embarquée |
 |---|---|:---:|
@@ -27,6 +27,9 @@ La couverture fonctionnelle de la référence est de **18 / 103**, soit environ 
 | FO | Disponible; affiche les options effectivement en service | Oui (`?fo`) |
 | G | Disponible avec une commande imbriquée P, D, Z ou S | Oui |
 | I | Disponible | Oui |
+| `\"` | Disponible : tout le reste de la ligne est ignoré comme commentaire | Oui (`?\"`) |
+| JM | Disponible : message avec retour à la ligne, formes `JM texte` et `JM/texte/` | Oui (`?jm`) |
+| JP | Disponible : message sans retour à la ligne, formes `JP texte` et `JP/texte/` | Oui (`?jp`) |
 | L | Disponible avec un nom de fichier | Oui |
 | M | Disponible sous forme provisoire, réalignement historique requis | Oui |
 | P | Disponible | Oui |
@@ -36,6 +39,10 @@ La couverture fonctionnelle de la référence est de **18 / 103**, soit environ 
 | T | Disponible sous forme provisoire, réalignement historique requis | Oui |
 | W | Disponible avec W, WA et l'extension WU; WB reconnu mais GCOS/BCD non pris en charge | Oui (`?w`, `?wu`) |
 | Z | Disponible | Oui |
+
+## Limite actuelle de JM / JP
+
+Le Sprint 2.16 exécute une commande `JM` ou `JP` par ligne d'entrée. Le chaînage historique de plusieurs commandes sur une même ligne sera traité avec le moteur de procédures.
 
 ## Famille O — Options
 

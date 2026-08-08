@@ -156,19 +156,45 @@ SHA256SUMS.txt
 - tableau d'avancement par rapport à la référence historique ;
 - passage à 29 tests.
 
+## Version v0.0.11 — Sprint 2.16
+### Modifications intégrées
+
+- commande spéciale historique `"` pour les commentaires de procédures ;
+- `JM` pour afficher un message suivi d'un retour à la ligne ;
+- `JP` pour afficher un message sans retour à la ligne ;
+- formes texte et `/message/` de `JM` et `JP` ;
+- aides `?"`, `?jm` et `?jp` ;
+- commentaires représentés dans l'AST et exécutés comme no-op historique ;
+- couverture de la référence portée à 21/103 ;
+- passage à 30 tests.
+
+Cette version est un jalon intermédiaire. La prochaine publication binaire est prévue après le Sprint 2.17.
+
 ## État fonctionnel actuel
 
 Commandes FRED disponibles :
 
 ```text
-P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, WA, WU, FB, FO
+P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, WA, WU, FB, FO, JM, JP
 ```
 
 Les limites détaillées sont suivies dans `docs/project/COMMAND_STATUS.md`.
 
 L'option `OI(` est disponible sous les formes `O+I(` et `O-I(`.
 
+La commande spéciale `\"` est disponible pour commenter les procédures.
+
 ## Prochains jalons
+
+### v0.0.12 — Sprint 2.17 prévu
+
+- option `O+M` / `O-M` de monitorage des commandes, avec `O-M` par défaut ;
+- mise à jour de `FO` pour afficher l'état de `OM` ;
+- exécution d'un buffer de commandes par `\B(buffer)` ;
+- lancement `fredpp script.fredpp` ;
+- chargement initial du script dans `B(.)` ;
+- bootstrap FRED minimal et tests de procédures ;
+- nouvelle release officielle après homologation du sprint.
 
 ### Prochaines versions 0.0.x
 

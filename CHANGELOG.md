@@ -1,5 +1,24 @@
 # Changelog
 
+## v0.0.11
+### Added
+
+- Commande spéciale historique `"` pour documenter les futures procédures FREDPP.
+- Commande `JM` pour écrire un message au terminal avec retour à la ligne.
+- Commande `JP` pour écrire un message au terminal sans retour à la ligne.
+- Aides embarquées `?"`, `?jm` et `?jp`.
+- Test `test_messages`.
+
+### Changed
+
+- Les commentaires passent désormais par le parser et l'AST au lieu d'être ignorés directement par le REPL.
+- La couverture de la référence passe à 21/103.
+- La suite passe de 29 à 30 tests.
+
+### Known limitations
+
+- Le chaînage de plusieurs commandes `JM`/`JP` sur une même ligne est reporté au moteur de procédures.
+
 ## v0.0.10
 ### Added
 

@@ -139,6 +139,8 @@ void print_command(std::string_view source) {
     case fred::AstNodeKind::SubstituteCommand: name = "Substitute"; break;
     case fred::AstNodeKind::ReadCommand: name = "Read"; break;
     case fred::AstNodeKind::WriteCommand: name = "Write"; break;
+    case fred::AstNodeKind::CommentCommand: name = "Comment"; break;
+    case fred::AstNodeKind::MessageCommand: name = "Message"; break;
     case fred::AstNodeKind::FactsCommand: name = "Facts"; break;
     case fred::AstNodeKind::OptionCommand: name = "Option"; break;
     case fred::AstNodeKind::QuitCommand: name = "Quit"; break;
@@ -198,7 +200,7 @@ int main(int argc, char** argv) {
     const auto command_registry = fred::make_core_command_registry();
 
     std::cout << "FREDPP v" << fredpp::version()
-              << " - executable P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, FB and FO commands; OI( option; * aliases 1,$\n";
+              << " - executable P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, FB, FO, JM and JP commands; \" comments; OI( option; * aliases 1,$\n";
     std::cout << "Type ? for FRED help; type ?: for FREDPP commands; type Q to exit.\n";
 
     std::string input;
@@ -206,10 +208,6 @@ int main(int argc, char** argv) {
            std::getline(std::cin, input)) {
         try {
             const auto first_non_space = input.find_first_not_of(" \t\r");
-            if (first_non_space != std::string::npos &&
-                input[first_non_space] == '"') {
-                continue;
-            }
             if (first_non_space != std::string::npos &&
                 input[first_non_space] == '?') {
                 std::string topic = input.substr(first_non_space + 1);

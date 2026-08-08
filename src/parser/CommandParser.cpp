@@ -45,6 +45,57 @@ bool is_short_buffer_name_token(const Token& command,
            token.type != TokenType::RightParenthesis;
 }
 
+std::string consume_plain_text(TokenStream& tokens) {
+    std::string result;
+    bool first = true;
+    std::size_t previous_end_column = 0;
+
+    while (tokens.peek().type != TokenType::End &&
+           tokens.peek().type != TokenType::NewLine) {
+        const auto token = tokens.consume();
+
+        if (!first && token.location.column > previous_end_column) {
+            result.append(token.location.column - previous_end_column, ' ');
+        }
+
+        result += token.lexeme;
+        previous_end_column = token.location.column + token.lexeme.size();
+        first = false;
+    }
+
+    return result;
+}
+
+std::string consume_slash_delimited_message(TokenStream& tokens) {
+    const auto opening = tokens.consume();
+    if (opening.type != TokenType::Symbol || opening.lexeme != "/") {
+        throw ParseError("J message requires '/' delimiter", opening.location);
+    }
+
+    std::string result;
+    std::size_t previous_end_column =
+        opening.location.column + opening.lexeme.size();
+
+    while (true) {
+        const auto& next = tokens.peek();
+        if (next.type == TokenType::End || next.type == TokenType::NewLine) {
+            throw ParseError("unterminated J message", next.location);
+        }
+
+        const auto token = tokens.consume();
+        if (token.location.column > previous_end_column) {
+            result.append(token.location.column - previous_end_column, ' ');
+        }
+
+        if (token.type == TokenType::Symbol && token.lexeme == "/") {
+            return result;
+        }
+
+        result += token.lexeme;
+        previous_end_column = token.location.column + token.lexeme.size();
+    }
+}
+
 } // namespace
 
 CommandParser::CommandParser(TokenStream& tokens,
@@ -76,6 +127,7 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         FileWriteMode write_mode = FileWriteMode::Preserve;
         std::optional<std::string> compact_buffer_name;
         std::optional<FactsKind> facts_kind;
+        std::optional<bool> message_newline;
         if (command.type == TokenType::Identifier && command.lexeme.size() == 2) {
             const char first = static_cast<char>(std::toupper(
                 static_cast<unsigned char>(command.lexeme[0])));
@@ -97,12 +149,31 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                                            : FactsKind::Options;
                 command.type = TokenType::Command;
                 command.lexeme = "F";
+            } else if (first == 'J') {
+                command.type = TokenType::Command;
+                command.lexeme = "J";
+                if (second == 'M') {
+                    message_newline = true;
+                } else if (second == 'P') {
+                    message_newline = false;
+                }
             } else if (first == 'B') {
                 compact_buffer_name = std::string(1, command.lexeme[1]);
                 command.type = TokenType::Command;
                 command.lexeme = "B";
             }
         }
+        if (command.type == TokenType::Symbol && command.lexeme == "\"") {
+            if (address) {
+                throw ParseError("\" does not accept a line address",
+                                 address->location());
+            }
+            auto text = consume_plain_text(*tokens_);
+            require_command_end();
+            return std::make_unique<CommentCommandNode>(
+                std::move(text), command.location);
+        }
+
         if (command.type == TokenType::End || command.type == TokenType::NewLine) {
             throw ParseError("expected a command", command.location);
         }
@@ -175,6 +246,29 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             require_command_end();
             return std::make_unique<QuitCommandNode>(immediate_quit,
                                                       command.location);
+        }
+
+        if (mnemonic == 'J') {
+            if (address) {
+                throw ParseError("J does not accept a line address",
+                                 address->location());
+            }
+            if (!message_newline) {
+                throw ParseError("only JM and JP are implemented",
+                                 command.location);
+            }
+
+            std::string message;
+            if (tokens_->peek().type == TokenType::Symbol &&
+                tokens_->peek().lexeme == "/") {
+                message = consume_slash_delimited_message(*tokens_);
+            } else {
+                message = consume_plain_text(*tokens_);
+            }
+
+            require_command_end();
+            return std::make_unique<MessageCommandNode>(
+                std::move(message), *message_newline, command.location);
         }
 
         if (mnemonic == 'F') {

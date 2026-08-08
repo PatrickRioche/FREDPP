@@ -32,6 +32,8 @@ enum class AstNodeKind {
     SubstituteCommand,
     ReadCommand,
     WriteCommand,
+    CommentCommand,
+    MessageCommand,
     FactsCommand,
     OptionCommand,
     QuitCommand

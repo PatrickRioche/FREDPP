@@ -232,8 +232,9 @@ int main() {
     }
     {
         const auto registry = fred::make_core_command_registry();
-        assert(registry.size() == 17);
+        assert(registry.size() == 18);
         assert(registry.contains('P'));
+        assert(registry.contains('J'));
         assert(registry.contains('L'));
         assert(registry.contains('D'));
         assert(registry.contains('A'));

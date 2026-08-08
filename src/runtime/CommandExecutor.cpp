@@ -634,6 +634,20 @@ void execute_global(const GlobalCommandNode& command,
     context.set_counter(selected_count);
 }
 
+void execute_comment(const CommentCommandNode&,
+                     ExecutionContext&) noexcept {
+    // Historical FRED comments are intentionally a runtime no-op.
+}
+
+void execute_message(const MessageCommandNode& command,
+                     ExecutionContext& context) {
+    if (command.newline()) {
+        context.output().write_line(command.message());
+    } else {
+        context.output().write(command.message());
+    }
+}
+
 void execute_buffer(const BufferCommandNode& command, ExecutionContext& context) {
     if (command.short_form() && context.input_parentheses_required()) {
         throw CommandExecutionError("buff/reg name invalid");
@@ -690,6 +704,12 @@ void CommandExecutor::execute(const CommandNode& command,
     case AstNodeKind::SubstituteCommand:
         execute_substitute(static_cast<const SubstituteCommandNode&>(command),
                            context);
+        return;
+    case AstNodeKind::CommentCommand:
+        execute_comment(static_cast<const CommentCommandNode&>(command), context);
+        return;
+    case AstNodeKind::MessageCommand:
+        execute_message(static_cast<const MessageCommandNode&>(command), context);
         return;
     case AstNodeKind::FactsCommand:
         execute_facts(static_cast<const FactsCommandNode&>(command), context);

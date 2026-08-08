@@ -232,6 +232,50 @@ private:
     FileWriteMode mode_{FileWriteMode::Preserve};
 };
 
+class CommentCommandNode final : public CommandNode {
+public:
+    CommentCommandNode(std::string text,
+                       SourceLocation location) noexcept
+        : CommandNode(nullptr, location), text_(std::move(text)) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::CommentCommand;
+    }
+
+    [[nodiscard]] const std::string& text() const noexcept {
+        return text_;
+    }
+
+private:
+    std::string text_;
+};
+
+class MessageCommandNode final : public CommandNode {
+public:
+    MessageCommandNode(std::string message,
+                       bool newline,
+                       SourceLocation location) noexcept
+        : CommandNode(nullptr, location),
+          message_(std::move(message)),
+          newline_(newline) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::MessageCommand;
+    }
+
+    [[nodiscard]] const std::string& message() const noexcept {
+        return message_;
+    }
+
+    [[nodiscard]] bool newline() const noexcept {
+        return newline_;
+    }
+
+private:
+    std::string message_;
+    bool newline_{};
+};
+
 enum class FactsKind {
     Buffers,
     Options
