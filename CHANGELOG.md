@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.0.13
+
+### Added
+
+- Directive de flot `\S(buffer)` d'après DNB11A.
+- Injection littérale d'un buffer sans retours de ligne.
+- Tests couvrant la suppression des retours de ligne, la littéralité, le buffer
+  vide et le buffer inexistant.
+
+### Changed
+
+- `InputCharacter` transporte désormais l'information de littéralité.
+- `BufferInputSource` peut supprimer les retours de ligne et marquer ses
+  caractères comme littéraux.
+
 ## v0.0.12
 ### Added
 

@@ -71,6 +71,12 @@ exécute un buffer de commandes sans changer le buffer courant par elle-même. L
 
 Les blocs `A`, `I` et `C` consomment les lignes suivantes jusqu'à `\F`. Le bootstrap historique complet (`B(0)` pour les arguments, `.init`, environnement utilisateur/date/heure et bibliothèques de procédures) reste reporté.
 
+## Directive de flot `\S`
+
+`\S(buffer)` est disponible dans le moteur de flot : le contenu du buffer est
+injecté littéralement dans l'entrée courante et tous ses retours de ligne sont
+supprimés. Les autres directives de flot DNB11A restent à implémenter.
+
 ## Limites actuelles de G
 
 La forme initiale est :

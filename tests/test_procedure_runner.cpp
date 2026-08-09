@@ -49,6 +49,20 @@ int main() {
 
     output.clear();
 
+    auto& hello = buffers.create_or_select("hello-s");
+    hello.append("Hello");
+    auto& word = buffers.create_or_select("word-s");
+    word.append("Word");
+
+    auto& flow_message = buffers.create_or_select("flow-message");
+    flow_message.append("JP/ \\S(hello-s) \\S(word-s)/");
+    flow_message.append("JM/!/");
+
+    runner.execute_buffer("flow-message");
+    assert(output.content() == " Hello Word!\n");
+
+    output.clear();
+
     auto& child = buffers.create_or_select("child");
     child.append("JM/enfant/");
 

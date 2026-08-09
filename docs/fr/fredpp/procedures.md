@@ -31,6 +31,30 @@ Une ligne de procédure peut appeler un autre buffer :
 
 Dans cette première version, `\B(buffer)` doit être seul sur sa ligne. Les appels peuvent être imbriqués et une profondeur maximale protège contre la récursion infinie.
 
+## DIRECTIVE DE FLOT `\S(buffer)`
+
+Selon la documentation historique DNB11A, `\S` injecte le contenu du buffer
+désigné dans l'entrée courante en supprimant tous les retours de ligne. Les
+caractères provenant du buffer sont pris littéralement : une séquence telle que
+`\B(...)` contenue dans le buffer injecté n'est donc pas réinterprétée comme une
+directive de flot.
+
+Dans FREDPP v0.0.13, la forme prise en charge est :
+
+```fred
+\S(buffer)
+```
+
+Dans le Sprint 2.18, cette expansion est raccordée aux entrées textuelles des
+messages `JM/.../` et `JP/.../`. Les caractères injectés par `\S` restent des
+données littérales même s'ils contiennent des caractères qui seraient spéciaux
+dans l'entrée originale.
+
+Cette implémentation constitue la première brique du traitement historique des
+directives de flot littérales. La généralisation de cette entrée structurée à
+toutes les commandes, ainsi que `\L`, `\C`, `\E`, `\N`, `\O`, `\R` et `\W`,
+restent reportées.
+
 ## COMMANDES DE TEXTE
 
 Les commandes `A`, `I` et `C` utilisent directement les lignes suivantes jusqu'à :

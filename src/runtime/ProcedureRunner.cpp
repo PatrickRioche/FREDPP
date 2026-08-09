@@ -3,6 +3,7 @@
 #include "fred/ast/CommandNode.hpp"
 #include "fred/command/CommandRegistry.hpp"
 #include "fred/core/BufferManager.hpp"
+#include "fred/flow/FlowEngine.hpp"
 #include "fred/lexer/Lexer.hpp"
 #include "fred/lexer/TokenStream.hpp"
 #include "fred/parser/CommandParser.hpp"
@@ -205,9 +206,24 @@ bool ProcedureRunner::execute_message_sequence(
             throw CommandExecutionError("unterminated J message");
         }
 
-        const auto command =
-            value.substr(position, closing - position + 1);
-        execute_single_command(command, lines, index);
+        const bool newline =
+            std::toupper(static_cast<unsigned char>(value[position + 1])) == 'M';
+        const auto message =
+            value.substr(position + 3, closing - (position + 3));
+
+        FlowEngine flow(*buffers_, maximum_depth_);
+        const std::string expanded = flow.expand_input(message);
+
+        if (context_->monitor_commands()) {
+            context_->output().write_line(
+                value.substr(position, closing - position + 1));
+        }
+        if (newline) {
+            context_->output().write_line(expanded);
+        } else {
+            context_->output().write(expanded);
+        }
+
         executed = true;
         position = closing + 1;
 

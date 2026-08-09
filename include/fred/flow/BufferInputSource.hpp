@@ -11,7 +11,10 @@ namespace fred {
 
 class BufferInputSource final : public InputSource {
 public:
-    BufferInputSource(const Buffer& buffer, std::size_t level);
+    BufferInputSource(const Buffer& buffer,
+                      std::size_t level,
+                      bool emit_newlines = true,
+                      bool literal = false);
 
     [[nodiscard]] std::optional<InputCharacter> next() override;
     [[nodiscard]] std::string_view description() const noexcept override;
@@ -21,6 +24,8 @@ private:
     const Buffer* buffer_;
     std::string description_;
     std::size_t level_;
+    bool emit_newlines_;
+    bool literal_;
     std::size_t line_index_{0};
     std::size_t column_index_{0};
     bool emit_newline_{false};

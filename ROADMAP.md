@@ -202,6 +202,18 @@ La commande spéciale `\"` est disponible pour commenter les procédures.
 
 Une nouvelle release officielle v0.0.12 est prévue après homologation et tests multiplateformes.
 
+## Version v0.0.13 — Sprint 2.18
+
+### Modifications intégrées
+
+- ajout de la directive de flot `\S(buffer)` selon DNB11A ;
+- injection littérale du contenu du buffer désigné ;
+- suppression de tous les retours de ligne lors de l'injection par `\S` ;
+- absence de réinterprétation des caractères spéciaux provenant du buffer ;
+- conservation du comportement existant de `\B(buffer)` ;
+- tests de non-régression du moteur de flot ;
+- préparation de l'architecture pour les autres directives DNB11A.
+
 ## Prochains jalons
 
 ### Prochaines versions 0.0.x

@@ -2,6 +2,14 @@
 
 La version exacte et le commit de construction se consultent avec `?version`.
 
+## Sprint 2.18 — Directive de flot `\S`
+
+- `\S(buffer)` selon DNB11A ;
+- contenu du buffer injecté littéralement ;
+- suppression des `<nl>` ;
+- conservation de `\B(buffer)` comme directive d'expansion/exécution distincte ;
+- tests de non-régression du moteur de flot.
+
 ## Sprint 2.17 — Procédures et bootstrap minimal
 
 - `O+M` / `O-M`, avec `O-M` par défaut ;

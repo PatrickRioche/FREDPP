@@ -60,6 +60,32 @@ int main() {
                      "nested buffer injection");
     }
 
+    buffers.create_or_select("s-child").append("EXPANDED");
+    auto& s_literal = buffers.create_or_select("s-literal");
+    s_literal.append("A\\B(s-child)");
+    s_literal.append("C");
+    buffers.create_or_select("s-parent").append("x[\\S(s-literal)]y");
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(flow.expand_buffer("s-parent"),
+                     "x[A\\B(s-child)C]y\n",
+                     "S injects literal buffer content without newlines");
+    }
+
+   buffers.create_or_select("s-empty").append("");
+    buffers.create_or_select("s-empty-parent").append("a\\S(s-empty)b");
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(flow.expand_buffer("s-empty-parent"), "ab\n",
+                     "S accepts an empty buffer");
+    }
+
+    buffers.create_or_select("s-missing").append("\\S(missing-s)");
+    expect_throws([&] {
+        fred::FlowEngine flow(buffers);
+        (void)flow.expand_buffer("s-missing");
+    }, "S missing buffer raises an error");
+
     buffers.create_or_select("slash").append("x\\\\y");
     {
         fred::FlowEngine flow(buffers);
