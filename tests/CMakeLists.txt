@@ -29,6 +29,8 @@ fredpp_add_test(test_buffer_command test_buffer_command.cpp)
 fredpp_add_test(test_options test_options.cpp)
 fredpp_add_test(test_facts test_facts.cpp)
 fredpp_add_test(test_messages test_messages.cpp)
+fredpp_add_test(test_monitor test_monitor.cpp)
+fredpp_add_test(test_procedure_runner test_procedure_runner.cpp)
 fredpp_add_test(test_help_manager test_help_manager.cpp)
 fredpp_add_test(test_global test_global.cpp)
 fredpp_add_test(test_zap test_zap.cpp)
@@ -40,6 +42,13 @@ fredpp_add_test(test_file_io test_file_io.cpp)
 add_test(NAME cli_smoke COMMAND fredpp --version)
 set_tests_properties(cli_smoke PROPERTIES
     PASS_REGULAR_EXPRESSION "FREDPP v${PROJECT_VERSION}"
+)
+
+add_test(NAME cli_script
+    COMMAND fredpp "${CMAKE_CURRENT_SOURCE_DIR}/fixtures/cli_bootstrap.fredpp"
+)
+set_tests_properties(cli_script PROPERTIES
+    PASS_REGULAR_EXPRESSION "CLI OK"
 )
 
 add_test(NAME test_release_manifest

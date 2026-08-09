@@ -180,21 +180,29 @@ P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, WA, WU, FB, FO, JM, JP
 
 Les limites détaillées sont suivies dans `docs/project/COMMAND_STATUS.md`.
 
-L'option `OI(` est disponible sous les formes `O+I(` et `O-I(`.
+Les options `OI(` et `OM` sont disponibles ; `OM` est implicitement à `O-M`.
 
 La commande spéciale `\"` est disponible pour commenter les procédures.
 
+## Version v0.0.12 — Sprint 2.17
+
+### Modifications intégrées
+
+- option `O+M` / `O-M` de monitorage, avec `O-M` par défaut ;
+- `FO` affiche désormais les états de `OI(` et `OM` ;
+- moteur `ProcedureRunner` pour exécuter des buffers de commandes ;
+- directive autonome `\B(buffer)` avec appels imbriqués et protection de profondeur ;
+- lancement direct `fredpp script.fredpp` ;
+- chargement initial du script dans `B(.)` et bootstrap minimal ;
+- prise en charge de `A`, `I` et `C` avec données jusqu'à `\F` dans les procédures ;
+- enchaînement des formes délimitées `JM/.../` et `JP/.../` sur une ligne de procédure ;
+- aides `?om` et `?procedure` ;
+- couverture de la référence portée à 22/103 ;
+- passage attendu de 30 à 33 tests.
+
+Une nouvelle release officielle v0.0.12 est prévue après homologation et tests multiplateformes.
+
 ## Prochains jalons
-
-### v0.0.12 — Sprint 2.17 prévu
-
-- option `O+M` / `O-M` de monitorage des commandes, avec `O-M` par défaut ;
-- mise à jour de `FO` pour afficher l'état de `OM` ;
-- exécution d'un buffer de commandes par `\B(buffer)` ;
-- lancement `fredpp script.fredpp` ;
-- chargement initial du script dans `B(.)` ;
-- bootstrap FRED minimal et tests de procédures ;
-- nouvelle release officielle après homologation du sprint.
 
 ### Prochaines versions 0.0.x
 

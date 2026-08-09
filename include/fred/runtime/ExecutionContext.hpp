@@ -29,6 +29,8 @@ public:
 
     void set_input_parentheses_required(bool value) noexcept;
     [[nodiscard]] bool input_parentheses_required() const noexcept;
+    void set_monitor_commands(bool value) noexcept;
+    [[nodiscard]] bool monitor_commands() const noexcept;
 
     void request_exit(bool immediate) noexcept;
     [[nodiscard]] bool exit_requested() const noexcept;
@@ -40,6 +42,7 @@ private:
     std::size_t counter_{};
     bool condition_{};
     bool input_parentheses_required_{true};
+    bool monitor_commands_{};
     bool exit_requested_{};
     bool immediate_exit_requested_{};
 };

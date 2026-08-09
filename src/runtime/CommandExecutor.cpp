@@ -516,6 +516,8 @@ void execute_facts(const FactsCommandNode& command,
     case FactsKind::Options:
         context.output().write_line(
             context.input_parentheses_required() ? "o+i(" : "o-i(");
+        context.output().write_line(
+            context.monitor_commands() ? "o+m" : "o-m");
         return;
 
     case FactsKind::Buffers:
@@ -532,6 +534,9 @@ void execute_option(const OptionCommandNode& command,
     switch (command.option()) {
     case OptionKind::InputParenthesis:
         context.set_input_parentheses_required(command.enabled());
+        return;
+    case OptionKind::Monitor:
+        context.set_monitor_commands(command.enabled());
         return;
     }
 }

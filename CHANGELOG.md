@@ -1,5 +1,30 @@
 # Changelog
 
+## v0.0.12
+### Added
+
+- Option historique `O+M` / `O-M` avec `O-M` comme valeur implicite.
+- Aide historique `?om`.
+- Moteur `ProcedureRunner` pour exécuter des buffers de commandes.
+- Directive `\B(buffer)` pour appeler une procédure stockée dans un buffer.
+- Lancement direct `fredpp script.fredpp` avec chargement initial dans `B(.)`.
+- Aide FREDPP `?procedure`.
+- Exécution des blocs `A`, `I` et `C` jusqu'à `\F` dans les procédures.
+- Enchaînement de `JM/.../` et `JP/.../` sur une ligne de procédure.
+- Tests `test_monitor`, `test_procedure_runner` et `cli_script`.
+
+### Changed
+
+- `FO` affiche les états connus de `OI(` et `OM`.
+- La couverture de la référence passe à 22/103.
+- La suite passe de 30 à 33 tests.
+
+### Known limitations
+
+- `\B(buffer)` doit être seul sur sa ligne dans ce bootstrap minimal.
+- Les suites générales de commandes restent reportées, hors séquences délimitées JM/JP.
+- Le bootstrap historique complet n'est pas encore reproduit.
+
 ## v0.0.11
 ### Added
 

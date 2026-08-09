@@ -298,7 +298,8 @@ private:
 };
 
 enum class OptionKind {
-    InputParenthesis
+    InputParenthesis,
+    Monitor
 };
 
 class OptionCommandNode final : public CommandNode {

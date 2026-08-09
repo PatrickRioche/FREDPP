@@ -11,11 +11,11 @@ Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/ref
 | Famille F | 7 | 2 (`FB`, `FO`) | 5 |
 | Famille J | 5 | 2 (`JM`, `JP`) | 3 |
 | Famille N | 21 | 0 | 21 |
-| Famille O | 24 | 1 (`OI(`) | 23 |
+| Famille O | 24 | 2 (`OI(`, `OM`) | 22 |
 | Famille Z | 17 | 0 | 17 |
-| **Total** | **103** | **21** | **82** |
+| **Total** | **103** | **22** | **81** |
 
-La couverture fonctionnelle de la référence est de **21 / 103**, soit environ **20,4 %**.
+La couverture fonctionnelle de la référence est de **22 / 103**, soit environ **21,4 %**.
 
 | Commande | État dans FREDPP | Aide embarquée |
 |---|---|:---:|
@@ -42,13 +42,34 @@ La couverture fonctionnelle de la référence est de **21 / 103**, soit environ 
 
 ## Limite actuelle de JM / JP
 
-Le Sprint 2.16 exécute une commande `JM` ou `JP` par ligne d'entrée. Le chaînage historique de plusieurs commandes sur une même ligne sera traité avec le moteur de procédures.
+Le REPL exécute toujours une commande `JM` ou `JP` par ligne saisie. Dans une procédure, les formes délimitées `JM/.../` et `JP/.../` peuvent désormais être enchaînées sur la même ligne.
 
 ## Famille O — Options
 
 | Option | État dans FREDPP | Aide embarquée |
 |---|---|:---:|
 | `OI(` | Disponible : `O+I(` / `O-I(`; valeur implicite `O+I(`; noms courts de buffer autorisés avec `O-I(` | Oui (`?oi(`) |
+| `OM` | Disponible : `O+M` / `O-M`; valeur implicite `O-M`; le moteur de procédures trace les commandes exécutées avec `O+M` | Oui (`?om`) |
+
+## Moteur de procédures — Sprint 2.17
+
+Le lancement :
+
+```text
+fredpp nomscript.fredpp
+```
+
+charge le fichier dans `B(.)`, puis exécute son contenu selon le bootstrap minimal documenté par `?procedure`.
+
+Une directive autonome :
+
+```fred
+\B(buffer)
+```
+
+exécute un buffer de commandes sans changer le buffer courant par elle-même. Les appels peuvent être imbriqués et sont protégés contre la récursion excessive.
+
+Les blocs `A`, `I` et `C` consomment les lignes suivantes jusqu'à `\F`. Le bootstrap historique complet (`B(0)` pour les arguments, `.init`, environnement utilisateur/date/heure et bibliothèques de procédures) reste reporté.
 
 ## Limites actuelles de G
 

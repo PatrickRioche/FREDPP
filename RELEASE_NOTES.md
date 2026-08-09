@@ -2,6 +2,21 @@
 
 La version exacte et le commit de construction se consultent avec `?version`.
 
+## Sprint 2.17 — Procédures et bootstrap minimal
+
+- `O+M` / `O-M`, avec `O-M` par défaut ;
+- `FO` étendu à l'état de `OM` ;
+- exécution de buffers avec `\B(buffer)` ;
+- lancement `fredpp script.fredpp` ;
+- chargement du script dans `B(.)` ;
+- blocs `A`, `I`, `C` jusqu'à `\F` dans les procédures ;
+- séquences délimitées `JM/JP` sur une même ligne ;
+- aides `?om` et `?procedure` ;
+- couverture portée à 22/103 ;
+- passage attendu à 33 tests.
+
+Cette version constitue la base de la prochaine release officielle v0.0.12, après homologation et validation multiplateforme.
+
 ## Sprint 2.16 — Commentaires et messages de procédures
 
 - commande `"` pour les commentaires ;

@@ -49,6 +49,14 @@ bool ExecutionContext::input_parentheses_required() const noexcept {
     return input_parentheses_required_;
 }
 
+void ExecutionContext::set_monitor_commands(bool value) noexcept {
+    monitor_commands_ = value;
+}
+
+bool ExecutionContext::monitor_commands() const noexcept {
+    return monitor_commands_;
+}
+
 void ExecutionContext::request_exit(bool immediate) noexcept {
     exit_requested_ = true;
     immediate_exit_requested_ = immediate;

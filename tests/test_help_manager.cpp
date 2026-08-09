@@ -26,6 +26,8 @@ int main() {
     assert(help.exists("wu"));
     assert(help.exists("oi("));
     assert(help.exists("\""));
+    assert(help.exists("om"));
+    assert(help.exists("procedure"));
     assert(help.exists("z"));
     assert(help.exists("HELP"));
     assert(help.exists("  h  "));
@@ -44,6 +46,8 @@ int main() {
     assert(index.find("    ?w") != std::string::npos);
     assert(index.find("    ?wu") != std::string::npos);
     assert(index.find("    ?oi(") != std::string::npos);
+    assert(index.find("    ?om") != std::string::npos);
+    assert(index.find("    ?procedure") != std::string::npos);
     assert(index.find("    ?z") != std::string::npos);
     assert(index.find("    ?\"") != std::string::npos);
     assert(index.find("    ?*") != std::string::npos);
@@ -99,6 +103,13 @@ int main() {
 
     const auto option_parenthesis = help.load_for_terminal("oi(");
     assert(option_parenthesis.find("OI(") != std::string::npos);
+
+    const auto monitor = help.load_for_terminal("om");
+    assert(monitor.find("OPTION MONITOR") != std::string::npos);
+
+    const auto procedure = help.load_for_terminal("procedure");
+    assert(procedure.find("BOOTSTRAP MINIMAL") != std::string::npos);
+    assert(procedure.find("\\B(buffer)") != std::string::npos);
 
     const auto comment = help.load_for_terminal("\"");
     assert(comment.find("COMMENTAIRE") != std::string::npos);
@@ -157,6 +168,8 @@ int main() {
     assert(std::find(topics.begin(), topics.end(), "wu") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "oi(") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "\"") != topics.end());
+    assert(std::find(topics.begin(), topics.end(), "om") != topics.end());
+    assert(std::find(topics.begin(), topics.end(), "procedure") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "z") != topics.end());
 
     std::cout << "help manager tests passed\n";

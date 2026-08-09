@@ -55,12 +55,12 @@ int main() {
     fred::CommandExecutor executor;
 
     execute("FO", executor, context);
-    assert(output.content() == "o+i(\n");
+    assert(output.content() == "o+i(\no-m\n");
     output.clear();
 
     execute("O-I(", executor, context);
     execute("fo", executor, context);
-    assert(output.content() == "o-i(\n");
+    assert(output.content() == "o-i(\no-m\n");
     output.clear();
 
     auto& alpha = buffers.create_or_select("alpha");

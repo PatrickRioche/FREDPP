@@ -298,18 +298,33 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             }
 
             const auto option = tokens_->consume();
-            if (option.type != TokenType::Command ||
-                option.lexeme.size() != 1 ||
-                std::toupper(static_cast<unsigned char>(
-                    option.lexeme.front())) != 'I') {
-                throw ParseError("only OI( is implemented", option.location);
+            if (option.lexeme.size() != 1 ||
+                (option.type != TokenType::Command &&
+                 option.type != TokenType::Identifier)) {
+                throw ParseError("only OI( and OM are implemented",
+                                 option.location);
+            }
+
+            const char option_name = static_cast<char>(std::toupper(
+                static_cast<unsigned char>(option.lexeme.front())));
+
+            if (option_name == 'M') {
+                require_command_end();
+                return std::make_unique<OptionCommandNode>(
+                    OptionKind::Monitor,
+                    sign.lexeme == "+",
+                    command.location);
+            }
+
+            if (option_name != 'I') {
+                throw ParseError("only OI( and OM are implemented",
+                                 option.location);
             }
 
             const auto opening = tokens_->consume();
             if (opening.type != TokenType::LeftParenthesis) {
                 throw ParseError("OI( requires '('", opening.location);
             }
-
             require_command_end();
             return std::make_unique<OptionCommandNode>(
                 OptionKind::InputParenthesis,

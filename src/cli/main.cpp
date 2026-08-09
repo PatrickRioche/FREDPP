@@ -15,6 +15,7 @@
 #include "fred/parser/PatternParser.hpp"
 #include "fred/runtime/CommandExecutor.hpp"
 #include "fred/runtime/ConsoleOutput.hpp"
+#include "fred/runtime/ProcedureRunner.hpp"
 #include "fred/runtime/ExecutionContext.hpp"
 
 #include <filesystem>
@@ -198,9 +199,27 @@ int main(int argc, char** argv) {
     fred::ExecutionContext execution_context(manager, output);
     fred::CommandExecutor command_executor;
     const auto command_registry = fred::make_core_command_registry();
+    fred::ProcedureRunner procedure_runner(
+        manager, execution_context, command_registry, command_executor);
+
+    if (argc > 2) {
+        std::cerr << "usage: fredpp [script.fredpp]\n";
+
+        return 2;
+    }
+    if (argc == 2) {
+        try {
+            procedure_runner.load_and_execute_file(argv[1]);
+            return 0;
+        } catch (const std::exception& error) {
+            std::cerr << "error: " << error.what() << '\n';
+            return 1;
+        }
+    }
+
 
     std::cout << "FREDPP v" << fredpp::version()
-              << " - executable P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, FB, FO, JM and JP commands; \" comments; OI( option; * aliases 1,$\n";
+              << " - executable P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, FB, FO, JM and JP commands; \" comments; OI( and OM options; \\B(buffer) procedures; * aliases 1,$\n";
     std::cout << "Type ? for FRED help; type ?: for FREDPP commands; type Q to exit.\n";
 
     std::string input;
@@ -228,6 +247,13 @@ int main(int argc, char** argv) {
             }
             if (input == ":print") {
                 print_buffer(manager.current());
+                continue;
+            }
+
+            if (procedure_runner.execute_buffer_directive(input)) {
+                if (execution_context.exit_requested()) {
+                    break;
+                }
                 continue;
             }
 

@@ -9,7 +9,7 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.11 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.12 LANGUAGES CXX)
 
 if(MSVC)
     set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
@@ -114,7 +114,7 @@ foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
 endforeach()
 
 list(LENGTH FREDPP_HELP_FILES FREDPP_HELP_FILES_LENGTH)
-math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 6")
+math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 8")
 
 string(CONCAT FREDPP_HELP_INDEX
 "============================================================\n"
@@ -143,6 +143,9 @@ string(APPEND FREDPP_HELP_INDEX
 "    ?wu         Afficher l'extension UTF-8 de la commande W\n"
 "\nOPTION HISTORIQUE IMPLÉMENTÉE\n\n"
 "    ?oi(        Afficher l'aide de l'option OI(\n"
+"    ?om         Afficher l'aide de l'option OM (monitorage)\n"
+"\nPROCÉDURES FREDPP\n\n"
+"    ?procedure  Afficher l'aide du bootstrap et de \\B(buffer)\n"
 "\nCOMMANDE SPÉCIALE HISTORIQUE IMPLÉMENTÉE\n\n"
 "    ?\"          Afficher l'aide des commentaires FRED\n"
 "\nALIAS HISTORIQUE IMPLÉMENTÉ\n\n"
@@ -185,6 +188,30 @@ if(NOT FREDPP_OI_HELP_COLLISION EQUAL -1)
     message(FATAL_ERROR "OI( help contains the reserved raw-string delimiter")
 endif()
 
+set(FREDPP_OM_HELP_FILE
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/fr/reference/commandes/om.md"
+)
+if(NOT EXISTS "${FREDPP_OM_HELP_FILE}")
+    message(FATAL_ERROR "Missing historical OM help: ${FREDPP_OM_HELP_FILE}")
+endif()
+file(READ "${FREDPP_OM_HELP_FILE}" FREDPP_OM_HELP_CONTENT)
+string(FIND "${FREDPP_OM_HELP_CONTENT}" ")FREDPP_HELP\"" FREDPP_OM_HELP_COLLISION)
+if(NOT FREDPP_OM_HELP_COLLISION EQUAL -1)
+    message(FATAL_ERROR "OM help contains the reserved raw-string delimiter")
+endif()
+
+set(FREDPP_PROCEDURE_HELP_FILE
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/fr/fredpp/procedures.md"
+)
+if(NOT EXISTS "${FREDPP_PROCEDURE_HELP_FILE}")
+    message(FATAL_ERROR "Missing FREDPP procedure help: ${FREDPP_PROCEDURE_HELP_FILE}")
+endif()
+file(READ "${FREDPP_PROCEDURE_HELP_FILE}" FREDPP_PROCEDURE_HELP_CONTENT)
+string(FIND "${FREDPP_PROCEDURE_HELP_CONTENT}" ")FREDPP_HELP\"" FREDPP_PROCEDURE_HELP_COLLISION)
+if(NOT FREDPP_PROCEDURE_HELP_COLLISION EQUAL -1)
+    message(FATAL_ERROR "Procedure help contains the reserved raw-string delimiter")
+endif()
+
 set(FREDPP_WU_HELP_FILE
     "${CMAKE_CURRENT_SOURCE_DIR}/docs/fr/fredpp/extension-wu.md"
 )
@@ -222,6 +249,8 @@ file(WRITE "${FREDPP_EMBEDDED_HELP_CPP}"
 "    Entry{\"*\", R\"FREDPP_HELP(${FREDPP_STAR_ALIAS_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"\\\"\", R\"FREDPP_HELP(${FREDPP_QUOTE_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"oi(\", R\"FREDPP_HELP(${FREDPP_OI_HELP_CONTENT})FREDPP_HELP\"},\n"
+"    Entry{\"om\", R\"FREDPP_HELP(${FREDPP_OM_HELP_CONTENT})FREDPP_HELP\"},\n"
+"    Entry{\"procedure\", R\"FREDPP_HELP(${FREDPP_PROCEDURE_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"wu\", R\"FREDPP_HELP(${FREDPP_WU_HELP_CONTENT})FREDPP_HELP\"},\n"
 )
 
@@ -260,6 +289,7 @@ add_library(fredpp_core
     src/runtime/ExecutionContext.cpp
     src/runtime/CommandExecutor.cpp
     src/runtime/AddressEvaluator.cpp
+    src/runtime/ProcedureRunner.cpp
     src/runtime/PatternMatcher.cpp
 )
 
