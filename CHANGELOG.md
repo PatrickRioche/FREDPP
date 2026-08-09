@@ -1,5 +1,22 @@
 # Changelog
 
+## v0.0.15
+
+### Added
+
+- Packaging Debian 13 ARM64 natif avec compilation et tests sur runner ARM64.
+- Extension Visual Studio Code FREDPP version 0.1.0 sous `editors/vscode`.
+- Publication du VSIX universel dans les Releases GitHub.
+- Artefacts Debian ARM64 ajoutés au manifeste SHA-256.
+
+### Changed
+
+- Le packaging Debian détecte désormais l'architecture avec
+  `dpkg --print-architecture` au lieu de forcer `amd64`.
+- Le fichier `LISEZMOI-DEBIAN.txt` documente `amd64` et `arm64`.
+- Le kit Windows documente le statut non signé de `fredpp.exe` et les
+  protections Windows 11 susceptibles de le bloquer.
+
 ## v0.0.14
 
 ### Added

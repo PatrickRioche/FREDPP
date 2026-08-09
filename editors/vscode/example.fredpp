@@ -1,0 +1,6 @@
+" Exemple FREDPP pour Visual Studio Code
+JM/Bonjour depuis FREDPP/
+!echo FREDPP
+ZG(capture)!echo sortie capturee
+B(capture)
+*

@@ -29,10 +29,20 @@ if ! "$EXECUTABLE" --version | grep -Fq "FREDPP v$VERSION"; then
     exit 1
 fi
 
-PACKAGE_NAME="FREDPP-v${VERSION}-debian13-amd64"
+ARCHITECTURE="$(dpkg --print-architecture)"
+case "$ARCHITECTURE" in
+    amd64|arm64)
+        ;;
+    *)
+        echo "error: unsupported Debian release architecture: $ARCHITECTURE" >&2
+        exit 1
+        ;;
+esac
+
+PACKAGE_NAME="FREDPP-v${VERSION}-debian13-${ARCHITECTURE}"
 STAGE_DIR="$OUTPUT_DIR/$PACKAGE_NAME"
 ARCHIVE="$OUTPUT_DIR/${PACKAGE_NAME}.tar.gz"
-DEB_EXPECTED="$OUTPUT_DIR/fredpp_${VERSION}_amd64.deb"
+DEB_EXPECTED="$OUTPUT_DIR/fredpp_${VERSION}_${ARCHITECTURE}.deb"
 
 rm -rf "$STAGE_DIR" "$ARCHIVE" "$DEB_EXPECTED"
 mkdir -p "$STAGE_DIR" "$OUTPUT_DIR"
@@ -48,6 +58,12 @@ tar -C "$OUTPUT_DIR" -czf "$ARCHIVE" "$PACKAGE_NAME"
 cpack --config "$BUILD_DIR/CPackConfig.cmake" -G DEB -B "$OUTPUT_DIR"
 if [[ ! -f "$DEB_EXPECTED" ]]; then
     echo "error: expected Debian package was not generated: $DEB_EXPECTED" >&2
+    exit 1
+fi
+
+DEB_ARCHITECTURE="$(dpkg-deb --field "$DEB_EXPECTED" Architecture)"
+if [[ "$DEB_ARCHITECTURE" != "$ARCHITECTURE" ]]; then
+    echo "error: generated Debian architecture $DEB_ARCHITECTURE does not match $ARCHITECTURE" >&2
     exit 1
 fi
 

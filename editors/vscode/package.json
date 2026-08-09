@@ -1,0 +1,51 @@
+{
+  "name": "fredpp-language",
+  "displayName": "FREDPP Language Support",
+  "description": "Visual Studio Code language support for FREDPP procedure files.",
+  "version": "0.1.0",
+  "publisher": "fredpp",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "keywords": [
+    "FREDPP",
+    "FRED",
+    "text editor",
+    "procedure"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PatrickRioche/FREDPP.git"
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "fredpp",
+        "aliases": [
+          "FREDPP",
+          "fredpp"
+        ],
+        "extensions": [
+          ".fredpp"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "fredpp",
+        "scopeName": "source.fredpp",
+        "path": "./syntaxes/fredpp.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "fredpp",
+        "path": "./snippets/fredpp.json"
+      }
+    ]
+  }
+}

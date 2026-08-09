@@ -214,6 +214,19 @@ Une nouvelle release officielle v0.0.12 est prévue après homologation et tests
 - tests de non-régression du moteur de flot ;
 - préparation de l'architecture pour les autres directives DNB11A.
 
+## Version v0.0.15 — Sprint 2.20
+
+### Packaging et outillage
+
+- ZIP portable Windows x64 ;
+- paquets Debian 13 amd64 et arm64 ;
+- compilation et tests natifs ARM64 avant publication ;
+- support Raspberry Pi OS 64 bits compatible via le paquet arm64 ;
+- support Visual Studio Code versionné sous `editors/vscode` ;
+- VSIX universel publié avec les autres artefacts ;
+- manifeste SHA-256 couvrant tous les artefacts ;
+- avertissement Windows 11 pour le binaire non signé.
+
 ## Version v0.0.14 — Sprint 2.19
 
 ### Modifications intégrées

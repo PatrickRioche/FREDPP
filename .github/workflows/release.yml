@@ -29,6 +29,7 @@ jobs:
     outputs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
+      vscode_version: ${{ steps.version.outputs.vscode_version }}
 
     steps:
       - name: Checkout release tag
@@ -45,9 +46,14 @@ jobs:
 
           release_tag="${RELEASE_TAG}"
           version="$(sed -nE 's/^[[:space:]]*project\(FREDPP VERSION ([0-9]+\.[0-9]+\.[0-9]+).*/\1/p' CMakeLists.txt)"
+          vscode_version="$(sed -nE 's/^[[:space:]]*"version"[[:space:]]*:[[:space:]]*"([0-9]+\.[0-9]+\.[0-9]+)".*/\1/p' editors/vscode/package.json | head -n 1)"
 
           if [ -z "${version}" ]; then
             echo "Unable to read project version from CMakeLists.txt" >&2
+            exit 1
+          fi
+          if [ -z "${vscode_version}" ]; then
+            echo "Unable to read VS Code extension version" >&2
             exit 1
           fi
 
@@ -74,6 +80,7 @@ jobs:
 
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
           echo "tag=${release_tag}" >> "${GITHUB_OUTPUT}"
+          echo "vscode_version=${vscode_version}" >> "${GITHUB_OUTPUT}"
 
   windows:
     name: Windows x64 portable ZIP
@@ -129,6 +136,10 @@ jobs:
             ninja-build \
             tar
 
+      - name: Verify amd64 environment
+        shell: bash
+        run: test "$(dpkg --print-architecture)" = "amd64"
+
       - name: Checkout release tag
         uses: actions/checkout@v4
         with:
@@ -160,9 +171,115 @@ jobs:
             out/release/fredpp_${{ needs.validate.outputs.version }}_amd64.deb
           if-no-files-found: error
 
+  debian_arm64:
+    name: Debian 13 arm64 packages
+    needs: validate
+    runs-on: ubuntu-24.04-arm
+    container: debian:13
+
+    steps:
+      - name: Install build dependencies
+        shell: bash
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            ca-certificates \
+            cmake \
+            dpkg-dev \
+            file \
+            g++ \
+            git \
+            gzip \
+            ninja-build \
+            tar
+
+      - name: Verify arm64 environment
+        shell: bash
+        run: test "$(dpkg --print-architecture)" = "arm64"
+
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.validate.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Configure Release
+        shell: bash
+        run: cmake -S . -B out/build/release-gcc-arm64 -G Ninja -DCMAKE_BUILD_TYPE=Release -DFREDPP_BUILD_TESTS=ON
+
+      - name: Build Release
+        shell: bash
+        run: cmake --build out/build/release-gcc-arm64 --parallel
+
+      - name: Test Release
+        shell: bash
+        run: ctest --test-dir out/build/release-gcc-arm64 --output-on-failure
+
+      - name: Verify executable architecture
+        shell: bash
+        run: file out/build/release-gcc-arm64/fredpp
+
+      - name: Create Debian packages
+        shell: bash
+        run: bash scripts/package-release.sh out/build/release-gcc-arm64 out/release
+
+      - name: Upload Debian ARM64 packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-debian-arm64
+          path: |
+            out/release/FREDPP-v${{ needs.validate.outputs.version }}-debian13-arm64.tar.gz
+            out/release/fredpp_${{ needs.validate.outputs.version }}_arm64.deb
+          if-no-files-found: error
+
+  vscode:
+    name: VS Code universal VSIX
+    needs: validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.validate.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Validate VS Code extension JSON
+        shell: bash
+        run: |
+          node -e '
+            const fs = require("fs");
+            for (const file of [
+              "editors/vscode/package.json",
+              "editors/vscode/language-configuration.json",
+              "editors/vscode/syntaxes/fredpp.tmLanguage.json",
+              "editors/vscode/snippets/fredpp.json"
+            ]) JSON.parse(fs.readFileSync(file, "utf8"));
+          '
+
+      - name: Create VSIX
+        shell: bash
+        run: |
+          mkdir -p out/release
+          cd editors/vscode
+          npx --yes @vscode/vsce@3.9.2 package \
+            --out "../../out/release/FREDPP-Language-v${{ needs.validate.outputs.vscode_version }}.vsix"
+
+      - name: Upload VSIX
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-vscode
+          path: out/release/FREDPP-Language-v${{ needs.validate.outputs.vscode_version }}.vsix
+          if-no-files-found: error
+
   publish:
     name: Publish GitHub Release
-    needs: [validate, windows, debian]
+    needs: [validate, windows, debian, debian_arm64, vscode]
     runs-on: ubuntu-latest
 
     steps:
@@ -187,6 +304,9 @@ jobs:
             "FREDPP-v${{ needs.validate.outputs.version }}-windows-x64.zip" \
             "FREDPP-v${{ needs.validate.outputs.version }}-debian13-amd64.tar.gz" \
             "fredpp_${{ needs.validate.outputs.version }}_amd64.deb" \
+            "FREDPP-v${{ needs.validate.outputs.version }}-debian13-arm64.tar.gz" \
+            "fredpp_${{ needs.validate.outputs.version }}_arm64.deb" \
+            "FREDPP-Language-v${{ needs.validate.outputs.vscode_version }}.vsix" \
             > SHA256SUMS.txt
           cat SHA256SUMS.txt
 
@@ -204,6 +324,9 @@ jobs:
             "out/release/FREDPP-v${RELEASE_VERSION}-windows-x64.zip"
             "out/release/FREDPP-v${RELEASE_VERSION}-debian13-amd64.tar.gz"
             "out/release/fredpp_${RELEASE_VERSION}_amd64.deb"
+            "out/release/FREDPP-v${RELEASE_VERSION}-debian13-arm64.tar.gz"
+            "out/release/fredpp_${RELEASE_VERSION}_arm64.deb"
+            "out/release/FREDPP-Language-v${{ needs.validate.outputs.vscode_version }}.vsix"
             "out/release/SHA256SUMS.txt"
           )
 

@@ -1,21 +1,34 @@
-FREDPP — Kit Debian 13 amd64
-============================
+## Archive portable
 
-Archive portable
-----------------
+Les kits Debian 13 sont publiés pour `amd64` et `arm64`.
 
-    tar -xzf FREDPP-vX.Y.Z-debian13-amd64.tar.gz
-    cd FREDPP-vX.Y.Z-debian13-amd64
-    ./fredpp
+Remplacez `<arch>` par l'architecture de votre système (`amd64` ou `arm64`) :
 
-Paquet Debian
--------------
+```text
+tar -xzf FREDPP-vX.Y.Z-debian13-<arch>.tar.gz
+cd FREDPP-vX.Y.Z-debian13-<arch>
+./fredpp
+```
 
-    sudo apt install ./fredpp_X.Y.Z_amd64.deb
-    fredpp
+## Paquet Debian
 
-Dans FREDPP, utilisez ? pour l'aide, ?version pour identifier le binaire et Q
-pour quitter.
+```text
+sudo apt install ./fredpp_X.Y.Z_<arch>.deb
+fredpp
+```
+
+Pour connaître l'architecture Debian de la machine :
+
+```text
+dpkg --print-architecture
+```
+
+Le paquet `arm64` est destiné aux systèmes Debian 13 ARM64 et aux systèmes
+ARM64 compatibles, notamment les Raspberry Pi utilisant un système 64 bits
+compatible.
+
+Dans FREDPP, utilisez `?` pour l'aide, `?version` pour identifier le binaire et
+`Q` pour quitter.
 
 Projet : https://github.com/PatrickRioche/FREDPP
 Licence : voir le fichier LICENSE inclus dans ce kit.

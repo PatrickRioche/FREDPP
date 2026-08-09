@@ -9,7 +9,7 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.14 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.15 LANGUAGES CXX)
 
 if(MSVC)
     set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
@@ -368,5 +368,7 @@ set(CPACK_DEBIAN_PACKAGE_PRIORITY "optional")
 set(CPACK_DEBIAN_PACKAGE_HOMEPAGE "https://github.com/PatrickRioche/FREDPP")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_DEBIAN_FILE_NAME DEB-DEFAULT)
-set(CPACK_DEBIAN_PACKAGE_ARCHITECTURE "amd64")
+# Let CPack derive the native Debian architecture through
+# dpkg --print-architecture. This keeps the same manifest valid for
+# both amd64 and arm64 release runners.
 include(CPack)

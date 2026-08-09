@@ -21,5 +21,24 @@ pour produire le binaire.
 Aucune installation n'est nécessaire. Le binaire Release utilise le runtime
 MSVC statique.
 
+## Windows 11 - exécutable non signé
+
+`fredpp.exe` n'est pas encore signé numériquement. Selon la configuration de
+Windows 11, Microsoft Defender SmartScreen ou Smart App Control peut donc
+afficher un avertissement ou bloquer son exécution.
+
+Avant d'exécuter FREDPP :
+
+1. téléchargez le kit uniquement depuis les Releases GitHub officielles du
+   projet FREDPP ;
+2. vérifiez, lorsque cela est possible, l'empreinte SHA-256 du kit avec le
+   fichier `SHA256SUMS.txt` fourni dans la même Release ;
+3. si Windows bloque l'application, consultez **Sécurité Windows** puis
+   **Contrôle des applications et du navigateur** pour identifier la protection
+   ayant déclenché le blocage.
+
+Ne désactivez pas globalement les protections de Windows uniquement pour
+exécuter FREDPP.
+
 Projet : https://github.com/PatrickRioche/FREDPP
 Licence : voir le fichier LICENSE inclus dans ce kit.

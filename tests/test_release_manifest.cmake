@@ -16,6 +16,11 @@ set(required_files
     packaging/LISEZMOI-DEBIAN.txt
     scripts/package-release.ps1
     scripts/package-release.sh
+    editors/vscode/package.json
+    editors/vscode/language-configuration.json
+    editors/vscode/syntaxes/fredpp.tmLanguage.json
+    editors/vscode/snippets/fredpp.json
+    editors/vscode/README.md
     scripts/release-stats.ps1
     scripts/release-stats.sh
     .github/workflows/release.yml

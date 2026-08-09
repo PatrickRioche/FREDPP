@@ -2,6 +2,19 @@
 
 La version exacte et le commit de construction se consultent avec `?version`.
 
+## Sprint 2.20 — Packaging multiplateforme et VS Code
+
+- Windows x64 : archive portable ZIP conservée.
+- Debian 13 amd64 : archive portable et paquet `.deb` conservés.
+- Debian 13 arm64 : compilation native, tests et génération des deux paquets.
+- Raspberry Pi : mise à disposition du paquet ARM64 pour les systèmes 64 bits
+  compatibles.
+- Visual Studio Code : ajout d'un VSIX universel FREDPP, sans composant natif.
+- GitHub Release : les artefacts Windows, Debian amd64, Debian arm64 et VSIX
+  sont couverts par `SHA256SUMS.txt`.
+- Windows 11 : le kit rappelle que `fredpp.exe` n'est pas encore signé
+  numériquement et peut être bloqué par SmartScreen ou Smart App Control.
+
 ## Sprint 2.19 — Commandes `!` et `ZG`
 
 - `!<commande>` appelle le shell du système hôte ;

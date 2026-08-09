@@ -1,0 +1,60 @@
+{
+  "Print line": {
+    "prefix": "p",
+    "body": [
+      "${1:1}P"
+    ],
+    "description": "FREDPP print command"
+  },
+  "List file": {
+    "prefix": "l",
+    "body": [
+      "L ${1:fichier.txt}"
+    ],
+    "description": "FREDPP list command"
+  },
+  "Delete line": {
+    "prefix": "d",
+    "body": [
+      "${1:1}D"
+    ],
+    "description": "FREDPP delete command"
+  },
+  "Append block": {
+    "prefix": "a",
+    "body": [
+      "${1:$}A",
+      "${2:texte}",
+      "\\F"
+    ],
+    "description": "FREDPP append block"
+  },
+  "Print all": {
+    "prefix": "pa",
+    "body": [
+      "1,$P"
+    ],
+    "description": "Print the complete buffer"
+  },
+  "System command": {
+    "prefix": "bang",
+    "body": [
+      "!${1:dir}"
+    ],
+    "description": "Execute a host system command"
+  },
+  "ZG system capture": {
+    "prefix": "zg",
+    "body": [
+      "ZG(${1:buffer})!${2:dir}"
+    ],
+    "description": "Capture system command output in a FREDPP buffer"
+  },
+  "Message": {
+    "prefix": "jm",
+    "body": [
+      "JM/${1:message}/"
+    ],
+    "description": "Display a FREDPP message"
+  }
+}

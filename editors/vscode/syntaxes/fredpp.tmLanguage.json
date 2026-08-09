@@ -1,0 +1,119 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "FREDPP",
+  "scopeName": "source.fredpp",
+  "patterns": [
+    {
+      "include": "#comments"
+    },
+    {
+      "include": "#system"
+    },
+    {
+      "include": "#flow"
+    },
+    {
+      "include": "#patterns"
+    },
+    {
+      "include": "#addresses"
+    },
+    {
+      "include": "#options"
+    },
+    {
+      "include": "#commands"
+    },
+    {
+      "include": "#star"
+    },
+    {
+      "include": "#numbers"
+    }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-quote.fredpp",
+          "match": "(?m)^\\s*\".*$"
+        }
+      ]
+    },
+    "system": {
+      "patterns": [
+        {
+          "begin": "(?m)^\\s*(!)",
+          "beginCaptures": {
+            "1": {
+              "name": "keyword.control.command.fredpp"
+            }
+          },
+          "end": "$",
+          "patterns": [
+            {
+              "name": "string.unquoted.shell.fredpp",
+              "match": ".+"
+            }
+          ]
+        }
+      ]
+    },
+    "flow": {
+      "patterns": [
+        {
+          "name": "keyword.control.flow.fredpp",
+          "match": "\\\\(?:B|L|S)\\([^)]*\\)|\\\\F"
+        }
+      ]
+    },
+    "patterns": {
+      "patterns": [
+        {
+          "name": "string.regexp.fredpp",
+          "match": "/(?:\\\\.|[^/])*/"
+        }
+      ]
+    },
+    "addresses": {
+      "patterns": [
+        {
+          "name": "variable.language.address.fredpp",
+          "match": "(?i)(?<![A-Za-z0-9_])(?:\\.|\\$|[0-9]+)(?:\\s*,\\s*(?:\\.|\\$|[0-9]+))?(?![A-Za-z0-9_])"
+        }
+      ]
+    },
+    "options": {
+      "patterns": [
+        {
+          "name": "keyword.control.option.fredpp",
+          "match": "(?i)(?<![A-Za-z])O[+-](?:M|I\\()(?![A-Za-z])"
+        }
+      ]
+    },
+    "commands": {
+      "patterns": [
+        {
+          "name": "keyword.control.command.fredpp",
+          "match": "(?i)(?<![A-Za-z])(?:FB|FO|JM|JP|ZG|QQ|WA|WU|A|B|C|D|G|I|L|M|P|Q|R|S|T|W|Z)(?![A-Za-z])"
+        }
+      ]
+    },
+    "star": {
+      "patterns": [
+        {
+          "name": "keyword.control.command.fredpp",
+          "match": "(?m)^\\s*\\*\\s*$"
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.fredpp",
+          "match": "(?<![A-Za-z0-9_])[0-9]+(?![A-Za-z0-9_])"
+        }
+      ]
+    }
+  }
+}
