@@ -20,6 +20,7 @@ public:
     [[nodiscard]] const Buffer& current_buffer() const;
 
     [[nodiscard]] Output& output() noexcept;
+    [[nodiscard]] Output& exchange_output(Output& output) noexcept;
 
     void set_counter(std::size_t value) noexcept;
     [[nodiscard]] std::size_t counter() const noexcept;

@@ -160,6 +160,50 @@ public:
 };
 
 
+class ZapGatherCommandNode final : public CommandNode {
+public:
+    ZapGatherCommandNode(std::string buffer_name,
+                         std::unique_ptr<CommandNode> nested_command,
+                         SourceLocation location) noexcept
+        : CommandNode(nullptr, location),
+          buffer_name_(std::move(buffer_name)),
+          nested_command_(std::move(nested_command)) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::ZapGatherCommand;
+    }
+
+    [[nodiscard]] const std::string& buffer_name() const noexcept {
+        return buffer_name_;
+    }
+
+    [[nodiscard]] const CommandNode& nested_command() const noexcept {
+        return *nested_command_;
+    }
+
+private:
+    std::string buffer_name_;
+    std::unique_ptr<CommandNode> nested_command_;
+};
+
+class SystemCommandNode final : public CommandNode {
+public:
+    SystemCommandNode(std::string command,
+                      SourceLocation location) noexcept
+        : CommandNode(nullptr, location), command_(std::move(command)) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::SystemCommand;
+    }
+
+    [[nodiscard]] const std::string& command() const noexcept {
+        return command_;
+    }
+
+private:
+    std::string command_;
+};
+
 class SubstituteCommandNode final : public CommandNode {
 public:
     SubstituteCommandNode(std::unique_ptr<AddressNode> address,

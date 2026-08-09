@@ -25,6 +25,12 @@ Output& ExecutionContext::output() noexcept {
     return *output_;
 }
 
+Output& ExecutionContext::exchange_output(Output& output) noexcept {
+    Output* previous = output_;
+    output_ = &output;
+    return *previous;
+}
+
 void ExecutionContext::set_counter(std::size_t value) noexcept {
     counter_ = value;
 }

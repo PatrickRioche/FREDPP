@@ -124,6 +124,7 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             ? Token{TokenType::Command, "P", address->location()}
             : tokens_->consume();
         bool immediate_quit = false;
+        bool zap_gather = false;
         FileWriteMode write_mode = FileWriteMode::Preserve;
         std::optional<std::string> compact_buffer_name;
         std::optional<FactsKind> facts_kind;
@@ -161,7 +162,25 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 compact_buffer_name = std::string(1, command.lexeme[1]);
                 command.type = TokenType::Command;
                 command.lexeme = "B";
+            } else if (first == 'Z' && second == 'G') {
+                zap_gather = true;
+                command.type = TokenType::Command;
+                command.lexeme = "Z";
             }
+        }
+        if (command.type == TokenType::Symbol && command.lexeme == "!") {
+            if (address) {
+                throw ParseError("! does not accept a line address",
+                                 address->location());
+            }
+            auto system_command = consume_plain_text(*tokens_);
+            if (system_command.empty()) {
+                throw ParseError("! requires a system command",
+                                 command.location);
+            }
+            require_command_end();
+            return std::make_unique<SystemCommandNode>(
+                std::move(system_command), command.location);
         }
         if (command.type == TokenType::Symbol && command.lexeme == "\"") {
             if (address) {
@@ -360,6 +379,38 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         }
 
         if (mnemonic == 'Z') {
+            if (zap_gather) {
+                if (address) {
+                    throw ParseError("ZG does not accept a line address",
+                                     address->location());
+                }
+                if (tokens_->peek().type != TokenType::LeftParenthesis) {
+                    throw ParseError("ZG requires a destination buffer",
+                                     tokens_->peek().location);
+                }
+
+                std::string buffer_name = parse_parenthesized_buffer_name();
+
+                if (tokens_->peek().type == TokenType::End ||
+                    tokens_->peek().type == TokenType::NewLine) {
+                    throw ParseError("ZG requires a command",
+                                     tokens_->peek().location);
+                }
+
+                CommandParser nested_parser(*tokens_, *registry_);
+                auto nested_command = nested_parser.parse();
+                if (nested_command->has_address()) {
+                    throw ParseError(
+                        "addressed commands inside ZG are not supported yet",
+                        nested_command->location());
+                }
+
+                return std::make_unique<ZapGatherCommandNode>(
+                    std::move(buffer_name),
+                    std::move(nested_command),
+                    command.location);
+            }
+
             if (address && address->kind() == AstNodeKind::RangeAddress) {
                 throw ParseError("Z accepts at most one line address",
                                  address->location());

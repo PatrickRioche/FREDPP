@@ -1,5 +1,20 @@
 # Changelog
 
+## v0.0.14
+
+### Added
+
+- Commande historique `!` pour exécuter une commande du système hôte.
+- Commande historique `ZG(buffer)<commande>` pour capturer la production
+  destinée à la visualisation dans un buffer.
+- Aides embarquées `?!` et `?zg`.
+- Test multiplateforme `test_system_zg`.
+
+### Changed
+
+- `ExecutionContext` permet une redirection temporaire de `Output`.
+- `BufferManager` peut créer un buffer sans changer le buffer courant.
+
 ## v0.0.13
 
 ### Added

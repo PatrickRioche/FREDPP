@@ -7,8 +7,11 @@
 #include "fred/runtime/PatternMatcher.hpp"
 
 #include <algorithm>
+#include <array>
+#include <cstdio>
 #include <cstdint>
 #include <fstream>
+#include <sstream>
 #include <iterator>
 #include <optional>
 #include <string>
@@ -639,6 +642,78 @@ void execute_global(const GlobalCommandNode& command,
     context.set_counter(selected_count);
 }
 
+void execute_system(const SystemCommandNode& command,
+                    ExecutionContext& context) {
+    std::string shell_command = command.command();
+    shell_command += " 2>&1";
+
+#ifdef _WIN32
+    FILE* pipe = _popen(shell_command.c_str(), "r");
+#else
+    FILE* pipe = popen(shell_command.c_str(), "r");
+#endif
+    if (pipe == nullptr) {
+        throw CommandExecutionError("cannot start system command");
+    }
+
+    std::array<char, 4096> chunk{};
+    while (std::fgets(chunk.data(),
+                      static_cast<int>(chunk.size()), pipe) != nullptr) {
+        context.output().write(std::string_view(chunk.data()));
+    }
+
+#ifdef _WIN32
+    const int status = _pclose(pipe);
+#else
+    const int status = pclose(pipe);
+#endif
+    context.set_condition(status == 0);
+}
+
+std::vector<std::string> captured_lines(std::string_view text) {
+    std::vector<std::string> lines;
+    std::istringstream input{std::string(text)};
+    std::string line;
+    while (std::getline(input, line)) {
+        if (!line.empty() && line.back() == '\r') {
+            line.pop_back();
+        }
+        lines.push_back(std::move(line));
+    }
+    return lines;
+}
+
+void execute_zap_gather(const ZapGatherCommandNode& command,
+                        ExecutionContext& context) {
+    StringOutput captured;
+    Output& previous = context.exchange_output(captured);
+
+    try {
+        CommandExecutor{}.execute(command.nested_command(), context);
+    } catch (...) {
+        (void)context.exchange_output(previous);
+        throw;
+    }
+    (void)context.exchange_output(previous);
+
+    auto lines = captured_lines(captured.content());
+    if (lines.empty()) {
+        return;
+    }
+
+    auto& destination =
+        context.buffers().get_or_create(command.buffer_name());
+
+    if (destination.empty()) {
+        for (auto& line : lines) {
+            destination.append(std::move(line));
+        }
+        return;
+    }
+
+    destination.insert_after(destination.current_line(), std::move(lines));
+}
+
 void execute_comment(const CommentCommandNode&,
                      ExecutionContext&) noexcept {
     // Historical FRED comments are intentionally a runtime no-op.
@@ -705,6 +780,13 @@ void CommandExecutor::execute(const CommandNode& command,
         return;
     case AstNodeKind::ZapCommand:
         execute_zap(static_cast<const ZapCommandNode&>(command), context);
+        return;
+    case AstNodeKind::ZapGatherCommand:
+        execute_zap_gather(
+            static_cast<const ZapGatherCommandNode&>(command), context);
+        return;
+    case AstNodeKind::SystemCommand:
+        execute_system(static_cast<const SystemCommandNode&>(command), context);
         return;
     case AstNodeKind::SubstituteCommand:
         execute_substitute(static_cast<const SubstituteCommandNode&>(command),

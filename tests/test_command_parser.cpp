@@ -175,6 +175,22 @@ int main() {
         assert(global.nested_command().kind() == fred::AstNodeKind::PrintCommand);
     }
     {
+        const auto node = parse("!echo FREDPP");
+        assert(node->kind() == fred::AstNodeKind::SystemCommand);
+        const auto& system =
+            static_cast<const fred::SystemCommandNode&>(*node);
+        assert(system.command() == "echo FREDPP");
+    }
+    {
+        const auto node = parse("ZG(capture)!echo FREDPP");
+        assert(node->kind() == fred::AstNodeKind::ZapGatherCommand);
+        const auto& gather =
+            static_cast<const fred::ZapGatherCommandNode&>(*node);
+        assert(gather.buffer_name() == "capture");
+        assert(gather.nested_command().kind() ==
+               fred::AstNodeKind::SystemCommand);
+    }
+    {
         const auto node = parse("2Z");
         assert(node->kind() == fred::AstNodeKind::ZapCommand);
         assert(node->has_address());
@@ -260,6 +276,10 @@ int main() {
     expect_error("G/a/", "G requires a command after the pattern");
     expect_error("G/a/1P", "addressed commands inside G are not supported yet");
     expect_error("1,2Z", "Z accepts at most one line address");
+    expect_error("!", "! requires a system command");
+    expect_error("1!echo bad", "! does not accept a line address");
+    expect_error("ZG", "ZG requires a destination buffer");
+    expect_error("ZG(capture)", "ZG requires a command");
     expect_error("M", "M requires a destination address");
     expect_error("1M2,3", "M destination must be a single line address");
     expect_error("T", "T requires a destination address");

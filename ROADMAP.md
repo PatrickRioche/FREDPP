@@ -214,6 +214,18 @@ Une nouvelle release officielle v0.0.12 est prévue après homologation et tests
 - tests de non-régression du moteur de flot ;
 - préparation de l'architecture pour les autres directives DNB11A.
 
+## Version v0.0.14 — Sprint 2.19
+
+### Modifications intégrées
+
+- commande historique `!` pour appeler le shell du système hôte ;
+- sortie de `!` routée par l'abstraction `Output` de FREDPP ;
+- commande historique `ZG(buffer)<commande>` ;
+- capture générique de la production destinée à la visualisation ;
+- insertion de cette production après la ligne courante du buffer destination ;
+- création du buffer destination par `ZG` lorsqu'il n'existe pas ;
+- aides historiques `?!` et `?zg` embarquées sans modifier les références.
+
 ## Prochains jalons
 
 ### Prochaines versions 0.0.x

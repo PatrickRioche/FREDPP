@@ -2,6 +2,15 @@
 
 La version exacte et le commit de construction se consultent avec `?version`.
 
+## Sprint 2.19 — Commandes `!` et `ZG`
+
+- `!<commande>` appelle le shell du système hôte ;
+- la production de la commande passe par `Output` ;
+- `ZG(buffer)<commande>` capture cette production dans un buffer ;
+- `zg(buf)!dir` est pris en charge sous Windows ;
+- le même mécanisme permet `!ls` sous Linux/Raspberry Pi OS ;
+- aides historiques `?!` et `?zg`.
+
 ## Sprint 2.18 — Directive de flot `\S`
 
 - `\S(buffer)` selon DNB11A ;

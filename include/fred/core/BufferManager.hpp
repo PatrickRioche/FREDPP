@@ -15,6 +15,7 @@ public:
     BufferManager();
 
     Buffer& create_or_select(std::string name);
+    Buffer& get_or_create(std::string name);
     Buffer& select(std::string_view name);
     const Buffer& get(std::string_view name) const;
 

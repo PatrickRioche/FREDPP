@@ -57,6 +57,23 @@ Buffer& BufferManager::create_or_select(std::string name) {
     return *current_;
 }
 
+Buffer& BufferManager::get_or_create(std::string name) {
+    if (name.empty()) {
+        throw std::invalid_argument("buffer name must not be empty");
+    }
+    if (name.size() > limits::max_buffer_name_length) {
+        throw std::invalid_argument(
+            "buffer name exceeds historical limit of " +
+            std::to_string(limits::max_buffer_name_length) + " characters");
+    }
+
+    auto [it, inserted] = buffers_.try_emplace(name, nullptr);
+    if (inserted) {
+        it->second = std::make_unique<Buffer>(name);
+    }
+    return *it->second;
+}
+
 Buffer& BufferManager::select(std::string_view name) {
     auto it = buffers_.find(std::string(name));
     if (it == buffers_.end()) {

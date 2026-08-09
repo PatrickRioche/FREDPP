@@ -77,6 +77,24 @@ Les blocs `A`, `I` et `C` consomment les lignes suivantes jusqu'à `\F`. Le boot
 injecté littéralement dans l'entrée courante et tous ses retours de ligne sont
 supprimés. Les autres directives de flot DNB11A restent à implémenter.
 
+## Commandes `!` et `ZG` — Sprint 2.19
+
+La commande historique `!` exécute une commande du système hôte. Sa sortie
+standard et sa sortie d'erreur passent par la sortie FREDPP et peuvent être
+capturées par `ZG`.
+
+`ZG(buffer)<commande>` exécute la commande imbriquée et place la production
+destinée à la visualisation dans le buffer désigné, après sa ligne courante.
+Si le buffer n'existe pas, FREDPP le crée.
+
+Exemple Windows :
+
+```fred
+zg(buf)!dir
+```
+
+Sous Linux/Raspberry Pi OS, l'équivalent peut utiliser `!ls`.
+
 ## Limites actuelles de G
 
 La forme initiale est :

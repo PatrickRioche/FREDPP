@@ -28,6 +28,8 @@ int main() {
     assert(help.exists("\""));
     assert(help.exists("om"));
     assert(help.exists("procedure"));
+    assert(help.exists("!"));
+    assert(help.exists("zg"));
     assert(help.exists("z"));
     assert(help.exists("HELP"));
     assert(help.exists("  h  "));
@@ -170,6 +172,8 @@ int main() {
     assert(std::find(topics.begin(), topics.end(), "\"") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "om") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "procedure") != topics.end());
+    assert(std::find(topics.begin(), topics.end(), "!") != topics.end());
+    assert(std::find(topics.begin(), topics.end(), "zg") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "z") != topics.end());
 
     std::cout << "help manager tests passed\n";
