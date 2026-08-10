@@ -52,6 +52,13 @@ set_tests_properties(cli_script PROPERTIES
     PASS_REGULAR_EXPRESSION "CLI OK"
 )
 
+add_test(NAME cli_procedure_bootstrap
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_procedure.cmake"
+)
+
 add_test(NAME test_release_manifest
     COMMAND ${CMAKE_COMMAND}
         -DFREDPP_SOURCE_DIR=${CMAKE_SOURCE_DIR}

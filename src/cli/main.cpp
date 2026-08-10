@@ -183,6 +183,66 @@ void print_version_info() {
               << fredpp::version() << '\n';
 }
 
+
+std::filesystem::path with_fredpp_extension(std::filesystem::path path) {
+    if (!path.has_extension()) {
+        path += ".fredpp";
+    }
+    return path;
+}
+
+std::filesystem::path resolve_procedure_path(std::string_view name) {
+    if (name.empty()) {
+        throw std::runtime_error("procedure name must not be empty");
+    }
+
+    const std::filesystem::path requested{std::string(name)};
+    std::vector<std::filesystem::path> candidates;
+    const bool explicit_request =
+        requested.is_absolute() || requested.has_parent_path() ||
+        requested.has_extension();
+
+    if (explicit_request) {
+        candidates.push_back(requested);
+        if (!requested.has_extension()) {
+            candidates.push_back(with_fredpp_extension(requested));
+        }
+    } else {
+        const auto physical = with_fredpp_extension(requested);
+        candidates.push_back(std::filesystem::current_path() / physical);
+#ifdef _WIN32
+        candidates.push_back(
+            std::filesystem::path{R"(C:\fredpp\library)"} / physical);
+#endif
+    }
+
+    for (const auto& candidate : candidates) {
+        std::error_code error;
+        if (std::filesystem::is_regular_file(candidate, error) && !error) {
+            return candidate;
+        }
+    }
+
+    std::string message = "procedure not found: " + std::string(name) + "; tried:";
+    for (const auto& candidate : candidates) {
+        message += " " + candidate.string();
+    }
+    throw std::runtime_error(message);
+}
+
+void initialize_parameter_buffer(fred::BufferManager& manager,
+                                 int argc, char** argv) {
+    auto& parameters = manager.create_or_select("0");
+    if (!parameters.empty() || parameters.modified() ||
+        parameters.has_associated_file()) {
+        throw std::runtime_error(
+            "bootstrap parameter buffer B(0) must be initially empty");
+    }
+    for (int index = 2; index < argc; ++index) {
+        parameters.append(argv[index]);
+    }
+}
+
 } // namespace
 
 int main(int argc, char** argv) {
@@ -201,22 +261,17 @@ int main(int argc, char** argv) {
     const auto command_registry = fred::make_core_command_registry();
     fred::ProcedureRunner procedure_runner(
         manager, execution_context, command_registry, command_executor);
-
-    if (argc > 2) {
-        std::cerr << "usage: fredpp [script.fredpp]\n";
-
-        return 2;
-    }
-    if (argc == 2) {
+    if (argc >= 2) {
         try {
-            procedure_runner.load_and_execute_file(argv[1]);
+            const auto procedure_path = resolve_procedure_path(argv[1]);
+            initialize_parameter_buffer(manager, argc, argv);
+            procedure_runner.load_and_execute_file(procedure_path.string());
             return 0;
         } catch (const std::exception& error) {
             std::cerr << "error: " << error.what() << '\n';
             return 1;
         }
     }
-
 
     std::cout << "FREDPP v" << fredpp::version()
               << " - executable P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, FB, FO, JM and JP commands; \" comments; OI( and OM options; \\B(buffer) procedures; * aliases 1,$\n";
