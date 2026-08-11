@@ -1,5 +1,44 @@
 # Changelog
 
+## v0.0.16 — Bootstrap historique des procédures
+
+### Ajouté
+
+- lancement d'une procédure FREDPP par son nom, avec extension `.fredpp`
+  facultative ;
+- recherche d'une procédure dans le répertoire courant puis dans la
+  bibliothèque FREDPP ;
+- transmission des paramètres de ligne de commande dans `B(0)`, un argument
+  par ligne ;
+- initialisation des buffers système historiques :
+  - `B(d)` : date locale au format `MM/DD/YY` ;
+  - `B(t)` : heure locale au format `HH:MM` ;
+  - `B(u)` : identifiant utilisateur ;
+- prise en charge du fichier d'initialisation utilisateur `.init.fredpp`,
+  exécuté avant le programme principal ;
+- possibilité de surcharger explicitement l'init avec `FREDPP_INIT` ;
+- ajout du logo FREDPP au dépôt.
+
+### Compatibilité historique
+
+Le bootstrap des procédures se rapproche du programme `BOOTSTRAP` UWTOOLS :
+les buffers système sont initialisés en premier, l'init utilisateur est
+exécuté ensuite, puis `B(0)` est construit avant le chargement et l'exécution
+de la procédure principale dans `B(.)`.
+
+### Maintenance
+
+- suppression des anciens scripts temporaires `apply_*.py` du dépôt et
+  exclusion de ces scripts via `.gitignore` ;
+- archivage des anciens fichiers `LIVRABLE*` et `00_README*` sous `project/`
+  afin d'alléger la racine du dépôt ;
+- aucune modification des fichiers historiques sous
+  `docs/fr/reference/commandes`.
+
+### Validation
+
+- suite complète : **37/37 tests réussis** avant préparation de la release.
+
 ## v0.0.15
 
 ### Added

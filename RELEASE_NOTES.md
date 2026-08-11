@@ -1,85 +1,108 @@
-# Notes de version FREDPP
+# FREDPP v0.0.16 — Bootstrap historique des procédures
 
-La version exacte et le commit de construction se consultent avec `?version`.
+Cette release étend le moteur de procédures FREDPP afin de reproduire plus
+fidèlement le bootstrap historique UWTOOLS.
 
-## Sprint 2.20 — Packaging multiplateforme et VS Code
+## Procédures et ligne de commande
 
-- Windows x64 : archive portable ZIP conservée.
-- Debian 13 amd64 : archive portable et paquet `.deb` conservés.
-- Debian 13 arm64 : compilation native, tests et génération des deux paquets.
-- Raspberry Pi : mise à disposition du paquet ARM64 pour les systèmes 64 bits
-  compatibles.
-- Visual Studio Code : ajout d'un VSIX universel FREDPP, sans composant natif.
-- GitHub Release : les artefacts Windows, Debian amd64, Debian arm64 et VSIX
-  sont couverts par `SHA256SUMS.txt`.
-- Windows 11 : le kit rappelle que `fredpp.exe` n'est pas encore signé
-  numériquement et peut être bloqué par SmartScreen ou Smart App Control.
+Une procédure physique conserve l'extension `.fredpp`, notamment pour
+l'association avec le support Visual Studio Code, mais l'extension peut être
+omise lors de l'appel.
 
-## Sprint 2.19 — Commandes `!` et `ZG`
+Exemples :
 
-- `!<commande>` appelle le shell du système hôte ;
-- la production de la commande passe par `Output` ;
-- `ZG(buffer)<commande>` capture cette production dans un buffer ;
-- `zg(buf)!dir` est pris en charge sous Windows ;
-- le même mécanisme permet `!ls` sous Linux/Raspberry Pi OS ;
-- aides historiques `?!` et `?zg`.
+```text
+fredpp hello
+fredpp aide hello
+```
 
-## Sprint 2.18 — Directive de flot `\S`
+Les paramètres placés après le nom de la procédure sont transmis dans `B(0)`,
+un argument par ligne.
 
-- `\S(buffer)` selon DNB11A ;
-- contenu du buffer injecté littéralement ;
-- suppression des `<nl>` ;
-- conservation de `\B(buffer)` comme directive d'expansion/exécution distincte ;
-- tests de non-régression du moteur de flot.
+Pour un nom simple, FREDPP recherche la procédure dans le répertoire courant,
+puis dans la bibliothèque FREDPP configurée par la plateforme. Les chemins
+explicites restent utilisables.
 
-## Sprint 2.17 — Procédures et bootstrap minimal
+## Buffers système du bootstrap
 
-- `O+M` / `O-M`, avec `O-M` par défaut ;
-- `FO` étendu à l'état de `OM` ;
-- exécution de buffers avec `\B(buffer)` ;
-- lancement `fredpp script.fredpp` ;
-- chargement du script dans `B(.)` ;
-- blocs `A`, `I`, `C` jusqu'à `\F` dans les procédures ;
-- séquences délimitées `JM/JP` sur une même ligne ;
-- aides `?om` et `?procedure` ;
-- couverture portée à 22/103 ;
-- passage attendu à 33 tests.
+Au démarrage d'une procédure, FREDPP initialise désormais :
 
-Cette version constitue la base de la prochaine release officielle v0.0.12, après homologation et validation multiplateforme.
+- `B(d)` avec la date locale au format historique `MM/DD/YY` ;
+- `B(t)` avec l'heure locale au format historique `HH:MM` ;
+- `B(u)` avec l'identifiant de l'utilisateur.
 
-## Sprint 2.16 — Commentaires et messages de procédures
+Ces valeurs proviennent de l'environnement et de l'horloge locale du système.
 
-- commande `"` pour les commentaires ;
-- `JM` avec retour à la ligne ;
-- `JP` sans retour à la ligne ;
-- aides `?"`, `?jm` et `?jp` ;
-- couverture portée à 21/103 ;
-- passage à 30 tests.
+## Initialisation utilisateur
 
-Jalon intermédiaire : la prochaine release officielle est prévue après le Sprint 2.17.
+FREDPP prend en charge un fichier `.init.fredpp` propre à l'utilisateur,
+exécuté après l'initialisation de `B(d)`, `B(t)` et `B(u)`, mais avant la
+construction de `B(0)` et avant le programme principal.
 
-## Sprint 2.15 — Options et informations sur les buffers
+Chemins par défaut :
 
-- `O+I(` / `O-I(` et noms courts de buffers ;
-- `FO` pour afficher les options actives ;
-- `FB` pour afficher l'état des buffers et leur fichier associé ;
-- suppression de `:buffers` ;
-- aides `?fb`, `?fo` et `?oi(` ;
-- tableau de couverture de la référence ;
-- passage à 29 tests.
+```text
+Windows : %USERPROFILE%\fredpp\.init.fredpp
+Unix    : $HOME/fredpp/.init.fredpp
+```
 
-## Sprint 2.14 — Première distribution officielle
+L'absence du fichier par défaut n'est pas une erreur. La variable
+d'environnement `FREDPP_INIT` permet de fournir un autre fichier ou, avec une
+valeur vide, de désactiver explicitement l'init. Une erreur réelle de lecture
+ou d'exécution de l'init interrompt le bootstrap.
 
-- publication automatique des versions depuis un tag Git `vX.Y.Z` ;
-- kit portable Windows x64 ;
-- archive portable Debian 13 amd64 ;
-- paquet Debian installable ;
-- manifeste SHA-256 ;
-- cohérence obligatoire entre le tag, la version CMake et le binaire ;
-- compilation Release et exécution des tests avant publication ;
-- suivi séparé des téléchargements Windows et Debian ;
-- passage à 27 tests avec contrôle du manifeste de release.
+## Ordre du bootstrap
 
-Les commandes historiques et les formats de fichiers disponibles restent ceux de la version précédente.
+```text
+B(d), B(t), B(u)
+        ↓
+.init.fredpp éventuel
+        ↓
+B(0) = paramètres CLI
+        ↓
+résolution de la procédure
+        ↓
+B(.) = programme
+        ↓
+exécution
+```
 
-Consulter `ROADMAP.md`, `CHANGELOG.md`, `docs/project/RELEASES.md` et `project/sprints/archive/LIVRABLE_SPRINT_2.14.md` pour le détail.
+## Maintenance du dépôt
+
+- le logo FREDPP est maintenant suivi dans le dépôt ;
+- les anciens scripts temporaires `apply_*.py` ont été retirés et sont
+  désormais ignorés ;
+- les anciens livrables et fichiers de pilotage intermédiaires ont été
+  archivés sous `project/` ;
+- les fichiers historiques sous `docs/fr/reference/commandes` restent
+  inchangés.
+
+## Validation
+
+Avant préparation de cette release :
+
+```text
+37/37 tests réussis
+```
+
+La release doit être recréée et validée après le changement de version avant
+la création du tag.
+
+## Windows 11 — exécutable non signé
+
+L'exécutable Windows FREDPP n'est pas encore signé numériquement. Selon la
+configuration de Windows 11, Smart App Control ou Microsoft Defender
+SmartScreen peut donc avertir l'utilisateur ou bloquer l'exécution.
+
+Avant toute exception de sécurité, vérifier que l'archive provient bien des
+**Releases GitHub officielles du projet FREDPP**. Les informations de
+protection et l'historique de détection peuvent être consultés dans
+**Sécurité Windows**.
+
+## Documentation
+
+Pour l'historique et la feuille de route, consulter `CHANGELOG.md`,
+`ROADMAP.md` et `docs/project/RELEASES.md`.
+
+La version effectivement exécutée peut être consultée directement dans FREDPP
+avec la commande `?version`.

@@ -1,5 +1,25 @@
 # Feuille de route de FREDPP
 
+## v0.0.16 — Bootstrap historique des procédures
+
+État : **prêt pour release**.
+
+Cette version consolide le Sprint 2.21 autour de l'exécution des procédures
+FREDPP et du comportement du bootstrap historique :
+
+- résolution des fichiers `.fredpp` avec extension facultative ;
+- passage des paramètres dans `B(0)` ;
+- initialisation de `B(d)`, `B(t)` et `B(u)` ;
+- prise en charge de l'init utilisateur `.init.fredpp` ;
+- ordre de démarrage : buffers système → init utilisateur → `B(0)` →
+  chargement de `B(.)` → exécution ;
+- conservation de la documentation historique de référence sans modification.
+
+Les écarts restants avec le bootstrap UWTOOLS complet — notamment la copie de
+la ligne de commande brute dans `B(.)`, la recherche historique complète des
+catalogues et certains détails de terminaison — restent à traiter dans un
+sprint ultérieur.
+
 Cette feuille de route présente les fonctionnalités intégrées dans chaque version et les prochains jalons du projet.
 
 L'identité exacte d'un exécutable se consulte directement dans FREDPP avec :
