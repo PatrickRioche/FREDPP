@@ -82,4 +82,4 @@ Jalon intermédiaire : la prochaine release officielle est prévue après le Spr
 
 Les commandes historiques et les formats de fichiers disponibles restent ceux de la version précédente.
 
-Consulter `ROADMAP.md`, `CHANGELOG.md`, `docs/project/RELEASES.md` et `LIVRABLE_SPRINT_2.14.md` pour le détail.
+Consulter `ROADMAP.md`, `CHANGELOG.md`, `docs/project/RELEASES.md` et `project/sprints/archive/LIVRABLE_SPRINT_2.14.md` pour le détail.
