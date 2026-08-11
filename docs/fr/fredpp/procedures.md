@@ -128,10 +128,39 @@ heure `hh:mn` et USER-ID courant.
 `B(0)` continue de contenir les paramètres de la ligne de commande et existe
 également lorsqu'aucun paramètre n'est fourni.
 
-## LIMITES DU BOOTSTRAP COURANT
+## FICHIER D'INITIALISATION UTILISATEUR
 
-Reste à intégrer dans le lot suivant :
+Le bootstrap UWTOOLS exécute l'initialisation utilisateur après `B(d)`,
+`B(t)` et `B(u)`, mais avant la construction de `B(0)` et avant le programme
+principal. FREDPP reproduit cet ordre.
 
-- `.init`.
+Chemin par défaut :
+
+```text
+Windows : %USERPROFILE%\fredpp\.init.fredpp
+Unix    : $HOME/fredpp/.init.fredpp
+```
+
+L'extension `.fredpp` conserve l'association avec Visual Studio Code.
+
+Si le fichier par défaut n'existe pas, le démarrage continue normalement.
+`FREDPP_INIT` permet de fournir explicitement un autre fichier. Une valeur vide
+désactive l'init. Un fichier explicitement demandé mais absent, illisible ou
+en erreur pendant son exécution interrompt le bootstrap.
+
+Le fichier est exécuté dans un buffer temporaire interne `__init`, supprimé
+ensuite. Les autres buffers et options créés par l'init restent disponibles
+pour le programme principal.
+
+## ORDRE DU BOOTSTRAP FREDPP
+
+```text
+1. B(d), B(t), B(u)
+2. .init.fredpp utilisateur éventuel
+3. B(0) = paramètres CLI
+4. résolution de la procédure
+5. B(.) = programme
+6. exécution de B(.)
+```
 
 Les commandes FRED non encore implémentées restent indisponibles.

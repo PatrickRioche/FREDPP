@@ -32,9 +32,30 @@ chargé dans `B(.)`.
 - `B(u)` : utilisateur courant du système ;
 - conservation de `B(0)` même lorsqu'il est vide.
 
-## Lot 3 — prévu
+## Lot 3 — `.init` utilisateur et ordre historique
 
-- `.init`.
+État : implémenté, à homologuer par build et tests.
+
+Référence principale : `BOOTSTRAP - the FRED Bootstrap program`.
+
+Ordre retenu :
+
+1. `B(d)`, `B(t)`, `B(u)` ;
+2. `.init.fredpp` utilisateur éventuel ;
+3. `B(0)` ;
+4. résolution et chargement de la procédure dans `B(.)` ;
+5. exécution de `B(.)`.
+
+Adaptation multiplateforme :
+
+```text
+Windows : %USERPROFILE%\fredpp\.init.fredpp
+Unix    : $HOME/fredpp/.init.fredpp
+```
+
+L'absence du fichier par défaut n'est pas une erreur. Une erreur réelle de
+lecture ou d'exécution interrompt le bootstrap. `FREDPP_INIT` permet de
+surcharger le chemin.
 
 ## Contraintes
 

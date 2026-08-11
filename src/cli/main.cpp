@@ -321,11 +321,102 @@ void initialize_historical_bootstrap_environment(
     initialize_single_line_bootstrap_buffer(
         manager, "u", current_user_id());
 
-    // B(0) doit exister même lorsqu'aucun argument n'a été fourni.
-    manager.get_or_create("0");
-
-    // Evite la suppression d'un B(0) courant et vide lors du chargement de B(.).
+    // Le bootstrap historique construit B(0) après l'exécution du .init.
+    // Le buffer est matérialisé ensuite par initialize_parameter_buffer().
     manager.select("u");
+}
+
+
+struct UserInitLocation {
+    std::filesystem::path path;
+    bool explicit_override{};
+    bool disabled{};
+};
+
+UserInitLocation resolve_user_init_location() {
+    if (const char* override_path = std::getenv("FREDPP_INIT");
+        override_path != nullptr) {
+        if (*override_path == '\0') {
+            return UserInitLocation{{}, true, true};
+        }
+        return UserInitLocation{
+            std::filesystem::path{override_path}, true, false};
+    }
+
+#ifdef _WIN32
+    const char* home = std::getenv("USERPROFILE");
+#else
+    const char* home = std::getenv("HOME");
+#endif
+
+    if (home == nullptr || *home == '\0') {
+        return UserInitLocation{{}, false, true};
+    }
+
+    return UserInitLocation{
+        std::filesystem::path{home} / "fredpp" / ".init.fredpp",
+        false,
+        false};
+}
+
+void erase_bootstrap_init_buffer(fred::BufferManager& manager) {
+    if (manager.contains("__init")) {
+        manager.erase("__init");
+    }
+}
+
+void execute_user_init_if_present(
+    fred::ProcedureRunner& procedure_runner,
+    fred::BufferManager& manager) {
+    const auto location = resolve_user_init_location();
+    if (location.disabled) {
+        return;
+    }
+
+    std::error_code error;
+    const bool exists = std::filesystem::exists(location.path, error);
+    if (error) {
+        throw std::runtime_error(
+            "cannot inspect user init file: " + location.path.string() +
+            ": " + error.message());
+    }
+
+    if (!exists) {
+        if (location.explicit_override) {
+            throw std::runtime_error(
+                "FREDPP_INIT file not found: " + location.path.string());
+        }
+        // Comme dans le bootstrap FRED, l'absence du .init n'est pas une erreur.
+        return;
+    }
+
+    if (!std::filesystem::is_regular_file(location.path, error) || error) {
+        const std::string detail =
+            error ? ": " + error.message() : std::string{};
+        throw std::runtime_error(
+            "user init is not a regular file: " +
+            location.path.string() + detail);
+    }
+
+    if (manager.contains("__init")) {
+        throw std::runtime_error(
+            "reserved bootstrap buffer __init already exists");
+    }
+
+    try {
+        procedure_runner.load_and_execute_file(
+            location.path.string(), "__init");
+        erase_bootstrap_init_buffer(manager);
+    } catch (const std::exception& init_error) {
+        erase_bootstrap_init_buffer(manager);
+        throw std::runtime_error(
+            "user init failed: " + location.path.string() +
+            ": " + init_error.what());
+    } catch (...) {
+        erase_bootstrap_init_buffer(manager);
+        throw std::runtime_error(
+            "user init failed: " + location.path.string());
+    }
 }
 
 } // namespace
@@ -348,9 +439,14 @@ int main(int argc, char** argv) {
         manager, execution_context, command_registry, command_executor);
     if (argc >= 2) {
         try {
-            const auto procedure_path = resolve_procedure_path(argv[1]);
-            initialize_parameter_buffer(manager, argc, argv);
             initialize_historical_bootstrap_environment(manager);
+            execute_user_init_if_present(procedure_runner, manager);
+            if (execution_context.exit_requested()) {
+                return 0;
+            }
+
+            initialize_parameter_buffer(manager, argc, argv);
+            const auto procedure_path = resolve_procedure_path(argv[1]);
             procedure_runner.load_and_execute_file(procedure_path.string());
             return 0;
         } catch (const std::exception& error) {
