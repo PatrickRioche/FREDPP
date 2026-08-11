@@ -18,6 +18,9 @@
 #include "fred/runtime/ProcedureRunner.hpp"
 #include "fred/runtime/ExecutionContext.hpp"
 
+#include <cstdlib>
+#include <ctime>
+#include <iomanip>
 #include <filesystem>
 #include <fstream>
 #include <iostream>
@@ -232,7 +235,7 @@ std::filesystem::path resolve_procedure_path(std::string_view name) {
 
 void initialize_parameter_buffer(fred::BufferManager& manager,
                                  int argc, char** argv) {
-    auto& parameters = manager.create_or_select("0");
+    auto& parameters = manager.get_or_create("0");
     if (!parameters.empty() || parameters.modified() ||
         parameters.has_associated_file()) {
         throw std::runtime_error(
@@ -241,6 +244,88 @@ void initialize_parameter_buffer(fred::BufferManager& manager,
     for (int index = 2; index < argc; ++index) {
         parameters.append(argv[index]);
     }
+}
+
+
+std::tm current_local_time() {
+    const std::time_t now = std::time(nullptr);
+    if (now == static_cast<std::time_t>(-1)) {
+        throw std::runtime_error("cannot obtain current time");
+    }
+
+    std::tm local{};
+#ifdef _WIN32
+    if (localtime_s(&local, &now) != 0) {
+        throw std::runtime_error("cannot convert current time");
+    }
+#else
+    if (localtime_r(&now, &local) == nullptr) {
+        throw std::runtime_error("cannot convert current time");
+    }
+#endif
+    return local;
+}
+
+std::string format_bootstrap_time(const std::tm& local,
+                                  const char* format) {
+    std::ostringstream stream;
+    stream << std::put_time(&local, format);
+    if (!stream) {
+        throw std::runtime_error("cannot format bootstrap date/time");
+    }
+    return stream.str();
+}
+
+std::string current_user_id() {
+#ifdef _WIN32
+    if (const char* value = std::getenv("USERNAME");
+        value != nullptr && *value != '\0') {
+        return value;
+    }
+#else
+    if (const char* value = std::getenv("USER");
+        value != nullptr && *value != '\0') {
+        return value;
+    }
+    if (const char* value = std::getenv("LOGNAME");
+        value != nullptr && *value != '\0') {
+        return value;
+    }
+#endif
+    return "unknown";
+}
+
+void initialize_single_line_bootstrap_buffer(
+    fred::BufferManager& manager,
+    std::string name,
+    std::string value) {
+    auto& buffer = manager.get_or_create(std::move(name));
+    if (!buffer.empty() ||
+        buffer.modified() ||
+        buffer.has_associated_file()) {
+        throw std::runtime_error(
+            "bootstrap special buffer must be initially empty");
+    }
+    buffer.append(std::move(value));
+}
+
+void initialize_historical_bootstrap_environment(
+    fred::BufferManager& manager) {
+    const auto local = current_local_time();
+
+    // DNB11A : B(d) = mm/jj/aa, B(t) = hh:mn, B(u) = USER-ID.
+    initialize_single_line_bootstrap_buffer(
+        manager, "d", format_bootstrap_time(local, "%m/%d/%y"));
+    initialize_single_line_bootstrap_buffer(
+        manager, "t", format_bootstrap_time(local, "%H:%M"));
+    initialize_single_line_bootstrap_buffer(
+        manager, "u", current_user_id());
+
+    // B(0) doit exister même lorsqu'aucun argument n'a été fourni.
+    manager.get_or_create("0");
+
+    // Evite la suppression d'un B(0) courant et vide lors du chargement de B(.).
+    manager.select("u");
 }
 
 } // namespace
@@ -265,6 +350,7 @@ int main(int argc, char** argv) {
         try {
             const auto procedure_path = resolve_procedure_path(argv[1]);
             initialize_parameter_buffer(manager, argc, argv);
+            initialize_historical_bootstrap_environment(manager);
             procedure_runner.load_and_execute_file(procedure_path.string());
             return 0;
         } catch (const std::exception& error) {

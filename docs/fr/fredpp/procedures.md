@@ -111,13 +111,27 @@ JP/Chargement... / JM/OK/
 `O-M` est l'état implicite. `O+M` active le monitorage et `O-M` le désactive.
 `FO` affiche l'état de `OI(` et de `OM`.
 
+## BUFFERS SYSTÈME DU BOOTSTRAP
+
+Avant l'exécution de `B(.)`, FREDPP initialise maintenant les buffers
+historiques suivants :
+
+```text
+B(d) = MM/DD/YY
+B(t) = HH:MM
+B(u) = utilisateur courant
+```
+
+Ces formats reproduisent le bootstrap décrit par DNB11A : date `mm/jj/aa`,
+heure `hh:mn` et USER-ID courant.
+
+`B(0)` continue de contenir les paramètres de la ligne de commande et existe
+également lorsqu'aucun paramètre n'est fourni.
+
 ## LIMITES DU BOOTSTRAP COURANT
 
-Restent à intégrer dans les lots suivants :
+Reste à intégrer dans le lot suivant :
 
-- `B(d)` : date ;
-- `B(t)` : heure ;
-- `B(u)` : utilisateur ;
 - `.init`.
 
 Les commandes FRED non encore implémentées restent indisponibles.

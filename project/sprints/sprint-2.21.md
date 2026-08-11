@@ -23,11 +23,14 @@ hello
 Chaque argument supplémentaire occupe une ligne de `B(0)`. Le programme est
 chargé dans `B(.)`.
 
-## Lot 2 — prévu
+## Lot 2 — buffers système du bootstrap
 
-- `B(d)` : date ;
-- `B(t)` : heure ;
-- `B(u)` : utilisateur.
+État : implémenté, à homologuer par build et tests.
+
+- `B(d)` : date locale au format historique `MM/DD/YY` ;
+- `B(t)` : heure locale au format historique `HH:MM` ;
+- `B(u)` : utilisateur courant du système ;
+- conservation de `B(0)` même lorsqu'il est vide.
 
 ## Lot 3 — prévu
 

@@ -59,6 +59,13 @@ add_test(NAME cli_procedure_bootstrap
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_procedure.cmake"
 )
 
+add_test(NAME cli_bootstrap_environment
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_bootstrap_environment.cmake"
+)
+
 add_test(NAME test_release_manifest
     COMMAND ${CMAKE_COMMAND}
         -DFREDPP_SOURCE_DIR=${CMAKE_SOURCE_DIR}
