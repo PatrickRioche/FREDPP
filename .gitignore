@@ -34,3 +34,4 @@ Thumbs.db
 *.tar.gz
 *.vsix
 SHA256SUMS.txt
+apply_*.py
