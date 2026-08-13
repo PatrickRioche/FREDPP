@@ -1,0 +1,8 @@
+" Sprint 2.22 Lot 2 - integration M(buffer)
+b(0)
+1m(chemin)
+b(chemin)
+*
+b(0)
+*
+qq

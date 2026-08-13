@@ -73,17 +73,22 @@ public:
 
 class MoveCommandNode final : public CommandNode {
 public:
-    MoveCommandNode(std::unique_ptr<AddressNode> source,
-                    std::unique_ptr<AddressNode> destination,
+    MoveCommandNode(std::unique_ptr<AddressNode> address,
+                    std::string buffer_name,
                     SourceLocation location) noexcept
-        : CommandNode(std::move(source), location),
-          destination_(std::move(destination)) {}
+        : CommandNode(std::move(address), location),
+          buffer_name_(std::move(buffer_name)) {}
 
-    [[nodiscard]] AstNodeKind kind() const noexcept override { return AstNodeKind::MoveCommand; }
-    [[nodiscard]] const AddressNode* destination() const noexcept { return destination_.get(); }
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::MoveCommand;
+    }
+
+    [[nodiscard]] const std::string& buffer_name() const noexcept {
+        return buffer_name_;
+    }
 
 private:
-    std::unique_ptr<AddressNode> destination_;
+    std::string buffer_name_;
 };
 
 class TransferCommandNode final : public CommandNode {

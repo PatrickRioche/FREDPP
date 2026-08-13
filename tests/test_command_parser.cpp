@@ -124,22 +124,27 @@ int main() {
         assert(node->address()->kind() == fred::AstNodeKind::RangeAddress);
     }
     {
-        const auto node = parse("2,3M5");
+        const auto node = parse("M(chemin)");
+        assert(node->kind() == fred::AstNodeKind::MoveCommand);
+        assert(!node->has_address());
+        const auto& move = static_cast<const fred::MoveCommandNode&>(*node);
+        assert(move.buffer_name() == "chemin");
+    }
+    {
+        const auto node = parse("1M(chemin)");
+        assert(node->kind() == fred::AstNodeKind::MoveCommand);
+        assert(node->has_address());
+        assert(node->address()->kind() == fred::AstNodeKind::AbsoluteAddress);
+        const auto& move = static_cast<const fred::MoveCommandNode&>(*node);
+        assert(move.buffer_name() == "chemin");
+    }
+    {
+        const auto node = parse("1,2m(chemin)");
         assert(node->kind() == fred::AstNodeKind::MoveCommand);
         assert(node->has_address());
         assert(node->address()->kind() == fred::AstNodeKind::RangeAddress);
         const auto& move = static_cast<const fred::MoveCommandNode&>(*node);
-        assert(move.destination() != nullptr);
-        assert(move.destination()->kind() == fred::AstNodeKind::AbsoluteAddress);
-    }
-    {
-        const auto node = parse("m0");
-        assert(node->kind() == fred::AstNodeKind::MoveCommand);
-        assert(!node->has_address());
-        const auto& move = static_cast<const fred::MoveCommandNode&>(*node);
-        const auto& destination =
-            static_cast<const fred::AbsoluteAddressNode&>(*move.destination());
-        assert(destination.line() == 0);
+        assert(move.buffer_name() == "chemin");
     }
     {
         const auto node = parse("2,3T5");
@@ -280,8 +285,8 @@ int main() {
     expect_error("1!echo bad", "! does not accept a line address");
     expect_error("ZG", "ZG requires a destination buffer");
     expect_error("ZG(capture)", "ZG requires a command");
-    expect_error("M", "M requires a destination address");
-    expect_error("1M2,3", "M destination must be a single line address");
+    expect_error("M", "M requires a destination buffer");
+    expect_error("1M2,3", "M requires a destination buffer");
     expect_error("T", "T requires a destination address");
     expect_error("1T2,3", "T destination must be a single line address");
     expect_error("1L", "L does not accept a line address");

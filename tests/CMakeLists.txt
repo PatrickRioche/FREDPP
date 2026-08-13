@@ -80,6 +80,13 @@ add_test(NAME cli_bootstrap_facts
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_bootstrap_facts.cmake"
 )
 
+add_test(NAME cli_move_buffer
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_move_buffer.cmake"
+)
+
 add_test(NAME test_release_manifest
     COMMAND ${CMAKE_COMMAND}
         -DFREDPP_SOURCE_DIR=${CMAKE_SOURCE_DIR}

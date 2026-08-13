@@ -450,27 +450,34 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 std::move(buffer_name), short_form, command.location);
         }
 
-        if (mnemonic == 'M' || mnemonic == 'T') {
-            const char* command_name = mnemonic == 'M' ? "M" : "T";
+        if (mnemonic == 'M') {
+            if (tokens_->peek().type != TokenType::LeftParenthesis) {
+                throw ParseError(
+                    "M requires a destination buffer",
+                    tokens_->peek().location);
+            }
+
+            auto buffer_name = parse_parenthesized_buffer_name();
+            require_command_end();
+            return std::make_unique<MoveCommandNode>(
+                std::move(address), std::move(buffer_name), command.location);
+        }
+
+        if (mnemonic == 'T') {
             if (!begins_address(tokens_->peek())) {
-                throw ParseError(std::string(command_name) +
-                                     " requires a destination address",
+                throw ParseError("T requires a destination address",
                                  tokens_->peek().location);
             }
 
             AddressParser destination_parser(*tokens_);
             auto destination = destination_parser.parse_prefix();
             if (destination->kind() == AstNodeKind::RangeAddress) {
-                throw ParseError(std::string(command_name) +
-                                     " destination must be a single line address",
-                                 destination->location());
+                throw ParseError(
+                    "T destination must be a single line address",
+                    destination->location());
             }
 
             require_command_end();
-            if (mnemonic == 'M') {
-                return std::make_unique<MoveCommandNode>(
-                    std::move(address), std::move(destination), command.location);
-            }
             return std::make_unique<TransferCommandNode>(
                 std::move(address), std::move(destination), command.location);
         }

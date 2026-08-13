@@ -105,7 +105,7 @@ CommandRegistry make_core_command_registry() {
         'M', "Move",
         [](std::unique_ptr<AddressNode> address, SourceLocation location) {
             return std::make_unique<MoveCommandNode>(
-                std::move(address), nullptr, location);
+                std::move(address), std::string{}, location);
         }});
 
     registry.register_command(CommandDescriptor{

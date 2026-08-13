@@ -36,3 +36,27 @@ présence de `B(d)`, `B(t)` et `B(u)`.
 - aucune modification de version dans ce lot ;
 - PRECHECK complet avant écriture ;
 - application atomique avec rollback.
+
+## Lot 2 — `M(buffer)` historique
+
+État : implémenté, à homologuer par build, CTest et test réel.
+
+Le Lot 2 remplace l'ancienne interprétation `M<adresse>` par la syntaxe FRED
+historique :
+
+```text
+(.,.)M<nom de buffer>
+```
+
+Cas couverts :
+
+- `M(buffer)` : ligne courante ;
+- `1M(buffer)` : une ligne ;
+- `1,2M(buffer)` : plage ;
+- remplacement du contenu précédent du buffer destination ;
+- suppression des lignes dans le buffer source ;
+- buffer destination identique au buffer courant ;
+- test CLI réel `cli_move_buffer`.
+
+La commande `T` reste volontairement inchangée dans ce lot.
+

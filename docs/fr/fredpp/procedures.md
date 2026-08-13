@@ -181,3 +181,24 @@ pour le programme principal.
 ```
 
 Les commandes FRED non encore implémentées restent indisponibles.
+
+## COMMANDE HISTORIQUE `M(buffer)`
+
+La commande `M` suit la syntaxe historique :
+
+```text
+(.,.)M<nom de buffer>
+```
+
+Exemples :
+
+```text
+M(chemin)
+1M(chemin)
+1,2M(chemin)
+```
+
+Les lignes sélectionnées remplacent le contenu précédent du buffer destination,
+puis sont supprimées du buffer source. Le buffer destination peut être le
+buffer courant.
+

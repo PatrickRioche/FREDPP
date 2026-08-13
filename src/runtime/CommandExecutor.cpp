@@ -331,21 +331,6 @@ Buffer::LineNumber evaluate_insert_position(const InsertCommandNode& command,
     return AddressEvaluator{}.evaluate(address, buffer).first - 1;
 }
 
-Buffer::LineNumber evaluate_move_destination(const MoveCommandNode& command,
-                                             const Buffer& buffer) {
-    const auto* destination = command.destination();
-    if (destination == nullptr) {
-        throw CommandExecutionError("M requires a destination address");
-    }
-    if (destination->kind() == AstNodeKind::RangeAddress) {
-        throw CommandExecutionError("M destination must be a single line address");
-    }
-    if (destination->kind() == AstNodeKind::AbsoluteAddress &&
-        static_cast<const AbsoluteAddressNode&>(*destination).line() == 0) {
-        return 0;
-    }
-    return AddressEvaluator{}.evaluate(destination, buffer).first;
-}
 
 Buffer::LineNumber evaluate_transfer_destination(
     const TransferCommandNode& command, const Buffer& buffer) {
@@ -363,28 +348,44 @@ Buffer::LineNumber evaluate_transfer_destination(
     return AddressEvaluator{}.evaluate(destination, buffer).first;
 }
 
-void execute_move(const MoveCommandNode& command, ExecutionContext& context) {
-    auto& buffer = context.current_buffer();
-    const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
-    auto destination = evaluate_move_destination(command, buffer);
-
-    if (destination >= range.first && destination <= range.last) {
-        throw CommandExecutionError("M destination lies inside the moved range");
-    }
+void execute_move(const MoveCommandNode& command,
+                  ExecutionContext& context) {
+    auto& manager = context.buffers();
+    auto& source = context.current_buffer();
+    const std::string source_name = source.name();
+    const auto range = AddressEvaluator{}.evaluate(command.address(), source);
 
     std::vector<std::string> moved_lines;
     moved_lines.reserve(range.last - range.first + 1);
     for (auto line = range.first; line <= range.last; ++line) {
-        moved_lines.push_back(buffer.line(line));
+        moved_lines.push_back(source.line(line));
     }
 
-    const auto moved_count = range.last - range.first + 1;
-    buffer.erase(range.first, range.last);
-    if (destination > range.last) {
-        destination -= moved_count;
+    // Le buffer destination peut être le buffer courant. Dans ce cas, son
+    // contenu entier est remplacé par les lignes sélectionnées.
+    if (command.buffer_name() == source_name) {
+        source.erase(1, source.line_count());
+        for (auto& line : moved_lines) {
+            source.append(std::move(line));
+        }
+        return;
     }
-    buffer.insert_after(destination, std::move(moved_lines));
+
+    // M(buffer) remplace le contenu antérieur du buffer destination.
+    auto& destination = manager.create_or_select(command.buffer_name());
+    if (!destination.empty()) {
+        destination.erase(1, destination.line_count());
+    }
+    for (auto& line : moved_lines) {
+        destination.append(std::move(line));
+    }
+
+    // On resélectionne explicitement la source avant de la modifier.
+    manager.select(source_name);
+    auto& source_after = manager.current();
+    source_after.erase(range.first, range.last);
 }
+
 
 void execute_transfer(const TransferCommandNode& command,
                       ExecutionContext& context) {
