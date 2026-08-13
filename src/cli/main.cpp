@@ -299,7 +299,7 @@ void initialize_single_line_bootstrap_buffer(
     fred::BufferManager& manager,
     std::string name,
     std::string value) {
-    auto& buffer = manager.get_or_create(std::move(name));
+    auto& buffer = manager.get_or_create(name);
     if (!buffer.empty() ||
         buffer.modified() ||
         buffer.has_associated_file()) {
@@ -307,6 +307,11 @@ void initialize_single_line_bootstrap_buffer(
             "bootstrap special buffer must be initially empty");
     }
     buffer.append(std::move(value));
+
+    // FB doit connaître tous les buffers ouverts. get_or_create() ne modifie
+    // volontairement pas l'ordre MRU ; la sélection explicite enregistre donc
+    // d, t et u dans l'ordre d'utilisation historique.
+    manager.select(name);
 }
 
 void initialize_historical_bootstrap_environment(

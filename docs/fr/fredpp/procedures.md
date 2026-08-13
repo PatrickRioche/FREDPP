@@ -128,6 +128,23 @@ heure `hh:mn` et USER-ID courant.
 `B(0)` continue de contenir les paramètres de la ligne de commande et existe
 également lorsqu'aucun paramètre n'est fourni.
 
+## `FB` ET LES BUFFERS DU BOOTSTRAP
+
+À partir du Sprint 2.22, les buffers système créés au démarrage d'une procédure
+sont tous enregistrés dans l'ordre d'utilisation des buffers. La commande
+`FB` doit donc notamment pouvoir afficher :
+
+```text
+b(d)
+b(t)
+b(u)
+```
+
+en plus des autres buffers ouverts comme `B(0)` et `B(.)`.
+
+Ce correctif ne modifie pas le contenu de `B(d)`, `B(t)` ou `B(u)` ; il corrige
+uniquement leur visibilité dans l'état des buffers.
+
 ## FICHIER D'INITIALISATION UTILISATEUR
 
 Le bootstrap UWTOOLS exécute l'initialisation utilisateur après `B(d)`,
