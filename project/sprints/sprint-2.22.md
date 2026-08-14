@@ -143,3 +143,29 @@ Tests ajoutés :
 
 Le lot ne modifie aucun fichier sous `docs/fr/reference/commandes`.
 
+
+## Lot 4 — `N(np):$>0` minimal
+
+État : implémenté, à homologuer.
+
+Le programme principal est chargé dans `B(.)` et exécuté avec `B(0)` comme
+buffer courant au lancement.
+
+Sous-ensemble :
+
+- `N(reg):valeur`
+- `N(reg)=valeur`
+- `N(reg)<valeur`
+- `N(reg)>valeur`
+
+Opérandes : entier signé, `$`, `.`, `#`.
+
+Cas cible :
+
+```fred
+N(np):$>0 J(param)T
+```
+
+Tests ajoutés : `test_procedure_numeric` et `cli_numeric_jump`.
+`test_runtime_context` est étendu.
+

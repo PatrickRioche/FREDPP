@@ -324,3 +324,36 @@ les variantes `JB`, `JE`, `JO` ne font pas partie de ce lot.
 Le registre de condition existe déjà dans le runtime ; le prochain lot `N`
 permettra notamment de le positionner à partir d'expressions numériques.
 
+
+## REGISTRES NUMÉRIQUES `N` — SOUS-ENSEMBLE MINIMAL
+
+Le Sprint 2.22 ajoute :
+
+```fred
+N(reg):valeur
+N(reg)=valeur
+N(reg)<valeur
+N(reg)>valeur
+```
+
+Les opérandes disponibles sont un entier signé, `$`, `.` et `#`.
+
+Le programme reste stocké dans `B(.)`, mais commence son exécution avec `B(0)`
+comme buffer courant. Ainsi `$` représente le nombre de paramètres transmis.
+
+Cas historique de référence :
+
+```fred
+N(np):$>0 J(param)T
+```
+
+Les comparaisons positionnent le registre de condition utilisé par
+`J(label)T/F`. Après chaque opération `N`, la valeur du registre numérique est
+recopiée dans `#`.
+
+Un registre absent vaut `0` à sa première lecture. Son nom est limité à
+14 caractères.
+
+Les opérations arithmétiques, bit-à-bit et les autres variantes de `N` restent
+hors de ce lot.
+

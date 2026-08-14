@@ -460,6 +460,7 @@ int main(int argc, char** argv) {
         }
 
         try {
+            manager.select("0");
             procedure_runner.load_and_execute_file(procedure_path.string());
             return 0;
         } catch (const std::exception& error) {

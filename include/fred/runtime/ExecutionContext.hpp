@@ -4,6 +4,10 @@
 #include "fred/runtime/Output.hpp"
 
 #include <cstddef>
+#include <cstdint>
+#include <string>
+#include <string_view>
+#include <unordered_map>
 
 namespace fred {
 
@@ -22,8 +26,14 @@ public:
     [[nodiscard]] Output& output() noexcept;
     [[nodiscard]] Output& exchange_output(Output& output) noexcept;
 
-    void set_counter(std::size_t value) noexcept;
-    [[nodiscard]] std::size_t counter() const noexcept;
+    void set_counter(std::int64_t value) noexcept;
+    [[nodiscard]] std::int64_t counter() const noexcept;
+
+    void set_numeric_register(std::string name, std::int64_t value);
+    [[nodiscard]] std::int64_t numeric_register(
+        std::string_view name) const;
+    [[nodiscard]] bool has_numeric_register(
+        std::string_view name) const;
 
     void set_condition(bool value) noexcept;
     [[nodiscard]] bool condition() const noexcept;
@@ -40,7 +50,8 @@ public:
 private:
     BufferManager* buffers_;
     Output* output_;
-    std::size_t counter_{};
+    std::int64_t counter_{};
+    std::unordered_map<std::string, std::int64_t> numeric_registers_;
     bool condition_{};
     bool input_parentheses_required_{true};
     bool monitor_commands_{};

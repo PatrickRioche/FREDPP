@@ -11,6 +11,9 @@
 #include "fred/runtime/CommandExecutionError.hpp"
 #include "fred/runtime/CommandExecutor.hpp"
 #include "fred/runtime/ExecutionContext.hpp"
+#include <charconv>
+#include <cstdint>
+#include <system_error>
 
 #include <cctype>
 #include <optional>
@@ -209,6 +212,192 @@ std::size_t find_jump_target(
     throw CommandExecutionError("? label not found");
 }
 
+std::string validate_numeric_register_name(
+    std::string_view name) {
+    if (name.empty()) {
+        throw CommandExecutionError(
+            "numeric register name must not be empty");
+    }
+    if (name.size() > 14) {
+        throw CommandExecutionError(
+            "numeric register name exceeds historical limit of 14 characters");
+    }
+    if (name.find('(') != std::string_view::npos ||
+        name.find(')') != std::string_view::npos) {
+        throw CommandExecutionError("invalid numeric register name");
+    }
+    return std::string(name);
+}
+
+std::int64_t parse_decimal_integer(
+    std::string_view source,
+    std::size_t& position) {
+    const std::size_t original_start = position;
+    bool explicit_plus = false;
+
+    if (position < source.size() && source[position] == '+') {
+        explicit_plus = true;
+        ++position;
+    } else if (position < source.size() && source[position] == '-') {
+        ++position;
+    }
+
+    const std::size_t digits = position;
+    while (position < source.size() &&
+           std::isdigit(
+               static_cast<unsigned char>(source[position])) != 0) {
+        ++position;
+    }
+
+    if (digits == position) {
+        position = original_start;
+        throw CommandExecutionError(
+            "N requires an integer or one of $, . and #");
+    }
+
+    const char* first =
+        source.data() + (explicit_plus ? digits : original_start);
+    const char* last = source.data() + position;
+
+    std::int64_t result = 0;
+    const auto parsed = std::from_chars(first, last, result);
+
+    if (parsed.ec != std::errc{} || parsed.ptr != last) {
+        throw CommandExecutionError(
+            "numeric value is outside supported integer range");
+    }
+
+    return result;
+}
+
+std::int64_t parse_numeric_operand(
+    std::string_view source,
+    std::size_t& position,
+    const ExecutionContext& context) {
+    while (position < source.size() &&
+           std::isspace(
+               static_cast<unsigned char>(source[position])) != 0) {
+        ++position;
+    }
+
+    if (position >= source.size()) {
+        throw CommandExecutionError("N requires a numeric value");
+    }
+
+    const char operand = source[position];
+
+    if (operand == '$') {
+        ++position;
+        return static_cast<std::int64_t>(
+            context.current_buffer().line_count());
+    }
+
+    if (operand == '.') {
+        ++position;
+        return static_cast<std::int64_t>(
+            context.current_buffer().current_line());
+    }
+
+    if (operand == '#') {
+        ++position;
+        return context.counter();
+    }
+
+    return parse_decimal_integer(source, position);
+}
+
+std::optional<std::string_view> execute_numeric_sequence(
+    std::string_view source,
+    ExecutionContext& context) {
+    const auto value = trim(source);
+
+    if (value.size() < 2 ||
+        (value[0] != 'N' && value[0] != 'n') ||
+        value[1] != '(') {
+        return std::nullopt;
+    }
+
+    const auto closing = value.find(')', 2);
+    if (closing == std::string_view::npos) {
+        throw CommandExecutionError(
+            "N requires a parenthesized register name");
+    }
+
+    const std::string register_name =
+        validate_numeric_register_name(
+            value.substr(2, closing - 2));
+
+    std::size_t position = closing + 1;
+    bool executed = false;
+
+    while (true) {
+        while (position < value.size() &&
+               std::isspace(
+                   static_cast<unsigned char>(value[position])) != 0) {
+            ++position;
+        }
+
+        if (position >= value.size()) {
+            break;
+        }
+
+        const char operation = value[position];
+
+        if (operation != ':' &&
+            operation != '=' &&
+            operation != '<' &&
+            operation != '>') {
+            break;
+        }
+
+        ++position;
+
+        const std::int64_t operand =
+            parse_numeric_operand(value, position, context);
+
+        if (operation == ':') {
+            context.set_numeric_register(register_name, operand);
+        } else {
+            const std::int64_t current =
+                context.numeric_register(register_name);
+
+            if (operation == '=') {
+                context.set_condition(current == operand);
+            } else if (operation == '<') {
+                context.set_condition(current < operand);
+            } else {
+                context.set_condition(current > operand);
+            }
+        }
+
+        context.set_counter(
+            context.numeric_register(register_name));
+
+        executed = true;
+    }
+
+    if (!executed) {
+        throw CommandExecutionError(
+            "N minimal supports :, =, < and >");
+    }
+
+    return trim(value.substr(position));
+}
+
+void apply_jump(
+    const JumpDirective& jump,
+    const std::vector<std::string>& lines,
+    std::size_t& index,
+    ExecutionContext& context) {
+    const bool take_jump =
+        !jump.required_condition.has_value() ||
+        context.condition() == *jump.required_condition;
+
+    if (take_jump) {
+        index = find_jump_target(lines, index, jump.label);
+    }
+}
+
 class ReportedProcedureError final : public std::runtime_error {
 public:
     explicit ReportedProcedureError(const std::string& message)
@@ -250,21 +439,35 @@ void ProcedureRunner::execute_buffer(std::string_view buffer_name) {
     execute_buffer_impl(buffer_name, 0);
 }
 
-void ProcedureRunner::load_and_execute_file(const std::string& filename,
-                                            std::string buffer_name) {
+void ProcedureRunner::load_and_execute_file(
+    const std::string& filename,
+    std::string buffer_name) {
     if (buffer_name.empty()) {
         throw CommandExecutionError("script buffer name must not be empty");
     }
 
+    const std::string previous_buffer_name =
+        buffers_->current().name();
+
     auto& buffer = buffers_->create_or_select(std::move(buffer_name));
     if (!buffer.empty() || buffer.modified() || buffer.has_associated_file()) {
+        buffers_->select(previous_buffer_name);
         throw CommandExecutionError(
             "script buffer must be empty, unassociated and unmodified");
     }
 
+    const std::string procedure_buffer_name = buffer.name();
     ReadCommandNode read_command(filename, SourceLocation{});
-    executor_->execute(read_command, *context_);
-    execute_buffer(buffer.name());
+
+    try {
+        executor_->execute(read_command, *context_);
+    } catch (...) {
+        buffers_->select(previous_buffer_name);
+        throw;
+    }
+
+    buffers_->select(previous_buffer_name);
+    execute_buffer(procedure_buffer_name);
 }
 
 bool ProcedureRunner::execute_buffer_directive(std::string_view source) {
@@ -329,18 +532,32 @@ void ProcedureRunner::execute_procedure_line(
             return;
         }
 
+        if (const auto numeric_tail =
+                execute_numeric_sequence(value, *context_)) {
+            if (context_->monitor_commands()) {
+                context_->output().write_line(value);
+            }
+
+            if (numeric_tail->empty()) {
+                return;
+            }
+
+            const auto jump = parse_jump_directive(*numeric_tail);
+            if (!jump) {
+                throw CommandExecutionError(
+                    "Lot 4 allows only J(label)[T|F] after N on the same line");
+            }
+
+            apply_jump(*jump, lines, index, *context_);
+            return;
+        }
+
         if (const auto jump = parse_jump_directive(value)) {
             if (context_->monitor_commands()) {
                 context_->output().write_line(value);
             }
 
-            const bool take_jump =
-                !jump->required_condition.has_value() ||
-                context_->condition() == *jump->required_condition;
-
-            if (take_jump) {
-                index = find_jump_target(lines, index, jump->label);
-            }
+            apply_jump(*jump, lines, index, *context_);
             return;
         }
 

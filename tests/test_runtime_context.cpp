@@ -26,4 +26,17 @@ int main() {
     context.buffers().create_or_select("work").append("beta");
     assert(context.current_buffer().name() == "work");
     assert(context.current_buffer().line(1) == "beta");
+
+    context.set_counter(-7);
+    assert(context.counter() == -7);
+
+    assert(!context.has_numeric_register("np"));
+    assert(context.numeric_register("np") == 0);
+
+    context.set_numeric_register("np", 12);
+    assert(context.has_numeric_register("np"));
+    assert(context.numeric_register("np") == 12);
+
+    context.set_numeric_register("np", -3);
+    assert(context.numeric_register("np") == -3);
 }
