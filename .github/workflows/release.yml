@@ -232,6 +232,111 @@ jobs:
             out/release/fredpp_${{ needs.validate.outputs.version }}_arm64.deb
           if-no-files-found: error
 
+
+  macos_x64:
+    name: macOS Intel x64 portable TAR.GZ
+    needs: validate
+    runs-on: macos-15-intel
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.validate.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Verify Intel environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = "x86_64"
+          sw_vers
+
+      - name: Configure Release
+        shell: bash
+        run: |
+          cmake -S . -B out/build/release-macos-x64 \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DFREDPP_BUILD_TESTS=ON
+
+      - name: Build Release
+        shell: bash
+        run: cmake --build out/build/release-macos-x64 --parallel
+
+      - name: Test Release
+        shell: bash
+        run: ctest --test-dir out/build/release-macos-x64 --output-on-failure
+
+      - name: Verify executable
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./out/build/release-macos-x64/fredpp --version
+          file out/build/release-macos-x64/fredpp
+          file out/build/release-macos-x64/fredpp | grep -Fq "x86_64"
+
+      - name: Create macOS Intel package
+        shell: bash
+        run: bash scripts/package-release-macos.sh out/build/release-macos-x64 out/release
+
+      - name: Upload macOS Intel package
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-macos-x64
+          path: out/release/FREDPP-v${{ needs.validate.outputs.version }}-macos-x64.tar.gz
+          if-no-files-found: error
+
+  macos_arm64:
+    name: macOS Apple Silicon arm64 portable TAR.GZ
+    needs: validate
+    runs-on: macos-15
+    steps:
+      - name: Checkout release tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.validate.outputs.tag }}
+          fetch-depth: 0
+
+      - name: Verify Apple Silicon environment
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(uname -m)" = "arm64"
+          sw_vers
+
+      - name: Configure Release
+        shell: bash
+        run: |
+          cmake -S . -B out/build/release-macos-arm64 \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DFREDPP_BUILD_TESTS=ON
+
+      - name: Build Release
+        shell: bash
+        run: cmake --build out/build/release-macos-arm64 --parallel
+
+      - name: Test Release
+        shell: bash
+        run: ctest --test-dir out/build/release-macos-arm64 --output-on-failure
+
+      - name: Verify executable
+        shell: bash
+        run: |
+          set -euo pipefail
+          ./out/build/release-macos-arm64/fredpp --version
+          file out/build/release-macos-arm64/fredpp
+          file out/build/release-macos-arm64/fredpp | grep -Fq "arm64"
+
+      - name: Create macOS Apple Silicon package
+        shell: bash
+        run: bash scripts/package-release-macos.sh out/build/release-macos-arm64 out/release
+
+      - name: Upload macOS Apple Silicon package
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-macos-arm64
+          path: out/release/FREDPP-v${{ needs.validate.outputs.version }}-macos-arm64.tar.gz
+          if-no-files-found: error
+
   vscode:
     name: VS Code universal VSIX
     needs: validate
@@ -279,7 +384,7 @@ jobs:
 
   publish:
     name: Publish GitHub Release
-    needs: [validate, windows, debian, debian_arm64, vscode]
+    needs: [validate, windows, debian, debian_arm64, macos_x64, macos_arm64, vscode]
     runs-on: ubuntu-latest
 
     steps:
@@ -306,6 +411,8 @@ jobs:
             "fredpp_${{ needs.validate.outputs.version }}_amd64.deb" \
             "FREDPP-v${{ needs.validate.outputs.version }}-debian13-arm64.tar.gz" \
             "fredpp_${{ needs.validate.outputs.version }}_arm64.deb" \
+            "FREDPP-v${{ needs.validate.outputs.version }}-macos-x64.tar.gz" \
+            "FREDPP-v${{ needs.validate.outputs.version }}-macos-arm64.tar.gz" \
             "FREDPP-Language-v${{ needs.validate.outputs.vscode_version }}.vsix" \
             > SHA256SUMS.txt
           cat SHA256SUMS.txt
@@ -326,6 +433,8 @@ jobs:
             "out/release/fredpp_${RELEASE_VERSION}_amd64.deb"
             "out/release/FREDPP-v${RELEASE_VERSION}-debian13-arm64.tar.gz"
             "out/release/fredpp_${RELEASE_VERSION}_arm64.deb"
+            "out/release/FREDPP-v${RELEASE_VERSION}-macos-x64.tar.gz"
+            "out/release/FREDPP-v${RELEASE_VERSION}-macos-arm64.tar.gz"
             "out/release/FREDPP-Language-v${{ needs.validate.outputs.vscode_version }}.vsix"
             "out/release/SHA256SUMS.txt"
           )
@@ -334,10 +443,12 @@ jobs:
             gh release upload "${RELEASE_TAG}" "${assets[@]}" --clobber
             gh release edit "${RELEASE_TAG}" \
               --title "FREDPP ${RELEASE_TAG}" \
-              --notes-file RELEASE_NOTES.md
+              --notes-file RELEASE_NOTES.md \
+              --latest
           else
             gh release create "${RELEASE_TAG}" "${assets[@]}" \
               --verify-tag \
               --title "FREDPP ${RELEASE_TAG}" \
-              --notes-file RELEASE_NOTES.md
+              --notes-file RELEASE_NOTES.md \
+              --latest
           fi

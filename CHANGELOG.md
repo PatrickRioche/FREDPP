@@ -1,3 +1,31 @@
+## v0.0.17 — Flot de procédures et packaging macOS
+
+### Ajouté
+- packaging natif macOS Intel x64 ;
+- packaging natif macOS Apple Silicon arm64 ;
+- compilation et tests macOS dans GitHub Actions avant publication ;
+- archives macOS intégrées à `SHA256SUMS.txt` ;
+- labels et sauts de procédures `@(label)`, `J(label)`, `J(label)T/F` ;
+- premier sous-ensemble des registres numériques historiques ;
+- enchaînement de commandes sur une même ligne ;
+- délimiteurs historiques arbitraires pour `JM` et `JP`.
+
+### Amélioré
+- `M(buffer)` suit la sémantique historique inter-buffer ;
+- `\S(buffer)` est développé dans `!`, `ZG` et les modèles de `G` ;
+- une erreur de procédure conserve l'état puis rend la main au mode interactif ;
+- les buffers système du bootstrap sont correctement visibles dans `FB`.
+
+### Distribution
+- la release attend les builds Windows, Debian amd64, Debian arm64, macOS x64,
+  macOS arm64 et VS Code avant publication ;
+- la release est explicitement marquée `Latest` ;
+- les exécutables macOS restent non signés et non notarisés dans cette version.
+
+### Validation
+- suite Windows : **49/49 tests réussis** avant préparation de la release ;
+- chaque architecture macOS exécute la suite complète sur runner natif.
+
 # Changelog
 
 ## v0.0.16 — Bootstrap historique des procédures

@@ -14,8 +14,10 @@ set(required_files
     RELEASE_NOTES.md
     packaging/LISEZMOI-WINDOWS.txt
     packaging/LISEZMOI-DEBIAN.txt
+    packaging/LISEZMOI-MACOS.txt
     scripts/package-release.ps1
     scripts/package-release.sh
+    scripts/package-release-macos.sh
     editors/vscode/package.json
     editors/vscode/language-configuration.json
     editors/vscode/syntaxes/fredpp.tmLanguage.json

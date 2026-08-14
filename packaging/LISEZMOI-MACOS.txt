@@ -1,0 +1,43 @@
+FREDPP — KIT PORTABLE macOS
+=============================
+
+Ce kit contient l'exécutable en ligne de commande FREDPP pour macOS.
+
+Deux archives officielles sont publiées :
+- macos-x64   : Mac Intel x86_64 ;
+- macos-arm64 : Mac Apple Silicon (M1 et générations suivantes).
+
+UTILISATION
+-----------
+1. Décompresser l'archive.
+2. Ouvrir Terminal dans le dossier extrait.
+3. Vérifier la version :
+       ./fredpp --version
+4. Lancer FREDPP :
+       ./fredpp
+
+La version courante peut également être consultée dans FREDPP avec :
+       ?version
+
+SÉCURITÉ macOS
+--------------
+Cette première distribution macOS de FREDPP n'est pas encore signée ni
+notarisée par Apple. Selon la configuration de macOS, Gatekeeper peut afficher
+un avertissement lors du premier lancement.
+
+Télécharger FREDPP uniquement depuis les Releases GitHub officielles du projet
+et vérifier SHA256SUMS.txt avant d'autoriser manuellement l'application dans
+Réglages Système > Confidentialité et sécurité si macOS le demande.
+
+CONTENU
+-------
+- fredpp
+- LISEZMOI.txt
+- LICENSE
+- NOTICE
+- CHANGELOG.md
+- ROADMAP.md
+- RELEASE_NOTES.md
+
+FREDPP est un programme en ligne de commande : ce kit ne contient ni
+application .app, ni image .dmg, ni installateur .pkg.
