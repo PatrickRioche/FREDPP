@@ -15,6 +15,7 @@
 #include "fred/parser/PatternParser.hpp"
 #include "fred/runtime/CommandExecutor.hpp"
 #include "fred/runtime/ConsoleOutput.hpp"
+#include "fred/flow/CommandInputExpansion.hpp"
 #include "fred/runtime/ProcedureRunner.hpp"
 #include "fred/runtime/ExecutionContext.hpp"
 
@@ -563,7 +564,9 @@ int main(int argc, char** argv) {
             } else if (!input.empty() && input.front() == ':') {
                 std::cout << "Unknown development command\n";
             } else if (!input.empty()) {
-                fred::Lexer lexer(input);
+                const std::string expanded_input =
+                    fred::expand_global_s_directives(input, manager);
+                fred::Lexer lexer(expanded_input);
                 fred::TokenStream tokens(lexer);
                 fred::CommandParser parser(tokens, command_registry);
                 const auto node = parser.parse();

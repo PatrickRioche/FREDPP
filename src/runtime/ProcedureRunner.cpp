@@ -3,6 +3,7 @@
 #include "fred/ast/CommandNode.hpp"
 #include "fred/command/CommandRegistry.hpp"
 #include "fred/core/BufferManager.hpp"
+#include "fred/flow/CommandInputExpansion.hpp"
 #include "fred/flow/FlowEngine.hpp"
 #include "fred/lexer/Lexer.hpp"
 #include "fred/lexer/TokenStream.hpp"
@@ -276,14 +277,19 @@ void ProcedureRunner::execute_single_command(
     std::string_view source,
     const std::vector<std::string>* lines,
     std::size_t* index) {
-    const auto value = trim(source);
-    if (value.empty()) {
+    const auto raw_value = trim(source);
+    if (raw_value.empty()) {
         return;
     }
 
-    if (context_->monitor_commands() && !is_comment(value)) {
-        context_->output().write_line(value);
+    if (context_->monitor_commands() && !is_comment(raw_value)) {
+        context_->output().write_line(raw_value);
     }
+
+    const std::string expanded_value =
+        expand_global_s_directives(
+            raw_value, *buffers_, maximum_depth_);
+    const std::string_view value = expanded_value;
 
     Lexer lexer(value);
     TokenStream tokens(lexer);

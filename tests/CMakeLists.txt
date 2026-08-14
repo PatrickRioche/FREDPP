@@ -101,6 +101,20 @@ add_test(NAME cli_procedure_debug
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_procedure_debug.cmake"
 )
 
+add_test(NAME cli_flow_s_global
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_flow_s_global.cmake"
+)
+
+add_test(NAME cli_flow_s_global_interactive
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_flow_s_global_interactive.cmake"
+)
+
 add_test(NAME test_release_manifest
     COMMAND ${CMAKE_COMMAND}
         -DFREDPP_SOURCE_DIR=${CMAKE_SOURCE_DIR}

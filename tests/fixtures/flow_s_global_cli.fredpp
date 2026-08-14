@@ -1,0 +1,17 @@
+" Sprint 2.22 Lot 2.3 - G avec S(buffer)
+b(list)
+a
+C:\FREDPP\fredpp.exe
+C:\FREDPP\LICENSE
+C:\FREDPP\LIBRARY\hello.fredpp
+\F
+
+b(model)
+a
+exe
+\F
+
+b(list)
+g~/\S(model)/d
+*
+qq

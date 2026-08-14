@@ -241,3 +241,55 @@ Les erreurs antérieures au lancement du programme principal restent fatales
 pour le lancement : bootstrap, `.init` utilisateur ou résolution de fichier de
 procédure.
 
+
+## `\S(buffer)` DANS UN MODÈLE `G`
+
+Le Sprint 2.22 permet d'utiliser `\S(buffer)` dans une commande globale `G`,
+aussi bien dans une procédure qu'en mode interactif. Le cas de référence est :
+
+```fred
+b(model)
+a
+exe
+\F
+
+b(list)
+g~/\S(model)/d
+```
+
+Avec `B(model)` contenant `exe`, cette commande est développée avant parsing en
+une commande équivalente à :
+
+```fred
+g~/exe/d
+```
+
+Les formes adressées restent également reconnues, par exemple :
+
+```fred
+1,$g/\S(model)/p
+```
+
+Ce raccordement est volontairement limité à la commande `G`. Il évite de
+repasser arbitrairement toutes les commandes dans le moteur de flot et prépare
+la généralisation progressive des entrées FRED.
+
+La sémantique structurelle complète du caractère `literal` à travers le lexer
+et le parser de motifs reste une étape distincte pour les modèles contenant
+eux-mêmes des métacaractères FRED.
+
+
+### Validation interactive
+
+Le même traitement est appliqué à la boucle de commandes interactive. Ainsi :
+
+```fred
+b(list)
+g~/\S(model)/d
+*
+```
+
+utilise la valeur courante de `B(model)` exactement comme lors de l'exécution
+d'une procédure. Une commande peut donc être rejouée manuellement pendant le
+debug avec le même comportement.
+

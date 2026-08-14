@@ -90,3 +90,33 @@ et interrompent toujours le lancement.
 
 Test ajouté : `cli_procedure_debug`.
 
+
+## Lot 2.3 — `\S(buffer)` dans les modèles `G`
+
+État : implémenté, à homologuer.
+
+Ce lot ajoute le cas de procédure :
+
+```fred
+g~/\S(model)/d
+```
+
+Les directives `\S(...)` sont développées de manière ciblée avant le parsing
+d'une commande `G`. Les autres familles de commandes ne sont pas modifiées.
+
+Test ajouté : `cli_flow_s_global`.
+
+
+### Lot 2.3 v3 — procédure et interactif
+
+Après validation du cas procédure, un test manuel a montré que la boucle
+interactive contournait l'expansion ciblée de `\S(...)`.
+
+Le helper est désormais factorisé dans
+`fred/flow/CommandInputExpansion.hpp` et utilisé par :
+
+- `ProcedureRunner` ;
+- la branche interactive réelle du CLI avant `fred::Lexer`.
+
+Test ajouté : `cli_flow_s_global_interactive`.
+
