@@ -275,6 +275,24 @@ int main() {
         assert(registry.find('P')->name == "Print");
     }
 
+    {
+        fred::Lexer lexer("B(buff) A P");
+        fred::TokenStream tokens(lexer);
+        const auto registry = fred::make_core_command_registry();
+        fred::CommandParser parser(tokens, registry);
+
+        const auto first = parser.parse_one();
+        assert(first->kind() == fred::AstNodeKind::BufferCommand);
+        assert(static_cast<const fred::BufferCommandNode&>(*first)
+                   .buffer_name() == "buff");
+
+        const auto second = parser.parse_one();
+        assert(second->kind() == fred::AstNodeKind::AppendCommand);
+
+        const auto third = parser.parse_one();
+        assert(third->kind() == fred::AstNodeKind::PrintCommand);
+        assert(tokens.eof());
+    }
     expect_error("", "expected a command");
     expect_error("1", "expected a command");
     expect_error("P D", "unexpected token after command: 'D'");

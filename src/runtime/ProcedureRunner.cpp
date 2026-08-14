@@ -658,48 +658,54 @@ void ProcedureRunner::execute_single_command(
     Lexer lexer(value);
     TokenStream tokens(lexer);
     CommandParser parser(tokens, *registry_);
-    const auto node = parser.parse();
 
-    if (node->kind() != AstNodeKind::AppendCommand &&
-        node->kind() != AstNodeKind::InsertCommand &&
-        node->kind() != AstNodeKind::ChangeCommand) {
-        executor_->execute(*node, *context_);
-        return;
-    }
+    while (!tokens.eof() && !context_->exit_requested()) {
+        const auto node = parser.parse_one();
 
-    if (lines == nullptr || index == nullptr) {
-        throw CommandExecutionError(
-            "text input command requires a procedure source");
-    }
-
-    std::vector<std::string> text_lines;
-    bool terminated = false;
-    for (std::size_t cursor = *index + 1; cursor < lines->size(); ++cursor) {
-        if (is_text_terminator(lines->at(cursor))) {
-            *index = cursor;
-            terminated = true;
-            break;
+        if (node->kind() != AstNodeKind::AppendCommand &&
+            node->kind() != AstNodeKind::InsertCommand &&
+            node->kind() != AstNodeKind::ChangeCommand) {
+            executor_->execute(*node, *context_);
+            continue;
         }
-        text_lines.push_back(lines->at(cursor));
-    }
 
-    if (!terminated) {
-        throw CommandExecutionError(
-            "end of procedure before \\F; text command cancelled");
-    }
+        if (lines == nullptr || index == nullptr) {
+            throw CommandExecutionError(
+                "text input command requires a procedure source");
+        }
 
-    if (node->kind() == AstNodeKind::AppendCommand) {
-        executor_->execute_append(
-            static_cast<const AppendCommandNode&>(*node),
-            *context_, std::move(text_lines));
-    } else if (node->kind() == AstNodeKind::InsertCommand) {
-        executor_->execute_insert(
-            static_cast<const InsertCommandNode&>(*node),
-            *context_, std::move(text_lines));
-    } else {
-        executor_->execute_change(
-            static_cast<const ChangeCommandNode&>(*node),
-            *context_, std::move(text_lines));
+        std::vector<std::string> text_lines;
+        bool terminated = false;
+
+        for (std::size_t cursor = *index + 1;
+             cursor < lines->size();
+             ++cursor) {
+            if (is_text_terminator(lines->at(cursor))) {
+                *index = cursor;
+                terminated = true;
+                break;
+            }
+            text_lines.push_back(lines->at(cursor));
+        }
+
+        if (!terminated) {
+            throw CommandExecutionError(
+                "end of procedure before \\F; text command cancelled");
+        }
+
+        if (node->kind() == AstNodeKind::AppendCommand) {
+            executor_->execute_append(
+                static_cast<const AppendCommandNode&>(*node),
+                *context_, std::move(text_lines));
+        } else if (node->kind() == AstNodeKind::InsertCommand) {
+            executor_->execute_insert(
+                static_cast<const InsertCommandNode&>(*node),
+                *context_, std::move(text_lines));
+        } else {
+            executor_->execute_change(
+                static_cast<const ChangeCommandNode&>(*node),
+                *context_, std::move(text_lines));
+        }
     }
 }
 

@@ -501,6 +501,21 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
     }
 }
 
+
+std::unique_ptr<CommandNode> CommandParser::parse_one() {
+    const bool previous_mode = allow_trailing_commands_;
+    allow_trailing_commands_ = true;
+
+    try {
+        auto node = parse();
+        allow_trailing_commands_ = previous_mode;
+        return node;
+    } catch (...) {
+        allow_trailing_commands_ = previous_mode;
+        throw;
+    }
+}
+
 bool CommandParser::begins_address(const Token& token) const noexcept {
     if (token.type == TokenType::Number) {
         return true;
@@ -711,6 +726,10 @@ CommandParser::parse_substitution_parts() {
 void CommandParser::require_command_end() {
     if (tokens_->peek().type == TokenType::NewLine) {
         (void)tokens_->consume();
+    }
+
+    if (allow_trailing_commands_) {
+        return;
     }
 
     const auto& token = tokens_->peek();

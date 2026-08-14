@@ -16,6 +16,7 @@ public:
     CommandParser(TokenStream& tokens, const CommandRegistry& registry) noexcept;
 
     [[nodiscard]] std::unique_ptr<CommandNode> parse();
+    [[nodiscard]] std::unique_ptr<CommandNode> parse_one();
 
 private:
     [[nodiscard]] bool begins_address(const Token& token) const noexcept;
@@ -28,6 +29,7 @@ private:
 
     TokenStream* tokens_;
     const CommandRegistry* registry_;
+    bool allow_trailing_commands_{false};
 };
 
 } // namespace fred

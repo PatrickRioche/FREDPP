@@ -570,43 +570,54 @@ int main(int argc, char** argv) {
                 fred::Lexer lexer(expanded_input);
                 fred::TokenStream tokens(lexer);
                 fred::CommandParser parser(tokens, command_registry);
-                const auto node = parser.parse();
-                if (node->kind() == fred::AstNodeKind::AppendCommand ||
-                    node->kind() == fred::AstNodeKind::InsertCommand ||
-                    node->kind() == fred::AstNodeKind::ChangeCommand) {
-                    std::cout << "-- text input; finish with \\F --\n";
-                    std::vector<std::string> lines;
-                    std::string text_line;
-                    bool terminated = false;
-                    while (std::cout << "text> " && std::getline(std::cin, text_line)) {
-                        if (text_line == "\\F") {
-                            terminated = true;
-                            break;
+
+                while (!tokens.eof() &&
+                       !execution_context.exit_requested()) {
+                    const auto node = parser.parse_one();
+
+                    if (node->kind() == fred::AstNodeKind::AppendCommand ||
+                        node->kind() == fred::AstNodeKind::InsertCommand ||
+                        node->kind() == fred::AstNodeKind::ChangeCommand) {
+                        std::cout << "-- text input; finish with \\F --\n";
+                        std::vector<std::string> lines;
+                        std::string text_line;
+                        bool terminated = false;
+
+                        while (std::cout << "text> " &&
+                               std::getline(std::cin, text_line)) {
+                            if (text_line == "\\F") {
+                                terminated = true;
+                                break;
+                            }
+                            lines.push_back(std::move(text_line));
                         }
-                        lines.push_back(std::move(text_line));
-                    }
-                    if (!terminated) {
-                        std::cerr << "error: end of input before \\F; text command cancelled\n";
-                        break;
-                    }
-                    if (node->kind() == fred::AstNodeKind::AppendCommand) {
-                        command_executor.execute_append(
-                            static_cast<const fred::AppendCommandNode&>(*node),
-                            execution_context, std::move(lines));
-                    } else if (node->kind() == fred::AstNodeKind::InsertCommand) {
-                        command_executor.execute_insert(
-                            static_cast<const fred::InsertCommandNode&>(*node),
-                            execution_context, std::move(lines));
+
+                        if (!terminated) {
+                            throw std::runtime_error(
+                                "end of input before \\F; text command cancelled");
+                        }
+
+                        if (node->kind() == fred::AstNodeKind::AppendCommand) {
+                            command_executor.execute_append(
+                                static_cast<const fred::AppendCommandNode&>(*node),
+                                execution_context, std::move(lines));
+                        } else if (node->kind() ==
+                                   fred::AstNodeKind::InsertCommand) {
+                            command_executor.execute_insert(
+                                static_cast<const fred::InsertCommandNode&>(*node),
+                                execution_context, std::move(lines));
+                        } else {
+                            command_executor.execute_change(
+                                static_cast<const fred::ChangeCommandNode&>(*node),
+                                execution_context, std::move(lines));
+                        }
                     } else {
-                        command_executor.execute_change(
-                            static_cast<const fred::ChangeCommandNode&>(*node),
-                            execution_context, std::move(lines));
+                        command_executor.execute(*node, execution_context);
                     }
-                } else {
-                    command_executor.execute(*node, execution_context);
-                    if (execution_context.exit_requested()) {
-                        break;
-                    }
+                }
+
+                if (execution_context.exit_requested()) {
+                    break;
                 }
             }
         } catch (const std::exception& error) {

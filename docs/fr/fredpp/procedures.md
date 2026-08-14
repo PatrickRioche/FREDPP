@@ -357,3 +357,34 @@ Un registre absent vaut `0` à sa première lecture. Son nom est limité à
 Les opérations arithmétiques, bit-à-bit et les autres variantes de `N` restent
 hors de ce lot.
 
+
+## ENCHAÎNEMENT DE COMMANDES SUR UNE MÊME LIGNE
+
+Le Sprint 2.22 ajoute l'exécution séquentielle de plusieurs commandes FRED
+ordinaires sur une même ligne.
+
+Exemple :
+
+```fred
+B(buff) A
+```
+
+En interactif, `B(buff)` est d'abord exécuté ; `A` démarre ensuite la saisie
+de texte dans ce nouveau buffer.
+
+Plusieurs commandes peuvent aussi être enchaînées :
+
+```fred
+B(other) B(buff) *
+```
+
+Le parseur strict `CommandParser::parse()` conserve son contrat : il exige
+toujours une commande complète jusqu'à la fin de l'entrée. Les moteurs
+interactif et procédure utilisent `parse_one()` pour consommer une commande,
+l'exécuter puis reprendre sur le même flux de tokens.
+
+Cette première généralisation concerne les commandes dont la grammaire permet
+de déterminer leur fin sans ambiguïté. Les constructions qui consomment le
+reste de la ligne et certains contrôles de flot de procédure (`N`, `J`, `\B`)
+conservent encore leur chemin spécialisé.
+

@@ -169,3 +169,32 @@ N(np):$>0 J(param)T
 Tests ajoutés : `test_procedure_numeric` et `cli_numeric_jump`.
 `test_runtime_context` est étendu.
 
+
+## Lot 4.1 — enchaînement de commandes
+
+État : implémenté, à homologuer.
+
+`CommandParser::parse()` reste strict. `parse_one()` permet désormais au
+moteur interactif et au `ProcedureRunner` d'exécuter plusieurs commandes
+ordinaires successivement sur une même ligne.
+
+Cas de référence :
+
+```fred
+B(buff) A
+```
+
+Autre cas testé :
+
+```fred
+B(other) B(buff) *
+```
+
+Tests :
+
+- extension de `test_command_parser` ;
+- extension de `test_procedure_runner` ;
+- `cli_command_chaining`.
+
+Aucun fichier sous `docs/fr/reference/commandes` n'est modifié.
+

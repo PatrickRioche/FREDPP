@@ -104,5 +104,34 @@ int main() {
     expect_error([&] { runner.execute_buffer("recursive"); },
                  "maximum procedure buffer-flow depth exceeded");
 
+
+    {
+        fred::BufferManager chain_buffers;
+        fred::StringOutput chain_output;
+        fred::ExecutionContext chain_context(chain_buffers, chain_output);
+        fred::CommandExecutor chain_executor;
+        const auto chain_registry = fred::make_core_command_registry();
+        fred::ProcedureRunner chain_runner(
+            chain_buffers,
+            chain_context,
+            chain_registry,
+            chain_executor,
+            8);
+
+        auto& chain_proc =
+            chain_buffers.create_or_select("chain-proc");
+        chain_proc.append("B(buff) A");
+        chain_proc.append("alpha");
+        chain_proc.append("\\F");
+        chain_proc.append("B(other) B(buff) *");
+
+        chain_runner.execute_buffer("chain-proc");
+
+        assert(chain_buffers.current().name() == "buff");
+        assert(chain_buffers.current().line_count() == 1);
+        assert(chain_buffers.current().line(1) == "alpha");
+        assert(chain_output.content() == "alpha\n");
+    }
+
     return 0;
 }

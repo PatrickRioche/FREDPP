@@ -1,0 +1,5 @@
+b(buff) a
+alpha
+\F
+b(other) b(buff) *
+q
