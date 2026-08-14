@@ -85,6 +85,130 @@ bool is_text_terminator(std::string_view source) noexcept {
 
 namespace {
 
+struct JumpDirective {
+    std::string label;
+    std::optional<bool> required_condition;
+};
+
+bool equals_ci(std::string_view left, std::string_view right) noexcept {
+    if (left.size() != right.size()) {
+        return false;
+    }
+
+    for (std::size_t index = 0; index < left.size(); ++index) {
+        const auto a = static_cast<unsigned char>(left[index]);
+        const auto b = static_cast<unsigned char>(right[index]);
+        if (std::toupper(a) != std::toupper(b)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+std::string validate_label_name(std::string_view name) {
+    if (name.empty()) {
+        throw CommandExecutionError("label name must not be empty");
+    }
+    if (name.size() > 15) {
+        throw CommandExecutionError(
+            "label name exceeds historical limit of 15 characters");
+    }
+    if (name.find('(') != std::string_view::npos ||
+        name.find(')') != std::string_view::npos) {
+        throw CommandExecutionError("invalid parenthesis in label name");
+    }
+    return std::string(name);
+}
+
+std::optional<std::string> parse_label_definition(
+    std::string_view source,
+    bool strict = true) {
+    const auto value = trim(source);
+    if (value.empty() || value.front() != '@') {
+        return std::nullopt;
+    }
+
+    if (value.size() < 4 || value[1] != '(' || value.back() != ')') {
+        if (strict) {
+            throw CommandExecutionError("label requires @(label)");
+        }
+        return std::nullopt;
+    }
+
+    const auto name = value.substr(2, value.size() - 3);
+    if (!strict) {
+        if (name.empty() || name.size() > 15 ||
+            name.find('(') != std::string_view::npos ||
+            name.find(')') != std::string_view::npos) {
+            return std::nullopt;
+        }
+        return std::string(name);
+    }
+
+    return validate_label_name(name);
+}
+
+std::optional<JumpDirective> parse_jump_directive(
+    std::string_view source) {
+    const auto value = trim(source);
+    if (value.size() < 2 ||
+        (value[0] != 'J' && value[0] != 'j') ||
+        value[1] != '(') {
+        return std::nullopt;
+    }
+
+    const auto closing = value.find(')', 2);
+    if (closing == std::string_view::npos) {
+        throw CommandExecutionError("J requires J(label)");
+    }
+
+    JumpDirective jump;
+    jump.label = validate_label_name(
+        value.substr(2, closing - 2));
+
+    auto suffix = trim(value.substr(closing + 1));
+    if (suffix.empty()) {
+        return jump;
+    }
+
+    if (suffix.size() != 1) {
+        throw CommandExecutionError(
+            "J(label) accepts only optional T or F in this lot");
+    }
+
+    const char condition = static_cast<char>(std::toupper(
+        static_cast<unsigned char>(suffix.front())));
+    if (condition == 'T') {
+        jump.required_condition = true;
+        return jump;
+    }
+    if (condition == 'F') {
+        jump.required_condition = false;
+        return jump;
+    }
+
+    throw CommandExecutionError(
+        "J(label) accepts only optional T or F in this lot");
+}
+
+std::size_t find_jump_target(
+    const std::vector<std::string>& lines,
+    std::size_t current_index,
+    std::string_view label) {
+    for (std::size_t cursor = current_index + 1;
+         cursor < lines.size();
+         ++cursor) {
+        const auto candidate =
+            parse_label_definition(lines[cursor], false);
+        if (candidate && equals_ci(*candidate, label)) {
+            return cursor;
+        }
+    }
+
+    throw CommandExecutionError("? label not found");
+}
+
 class ReportedProcedureError final : public std::runtime_error {
 public:
     explicit ReportedProcedureError(const std::string& message)
@@ -194,6 +318,29 @@ void ProcedureRunner::execute_procedure_line(
                 context_->output().write_line(value);
             }
             execute_buffer_impl(*nested, depth + 1);
+            return;
+        }
+
+        if (const auto label = parse_label_definition(value)) {
+            (void)label;
+            if (context_->monitor_commands()) {
+                context_->output().write_line(value);
+            }
+            return;
+        }
+
+        if (const auto jump = parse_jump_directive(value)) {
+            if (context_->monitor_commands()) {
+                context_->output().write_line(value);
+            }
+
+            const bool take_jump =
+                !jump->required_condition.has_value() ||
+                context_->condition() == *jump->required_condition;
+
+            if (take_jump) {
+                index = find_jump_target(lines, index, jump->label);
+            }
             return;
         }
 

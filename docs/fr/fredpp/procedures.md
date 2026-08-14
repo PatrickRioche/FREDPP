@@ -293,3 +293,34 @@ utilise la valeur courante de `B(model)` exactement comme lors de l'exécution
 d'une procédure. Une commande peut donc être rejouée manuellement pendant le
 debug avec le même comportement.
 
+
+## CONTRÔLE DE FLOT `@(label)` ET `J(label)[T|F]`
+
+Le Sprint 2.22 implémente un premier sous-ensemble historique du contrôle de
+flot des procédures :
+
+```fred
+J(label)
+J(label)T
+J(label)F
+@(label)
+```
+
+- `J(label)` saute inconditionnellement ;
+- `J(label)T` saute si le registre de condition vaut vrai ;
+- `J(label)F` saute si le registre de condition vaut faux ;
+- `@(label)` définit la position cible ;
+- le nom est limité à 15 caractères ;
+- la comparaison des noms d'étiquette est insensible à la casse.
+
+Dans ce lot, la recherche part de la ligne qui suit `J` et choisit la première
+étiquette correspondante située plus loin dans le même buffer de procédure.
+Il n'y a pas de retour implicite au début du buffer. Une cible absente produit
+l'erreur historique `? label not found`.
+
+Les formes `JT`/`JF` sans label, les commandes restantes sur la même ligne et
+les variantes `JB`, `JE`, `JO` ne font pas partie de ce lot.
+
+Le registre de condition existe déjà dans le runtime ; le prochain lot `N`
+permettra notamment de le positionner à partir d'expressions numériques.
+

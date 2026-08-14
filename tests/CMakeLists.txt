@@ -19,6 +19,7 @@ fredpp_add_test(test_pattern_parser test_pattern_parser.cpp)
 fredpp_add_test(test_pattern_matcher test_pattern_matcher.cpp)
 fredpp_add_test(test_command_parser test_command_parser.cpp)
 fredpp_add_test(test_runtime_context test_runtime_context.cpp)
+fredpp_add_test(test_procedure_jump test_procedure_jump.cpp)
 fredpp_add_test(test_command_executor test_command_executor.cpp)
 fredpp_add_test(test_append test_append.cpp)
 fredpp_add_test(test_insert test_insert.cpp)
@@ -113,6 +114,13 @@ add_test(NAME cli_flow_s_global_interactive
         "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
         "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_flow_s_global_interactive.cmake"
+)
+
+add_test(NAME cli_jump_label
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_jump_label.cmake"
 )
 
 add_test(NAME test_release_manifest

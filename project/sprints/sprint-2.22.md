@@ -120,3 +120,26 @@ Le helper est désormais factorisé dans
 
 Test ajouté : `cli_flow_s_global_interactive`.
 
+
+## Lot 3 — `@(label)` et `J(label)[T|F]`
+
+État : implémenté, à homologuer.
+
+Sous-ensemble historique ajouté au moteur de procédures :
+
+- `@(label)` ;
+- `J(label)` ;
+- `J(label)T` ;
+- `J(label)F`.
+
+Les labels sont locaux au buffer exécuté, limités à 15 caractères et comparés
+sans tenir compte de la casse. La recherche est avant uniquement dans ce lot :
+première étiquette correspondante après la ligne `J`, sans wrap.
+
+Tests ajoutés :
+
+- `test_procedure_jump` ;
+- `cli_jump_label`.
+
+Le lot ne modifie aucun fichier sous `docs/fr/reference/commandes`.
+
