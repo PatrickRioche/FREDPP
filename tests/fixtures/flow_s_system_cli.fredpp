@@ -1,0 +1,9 @@
+" Sprint 2.22 Lot 2.1
+b(flow)
+a
+FREDPP_FLOW_SYSTEM
+\F
+zg(cap)!echo \S(flow)
+b(cap)
+*
+qq

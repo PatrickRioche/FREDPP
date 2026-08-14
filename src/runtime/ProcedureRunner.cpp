@@ -82,6 +82,34 @@ bool is_text_terminator(std::string_view source) noexcept {
 
 } // namespace
 
+namespace {
+
+class ReportedProcedureError final : public std::runtime_error {
+public:
+    explicit ReportedProcedureError(const std::string& message)
+        : std::runtime_error(message) {}
+};
+
+void report_procedure_error_context(
+    ExecutionContext& context,
+    const std::vector<std::string>& lines,
+    std::size_t index) {
+    context.output().write_line("procedure stopped; remaining input:");
+
+    std::size_t shown = 0;
+    for (std::size_t cursor = index;
+         cursor < lines.size() && shown < 3;
+         ++cursor, ++shown) {
+        context.output().write_line(lines[cursor]);
+    }
+
+    if (index + shown < lines.size()) {
+        context.output().write_line("...");
+    }
+}
+
+} // namespace
+
 ProcedureRunner::ProcedureRunner(BufferManager& buffers,
                                  ExecutionContext& context,
                                  const CommandRegistry& registry,
@@ -159,20 +187,29 @@ void ProcedureRunner::execute_procedure_line(
         return;
     }
 
-    if (const auto nested = parse_buffer_directive(value)) {
-        if (context_->monitor_commands()) {
-            context_->output().write_line(value);
+    try {
+        if (const auto nested = parse_buffer_directive(value)) {
+            if (context_->monitor_commands()) {
+                context_->output().write_line(value);
+            }
+            execute_buffer_impl(*nested, depth + 1);
+            return;
         }
-        execute_buffer_impl(*nested, depth + 1);
-        return;
-    }
 
-    if (execute_message_sequence(source, &lines, &index)) {
-        return;
-    }
+        if (execute_message_sequence(source, &lines, &index)) {
+            return;
+        }
 
-    execute_single_command(source, &lines, &index);
+        execute_single_command(source, &lines, &index);
+    } catch (const ReportedProcedureError&) {
+        // Une procédure imbriquée a déjà affiché son contexte exact.
+        throw;
+    } catch (const std::exception& error) {
+        report_procedure_error_context(*context_, lines, index);
+        throw ReportedProcedureError(error.what());
+    }
 }
+
 
 bool ProcedureRunner::execute_message_sequence(
     std::string_view source,

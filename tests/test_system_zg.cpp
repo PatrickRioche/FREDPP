@@ -65,6 +65,28 @@ int main() {
     }
 
     {
+        auto& flow_value = buffers.create_or_select("flow-s");
+        flow_value.append("FREDPP_FLOW_SYSTEM");
+
+        const auto command =
+            parse("ZG(flowcap)!echo \\S(flow-s)", registry);
+        executor.execute(*command, context);
+
+        assert(buffers.contains("flowcap"));
+        const auto& capture = buffers.get("flowcap");
+        assert(!capture.empty());
+
+        bool found = false;
+        for (const auto& line : capture.lines()) {
+            if (line.find("FREDPP_FLOW_SYSTEM") != std::string::npos) {
+                found = true;
+                break;
+            }
+        }
+        assert(found);
+    }
+
+    {
         const auto command = parse("JM/RESTORED/", registry);
         executor.execute(*command, context);
         assert(output.content() == "RESTORED\n");

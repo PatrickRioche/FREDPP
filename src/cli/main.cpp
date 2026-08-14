@@ -443,6 +443,7 @@ int main(int argc, char** argv) {
     fred::ProcedureRunner procedure_runner(
         manager, execution_context, command_registry, command_executor);
     if (argc >= 2) {
+        std::filesystem::path procedure_path;
         try {
             initialize_historical_bootstrap_environment(manager);
             execute_user_init_if_present(procedure_runner, manager);
@@ -451,12 +452,21 @@ int main(int argc, char** argv) {
             }
 
             initialize_parameter_buffer(manager, argc, argv);
-            const auto procedure_path = resolve_procedure_path(argv[1]);
+            procedure_path = resolve_procedure_path(argv[1]);
+        } catch (const std::exception& error) {
+            std::cerr << "error: " << error.what() << '\n';
+            return 1;
+        }
+
+        try {
             procedure_runner.load_and_execute_file(procedure_path.string());
             return 0;
         } catch (const std::exception& error) {
             std::cerr << "error: " << error.what() << '\n';
-            return 1;
+            std::cerr
+                << "procedure stopped; entering interactive debug mode\n";
+            // Pas de return : on conserve les buffers et on tombe dans
+            // la boucle interactive FREDPP ci-dessous.
         }
     }
 

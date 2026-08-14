@@ -202,3 +202,42 @@ Les lignes sélectionnées remplacent le contenu précédent du buffer destinati
 puis sont supprimées du buffer source. Le buffer destination peut être le
 buffer courant.
 
+
+## `\S(buffer)` DANS `!` ET `ZG`
+
+Le Sprint 2.22 raccorde `\S(buffer)` au texte des commandes système :
+
+```fred
+!echo \S(valeur)
+zg(sortie)!dir \S(chemin) /B /S
+```
+
+Le traitement vise uniquement les occurrences `\S(...)`. Le reste du texte
+n'est pas repassé globalement dans le moteur de flot, afin de préserver les
+backslashes ordinaires des chemins Windows comme `C:\Backup`.
+
+Le contenu injecté conserve la sémantique historique de `\S` : suppression des
+retours de ligne et caractères injectés littéraux.
+
+La généralisation complète aux autres familles de commandes reste distincte.
+
+
+## ERREUR DE PROCÉDURE ET MODE DEBUG INTERACTIF
+
+Lorsqu'une erreur survient pendant l'exécution du programme principal, FREDPP
+n'abandonne plus immédiatement vers le shell. Le comportement reprend le
+principe historique de FRED :
+
+1. la procédure est arrêtée ;
+2. jusqu'à trois lignes du reste de l'entrée sont affichées ;
+3. `...` indique qu'il reste davantage de lignes ;
+4. les buffers et l'état de travail sont conservés ;
+5. FREDPP revient dans sa boucle de commandes interactive.
+
+Cela permet notamment d'utiliser immédiatement `FB`, `B(buffer)` et `*` pour
+examiner l'état laissé par la procédure.
+
+Les erreurs antérieures au lancement du programme principal restent fatales
+pour le lancement : bootstrap, `.init` utilisateur ou résolution de fichier de
+procédure.
+

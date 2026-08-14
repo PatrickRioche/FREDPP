@@ -60,3 +60,33 @@ Cas couverts :
 
 La commande `T` reste volontairement inchangée dans ce lot.
 
+
+## Lot 2.1 — `\S(buffer)` dans les commandes système
+
+Le cas réel `zg(list)!dir \S(chemin) /B /S` est désormais pris en charge.
+`ZG` bénéficie du correctif via son `SystemCommand` imbriqué.
+
+Le traitement est ciblé sur `\S(...)` pour ne pas interpréter les backslashes
+de chemins Windows comme des directives FRED.
+
+Tests : extension de `test_system_zg` et ajout de `cli_flow_s_system`.
+
+
+## Lot 2.2 — récupération interactive après erreur de procédure
+
+État : implémenté, à homologuer.
+
+Une erreur pendant une procédure principale ne termine plus immédiatement
+FREDPP. Le moteur :
+
+- arrête la procédure ;
+- affiche au maximum trois lignes à partir du point d'erreur ;
+- affiche `...` si d'autres lignes restent ;
+- conserve les buffers et l'état courant ;
+- revient dans la boucle interactive pour permettre le débogage.
+
+Les erreurs de bootstrap, `.init` ou résolution de procédure restent distinctes
+et interrompent toujours le lancement.
+
+Test ajouté : `cli_procedure_debug`.
+

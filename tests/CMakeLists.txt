@@ -87,6 +87,20 @@ add_test(NAME cli_move_buffer
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_move_buffer.cmake"
 )
 
+add_test(NAME cli_flow_s_system
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_flow_s_system.cmake"
+)
+
+add_test(NAME cli_procedure_debug
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_procedure_debug.cmake"
+)
+
 add_test(NAME test_release_manifest
     COMMAND ${CMAKE_COMMAND}
         -DFREDPP_SOURCE_DIR=${CMAKE_SOURCE_DIR}

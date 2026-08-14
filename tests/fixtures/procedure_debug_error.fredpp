@@ -1,0 +1,11 @@
+" Sprint 2.22 Lot 2.2 - erreur recuperable
+b(debug)
+a
+KEPT_AFTER_ERROR
+\F
+b(0)
+1m(x)
+jm/THIS_LINE_MUST_NOT_EXECUTE/
+b(debug)
+*
+qq
