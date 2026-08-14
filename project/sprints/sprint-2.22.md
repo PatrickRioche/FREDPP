@@ -198,3 +198,29 @@ Tests :
 
 Aucun fichier sous `docs/fr/reference/commandes` n'est modifié.
 
+
+## Lot 5 — `JM` / `JP` délimiteurs historiques
+
+État : implémenté, à homologuer.
+
+`JM` et `JP` acceptent désormais tout caractère non alphanumérique comme
+délimiteur :
+
+```fred
+JM!message!
+JP:message:
+JM?message?
+```
+
+Le chemin spécial `ProcedureRunner::execute_message_sequence()` est supprimé.
+Depuis le Lot 4.1, les messages passent par `CommandParser::parse_one()` et
+peuvent être suivis d'une commande ordinaire.
+
+L'expansion de flot est déplacée dans `CommandExecutor`, ce qui unifie
+procédures et mode interactif.
+
+Tests : extension de `test_messages`, extension de `test_procedure_runner` et
+`cli_message_delimiters`.
+
+Aucun fichier sous `docs/fr/reference/commandes` n'est modifié.
+

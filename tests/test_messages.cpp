@@ -70,6 +70,51 @@ int main() {
         assert(message.message() == "Chargement... ");
     }
 
+
+    {
+        const auto node = parse("JM!Mode d'emploi : !");
+        assert(node->kind() == fred::AstNodeKind::MessageCommand);
+        const auto& message =
+            static_cast<const fred::MessageCommandNode&>(*node);
+        assert(message.newline());
+        assert(message.message() == "Mode d'emploi : ");
+    }
+    {
+        const auto node = parse("JP:Input A/B:");
+        assert(node->kind() == fred::AstNodeKind::MessageCommand);
+        const auto& message =
+            static_cast<const fred::MessageCommandNode&>(*node);
+        assert(!message.newline());
+        assert(message.message() == "Input A/B");
+    }
+    {
+        const auto node = parse("JM !attention");
+        const auto& message =
+            static_cast<const fred::MessageCommandNode&>(*node);
+        assert(message.message() == "!attention");
+    }
+    {
+        fred::Lexer lexer("JM!A! JP:B/C: JM?D?");
+        fred::TokenStream tokens(lexer);
+        const auto registry = fred::make_core_command_registry();
+        fred::CommandParser parser(tokens, registry);
+
+        const auto first = parser.parse_one();
+        assert(static_cast<const fred::MessageCommandNode&>(*first)
+                   .message() == "A");
+
+        const auto second = parser.parse_one();
+        assert(static_cast<const fred::MessageCommandNode&>(*second)
+                   .message() == "B/C");
+        assert(!static_cast<const fred::MessageCommandNode&>(*second)
+                    .newline());
+
+        const auto third = parser.parse_one();
+        assert(static_cast<const fred::MessageCommandNode&>(*third)
+                   .message() == "D");
+        assert(tokens.eof());
+    }
+
     expect_error("J", "only JM and JP are implemented");
     expect_error("JE test", "only JM and JP are implemented");
     expect_error("1JM test", "J does not accept a line address");
@@ -91,6 +136,14 @@ int main() {
     output.clear();
     execute("JM Message avec retour", executor, context);
     assert(output.content() == "Message avec retour\n");
+
+    output.clear();
+    auto& message_buffer = buffers.create_or_select("msg");
+    message_buffer.append("FLOW");
+    execute("JM!\\S(msg)!", executor, context);
+    assert(output.content() == "FLOW\n");
+
+    expect_error("JM!unterminated", "unterminated J message");
 
     return 0;
 }

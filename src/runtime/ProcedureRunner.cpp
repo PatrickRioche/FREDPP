@@ -561,9 +561,6 @@ void ProcedureRunner::execute_procedure_line(
             return;
         }
 
-        if (execute_message_sequence(source, &lines, &index)) {
-            return;
-        }
 
         execute_single_command(source, &lines, &index);
     } catch (const ReportedProcedureError&) {
@@ -576,66 +573,6 @@ void ProcedureRunner::execute_procedure_line(
 }
 
 
-bool ProcedureRunner::execute_message_sequence(
-    std::string_view source,
-    const std::vector<std::string>* lines,
-    std::size_t* index) {
-    const auto value = trim(source);
-    if (!(starts_with_ci(value, "JM/") || starts_with_ci(value, "JP/"))) {
-        return false;
-    }
-
-    std::size_t position = 0;
-    bool executed = false;
-
-    while (position < value.size()) {
-        while (position < value.size() &&
-               std::isspace(static_cast<unsigned char>(value[position])) != 0) {
-            ++position;
-        }
-        if (position == value.size()) {
-            break;
-        }
-
-        const auto rest = value.substr(position);
-        if (!(starts_with_ci(rest, "JM/") || starts_with_ci(rest, "JP/"))) {
-            throw CommandExecutionError(
-                "only JM/JP sequences are supported on one procedure line");
-        }
-
-        const std::size_t closing = value.find('/', position + 3);
-        if (closing == std::string_view::npos) {
-            throw CommandExecutionError("unterminated J message");
-        }
-
-        const bool newline =
-            std::toupper(static_cast<unsigned char>(value[position + 1])) == 'M';
-        const auto message =
-            value.substr(position + 3, closing - (position + 3));
-
-        FlowEngine flow(*buffers_, maximum_depth_);
-        const std::string expanded = flow.expand_input(message);
-
-        if (context_->monitor_commands()) {
-            context_->output().write_line(
-                value.substr(position, closing - position + 1));
-        }
-        if (newline) {
-            context_->output().write_line(expanded);
-        } else {
-            context_->output().write(expanded);
-        }
-
-        executed = true;
-        position = closing + 1;
-
-        if (context_->exit_requested()) {
-            break;
-        }
-    }
-
-    return executed;
-}
 
 void ProcedureRunner::execute_single_command(
     std::string_view source,

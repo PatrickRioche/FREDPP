@@ -388,3 +388,46 @@ de déterminer leur fin sans ambiguïté. Les constructions qui consomment le
 reste de la ligne et certains contrôles de flot de procédure (`N`, `J`, `\B`)
 conservent encore leur chemin spécialisé.
 
+
+## `JM` / `JP` — DÉLIMITEURS HISTORIQUES
+
+Le Sprint 2.22 complète `JM` et `JP` avec la syntaxe historique délimitée.
+
+Tout caractère non alphanumérique placé immédiatement après `JM` ou `JP` peut
+servir de délimiteur. Le même caractère ferme le message :
+
+```fred
+JM!Mode d'emploi : !
+JP:Input A/B:
+JM?Terminé?
+JP;Question ?;
+```
+
+Le caractère `/` reste compatible :
+
+```fred
+JM/Message/
+JP/Invite : /
+```
+
+Après le délimiteur fermant, l'exécution continue sur la commande suivante de
+la même ligne grâce au moteur générique du Lot 4.1 :
+
+```fred
+JM!Début! JP:Suite: B(data)
+```
+
+La forme alternative terminée par la fin de ligne reste disponible lorsqu'un
+espace suit `JM` ou `JP` :
+
+```fred
+JM Message avec retour
+JP Invite :
+```
+
+Les directives de flot sont développées par le runtime avant affichage. La
+limite historique de 2000 caractères est vérifiée avant et après développement.
+
+L'omission du délimiteur fermant sous l'option historique `O-S/` reste hors
+périmètre tant que cette option n'est pas implémentée.
+

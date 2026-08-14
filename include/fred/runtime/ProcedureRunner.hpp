@@ -35,9 +35,6 @@ private:
     void execute_single_command(std::string_view source,
                                 const std::vector<std::string>* lines,
                                 std::size_t* index);
-    bool execute_message_sequence(std::string_view source,
-                                  const std::vector<std::string>* lines,
-                                  std::size_t* index);
 
     BufferManager* buffers_;
     ExecutionContext* context_;

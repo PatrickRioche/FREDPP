@@ -138,6 +138,13 @@ add_test(NAME cli_command_chaining
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_command_chaining.cmake"
 )
 
+add_test(NAME cli_message_delimiters
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_message_delimiters.cmake"
+)
+
 add_test(NAME test_release_manifest
     COMMAND ${CMAKE_COMMAND}
         -DFREDPP_SOURCE_DIR=${CMAKE_SOURCE_DIR}

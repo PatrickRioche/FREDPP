@@ -133,5 +133,20 @@ int main() {
         assert(chain_output.content() == "alpha\n");
     }
 
+
+    output.clear();
+    auto& arbitrary_messages =
+        buffers.create_or_select("arb-msg");
+    arbitrary_messages.append("JM!Mode d'emploi : !");
+    arbitrary_messages.append("JP:Input A/B: JM?OK?");
+    arbitrary_messages.append("B(after-message)");
+
+    runner.execute_buffer("arb-msg");
+
+    assert(output.content() ==
+           "Mode d'emploi : \n"
+           "Input A/BOK\n");
+    assert(buffers.current().name() == "after-message");
+
     return 0;
 }

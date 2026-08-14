@@ -1,0 +1,4 @@
+jm!LOT5-JM!
+jp:LOT5-JP:
+jm?LOT5-END?
+q

@@ -760,10 +760,19 @@ void execute_comment(const CommentCommandNode&,
 
 void execute_message(const MessageCommandNode& command,
                      ExecutionContext& context) {
+    FlowEngine flow(context.buffers());
+    const std::string expanded =
+        flow.expand_input(command.message());
+
+    if (expanded.size() > 2000) {
+        throw CommandExecutionError(
+            "expanded J message exceeds historical 2000-character limit");
+    }
+
     if (command.newline()) {
-        context.output().write_line(command.message());
+        context.output().write_line(expanded);
     } else {
-        context.output().write(command.message());
+        context.output().write(expanded);
     }
 }
 

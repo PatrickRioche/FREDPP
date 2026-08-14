@@ -66,33 +66,66 @@ std::string consume_plain_text(TokenStream& tokens) {
     return result;
 }
 
-std::string consume_slash_delimited_message(TokenStream& tokens) {
-    const auto opening = tokens.consume();
-    if (opening.type != TokenType::Symbol || opening.lexeme != "/") {
-        throw ParseError("J message requires '/' delimiter", opening.location);
+bool is_message_delimiter(
+    const Token& command,
+    const Token& token) noexcept {
+    if (token.type == TokenType::End ||
+        token.type == TokenType::NewLine ||
+        token.lexeme.size() != 1) {
+        return false;
     }
 
+    // JM et JP occupent deux caractères dans l'entrée originale.
+    if (token.location.offset != command.location.offset + 2) {
+        return false;
+    }
+
+    const auto value =
+        static_cast<unsigned char>(token.lexeme.front());
+
+    return std::isalnum(value) == 0 &&
+           std::isspace(value) == 0;
+}
+
+std::string consume_delimited_message(
+    TokenStream& tokens,
+    const Token& command) {
+    const auto opening = tokens.consume();
+
+    if (!is_message_delimiter(command, opening)) {
+        throw ParseError(
+            "J message requires a non-alphanumeric delimiter",
+            opening.location);
+    }
+
+    const std::string delimiter = opening.lexeme;
     std::string result;
     std::size_t previous_end_column =
         opening.location.column + opening.lexeme.size();
 
     while (true) {
         const auto& next = tokens.peek();
-        if (next.type == TokenType::End || next.type == TokenType::NewLine) {
+
+        if (next.type == TokenType::End ||
+            next.type == TokenType::NewLine) {
             throw ParseError("unterminated J message", next.location);
         }
 
         const auto token = tokens.consume();
+
         if (token.location.column > previous_end_column) {
-            result.append(token.location.column - previous_end_column, ' ');
+            result.append(
+                token.location.column - previous_end_column,
+                ' ');
         }
 
-        if (token.type == TokenType::Symbol && token.lexeme == "/") {
+        if (token.lexeme == delimiter) {
             return result;
         }
 
         result += token.lexeme;
-        previous_end_column = token.location.column + token.lexeme.size();
+        previous_end_column =
+            token.location.column + token.lexeme.size();
     }
 }
 
@@ -278,11 +311,18 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             }
 
             std::string message;
-            if (tokens_->peek().type == TokenType::Symbol &&
-                tokens_->peek().lexeme == "/") {
-                message = consume_slash_delimited_message(*tokens_);
+
+            if (is_message_delimiter(command, tokens_->peek())) {
+                message =
+                    consume_delimited_message(*tokens_, command);
             } else {
                 message = consume_plain_text(*tokens_);
+            }
+
+            if (message.size() > 2000) {
+                throw ParseError(
+                    "J message exceeds historical 2000-character limit",
+                    command.location);
             }
 
             require_command_end();
