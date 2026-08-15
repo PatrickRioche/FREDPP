@@ -1,14 +1,11 @@
 ============================================================
-COMMANDES SPÉCIALES DE FREDPP
+COMMANDES FREDPP
 ============================================================
 
-Ces commandes appartiennent à l'environnement de développement et de diagnostic de FREDPP.
-Elles ne sont pas des commandes historiques de FRED.
+Ces commandes et rubriques sont propres à FREDPP.
+Elles ne font pas partie du langage historique FRED.
 
-GESTION DU PROGRAMME
-
-
-GESTION DES BUFFERS
+INSPECTION DES BUFFERS
 
     :print                   Afficher le buffer courant avec les numéros de ligne
     :flow <buffer>           Développer un buffer avec le moteur Flow
@@ -21,13 +18,11 @@ DIAGNOSTIC DU LANGAGE
     :command <commande>      Analyser une commande FRED
     :pattern <modèle>        Analyser un modèle FRED
 
-SORTIE
+AIDE ET INFORMATIONS FREDPP
 
-    Q                        Quitter normalement avec la commande historique FRED
-    QQ                       Quitter immédiatement avec la commande historique FRED
-
-AUTRES AIDES
-
-    ?                        Afficher les commandes FRED implémentées
     ?:                       Afficher cette rubrique
     ?version                 Afficher la version, le commit Git et l'état des sources
+    ?wu                      Afficher l'extension UTF-8 de la commande W
+    ?procedure               Afficher l'aide des procédures FREDPP et de \B(buffer)
+
+Pour l'aide des commandes FRED, utiliser ? ou ?commande.

@@ -119,7 +119,7 @@ math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 9")
 
 string(CONCAT FREDPP_HELP_INDEX
 "============================================================\n"
-"AIDE FREDPP — COMMANDES FRED DISPONIBLES\n"
+"AIDE FRED — COMMANDES DISPONIBLES\n"
 "============================================================\n\n"
 "Cette aide embarque uniquement les documentations françaises\n"
 "des commandes disponibles dans FREDPP.\n\n"
@@ -137,16 +137,10 @@ endforeach()
 string(APPEND FREDPP_HELP_INDEX
 "\nAUTRES AIDES\n\n"
 "    ?           Afficher cette liste\n"
-"    ?index      Afficher cette liste\n"
-"    ?:          Afficher les commandes spéciales de FREDPP\n"
-"    ?version    Afficher la version, le commit Git et l'état des sources\n"
-"    ?wu         Afficher l'extension UTF-8 de la commande W\n"
 "    ?!          Afficher l'aide historique de la commande !\n"
 "\nOPTION HISTORIQUE IMPLÉMENTÉE\n\n"
 "    ?oi(        Afficher l'aide de l'option OI(\n"
 "    ?om         Afficher l'aide de l'option OM (monitorage)\n"
-"\nPROCÉDURES FREDPP\n\n"
-"    ?procedure  Afficher l'aide du bootstrap et de \\B(buffer)\n"
 "\nCOMMANDE SPÉCIALE HISTORIQUE IMPLÉMENTÉE\n\n"
 "    ?\"          Afficher l'aide des commentaires FRED\n"
 "\nALIAS HISTORIQUE IMPLÉMENTÉ\n\n"

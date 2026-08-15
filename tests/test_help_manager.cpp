@@ -36,7 +36,7 @@ int main() {
     assert(!help.exists("rubrique-inconnue"));
 
     const auto index = help.load_for_terminal("");
-    assert(index.find("AIDE FREDPP — COMMANDES FRED DISPONIBLES") != std::string::npos);
+    assert(index.find("AIDE FRED — COMMANDES DISPONIBLES") != std::string::npos);
     assert(index.find("    ?fb") != std::string::npos);
     assert(index.find("    ?fo") != std::string::npos);
     assert(index.find("    ?jm") != std::string::npos);
@@ -46,21 +46,23 @@ int main() {
     assert(index.find("    ?r") != std::string::npos);
     assert(index.find("    ?s") != std::string::npos);
     assert(index.find("    ?w") != std::string::npos);
-    assert(index.find("    ?wu") != std::string::npos);
+    assert(index.find("    ?wu") == std::string::npos);
     assert(index.find("    ?oi(") != std::string::npos);
     assert(index.find("    ?om") != std::string::npos);
-    assert(index.find("    ?procedure") != std::string::npos);
+    assert(index.find("    ?procedure") == std::string::npos);
     assert(index.find("    ?z") != std::string::npos);
     assert(index.find("    ?\"") != std::string::npos);
     assert(index.find("    ?*") != std::string::npos);
-    assert(index.find("    ?:") != std::string::npos);
+    assert(index.find("    ?index") == std::string::npos);
+    assert(index.find("    ?:") == std::string::npos);
+    assert(index.find("    ?version") == std::string::npos);
     assert(index.find("- `?g`") == std::string::npos);
 
     const auto special = help.load_for_terminal(":");
-    assert(special.find("COMMANDES SPÉCIALES DE FREDPP") != std::string::npos);
+    assert(special.find("COMMANDES FREDPP") != std::string::npos);
     assert(special.find("    :quit") == std::string::npos);
-    assert(special.find("    Q") != std::string::npos);
-    assert(special.find("    QQ") != std::string::npos);
+    assert(special.find("    Q                        Quitter") == std::string::npos);
+    assert(special.find("    QQ                       Quitter") == std::string::npos);
     assert(special.find("    :buffers") == std::string::npos);
     assert(special.find("    :help") == std::string::npos);
     assert(special.find("    :new") == std::string::npos);
@@ -71,6 +73,11 @@ int main() {
     assert(special.find("    :print") != std::string::npos);
     assert(special.find("    :flow <buffer>") != std::string::npos);
     assert(special.find("    :pattern <modèle>") != std::string::npos);
+    assert(special.find("    ?:") != std::string::npos);
+    assert(special.find("    ?version") != std::string::npos);
+    assert(special.find("    ?wu") != std::string::npos);
+    assert(special.find("    ?procedure") != std::string::npos);
+    assert(special.find("Pour l'aide des commandes FRED") != std::string::npos);
     assert(special.find("| Commande |") == std::string::npos);
     assert(special.find("## GESTION") == std::string::npos);
 
