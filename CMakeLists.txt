@@ -9,7 +9,7 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.17 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.18 LANGUAGES CXX)
 
 if(MSVC)
     set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT
@@ -280,6 +280,7 @@ add_library(fredpp_core
     src/version.cpp
     src/HelpManager.cpp
     src/Terminal.cpp
+    src/HelpPager.cpp
     ${FREDPP_EMBEDDED_HELP_CPP}
     src/core/Buffer.cpp
     src/core/BufferManager.cpp

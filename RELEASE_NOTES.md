@@ -1,49 +1,85 @@
-# FREDPP v0.0.17 — Flot de procédures et packaging macOS
+# FREDPP v0.0.18 — Aide interactive FRED/FREDPP
 
-Cette release poursuit le rapprochement de FREDPP avec le comportement
-historique FRED/UWTOOLS et ajoute pour la première fois des kits natifs macOS.
+Cette release améliore l'interface interactive de FREDPP et clarifie la
+séparation entre le langage historique FRED et les outils propres à FREDPP.
 
-## Procédures et flot historique
+## Aide FRED et FREDPP
 
-Le moteur de procédures prend désormais en charge notamment :
+L'aide est désormais organisée selon une séparation simple :
 
-- la visibilité correcte des buffers système du bootstrap dans `FB` ;
-- la commande historique `M(buffer)` pour déplacer des lignes vers un buffer ;
-- l'expansion `\S(buffer)` dans les commandes système `!` et `ZG` ;
-- le retour en mode interactif après une erreur de procédure, avec conservation
-  de l'état pour le diagnostic ;
-- l'expansion `\S(buffer)` dans les modèles de commandes globales `G` ;
-- les labels `@(label)` et les sauts `J(label)`, `J(label)T`, `J(label)F` ;
-- un premier sous-ensemble des registres numériques historiques `N(...)` ;
-- l'enchaînement de plusieurs commandes FRED sur une même ligne ;
-- les délimiteurs historiques arbitraires de `JM` et `JP`.
+- `?` affiche l'index des commandes et options FRED disponibles ;
+- `?commande` affiche la documentation détaillée de la commande FRED ;
+- `?:` affiche uniquement les commandes, outils et informations propres à FREDPP.
 
-## macOS
+Les rubriques spécifiques `?version`, `?wu` et `?procedure` restent accessibles
+directement et sont référencées dans l'aide FREDPP.
 
-Deux kits portables sont produits et testés nativement par GitHub Actions :
+Les anciennes commandes spéciales FREDPP devenues redondantes ont été retirées :
+`:help`, `:new`, `:use`, `:append`, `:insert` et `:delete`. L'ancienne commande
+`:buffers` reste remplacée par la commande FRED `FB`.
 
-- `FREDPP-v0.0.17-macos-x64.tar.gz` pour les Mac Intel ;
-- `FREDPP-v0.0.17-macos-arm64.tar.gz` pour les Mac Apple Silicon.
+## Pager interactif
 
-Chaque build macOS est compilé, testé puis contrôlé sur une machine de
-l'architecture correspondante avant publication.
+Les rubriques d'aide utilisent maintenant un pager interactif dans un terminal :
 
-Les exécutables macOS ne sont pas encore signés ni notarisés par Apple.
+- `Page Up` affiche la page précédente ;
+- `Page Down` affiche la page suivante ;
+- `Q` quitte l'aide et revient au prompt FREDPP.
 
-## Autres plateformes
+La hauteur des pages est adaptée à la fenêtre du terminal. L'écran est effacé
+entre les pages et à la sortie du pager.
 
-La release continue de publier Windows x64, Debian 13 amd64, Debian 13 arm64
-et l'extension Visual Studio Code FREDPP.
+Lorsque l'entrée standard n'est pas interactive, notamment dans les tests,
+scripts ou redirections, l'aide reste affichée intégralement sans attendre de
+touche.
 
-## Validation
+## Commande `:cls`
+
+La commande FREDPP `:cls` efface l'écran et replace le curseur en haut à gauche.
+
+Elle s'appuie sur une primitive terminal réutilisable également employée par le
+pager d'aide :
+
+- API console Win32 sous Windows ;
+- séquences terminal compatibles sous Unix/macOS.
+
+## Démarrage
+
+Le bandeau interactif a été simplifié :
 
 ```text
-49/49 tests réussis sous Windows avant préparation de la release
+FREDPP v0.0.18 - Type ? for FRED help; type ?: for FREDPP commands; type Q or QQ to exit.
 ```
 
-Les jobs macOS exécutent ensuite la suite complète sur leurs runners natifs.
+La version reste fournie dynamiquement par FREDPP.
 
-## Documentation
+## Compatibilité et documentation
 
-Les fichiers historiques sous `docs/fr/reference/commandes` restent inchangés.
-La version effectivement exécutée se consulte avec `?version`.
+La documentation française historique située sous
+`docs/fr/reference/commandes` reste inchangée.
+
+FREDPP continue à n'embarquer que la documentation des commandes effectivement
+disponibles.
+
+## Paquets de release
+
+Le workflow de release existant reste utilisé pour produire les artefacts
+supportés du projet, notamment :
+
+- Windows x64 ;
+- Debian/Linux amd64 ;
+- Debian/Linux ARM64 ;
+- macOS Intel x64 ;
+- macOS Apple Silicon ARM64 ;
+- extension Visual Studio Code FREDPP ;
+- sommes de contrôle SHA-256.
+
+### Windows 11
+
+`fredpp.exe` n'est pas encore signé numériquement. Selon la configuration de
+Windows 11, Smart App Control ou Microsoft Defender SmartScreen peut donc
+bloquer son exécution.
+
+Télécharger FREDPP uniquement depuis les Releases GitHub officielles. En cas de
+blocage, vérifier l'alerte dans **Sécurité Windows** avant d'autoriser
+l'exécution.

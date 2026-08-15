@@ -22,6 +22,12 @@ UTILITAIRES
 
     :cls                     Effacer l'écran et replacer le curseur en haut à gauche
 
+NAVIGATION DE L'AIDE
+
+    Page Up                  Afficher la page précédente
+    Page Down                Afficher la page suivante
+    Q                        Quitter l'aide et revenir au prompt FREDPP
+
 AIDE ET INFORMATIONS FREDPP
 
     ?:                       Afficher cette rubrique

@@ -61,8 +61,8 @@ int main() {
     const auto special = help.load_for_terminal(":");
     assert(special.find("COMMANDES FREDPP") != std::string::npos);
     assert(special.find("    :quit") == std::string::npos);
-    assert(special.find("    Q                        Quitter") == std::string::npos);
-    assert(special.find("    QQ                       Quitter") == std::string::npos);
+    assert(special.find("    Q                        Quitter normalement") == std::string::npos);
+    assert(special.find("    QQ                       Quitter immédiatement") == std::string::npos);
     assert(special.find("    :buffers") == std::string::npos);
     assert(special.find("    :help") == std::string::npos);
     assert(special.find("    :new") == std::string::npos);
@@ -74,6 +74,9 @@ int main() {
     assert(special.find("    :flow <buffer>") != std::string::npos);
     assert(special.find("    :pattern <modèle>") != std::string::npos);
     assert(special.find("    :cls") != std::string::npos);
+    assert(special.find("    Page Up") != std::string::npos);
+    assert(special.find("    Page Down") != std::string::npos);
+    assert(special.find("Quitter l\'aide") != std::string::npos);
     assert(special.find("    ?:") != std::string::npos);
     assert(special.find("    ?version") != std::string::npos);
     assert(special.find("    ?wu") != std::string::npos);

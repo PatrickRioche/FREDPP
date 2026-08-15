@@ -16,6 +16,7 @@
 #include "fred/runtime/CommandExecutor.hpp"
 #include "fred/runtime/ConsoleOutput.hpp"
 #include "Terminal.h"
+#include "HelpPager.h"
 #include "fred/flow/CommandInputExpansion.hpp"
 #include "fred/runtime/ProcedureRunner.hpp"
 #include "fred/runtime/ExecutionContext.hpp"
@@ -170,10 +171,8 @@ void print_pattern(std::string_view source) {
 
 bool print_help_topic(const fredpp::HelpManager& help, std::string_view topic) {
     try {
-        std::cout << help.load_for_terminal(topic);
-        if (std::cout.good()) {
-            std::cout << '\n';
-        }
+        const auto rendered = help.load_for_terminal(topic);
+        fredpp::show_paged_help(rendered);
         return true;
     } catch (const std::exception&) {
         return false;

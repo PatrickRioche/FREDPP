@@ -1,3 +1,32 @@
+## v0.0.18 — Aide interactive FRED/FREDPP
+
+### Ajouté
+
+- commande FREDPP `:cls` pour effacer l'écran ;
+- primitive terminal réutilisable pour l'effacement et la navigation ;
+- pager interactif de l'aide avec `Page Up`, `Page Down` et `Q` ;
+- adaptation automatique du nombre de lignes à la hauteur du terminal ;
+- mode non interactif du pager pour les tests, scripts et redirections.
+
+### Modifié
+
+- séparation de l'aide : `?` pour FRED et `?:` pour FREDPP ;
+- déplacement de `?version`, `?wu` et `?procedure` dans l'index FREDPP ;
+- simplification du bandeau de démarrage ;
+- conservation de `:print`, `:flow` et des outils de diagnostic FREDPP.
+
+### Supprimé
+
+- anciennes commandes spéciales redondantes `:help`, `:new`, `:use`,
+  `:append`, `:insert` et `:delete` ;
+- anciennes références à `:buffers`, remplacé par la commande FRED `FB`.
+
+### Tests
+
+- tests d'aide adaptés à la séparation FRED/FREDPP ;
+- validation du comportement non interactif du système d'aide ;
+- suite de tests complète maintenue avant publication.
+
 ## v0.0.17 — Flot de procédures et packaging macOS
 
 ### Ajouté
