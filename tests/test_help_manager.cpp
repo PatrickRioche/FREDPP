@@ -73,6 +73,7 @@ int main() {
     assert(special.find("    :print") != std::string::npos);
     assert(special.find("    :flow <buffer>") != std::string::npos);
     assert(special.find("    :pattern <modèle>") != std::string::npos);
+    assert(special.find("    :cls") != std::string::npos);
     assert(special.find("    ?:") != std::string::npos);
     assert(special.find("    ?version") != std::string::npos);
     assert(special.find("    ?wu") != std::string::npos);

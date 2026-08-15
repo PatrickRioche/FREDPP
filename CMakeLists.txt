@@ -279,6 +279,7 @@ file(APPEND "${FREDPP_EMBEDDED_HELP_CPP}"
 add_library(fredpp_core
     src/version.cpp
     src/HelpManager.cpp
+    src/Terminal.cpp
     ${FREDPP_EMBEDDED_HELP_CPP}
     src/core/Buffer.cpp
     src/core/BufferManager.cpp

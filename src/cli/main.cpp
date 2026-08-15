@@ -15,6 +15,7 @@
 #include "fred/parser/PatternParser.hpp"
 #include "fred/runtime/CommandExecutor.hpp"
 #include "fred/runtime/ConsoleOutput.hpp"
+#include "Terminal.h"
 #include "fred/flow/CommandInputExpansion.hpp"
 #include "fred/runtime/ProcedureRunner.hpp"
 #include "fred/runtime/ExecutionContext.hpp"
@@ -492,6 +493,10 @@ int main(int argc, char** argv) {
                     std::cout << "Aucune rubrique d'aide : "
                               << (topic.empty() ? "index" : topic) << '\n';
                 }
+                continue;
+            }
+            if (input == ":cls") {
+                fredpp::clear_terminal();
                 continue;
             }
             if (input == ":print") {

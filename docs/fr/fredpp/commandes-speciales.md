@@ -18,6 +18,10 @@ DIAGNOSTIC DU LANGAGE
     :command <commande>      Analyser une commande FRED
     :pattern <modèle>        Analyser un modèle FRED
 
+UTILITAIRES
+
+    :cls                     Effacer l'écran et replacer le curseur en haut à gauche
+
 AIDE ET INFORMATIONS FREDPP
 
     ?:                       Afficher cette rubrique
