@@ -473,8 +473,7 @@ int main(int argc, char** argv) {
     }
 
     std::cout << "FREDPP v" << fredpp::version()
-              << " - executable P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, FB, FO, JM and JP commands; \" comments; OI( and OM options; \\B(buffer) procedures; * aliases 1,$\n";
-    std::cout << "Type ? for FRED help; type ?: for FREDPP commands; type Q to exit.\n";
+              << " - Type ? for FRED help; type ?: for FREDPP commands; type Q or QQ to exit.\n";
 
     std::string input;
     while (std::cout << manager.current().name() << "> " &&
