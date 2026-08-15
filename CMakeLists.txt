@@ -139,7 +139,6 @@ string(APPEND FREDPP_HELP_INDEX
 "    ?           Afficher cette liste\n"
 "    ?index      Afficher cette liste\n"
 "    ?:          Afficher les commandes spéciales de FREDPP\n"
-"    :help       Afficher les commandes spéciales de FREDPP\n"
 "    ?version    Afficher la version, le commit Git et l'état des sources\n"
 "    ?wu         Afficher l'extension UTF-8 de la commande W\n"
 "    ?!          Afficher l'aide historique de la commande !\n"

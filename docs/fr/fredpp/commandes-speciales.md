@@ -7,16 +7,10 @@ Elles ne sont pas des commandes historiques de FRED.
 
 GESTION DU PROGRAMME
 
-    :help                    Afficher cette aide, comme ?:
 
 GESTION DES BUFFERS
 
     :print                   Afficher le buffer courant avec les numéros de ligne
-    :new <nom>               Créer ou sélectionner un buffer
-    :use <nom>               Sélectionner un buffer existant
-    :append <texte>          Ajouter une ligne au buffer courant
-    :insert <n> <texte>      Insérer une ligne avant la ligne n
-    :delete <n>              Supprimer la ligne n
     :flow <buffer>           Développer un buffer avec le moteur Flow
 
 DIAGNOSTIC DU LANGAGE
@@ -36,5 +30,4 @@ AUTRES AIDES
 
     ?                        Afficher les commandes FRED implémentées
     ?:                       Afficher cette rubrique
-    :help                    Afficher cette rubrique
     ?version                 Afficher la version, le commit Git et l'état des sources

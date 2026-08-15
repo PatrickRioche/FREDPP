@@ -34,6 +34,5 @@ ESPACE
 " H6 - Buffer provisoire vide supprimé lorsqu'il est quitté
 B(temp)
 B(alpha)
-:buffers
 
 Q

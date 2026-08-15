@@ -62,6 +62,12 @@ int main() {
     assert(special.find("    Q") != std::string::npos);
     assert(special.find("    QQ") != std::string::npos);
     assert(special.find("    :buffers") == std::string::npos);
+    assert(special.find("    :help") == std::string::npos);
+    assert(special.find("    :new") == std::string::npos);
+    assert(special.find("    :use") == std::string::npos);
+    assert(special.find("    :append") == std::string::npos);
+    assert(special.find("    :insert") == std::string::npos);
+    assert(special.find("    :delete") == std::string::npos);
     assert(special.find("    :print") != std::string::npos);
     assert(special.find("    :flow <buffer>") != std::string::npos);
     assert(special.find("    :pattern <modèle>") != std::string::npos);
@@ -110,7 +116,6 @@ int main() {
     assert(monitor.find("OPTION MONITOR") != std::string::npos);
 
     const auto procedure = help.load_for_terminal("procedure");
-    assert(procedure.find("BOOTSTRAP MINIMAL") != std::string::npos);
     assert(procedure.find("\\B(buffer)") != std::string::npos);
 
     const auto comment = help.load_for_terminal("\"");

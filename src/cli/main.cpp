@@ -495,10 +495,6 @@ int main(int argc, char** argv) {
                 }
                 continue;
             }
-            if (input == ":help") {
-                (void)print_help_topic(help_manager, ":");
-                continue;
-            }
             if (input == ":print") {
                 print_buffer(manager.current());
                 continue;
@@ -515,29 +511,7 @@ int main(int argc, char** argv) {
             std::string command;
             stream >> command;
 
-            if (command == ":new") {
-                std::string name;
-                stream >> name;
-                manager.create_or_select(name);
-            } else if (command == ":use") {
-                std::string name;
-                stream >> name;
-                manager.select(name);
-            } else if (command == ":append") {
-                std::string text;
-                std::getline(stream >> std::ws, text);
-                manager.current().append(std::move(text));
-            } else if (command == ":insert") {
-                std::size_t number{};
-                stream >> number;
-                std::string text;
-                std::getline(stream >> std::ws, text);
-                manager.current().insert_before(number, std::move(text));
-            } else if (command == ":delete") {
-                std::size_t number{};
-                stream >> number;
-                manager.current().erase(number, number);
-            } else if (command == ":flow") {
+            if (command == ":flow") {
                 std::string name;
                 stream >> name;
                 fred::FlowEngine flow(manager);
