@@ -87,6 +87,26 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
             return expanded;
         }
 
+        const bool is_literal_character_directive =
+            source[position] == '\\' &&
+            position + 1 < source.size() &&
+            (source[position + 1] == 'C' ||
+             source[position + 1] == 'c');
+
+        if (is_literal_character_directive) {
+            if (position + 2 >= source.size()) {
+                throw std::runtime_error(
+                    "missing character after \\C");
+            }
+
+            expanded.push_back(InputCharacter{
+                source[position + 2],
+                depth,
+                CharacterInterpretation::Literal});
+            position += 3;
+            continue;
+        }
+
         if (source[position] == '\\' &&
             position + 1 < source.size() &&
             source[position + 1] == '\\') {
@@ -225,6 +245,22 @@ std::string FlowEngine::expand_current_input() {
             continue;
         }
 
+        if (directive->value == 'C' ||
+            directive->value == 'c') {
+            const auto literal = read_raw();
+            if (!literal) {
+                throw std::runtime_error(
+                    "missing character after \\C");
+            }
+            if (literal->level != character->level) {
+                throw std::runtime_error(
+                    "literal character after \\C crossed an input level");
+            }
+
+            output.push_back(literal->value);
+            continue;
+        }
+
         if (directive->value == 'B' || directive->value == 'b') {
             const auto name = parse_buffer_name(character->level, 'B');
             push_buffer(name, character->level + 1);
@@ -280,6 +316,19 @@ std::string FlowEngine::parse_buffer_name(std::size_t directive_level,
                 nested_directive->level != directive_level) {
                 throw std::runtime_error(
                     "buffer name crossed an input level");
+            }
+
+            if (nested_directive->value == 'C' ||
+                nested_directive->value == 'c') {
+                const auto literal = read_raw();
+                if (!literal ||
+                    literal->level != directive_level) {
+                    throw std::runtime_error(
+                        "literal character after \\C crossed an input level");
+                }
+
+                name.push_back(literal->value);
+                continue;
             }
 
             if (nested_directive->value == 'S' ||

@@ -1,3 +1,4 @@
+#include "fred/flow/FlowCharacterStream.hpp"
 #include "fred/lexer/Diagnostic.hpp"
 #include "fred/lexer/Lexer.hpp"
 #include "fred/lexer/TokenType.hpp"
@@ -117,6 +118,89 @@ int main() {
                      1, 2, 0, "newline");
         expect_token(tokens[2], fred::TokenType::Number, "12",
                      2, 3, 0, "multiline number");
+    }
+
+    {
+        fred::FlowCharacterStream stream({
+            {')', 0, fred::CharacterInterpretation::Literal}
+        });
+        fred::Lexer lexer(stream);
+        const auto tokens = lexer.tokenize();
+        expect(tokens.size() == 2,
+               "literal closing parenthesis token count");
+        expect_token(tokens[0], fred::TokenType::Symbol, ")",
+                     1, 1, 0,
+                     "literal closing parenthesis becomes symbol");
+    }
+
+    {
+        fred::FlowCharacterStream stream({
+            {'\\', 0, fred::CharacterInterpretation::Literal}
+        });
+        fred::Lexer lexer(stream);
+        const auto tokens = lexer.tokenize();
+        expect_token(tokens[0], fred::TokenType::Symbol, "\\",
+                     1, 1, 0,
+                     "literal backslash becomes symbol");
+    }
+
+    {
+        fred::FlowCharacterStream stream({
+            {' ', 0, fred::CharacterInterpretation::Literal},
+            {'X', 0, fred::CharacterInterpretation::Normal}
+        });
+        fred::Lexer lexer(stream);
+        const auto tokens = lexer.tokenize();
+        expect(tokens.size() == 3,
+               "literal space is not skipped");
+        expect_token(tokens[0], fred::TokenType::Symbol, " ",
+                     1, 1, 0,
+                     "literal space becomes symbol");
+        expect_token(tokens[1], fred::TokenType::Command, "X",
+                     1, 2, 0,
+                     "normal character after literal space");
+    }
+
+    {
+        fred::FlowCharacterStream stream({
+            {'\n', 0, fred::CharacterInterpretation::Literal},
+            {'X', 0, fred::CharacterInterpretation::Normal}
+        });
+        fred::Lexer lexer(stream);
+        const auto tokens = lexer.tokenize();
+        expect(tokens.size() == 3,
+               "literal newline does not terminate lexing");
+        expect_token(tokens[0], fred::TokenType::Symbol, "\n",
+                     1, 1, 0,
+                     "literal newline becomes symbol");
+        expect_token(tokens[1], fred::TokenType::Command, "X",
+                     2, 1, 0,
+                     "location advances after literal newline");
+    }
+
+    {
+        fred::FlowCharacterStream stream({
+            {'d', 1, fred::CharacterInterpretation::Literal},
+            {'o', 1, fred::CharacterInterpretation::Literal},
+            {'c', 1, fred::CharacterInterpretation::Literal},
+            {'1', 1, fred::CharacterInterpretation::Literal}
+        });
+        fred::Lexer lexer(stream);
+        const auto tokens = lexer.tokenize();
+        expect(tokens.size() == 2,
+               "literal identifier token count");
+        expect_token(tokens[0], fred::TokenType::Identifier, "doc1",
+                     1, 1, 1,
+                     "literal S/L text still forms identifier");
+    }
+
+    {
+        fred::Lexer lexer(")");
+        const auto tokens = lexer.tokenize();
+        expect_token(tokens[0],
+                     fred::TokenType::RightParenthesis, ")",
+                     1, 1, 0,
+                     "normal closing parenthesis remains structural");
     }
 
     {

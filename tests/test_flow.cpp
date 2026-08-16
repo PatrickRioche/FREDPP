@@ -264,6 +264,110 @@ int main() {
     }, "L missing buffer raises an error");
 
     {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_input("A\\C$B"),
+            "A$B",
+            "full flow C makes the following character literal");
+    }
+
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_command_input("A\\C$B"),
+            "A$B",
+            "command input C removes the directive marker");
+    }
+
+    {
+        fred::FlowEngine flow(buffers);
+        const auto characters =
+            flow.expand_command_input_characters("A\\C$B");
+
+        bool saw_literal_dollar = false;
+        for (const auto& character : characters) {
+            if (character.value == '$' &&
+                character.interpretation ==
+                    fred::CharacterInterpretation::Literal) {
+                saw_literal_dollar = true;
+            }
+        }
+
+        if (!saw_literal_dollar) {
+            std::cerr
+                << "FAILED: C marks the following command-input "
+                   "character literal\n";
+            return EXIT_FAILURE;
+        }
+    }
+
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_input("A\\C\\S(other)B"),
+            "A\\S(other)B",
+            "full flow C protects a following flow introducer");
+    }
+
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_command_input("A\\C\\S(other)B"),
+            "A\\S(other)B",
+            "command input C protects a following flow introducer");
+    }
+
+    {
+        fred::FlowEngine flow(buffers);
+        const auto characters =
+            flow.expand_command_input_characters(
+                "A\\C\\S(other)B");
+
+        bool saw_literal_slash = false;
+        for (const auto& character : characters) {
+            if (character.value == '\\' &&
+                character.interpretation ==
+                    fred::CharacterInterpretation::Literal) {
+                saw_literal_slash = true;
+            }
+        }
+
+        if (!saw_literal_slash) {
+            std::cerr
+                << "FAILED: C must preserve literal metadata "
+                   "for a protected backslash\n";
+            return EXIT_FAILURE;
+        }
+    }
+
+    buffers.create_or_select("c)paren").append("PAREN");
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_command_input("\\S(c\\C)paren)"),
+            "PAREN",
+            "C protects a closing parenthesis inside a computed buffer name");
+    }
+
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_input("\\S(c\\C)paren)"),
+            "PAREN",
+            "full flow C protects closing parenthesis in buffer name");
+    }
+
+    expect_throws([&] {
+        fred::FlowEngine flow(buffers);
+        (void)flow.expand_command_input("A\\C");
+    }, "command input C requires a following character");
+
+    expect_throws([&] {
+        fred::FlowEngine flow(buffers);
+        (void)flow.expand_input("A\\C");
+    }, "full flow C requires a following character");
+
+    {
         const std::string max_name(64, 'n');
         buffers.create_or_select(max_name);
     }

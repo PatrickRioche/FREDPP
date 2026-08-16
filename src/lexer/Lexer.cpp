@@ -32,6 +32,23 @@ bool is_printable_ascii(char value) noexcept {
     return byte >= 32 && byte <= 126;
 }
 
+bool is_literal_lexical_syntax(
+    const Character& character) noexcept {
+    if (character.interpretation !=
+        CharacterInterpretation::Literal) {
+        return false;
+    }
+
+    const char value = character.value;
+
+    // Keep letters, digits and '_' eligible for normal identifiers/numbers
+    // produced by \S and \L. Literal protection neutralizes characters
+    // that would otherwise be lexical structure.
+    return !is_ascii_letter(value) &&
+           !is_ascii_digit(value) &&
+           value != '_';
+}
+
 } // namespace
 
 Lexer::Lexer(std::string_view source, std::size_t flow_level)
@@ -50,7 +67,18 @@ Token Lexer::next() {
     }
 
     const auto start_location = location();
+    const auto current_character = stream_->peek();
     const char current = peek();
+
+    if (current_character &&
+        is_literal_lexical_syntax(*current_character)) {
+        const Character consumed = advance();
+        return make_token(
+            TokenType::Symbol,
+            std::string(1, consumed.value),
+            start_location
+        );
+    }
 
     if (is_ascii_digit(current)) {
         return lex_number();
@@ -142,7 +170,14 @@ SourceLocation Lexer::location() const noexcept {
 
 void Lexer::skip_horizontal_whitespace() noexcept {
     while (!at_end()) {
-        const char value = peek();
+        const auto character = stream_->peek();
+        if (!character ||
+            character->interpretation ==
+                CharacterInterpretation::Literal) {
+            break;
+        }
+
+        const char value = character->value;
         if (value == ' ' || value == '\t' || value == '\r') {
             (void)advance();
         } else {
