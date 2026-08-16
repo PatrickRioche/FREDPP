@@ -200,8 +200,22 @@ std::size_t find_jump_target(
     const std::vector<std::string>& lines,
     std::size_t current_index,
     std::string_view label) {
+    // Preserve the existing forward-search behaviour first.
     for (std::size_t cursor = current_index + 1;
          cursor < lines.size();
+         ++cursor) {
+        const auto candidate =
+            parse_label_definition(lines[cursor], false);
+        if (candidate && equals_ci(*candidate, label)) {
+            return cursor;
+        }
+    }
+
+    // Historical procedures also use backward jumps to implement loops.
+    // If the label was not found after the current instruction, wrap the
+    // search to the beginning of the procedure.
+    for (std::size_t cursor = 0;
+         cursor < current_index;
          ++cursor) {
         const auto candidate =
             parse_label_definition(lines[cursor], false);

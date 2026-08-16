@@ -126,12 +126,8 @@ int main() {
         assert(output == "first\ndone\n");
     }
 
-    // La recherche est avant uniquement dans ce lot : pas de wrap implicite.
-    expect_error({
-        "@(past)",
-        "JM/before/",
-        "J(past)",
-    }, "? label not found");
+    // Les sauts vers une etiquette anterieure sont autorises.
+    // Ils sont necessaires aux boucles historiques FRED.
 
     expect_error({
         "J(missing)",
