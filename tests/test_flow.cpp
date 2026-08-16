@@ -191,6 +191,78 @@ int main() {
         }
     }
 
+    auto& l_literal = buffers.create_or_select("l-literal");
+    l_literal.append("A\\S(other)");
+    l_literal.append("B(weird),$");
+
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_input("x[\\L(l-literal)]y"),
+            "x[A\\S(other)\nB(weird),$\n]y",
+            "L injects literal buffer content with newlines");
+    }
+
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_command_input("\\L(l-literal)"),
+            "A\\S(other)\nB(weird),$\n",
+            "command input L preserves buffer newlines");
+    }
+
+    {
+        fred::FlowEngine flow(buffers);
+        const auto characters =
+            flow.expand_command_input_characters(
+                "JM!\\L(l-literal)!");
+
+        bool saw_literal_slash = false;
+        bool saw_literal_newline = false;
+
+        for (const auto& character : characters) {
+            if (character.value == '\\' &&
+                character.interpretation ==
+                    fred::CharacterInterpretation::Literal) {
+                saw_literal_slash = true;
+            }
+            if (character.value == '\n' &&
+                character.interpretation ==
+                    fred::CharacterInterpretation::Literal) {
+                saw_literal_newline = true;
+            }
+        }
+
+        if (!saw_literal_slash || !saw_literal_newline) {
+            std::cerr
+                << "FAILED: L must preserve literal metadata and newlines\n";
+            return EXIT_FAILURE;
+        }
+    }
+
+    buffers.create_or_select("l-name").append("l-literal");
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_command_input("\\L(\\S(l-name))"),
+            "A\\S(other)\nB(weird),$\n",
+            "L accepts nested S-computed buffer name");
+    }
+
+    buffers.create_or_select("l-empty");
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_input("a\\L(l-empty)b"),
+            "ab",
+            "L accepts empty buffer");
+    }
+
+    expect_throws([&] {
+        fred::FlowEngine flow(buffers);
+        (void)flow.expand_input("\\L(missing-l)");
+    }, "L missing buffer raises an error");
+
     {
         const std::string max_name(64, 'n');
         buffers.create_or_select(max_name);

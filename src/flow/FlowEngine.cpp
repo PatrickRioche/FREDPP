@@ -72,7 +72,7 @@ void append_literal_buffer_text(
     }
 }
 
-std::vector<InputCharacter> expand_command_s_segment(
+std::vector<InputCharacter> expand_command_literal_buffer_segment(
     std::string_view source,
     std::size_t& position,
     const BufferManager& buffers,
@@ -98,14 +98,16 @@ std::vector<InputCharacter> expand_command_s_segment(
             continue;
         }
 
-        const bool is_s =
+        const bool is_literal_buffer_directive =
             source[position] == '\\' &&
             position + 2 < source.size() &&
             (source[position + 1] == 'S' ||
-             source[position + 1] == 's') &&
+             source[position + 1] == 's' ||
+             source[position + 1] == 'L' ||
+             source[position + 1] == 'l') &&
             source[position + 2] == '(';
 
-        if (!is_s) {
+        if (!is_literal_buffer_directive) {
             expanded.push_back(InputCharacter{
                 source[position++],
                 depth,
@@ -119,16 +121,21 @@ std::vector<InputCharacter> expand_command_s_segment(
                 std::to_string(maximum_depth) + ")");
         }
 
-        position += 3; // skip \S(
+        const char directive = source[position + 1];
+        const bool emit_newlines =
+            directive == 'L' || directive == 'l';
+
+        position += 3; // skip \S( or \L(
         const auto buffer_name_characters =
-            expand_command_s_segment(
+            expand_command_literal_buffer_segment(
                 source, position, buffers,
                 depth + 1, maximum_depth, true);
         const std::string buffer_name =
             input_characters_text(buffer_name_characters);
 
         if (buffer_name.empty()) {
-            throw std::runtime_error("empty buffer name in \\S");
+            throw std::runtime_error(
+                std::string("empty buffer name in \\") + directive);
         }
         if (buffer_name.size() > limits::max_buffer_name_length) {
             throw std::runtime_error(
@@ -136,17 +143,18 @@ std::vector<InputCharacter> expand_command_s_segment(
                 std::to_string(limits::max_buffer_name_length));
         }
 
-        // \S injects characters literally and suppresses buffer newlines.
+        // \S and \L both inject characters literally.
+        // \S suppresses <nl>; \L preserves them.
         append_literal_buffer_text(
             expanded,
             buffers.get(buffer_name),
             depth + 1,
-            false);
+            emit_newlines);
     }
 
     if (stop_at_closing_parenthesis) {
         throw std::runtime_error(
-            "unterminated \\S(buffer) in command input");
+            "unterminated literal buffer directive in command input");
     }
 
     return expanded;
@@ -187,7 +195,7 @@ FlowEngine::expand_command_input_characters(std::string_view source) {
     }
 
     std::size_t position = 0;
-    return expand_command_s_segment(
+    return expand_command_literal_buffer_segment(
         source, position, *buffers_, 0, input_.maximum_depth(), false);
 }
 
@@ -228,6 +236,15 @@ std::string FlowEngine::expand_current_input() {
             push_buffer(name,
                         character->level + 1,
                         false,
+                        CharacterInterpretation::Literal);
+            continue;
+        }
+
+        if (directive->value == 'L' || directive->value == 'l') {
+            const auto name = parse_buffer_name(character->level, 'L');
+            push_buffer(name,
+                        character->level + 1,
+                        true,
                         CharacterInterpretation::Literal);
             continue;
         }
