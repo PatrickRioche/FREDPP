@@ -4,7 +4,7 @@
 
 namespace fred::limits {
 
-// Historical compatibility limit selected for FREDPP 1.x.
-inline constexpr std::size_t max_buffer_name_length = 14;
+// FRED historical compatibility: 15 characters; FREDPP extension: 64.
+inline constexpr std::size_t max_buffer_name_length = 64;
 
 } // namespace fred::limits

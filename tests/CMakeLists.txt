@@ -117,6 +117,13 @@ add_test(NAME cli_flow_s_global_interactive
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_flow_s_global_interactive.cmake"
 )
 
+add_test(NAME cli_flow_s_command_input
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_flow_s_command_input.cmake"
+)
+
 add_test(NAME cli_jump_label
     COMMAND ${CMAKE_COMMAND}
         "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"

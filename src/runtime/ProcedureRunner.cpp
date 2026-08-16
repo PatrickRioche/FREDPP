@@ -510,10 +510,17 @@ void ProcedureRunner::execute_procedure_line(
     std::size_t& index,
     std::size_t depth) {
     const std::string_view source = lines.at(index);
-    const auto value = trim(source);
-    if (value.empty()) {
+    const auto raw_value = trim(source);
+    if (raw_value.empty()) {
         return;
     }
+
+    const std::string expanded_source =
+        is_comment(raw_value)
+            ? std::string(raw_value)
+            : expand_command_input(
+                  raw_value, *buffers_, maximum_depth_);
+    const auto value = trim(expanded_source);
 
     try {
         if (const auto nested = parse_buffer_directive(value)) {
@@ -562,7 +569,7 @@ void ProcedureRunner::execute_procedure_line(
         }
 
 
-        execute_single_command(source, &lines, &index);
+        execute_single_command(value, &lines, &index);
     } catch (const ReportedProcedureError&) {
         // Une procédure imbriquée a déjà affiché son contexte exact.
         throw;
@@ -587,10 +594,7 @@ void ProcedureRunner::execute_single_command(
         context_->output().write_line(raw_value);
     }
 
-    const std::string expanded_value =
-        expand_global_s_directives(
-            raw_value, *buffers_, maximum_depth_);
-    const std::string_view value = expanded_value;
+    const std::string_view value = raw_value;
 
     Lexer lexer(value);
     TokenStream tokens(lexer);

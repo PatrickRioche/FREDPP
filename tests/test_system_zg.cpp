@@ -1,6 +1,7 @@
 #include "fred/ast/CommandNode.hpp"
 #include "fred/command/CommandRegistry.hpp"
 #include "fred/core/BufferManager.hpp"
+#include "fred/flow/CommandInputExpansion.hpp"
 #include "fred/lexer/Lexer.hpp"
 #include "fred/lexer/TokenStream.hpp"
 #include "fred/parser/CommandParser.hpp"
@@ -68,8 +69,10 @@ int main() {
         auto& flow_value = buffers.create_or_select("flow-s");
         flow_value.append("FREDPP_FLOW_SYSTEM");
 
-        const auto command =
-            parse("ZG(flowcap)!echo \\S(flow-s)", registry);
+        const std::string expanded =
+            fred::expand_command_input(
+                "ZG(flowcap)!echo \\S(flow-s)", buffers);
+        const auto command = parse(expanded, registry);
         executor.execute(*command, context);
 
         assert(buffers.contains("flowcap"));

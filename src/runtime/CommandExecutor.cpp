@@ -1,4 +1,3 @@
-#include "fred/flow/FlowEngine.hpp"
 #include "fred/runtime/CommandExecutor.hpp"
 
 #include "fred/ast/AbsoluteAddressNode.hpp"
@@ -644,46 +643,9 @@ void execute_global(const GlobalCommandNode& command,
     context.set_counter(selected_count);
 }
 
-std::string expand_system_s_directives(
-    std::string_view source,
-    const BufferManager& buffers) {
-    std::string expanded;
-    expanded.reserve(source.size());
-
-    std::size_t position = 0;
-    while (position < source.size()) {
-        const bool is_s =
-            source[position] == '\\' &&
-            position + 2 < source.size() &&
-            (source[position + 1] == 'S' ||
-             source[position + 1] == 's') &&
-            source[position + 2] == '(';
-
-        if (!is_s) {
-            expanded.push_back(source[position++]);
-            continue;
-        }
-
-        const auto closing = source.find(')', position + 3);
-        if (closing == std::string_view::npos) {
-            throw CommandExecutionError(
-                "unterminated \\S(buffer) in system command");
-        }
-
-        const auto directive =
-            source.substr(position, closing - position + 1);
-        FlowEngine flow(buffers);
-        expanded += flow.expand_input(directive);
-        position = closing + 1;
-    }
-
-    return expanded;
-}
-
 void execute_system(const SystemCommandNode& command,
                     ExecutionContext& context) {
-    std::string shell_command =
-        expand_system_s_directives(command.command(), context.buffers());
+    std::string shell_command = command.command();
     shell_command += " 2>&1";
 
 #ifdef _WIN32
@@ -760,9 +722,7 @@ void execute_comment(const CommentCommandNode&,
 
 void execute_message(const MessageCommandNode& command,
                      ExecutionContext& context) {
-    FlowEngine flow(context.buffers());
-    const std::string expanded =
-        flow.expand_input(command.message());
+    const std::string& expanded = command.message();
 
     if (expanded.size() > 2000) {
         throw CommandExecutionError(

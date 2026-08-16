@@ -105,6 +105,72 @@ int main() {
         (void)flow.expand_buffer("self");
     }, "recursive flow reaches depth protection");
 
+    buffers.create_or_select("nombuf").append("doc1");
+    buffers.create_or_select("doc1").append("BONJOUR");
+    buffers.create_or_select("other").append("INTERDIT");
+    buffers.create_or_select("literal-doc").append("\\S(other)");
+    buffers.create_or_select("literal-name").append("literal-doc");
+
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_command_input("B(\\S(nombuf))"),
+            "B(doc1)",
+            "command input expands S in B argument");
+    }
+
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_command_input(
+                "R c:/fredpp/library/\\S(nombuf).fredpp"),
+            "R c:/fredpp/library/doc1.fredpp",
+            "command input expands S in R filename");
+    }
+
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_command_input(
+                "W c:/fredpp/library/\\S(nombuf).fredpp"),
+            "W c:/fredpp/library/doc1.fredpp",
+            "command input expands S in W filename");
+    }
+
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_command_input("\\S(\\S(nombuf))"),
+            "BONJOUR",
+            "nested S resolves buffer name from another buffer");
+    }
+
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_input("\\S(\\S(nombuf))"),
+            "BONJOUR",
+            "full flow supports nested S buffer names");
+    }
+
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(
+            flow.expand_command_input("\\S(\\S(literal-name))"),
+            "\\S(other)",
+            "S result remains literal and is not expanded twice");
+    }
+
+    {
+        const std::string max_name(64, 'n');
+        buffers.create_or_select(max_name);
+    }
+
+    expect_throws([&] {
+        const std::string too_long_name(65, 'n');
+        (void)buffers.create_or_select(too_long_name);
+    }, "FREDPP rejects buffer names longer than 64 characters");
+
     std::cout << "Flow tests passed.\n";
     return EXIT_SUCCESS;
 }

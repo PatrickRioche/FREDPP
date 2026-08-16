@@ -25,7 +25,7 @@ Buffer& BufferManager::create_or_select(std::string name) {
     }
     if (name.size() > limits::max_buffer_name_length) {
         throw std::invalid_argument(
-            "buffer name exceeds historical limit of " +
+            "buffer name exceeds FREDPP limit of " +
             std::to_string(limits::max_buffer_name_length) + " characters");
     }
 
@@ -63,7 +63,7 @@ Buffer& BufferManager::get_or_create(std::string name) {
     }
     if (name.size() > limits::max_buffer_name_length) {
         throw std::invalid_argument(
-            "buffer name exceeds historical limit of " +
+            "buffer name exceeds FREDPP limit of " +
             std::to_string(limits::max_buffer_name_length) + " characters");
     }
 

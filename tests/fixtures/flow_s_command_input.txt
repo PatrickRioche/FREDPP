@@ -1,0 +1,25 @@
+B(nombuf)
+A
+target
+\F
+B(target)
+A
+BUFFER_TARGET
+\F
+B(work)
+B(\S(nombuf))
+:print
+B(procedure)
+A
+flow_s_io_source
+\F
+B(io)
+R \S(procedure).txt
+:print
+B(outname)
+A
+flow_s_io_written
+\F
+B(io)
+W \S(outname).txt
+QQ

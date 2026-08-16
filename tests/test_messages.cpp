@@ -1,6 +1,7 @@
 #include "fred/ast/CommandNode.hpp"
 #include "fred/command/CommandRegistry.hpp"
 #include "fred/core/BufferManager.hpp"
+#include "fred/flow/CommandInputExpansion.hpp"
 #include "fred/lexer/Lexer.hpp"
 #include "fred/lexer/TokenStream.hpp"
 #include "fred/parser/CommandParser.hpp"
@@ -140,7 +141,9 @@ int main() {
     output.clear();
     auto& message_buffer = buffers.create_or_select("msg");
     message_buffer.append("FLOW");
-    execute("JM!\\S(msg)!", executor, context);
+    const std::string expanded_message =
+        fred::expand_command_input("JM!\\S(msg)!", buffers);
+    execute(expanded_message, executor, context);
     assert(output.content() == "FLOW\n");
 
     expect_error("JM!unterminated", "unterminated J message");

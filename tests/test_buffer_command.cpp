@@ -91,9 +91,15 @@ int main() {
     executor.execute(*back, context);
     assert(!manager.contains("temp"));
 
+    const std::string max_name(64, 'x');
+    auto max_length = parse("B(" + max_name + ")");
+    executor.execute(*max_length, context);
+    assert(manager.current().name() == max_name);
+
     bool limit_rejected = false;
     try {
-        auto too_long = parse("B(123456789012345)");
+        const std::string too_long_name(65, 'x');
+        auto too_long = parse("B(" + too_long_name + ")");
         executor.execute(*too_long, context);
     } catch (const std::exception&) {
         limit_rejected = true;

@@ -1,6 +1,7 @@
 #include "fred/flow/FlowEngine.hpp"
 #include "fred/flow/BufferInputSource.hpp"
 #include "fred/flow/InputSource.hpp"
+#include "fred/core/Limits.hpp"
 
 #include <memory>
 #include <stdexcept>
@@ -35,6 +36,83 @@ private:
     std::size_t position_{0};
 };
 
+std::string literal_buffer_text(const Buffer& buffer) {
+    std::string text;
+    for (const auto& line : buffer.lines()) {
+        text += line;
+    }
+    return text;
+}
+
+std::string expand_command_s_segment(
+    std::string_view source,
+    std::size_t& position,
+    const BufferManager& buffers,
+    std::size_t depth,
+    std::size_t maximum_depth,
+    bool stop_at_closing_parenthesis) {
+    std::string expanded;
+
+    while (position < source.size()) {
+        if (stop_at_closing_parenthesis && source[position] == ')') {
+            ++position;
+            return expanded;
+        }
+
+        if (source[position] == '\\' &&
+            position + 1 < source.size() &&
+            source[position + 1] == '\\') {
+            expanded.push_back('\\');
+            expanded.push_back('\\');
+            position += 2;
+            continue;
+        }
+
+        const bool is_s =
+            source[position] == '\\' &&
+            position + 2 < source.size() &&
+            (source[position + 1] == 'S' ||
+             source[position + 1] == 's') &&
+            source[position + 2] == '(';
+
+        if (!is_s) {
+            expanded.push_back(source[position++]);
+            continue;
+        }
+
+        if (depth >= maximum_depth) {
+            throw std::runtime_error(
+                "maximum flow expansion depth exceeded (" +
+                std::to_string(maximum_depth) + ")");
+        }
+
+        position += 3; // skip \\S(
+        std::string buffer_name =
+            expand_command_s_segment(
+                source, position, buffers, depth + 1, maximum_depth, true);
+
+        if (buffer_name.empty()) {
+            throw std::runtime_error("empty buffer name in \\S");
+        }
+        if (buffer_name.size() > limits::max_buffer_name_length) {
+            throw std::runtime_error(
+                "buffer name exceeds FREDPP limit of " +
+                std::to_string(limits::max_buffer_name_length));
+        }
+
+        // IMPORTANT: the buffer content produced by \\S is literal.
+        // Append it directly and never rescan it for further directives.
+        expanded += literal_buffer_text(buffers.get(buffer_name));
+    }
+
+    if (stop_at_closing_parenthesis) {
+        throw std::runtime_error(
+            "unterminated \\S(buffer) in command input");
+    }
+
+    return expanded;
+}
+
 } // namespace
 
 FlowEngine::FlowEngine(const BufferManager& buffers, std::size_t maximum_depth)
@@ -56,6 +134,16 @@ std::string FlowEngine::expand_input(std::string_view source) {
 
     input_.push(std::make_unique<StringInputSource>(source, 0));
     return expand_current_input();
+}
+
+std::string FlowEngine::expand_command_input(std::string_view source) {
+    if (!input_.empty()) {
+        throw std::logic_error("flow engine is already executing");
+    }
+
+    std::size_t position = 0;
+    return expand_command_s_segment(
+        source, position, *buffers_, 0, input_.maximum_depth(), false);
 }
 
 std::string FlowEngine::expand_current_input() {
@@ -107,7 +195,8 @@ std::optional<InputCharacter> FlowEngine::read_raw() {
 }
 
 std::string FlowEngine::parse_buffer_name(std::size_t directive_level,
-                                          char directive) {
+                                          char directive,
+                                          std::size_t nesting_depth) {
     const std::string prefix = std::string("\\") + directive;
     const auto opening = read_raw();
     if (!opening || opening->level != directive_level || opening->value != '(') {
@@ -119,9 +208,50 @@ std::string FlowEngine::parse_buffer_name(std::size_t directive_level,
         if (character->level != directive_level) {
             throw std::runtime_error("buffer name crossed an input level");
         }
+        if (character->value == '\\') {
+            const auto nested_directive = read_raw();
+            if (!nested_directive ||
+                nested_directive->level != directive_level) {
+                throw std::runtime_error(
+                    "buffer name crossed an input level");
+            }
+
+            if (nested_directive->value == 'S' ||
+                nested_directive->value == 's') {
+                if (nesting_depth >= input_.maximum_depth()) {
+                    throw std::runtime_error(
+                        "maximum flow expansion depth exceeded (" +
+                        std::to_string(input_.maximum_depth()) + ")");
+                }
+
+                const auto nested_name =
+                    parse_buffer_name(
+                        directive_level, 'S', nesting_depth + 1);
+
+                if (nested_name.size() > limits::max_buffer_name_length) {
+                    throw std::runtime_error(
+                        "buffer name exceeds FREDPP limit of " +
+                        std::to_string(limits::max_buffer_name_length));
+                }
+
+                name += literal_buffer_text(
+                    buffers_->get(nested_name));
+                continue;
+            }
+
+            name.push_back('\\');
+            name.push_back(nested_directive->value);
+            continue;
+        }
+
         if (character->value == ')') {
             if (name.empty()) {
                 throw std::runtime_error("empty buffer name in " + prefix);
+            }
+            if (name.size() > limits::max_buffer_name_length) {
+                throw std::runtime_error(
+                    "buffer name exceeds FREDPP limit of " +
+                    std::to_string(limits::max_buffer_name_length));
             }
             return name;
         }

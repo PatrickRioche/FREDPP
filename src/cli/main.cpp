@@ -503,7 +503,15 @@ int main(int argc, char** argv) {
                 continue;
             }
 
-            if (procedure_runner.execute_buffer_directive(input)) {
+            std::string command_input = input;
+            if (first_non_space != std::string::npos &&
+                input[first_non_space] != ':' &&
+                input[first_non_space] != '"') {
+                command_input =
+                    fred::expand_command_input(input, manager);
+            }
+
+            if (procedure_runner.execute_buffer_directive(command_input)) {
                 if (execution_context.exit_requested()) {
                     break;
                 }
@@ -542,9 +550,7 @@ int main(int argc, char** argv) {
             } else if (!input.empty() && input.front() == ':') {
                 std::cout << "Unknown development command\n";
             } else if (!input.empty()) {
-                const std::string expanded_input =
-                    fred::expand_global_s_directives(input, manager);
-                fred::Lexer lexer(expanded_input);
+                fred::Lexer lexer(command_input);
                 fred::TokenStream tokens(lexer);
                 fred::CommandParser parser(tokens, command_registry);
 
