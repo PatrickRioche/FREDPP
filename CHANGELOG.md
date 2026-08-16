@@ -1,3 +1,46 @@
+## v0.0.19 — Sémantique historique du mode flot
+
+### Ajouté
+
+- directive de flot `\L(buffer)` avec injection littérale du contenu du buffer
+  et conservation des retours de ligne ;
+- directive de flot `\C<caractère>` pour forcer le caractère suivant à être
+  interprété littéralement ;
+- directive de flot `\O<caractère>` pour forcer le caractère suivant à
+  conserver sa signification spéciale ;
+- représentation explicite de l'interprétation des caractères avec les états
+  `Normal`, `Literal` et `ForcedSpecial`.
+
+### Amélioré
+
+- `\S(buffer)` est désormais développé transversalement dans les arguments des
+  commandes lorsque la syntaxe historique l'autorise ;
+- les noms de buffers calculés peuvent utiliser des développements imbriqués de
+  `\S` ;
+- l'information `Literal` / `ForcedSpecial` est conservée du moteur de flot
+  jusqu'au lexer, aux tokens et au parseur de modèles ;
+- `\C` et `\O` agissent correctement sur les métacaractères des modèles FRED,
+  notamment `.`, `^`, `+` et `$` ;
+- les noms de buffers FREDPP peuvent atteindre 64 caractères ;
+- la profondeur maximale d'expansion du flot est fixée à 256 niveaux.
+
+### Compatibilité historique
+
+- `\C` reproduit la sémantique logique historique — le caractère suivant perd
+  sa signification spéciale — sans reproduire l'ancienne transcription
+  physique GCOS/TSS en valeurs octales ;
+- `\O` réactive explicitement la signification spéciale du caractère suivant ;
+- les fichiers de référence sous `docs/fr/reference/commandes` restent
+  strictement inchangés.
+
+### Validation
+
+- suite Windows 11 : **50/50 tests réussis** avant préparation de la release ;
+- validation manuelle de `\C` et `\O` dans les modèles de `G`, notamment
+  `\C.`, `\O.`, `\O^`, `\C^`, `\O+` et `\O$` ;
+- validation end-to-end des noms de buffers contenant un caractère protégé par
+  `\C`.
+
 ## v0.0.18 — Aide interactive FRED/FREDPP
 
 ### Ajouté

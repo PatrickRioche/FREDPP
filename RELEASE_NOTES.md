@@ -1,70 +1,100 @@
-# FREDPP v0.0.18 — Aide interactive FRED/FREDPP
+# FREDPP v0.0.19 — Sémantique historique du mode flot
 
-Cette release améliore l'interface interactive de FREDPP et clarifie la
-séparation entre le langage historique FRED et les outils propres à FREDPP.
+Cette release consolide le moteur de flot de FREDPP et introduit une
+représentation structurée de l'interprétation des caractères. Elle constitue
+un jalon intermédiaire avant l'extension des autres directives historiques.
 
-## Aide FRED et FREDPP
+## Développement transversal de `\S(buffer)`
 
-L'aide est désormais organisée selon une séparation simple :
+`\S(buffer)` n'est plus traité seulement dans quelques commandes particulières.
+Son développement est maintenant réalisé transversalement dans les arguments
+des commandes lorsque la syntaxe historique l'autorise.
 
-- `?` affiche l'index des commandes et options FRED disponibles ;
-- `?commande` affiche la documentation détaillée de la commande FRED ;
-- `?:` affiche uniquement les commandes, outils et informations propres à FREDPP.
+Les noms de buffers calculés peuvent eux-mêmes contenir un développement
+imbriqué de `\S`. Le contenu injecté par le développement externe reste
+littéral et n'est pas réinterprété comme une nouvelle directive de flot.
 
-Les rubriques spécifiques `?version`, `?wu` et `?procedure` restent accessibles
-directement et sont référencées dans l'aide FREDPP.
+## Directive `\L(buffer)`
 
-Les anciennes commandes spéciales FREDPP devenues redondantes ont été retirées :
-`:help`, `:new`, `:use`, `:append`, `:insert` et `:delete`. L'ancienne commande
-`:buffers` reste remplacée par la commande FRED `FB`.
+`\L(buffer)` injecte le contenu du buffer en conservant ses retours de ligne.
 
-## Pager interactif
+Comme pour `\S`, les caractères injectés sont littéraux : une séquence telle
+que `\S(other)` contenue dans le buffer est restituée telle quelle et n'est pas
+développée une seconde fois.
 
-Les rubriques d'aide utilisent maintenant un pager interactif dans un terminal :
+## Directive `\C<caractère>`
 
-- `Page Up` affiche la page précédente ;
-- `Page Down` affiche la page suivante ;
-- `Q` quitte l'aide et revient au prompt FREDPP.
+`\C` force le caractère immédiatement suivant à être interprété littéralement.
 
-La hauteur des pages est adaptée à la fenêtre du terminal. L'écran est effacé
-entre les pages et à la sortie du pager.
-
-Lorsque l'entrée standard n'est pas interactive, notamment dans les tests,
-scripts ou redirections, l'aide reste affichée intégralement sans attendre de
-touche.
-
-## Commande `:cls`
-
-La commande FREDPP `:cls` efface l'écran et replace le curseur en haut à gauche.
-
-Elle s'appuie sur une primitive terminal réutilisable également employée par le
-pager d'aide :
-
-- API console Win32 sous Windows ;
-- séquences terminal compatibles sous Unix/macOS.
-
-## Démarrage
-
-Le bandeau interactif a été simplifié :
+Exemples validés :
 
 ```text
-FREDPP v0.0.18 - Type ? for FRED help; type ?: for FREDPP commands; type Q or QQ to exit.
+\C.    -> point littéral dans un modèle
+\C^    -> caractère ^ littéral
+\C)    -> parenthèse littérale dans un nom de buffer
 ```
 
-La version reste fournie dynamiquement par FREDPP.
+FREDPP reproduit ici la sémantique logique de FRED. Il ne reproduit pas
+l'ancienne transcription physique propre à GCOS/TSS, dans laquelle certains
+caractères pouvaient être représentés par des valeurs octales.
 
-## Compatibilité et documentation
+## Directive `\O<caractère>`
 
-La documentation française historique située sous
-`docs/fr/reference/commandes` reste inchangée.
+`\O` effectue l'opération inverse de `\C` : le caractère suivant conserve ou
+reprend sa signification spéciale.
 
-FREDPP continue à n'embarquer que la documentation des commandes effectivement
-disponibles.
+La release valide notamment les cas historiques suivants dans les modèles :
+
+```text
+\O.              -> n'importe quel caractère
+\O^ABC           -> ancrage en début de ligne
+\O^A\O+\O$       -> ancrages + répétition
+```
+
+## Pipeline d'interprétation des caractères
+
+FREDPP transporte maintenant explicitement trois états :
+
+```text
+Normal
+Literal
+ForcedSpecial
+```
+
+Cette information est conservée à travers le moteur de flot, le flux de
+caractères, le lexer, les tokens et le parseur de modèles.
+
+Cette architecture permet de distinguer un caractère spécial ordinaire, un
+caractère neutralisé par `\C` et un caractère explicitement rendu spécial par
+`\O`, sans effectuer des substitutions de chaînes fragiles commande par
+commande.
+
+## Limites et garde-fous
+
+- longueur maximale historique documentée pour un nom de buffer : 15
+  caractères ;
+- extension FREDPP : jusqu'à 64 caractères ;
+- profondeur maximale d'expansion du flot : 256 niveaux.
+
+Cette release ne prétend pas encore couvrir l'ensemble des directives du mode
+flot historique. Les autres familles restent intégrées progressivement dans la
+roadmap vers FREDPP 1.0.0.
+
+## Validation
+
+Avant préparation de cette release sous Windows 11 :
+
+- **50/50 tests réussis** ;
+- validation end-to-end de `\S`, `\L`, `\C` et `\O` ;
+- validation de `\C` / `\O` dans les modèles de la commande `G` ;
+- dépôt Git propre et synchronisé avec `origin/main`.
+
+La documentation historique située sous `docs/fr/reference/commandes` reste
+inchangée.
 
 ## Paquets de release
 
-Le workflow de release existant reste utilisé pour produire les artefacts
-supportés du projet, notamment :
+Le workflow de release existant produit les artefacts supportés du projet :
 
 - Windows x64 ;
 - Debian/Linux amd64 ;
@@ -83,3 +113,7 @@ bloquer son exécution.
 Télécharger FREDPP uniquement depuis les Releases GitHub officielles. En cas de
 blocage, vérifier l'alerte dans **Sécurité Windows** avant d'autoriser
 l'exécution.
+
+### macOS
+
+Les exécutables macOS restent non signés et non notarisés dans cette version.
