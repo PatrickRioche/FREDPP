@@ -1,96 +1,69 @@
-# FREDPP v0.0.19 — Sémantique historique du mode flot
+﻿# FREDPP v0.0.20 — Sauts arrière dans les procédures
 
-Cette release consolide le moteur de flot de FREDPP et introduit une
-représentation structurée de l'interprétation des caractères. Elle constitue
-un jalon intermédiaire avant l'extension des autres directives historiques.
+FREDPP v0.0.20 complète le contrôle de flot des procédures FRED avec la prise en charge des sauts vers une étiquette située avant l'instruction courante.
 
-## Développement transversal de `\S(buffer)`
+## Commande `J` et boucles historiques
 
-`\S(buffer)` n'est plus traité seulement dans quelques commandes particulières.
-Son développement est maintenant réalisé transversalement dans les arguments
-des commandes lorsque la syntaxe historique l'autorise.
+La commande `J(label)` peut désormais cibler une étiquette `@(label)` située plus haut dans la procédure.
 
-Les noms de buffers calculés peuvent eux-mêmes contenir un développement
-imbriqué de `\S`. Le contenu injecté par le développement externe reste
-littéral et n'est pas réinterprété comme une nouvelle directive de flot.
+FREDPP conserve la recherche vers l'avant en priorité. Si aucune étiquette correspondante n'est trouvée après l'instruction `J`, la recherche reprend depuis le début de la procédure afin de permettre un saut arrière.
 
-## Directive `\L(buffer)`
+Ce comportement est indispensable aux boucles utilisées dans les procédures FRED historiques.
 
-`\L(buffer)` injecte le contenu du buffer en conservant ses retours de ligne.
+Exemple :
 
-Comme pour `\S`, les caractères injectés sont littéraux : une séquence telle
-que `\S(other)` contenue dans le buffer est restituée telle quelle et n'est pas
-développée une seconde fois.
+    @(loop)
+    ...
+    J(loop)
 
-## Directive `\C<caractère>`
+Les formes conditionnelles `J(label)T` et `J(label)F` bénéficient du même mécanisme de résolution des étiquettes.
 
-`\C` force le caractère immédiatement suivant à être interprété littéralement.
+Une étiquette réellement absente continue de provoquer l'erreur :
 
-Exemples validés :
+    ? label not found
 
-```text
-\C.    -> point littéral dans un modèle
-\C^    -> caractère ^ littéral
-\C)    -> parenthèse littérale dans un nom de buffer
-```
+## Validation avec une procédure historique
 
-FREDPP reproduit ici la sémantique logique de FRED. Il ne reproduit pas
-l'ancienne transcription physique propre à GCOS/TSS, dans laquelle certains
-caractères pouvaient être représentés par des valeurs octales.
+Le comportement a notamment été validé avec la procédure `index.fredpp`.
 
-## Directive `\O<caractère>`
+Cette procédure utilise une boucle de la forme :
 
-`\O` effectue l'opération inverse de `\C` : le caractère suivant conserve ou
-reprend sa signification spéciale.
+    @(ttqlistproc)
+    B(listproc)
+    N(listproc):$=0 J(fttqlistproc)T
+    1M(1fic)
+    JM/ le fichier est : .../
+    J(ttqlistproc)
 
-La release valide notamment les cas historiques suivants dans les modèles :
+    @(fttqlistproc)
 
-```text
-\O.              -> n'importe quel caractère
-\O^ABC           -> ancrage en début de ligne
-\O^A\O+\O$       -> ancrages + répétition
-```
+Le saut `J(ttqlistproc)` revient désormais correctement vers l'étiquette située en amont.
 
-## Pipeline d'interprétation des caractères
+La procédure peut ainsi parcourir successivement les fichiers présents dans la bibliothèque FREDPP avant de sortir de la boucle lorsque la condition de fin est satisfaite.
 
-FREDPP transporte maintenant explicitement trois états :
+## Résolution des étiquettes
 
-```text
-Normal
-Literal
-ForcedSpecial
-```
+La résolution d'un `J(label)` suit désormais l'ordre suivant :
 
-Cette information est conservée à travers le moteur de flot, le flux de
-caractères, le lexer, les tokens et le parseur de modèles.
+1. recherche d'une étiquette correspondante après l'instruction courante ;
+2. si aucune n'est trouvée, recherche depuis le début de la procédure jusqu'à l'instruction courante ;
+3. si aucune étiquette correspondante n'existe, émission de `? label not found`.
 
-Cette architecture permet de distinguer un caractère spécial ordinaire, un
-caractère neutralisé par `\C` et un caractère explicitement rendu spécial par
-`\O`, sans effectuer des substitutions de chaînes fragiles commande par
-commande.
+Cette stratégie conserve le comportement existant pour les sauts vers l'avant tout en ajoutant la possibilité d'effectuer des boucles arrière.
 
-## Limites et garde-fous
+## Tests
 
-- longueur maximale historique documentée pour un nom de buffer : 15
-  caractères ;
-- extension FREDPP : jusqu'à 64 caractères ;
-- profondeur maximale d'expansion du flot : 256 niveaux.
+La suite automatisée complète a été exécutée après l'implémentation :
 
-Cette release ne prétend pas encore couvrir l'ensemble des directives du mode
-flot historique. Les autres familles restent intégrées progressivement dans la
-roadmap vers FREDPP 1.0.0.
+    100% tests passed out of 50
 
-## Validation
+Le fonctionnement a également été vérifié directement avec `index.fredpp` sur une bibliothèque réelle.
 
-Avant préparation de cette release sous Windows 11 :
+## Compatibilité
 
-- **50/50 tests réussis** ;
-- validation end-to-end de `\S`, `\L`, `\C` et `\O` ;
-- validation de `\C` / `\O` dans les modèles de la commande `G` ;
-- dépôt Git propre et synchronisé avec `origin/main`.
+Cette version n'introduit aucun changement de syntaxe.
 
-La documentation historique située sous `docs/fr/reference/commandes` reste
-inchangée.
+Elle complète l'implémentation de la commande historique `J` afin de permettre les structures de contrôle utilisant des sauts arrière et améliore ainsi la compatibilité de FREDPP avec les procédures FRED historiques.
 
 ## Paquets de release
 
@@ -106,13 +79,9 @@ Le workflow de release existant produit les artefacts supportés du projet :
 
 ### Windows 11
 
-`fredpp.exe` n'est pas encore signé numériquement. Selon la configuration de
-Windows 11, Smart App Control ou Microsoft Defender SmartScreen peut donc
-bloquer son exécution.
+`fredpp.exe` n'est pas encore signé numériquement. Selon la configuration de Windows 11, Smart App Control ou Microsoft Defender SmartScreen peut donc bloquer son exécution.
 
-Télécharger FREDPP uniquement depuis les Releases GitHub officielles. En cas de
-blocage, vérifier l'alerte dans **Sécurité Windows** avant d'autoriser
-l'exécution.
+Télécharger FREDPP uniquement depuis les Releases GitHub officielles.
 
 ### macOS
 

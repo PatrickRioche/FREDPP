@@ -1,3 +1,16 @@
+## v0.0.20 ? Sauts arri?re dans les proc?dures
+
+### Fixed
+
+- `J(label)` peut d?sormais effectuer un saut vers une ?tiquette `@(label)` situ?e avant l'instruction courante.
+- La r?solution des ?tiquettes conserve la recherche vers l'avant en priorit?, puis recherche en amont si n?cessaire.
+- Les boucles historiques utilisant `J(label)` fonctionnent d?sormais correctement, notamment la proc?dure `index.fredpp`.
+
+### Validation
+
+- Validation r?elle avec `index.fredpp`.
+- 50/50 tests automatis?s r?ussis.
+
 ## v0.0.19 — Sémantique historique du mode flot
 
 ### Ajouté
