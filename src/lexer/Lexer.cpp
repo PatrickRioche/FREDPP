@@ -76,7 +76,8 @@ Token Lexer::next() {
         return make_token(
             TokenType::Symbol,
             std::string(1, consumed.value),
-            start_location
+            start_location,
+            consumed.interpretation
         );
     }
 
@@ -91,7 +92,8 @@ Token Lexer::next() {
         const Character consumed = advance();
         return make_token(TokenType::Command,
                           std::string(1, consumed.value),
-                          start_location);
+                          start_location,
+                          consumed.interpretation);
     }
 
     if (is_ascii_letter(current) || current == '_') {
@@ -104,29 +106,35 @@ Token Lexer::next() {
     case ',':
         return make_token(TokenType::Comma,
                           std::string(1, consumed.value),
-                          start_location);
+                          start_location,
+                          consumed.interpretation);
     case '(':
         return make_token(TokenType::LeftParenthesis,
                           std::string(1, consumed.value),
-                          start_location);
+                          start_location,
+                          consumed.interpretation);
     case ')':
         return make_token(TokenType::RightParenthesis,
                           std::string(1, consumed.value),
-                          start_location);
+                          start_location,
+                          consumed.interpretation);
     case '\\':
         return make_token(TokenType::Backslash,
                           std::string(1, consumed.value),
-                          start_location);
+                          start_location,
+                          consumed.interpretation);
     case '\n':
         return make_token(TokenType::NewLine,
                           std::string(1, consumed.value),
-                          start_location);
+                          start_location,
+                          consumed.interpretation);
     default:
         return make_token(
             is_printable_ascii(current) ? TokenType::Symbol
                                         : TokenType::Unknown,
             std::string(1, consumed.value),
-            start_location
+            start_location,
+            consumed.interpretation
         );
     }
 }
@@ -172,8 +180,8 @@ void Lexer::skip_horizontal_whitespace() noexcept {
     while (!at_end()) {
         const auto character = stream_->peek();
         if (!character ||
-            character->interpretation ==
-                CharacterInterpretation::Literal) {
+            character->interpretation !=
+                CharacterInterpretation::Normal) {
             break;
         }
 
@@ -186,14 +194,20 @@ void Lexer::skip_horizontal_whitespace() noexcept {
     }
 }
 
-Token Lexer::make_token(TokenType type,
-                        std::string lexeme,
-                        SourceLocation start_location) const {
-    return Token{type, std::move(lexeme), start_location};
+Token Lexer::make_token(
+    TokenType type,
+    std::string lexeme,
+    SourceLocation start_location,
+    CharacterInterpretation interpretation) const {
+    return Token{type, std::move(lexeme), start_location, interpretation};
 }
 
 Token Lexer::lex_number() {
     const auto start_location = location();
+    const auto first = stream_->peek();
+    const auto interpretation = first
+        ? first->interpretation
+        : CharacterInterpretation::Normal;
     std::string lexeme;
 
     while (is_ascii_digit(peek())) {
@@ -202,11 +216,16 @@ Token Lexer::lex_number() {
 
     return make_token(TokenType::Number,
                       std::move(lexeme),
-                      start_location);
+                      start_location,
+                      interpretation);
 }
 
 Token Lexer::lex_identifier_or_command() {
     const auto start_location = location();
+    const auto first = stream_->peek();
+    const auto interpretation = first
+        ? first->interpretation
+        : CharacterInterpretation::Normal;
     std::string lexeme;
 
     while (is_identifier_continue(peek())) {
@@ -219,7 +238,8 @@ Token Lexer::lex_identifier_or_command() {
     return make_token(
         command ? TokenType::Command : TokenType::Identifier,
         std::move(lexeme),
-        start_location
+        start_location,
+        interpretation
     );
 }
 

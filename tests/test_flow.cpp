@@ -368,6 +368,40 @@ int main() {
     }, "full flow C requires a following character");
 
     {
+        fred::FlowEngine flow(buffers);
+        expect_equal(flow.expand_input("A\\O$B"), "A$B",
+                     "full flow O consumes directive marker");
+    }
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(flow.expand_command_input("A\\O$B"), "A$B",
+                     "command input O consumes directive marker");
+    }
+    {
+        fred::FlowEngine flow(buffers);
+        const auto characters = flow.expand_command_input_characters("A\\O$B");
+        bool saw_forced_special_dollar = false;
+        for (const auto& character : characters) {
+            if (character.value == '$' &&
+                character.interpretation == fred::CharacterInterpretation::ForcedSpecial) {
+                saw_forced_special_dollar = true;
+            }
+        }
+        if (!saw_forced_special_dollar) {
+            std::cerr << "FAILED: O must mark the following character ForcedSpecial\n";
+            return EXIT_FAILURE;
+        }
+    }
+    expect_throws([&] {
+        fred::FlowEngine flow(buffers);
+        (void)flow.expand_command_input("A\\O");
+    }, "command input O requires a following character");
+    expect_throws([&] {
+        fred::FlowEngine flow(buffers);
+        (void)flow.expand_input("A\\O");
+    }, "full flow O requires a following character");
+
+    {
         const std::string max_name(64, 'n');
         buffers.create_or_select(max_name);
     }

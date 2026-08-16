@@ -86,18 +86,28 @@ std::string describe_impl(const PatternNode& node) {
 PatternParser::PatternParser(std::string_view source, std::size_t flow_level) noexcept
     : source_(source), flow_level_(flow_level) {}
 
+PatternParser::PatternParser(
+    std::string_view source,
+    std::vector<CharacterInterpretation> interpretations,
+    std::size_t flow_level)
+    : source_(source),
+      interpretations_(std::move(interpretations)),
+      flow_level_(flow_level) {
+    if (!interpretations_.empty() && interpretations_.size() != source_.size()) {
+        throw std::invalid_argument("pattern interpretation size does not match source");
+    }
+}
+
 std::unique_ptr<PatternNode> PatternParser::parse() {
     if (source_.empty()) fail("expected a delimited FRED pattern");
     delimiter_ = consume();
     const auto delimiter_byte = static_cast<unsigned char>(delimiter_);
     if (std::isalnum(delimiter_byte) != 0 ||
-        std::isspace(delimiter_byte) != 0 || delimiter_ == '_' ||
-        delimiter_ == '\\') {
+        std::isspace(delimiter_byte) != 0 || delimiter_ == '_' || delimiter_ == '\\') {
         fail("a FRED pattern must begin with a symbolic delimiter");
     }
-
     auto expression = parse_alternation();
-    if (at_end() || peek() != delimiter_) fail("unterminated FRED pattern");
+    if (at_end() || !peek_is_special(delimiter_)) fail("unterminated FRED pattern");
     consume();
     if (!at_end()) fail("unexpected character after FRED pattern");
     return expression;
@@ -107,9 +117,9 @@ std::unique_ptr<PatternNode> PatternParser::parse_alternation() {
     const auto start = location();
     std::vector<std::unique_ptr<PatternNode>> alternatives;
     alternatives.push_back(parse_sequence());
-    while (!at_end() && peek() == '|') {
+    while (!at_end() && peek_is_special('|')) {
         consume();
-        if (at_end() || peek() == delimiter_ || peek() == ')' || peek() == '|') {
+        if (at_end() || peek_is_special(delimiter_) || peek_is_special(')') || peek_is_special('|')) {
             fail("expected a pattern after '|'");
         }
         alternatives.push_back(parse_sequence());
@@ -121,12 +131,10 @@ std::unique_ptr<PatternNode> PatternParser::parse_alternation() {
 std::unique_ptr<PatternNode> PatternParser::parse_sequence() {
     const auto start = location();
     std::vector<std::unique_ptr<PatternNode>> elements;
-    while (!at_end() && peek() != delimiter_ && peek() != ')' && peek() != '|') {
+    while (!at_end() && !peek_is_special(delimiter_) && !peek_is_special(')') && !peek_is_special('|')) {
         elements.push_back(parse_repetition());
     }
-    if (elements.empty()) {
-        return std::make_unique<SequencePatternNode>(std::move(elements), start);
-    }
+    if (elements.empty()) return std::make_unique<SequencePatternNode>(std::move(elements), start);
     if (elements.size() == 1) return std::move(elements.front());
     return std::make_unique<SequencePatternNode>(std::move(elements), start);
 }
@@ -134,13 +142,11 @@ std::unique_ptr<PatternNode> PatternParser::parse_sequence() {
 std::unique_ptr<PatternNode> PatternParser::parse_repetition() {
     const auto start = location();
     auto atom = parse_atom();
-    if (!at_end() && (peek() == '*' || peek() == '+')) {
-        const char operator_character = consume();
-        const auto type = operator_character == '*'
-            ? RepetitionPatternNode::Type::ZeroOrMore
-            : RepetitionPatternNode::Type::OneOrMore;
+    if (!at_end() && (peek_is_special('*') || peek_is_special('+'))) {
+        const char op = consume();
+        const auto type = op == '*' ? RepetitionPatternNode::Type::ZeroOrMore : RepetitionPatternNode::Type::OneOrMore;
         atom = std::make_unique<RepetitionPatternNode>(std::move(atom), type, start);
-        if (!at_end() && (peek() == '*' || peek() == '+')) {
+        if (!at_end() && (peek_is_special('*') || peek_is_special('+'))) {
             fail("a pattern may not have more than one repetition operator");
         }
     }
@@ -150,7 +156,9 @@ std::unique_ptr<PatternNode> PatternParser::parse_repetition() {
 std::unique_ptr<PatternNode> PatternParser::parse_atom() {
     const auto start = location();
     if (at_end()) fail("expected a pattern atom");
+    const bool special = is_special(position_);
     const char value = consume();
+    if (!special) return std::make_unique<LiteralPatternNode>(value, start);
     switch (value) {
     case '.': return std::make_unique<AnyCharacterPatternNode>(start);
     case '^': return std::make_unique<AnchorPatternNode>(AnchorPatternNode::Type::StartOfLine, start);
@@ -158,48 +166,44 @@ std::unique_ptr<PatternNode> PatternParser::parse_atom() {
     case '(': --position_; return parse_group();
     case '[': --position_; return parse_character_class();
     case '\\':
-        if (at_end() || peek() == delimiter_) fail("expected a character after escape");
+        if (at_end()) fail("expected a character after escape");
         return std::make_unique<LiteralPatternNode>(consume(), start);
     case '*':
-    case '+':
-        fail("repetition operator has no preceding pattern");
-    default:
-        return std::make_unique<LiteralPatternNode>(value, start);
+    case '+': fail("repetition operator has no preceding pattern");
+    default: return std::make_unique<LiteralPatternNode>(value, start);
     }
 }
 
 std::unique_ptr<PatternNode> PatternParser::parse_group() {
     const auto start = location();
-    consume(); // (
-    if (!at_end() && peek() == ')') fail("empty parenthesized pattern");
+    consume();
+    if (!at_end() && peek_is_special(')')) fail("empty parenthesized pattern");
     auto expression = parse_alternation();
-    if (at_end() || peek() != ')') fail("unterminated parenthesized pattern");
+    if (at_end() || !peek_is_special(')')) fail("unterminated parenthesized pattern");
     consume();
     return std::make_unique<GroupPatternNode>(std::move(expression), start);
 }
 
 std::unique_ptr<PatternNode> PatternParser::parse_character_class() {
     const auto start = location();
-    consume(); // [
+    consume();
     bool negated = false;
-    if (!at_end() && peek() == '^') {
-        negated = true;
-        consume();
-    }
+    if (!at_end() && peek_is_special('^')) { negated = true; consume(); }
     std::vector<CharacterClassRange> ranges;
-    while (!at_end() && peek() != ']') {
+    while (!at_end() && !peek_is_special(']')) {
         auto read_class_character = [this]() -> char {
-            if (at_end() || peek() == ']') fail("expected a character in character class");
+            if (at_end() || peek_is_special(']')) fail("expected a character in character class");
+            const bool special = is_special(position_);
             char value = consume();
-            if (value == '\\') {
+            if (special && value == '\\') {
                 if (at_end()) fail("expected a character after escape in character class");
                 value = consume();
             }
             return value;
         };
-
         const char first = read_class_character();
-        if (!at_end() && peek() == '-' && position_ + 1 < source_.size() && source_[position_ + 1] != ']') {
+        if (!at_end() && peek_is_special('-') && position_ + 1 < source_.size() &&
+            !(source_[position_ + 1] == ']' && is_special(position_ + 1))) {
             consume();
             const char last = read_class_character();
             ranges.push_back(CharacterClassRange{first, last});
@@ -207,13 +211,21 @@ std::unique_ptr<PatternNode> PatternParser::parse_character_class() {
             ranges.push_back(CharacterClassRange{first, first});
         }
     }
-    if (at_end() || peek() != ']') fail("unterminated character class");
+    if (at_end() || !peek_is_special(']')) fail("unterminated character class");
     consume();
     if (ranges.empty()) fail("empty character class");
     return std::make_unique<CharacterClassPatternNode>(negated, std::move(ranges), start);
 }
 
 bool PatternParser::at_end() const noexcept { return position_ >= source_.size(); }
+bool PatternParser::is_special(std::size_t position) const noexcept {
+    return position < source_.size() &&
+           (interpretations_.empty() || interpretations_[position] != CharacterInterpretation::Literal);
+}
+bool PatternParser::peek_is_special(char value, std::size_t lookahead) const noexcept {
+    const auto index = position_ + lookahead;
+    return index < source_.size() && source_[index] == value && is_special(index);
+}
 char PatternParser::peek(std::size_t lookahead) const noexcept {
     const auto index = position_ + lookahead;
     return index < source_.size() ? source_[index] : '\0';

@@ -195,6 +195,27 @@ int main() {
     }
 
     {
+        fred::FlowCharacterStream stream({
+            {')', 0, fred::CharacterInterpretation::ForcedSpecial}
+        });
+        fred::Lexer lexer(stream);
+        const auto tokens = lexer.tokenize();
+        expect_token(tokens[0], fred::TokenType::RightParenthesis, ")",
+                     1, 1, 0, "forced-special parenthesis");
+        expect(tokens[0].interpretation == fred::CharacterInterpretation::ForcedSpecial,
+               "forced-special token metadata");
+    }
+    {
+        fred::FlowCharacterStream stream({
+            {' ', 0, fred::CharacterInterpretation::ForcedSpecial}
+        });
+        fred::Lexer lexer(stream);
+        const auto tokens = lexer.tokenize();
+        expect_token(tokens[0], fred::TokenType::Symbol, " ",
+                     1, 1, 0, "forced-special space is not skipped");
+    }
+
+    {
         fred::Lexer lexer(")");
         const auto tokens = lexer.tokenize();
         expect_token(tokens[0],

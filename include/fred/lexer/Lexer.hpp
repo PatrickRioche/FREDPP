@@ -33,9 +33,12 @@ private:
 
     void skip_horizontal_whitespace() noexcept;
 
-    [[nodiscard]] Token make_token(TokenType type,
-                                   std::string lexeme,
-                                   SourceLocation start_location) const;
+    [[nodiscard]] Token make_token(
+        TokenType type,
+        std::string lexeme,
+        SourceLocation start_location,
+        CharacterInterpretation interpretation =
+            CharacterInterpretation::Normal) const;
 
     [[nodiscard]] Token lex_number();
     [[nodiscard]] Token lex_identifier_or_command();

@@ -12,6 +12,7 @@
 #include <sstream>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace fred {
 namespace {
@@ -658,6 +659,7 @@ std::unique_ptr<PatternNode> CommandParser::parse_delimited_pattern() {
 
     const char delimiter = opening.lexeme.front();
     std::string source = opening.lexeme;
+    std::vector<CharacterInterpretation> source_interpretations(opening.lexeme.size(), opening.interpretation);
     std::size_t previous_end_column =
         opening.location.column + opening.lexeme.size();
 
@@ -669,7 +671,9 @@ std::unique_ptr<PatternNode> CommandParser::parse_delimited_pattern() {
 
         const auto token = tokens_->consume();
         if (token.location.column > previous_end_column) {
-            source.append(token.location.column - previous_end_column, ' ');
+            const auto gap = token.location.column - previous_end_column;
+            source.append(gap, ' ');
+            source_interpretations.insert(source_interpretations.end(), gap, CharacterInterpretation::Normal);
         }
 
         std::size_t preceding_backslashes = 0;
@@ -679,15 +683,17 @@ std::unique_ptr<PatternNode> CommandParser::parse_delimited_pattern() {
         }
 
         source += token.lexeme;
+        source_interpretations.insert(source_interpretations.end(), token.lexeme.size(), token.interpretation);
         previous_end_column = token.location.column + token.lexeme.size();
 
         if (token.lexeme.size() == 1 && token.lexeme.front() == delimiter &&
+            token.interpretation != CharacterInterpretation::Literal &&
             preceding_backslashes % 2 == 0) {
             break;
         }
     }
 
-    PatternParser parser(source, opening.location.flow_level);
+    PatternParser parser(source, std::move(source_interpretations), opening.location.flow_level);
     return parser.parse();
 }
 
@@ -703,6 +709,7 @@ CommandParser::parse_substitution_parts() {
 
     const char delimiter = opening.lexeme.front();
     std::string pattern_source = opening.lexeme;
+    std::vector<CharacterInterpretation> pattern_interpretations(opening.lexeme.size(), opening.interpretation);
     std::size_t previous_end_column =
         opening.location.column + opening.lexeme.size();
 
@@ -714,7 +721,9 @@ CommandParser::parse_substitution_parts() {
 
         const auto token = tokens_->consume();
         if (token.location.column > previous_end_column) {
-            pattern_source.append(token.location.column - previous_end_column, ' ');
+            const auto gap = token.location.column - previous_end_column;
+            pattern_source.append(gap, ' ');
+            pattern_interpretations.insert(pattern_interpretations.end(), gap, CharacterInterpretation::Normal);
         }
 
         std::size_t preceding_backslashes = 0;
@@ -724,14 +733,16 @@ CommandParser::parse_substitution_parts() {
         }
 
         pattern_source += token.lexeme;
+        pattern_interpretations.insert(pattern_interpretations.end(), token.lexeme.size(), token.interpretation);
         previous_end_column = token.location.column + token.lexeme.size();
         if (token.lexeme.size() == 1 && token.lexeme.front() == delimiter &&
+            token.interpretation != CharacterInterpretation::Literal &&
             preceding_backslashes % 2 == 0) {
             break;
         }
     }
 
-    PatternParser parser(pattern_source, opening.location.flow_level);
+    PatternParser parser(pattern_source, std::move(pattern_interpretations), opening.location.flow_level);
     auto pattern = parser.parse();
 
     std::string replacement;
@@ -754,6 +765,7 @@ CommandParser::parse_substitution_parts() {
 
         previous_end_column = token.location.column + token.lexeme.size();
         if (token.lexeme.size() == 1 && token.lexeme.front() == delimiter &&
+            token.interpretation != CharacterInterpretation::Literal &&
             preceding_backslashes % 2 == 0) {
             break;
         }

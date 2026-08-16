@@ -107,6 +107,26 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
             continue;
         }
 
+        const bool is_forced_special_character_directive =
+            source[position] == '\\' &&
+            position + 1 < source.size() &&
+            (source[position + 1] == 'O' ||
+             source[position + 1] == 'o');
+
+        if (is_forced_special_character_directive) {
+            if (position + 2 >= source.size()) {
+                throw std::runtime_error(
+                    "missing character after \\O");
+            }
+
+            expanded.push_back(InputCharacter{
+                source[position + 2],
+                depth,
+                CharacterInterpretation::ForcedSpecial});
+            position += 3;
+            continue;
+        }
+
         if (source[position] == '\\' &&
             position + 1 < source.size() &&
             source[position + 1] == '\\') {
@@ -258,6 +278,22 @@ std::string FlowEngine::expand_current_input() {
             }
 
             output.push_back(literal->value);
+            continue;
+        }
+
+        if (directive->value == 'O' ||
+            directive->value == 'o') {
+            const auto special = read_raw();
+            if (!special) {
+                throw std::runtime_error(
+                    "missing character after \\O");
+            }
+            if (special->level != character->level) {
+                throw std::runtime_error(
+                    "special character after \\O crossed an input level");
+            }
+
+            output.push_back(special->value);
             continue;
         }
 

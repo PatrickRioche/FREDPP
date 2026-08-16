@@ -6,6 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <string_view>
+#include <vector>
 
 namespace {
 void require(bool condition, std::string_view message) {
@@ -81,6 +82,41 @@ int main() {
         const auto node = parse("/\\./");
         require(node->kind() == fred::AstNodeKind::PatternLiteral, "escaped literal");
         require(static_cast<const fred::LiteralPatternNode&>(*node).value() == '.', "escaped dot");
+    }
+
+    {
+        std::vector<fred::CharacterInterpretation> interpretation{
+            fred::CharacterInterpretation::Normal,
+            fred::CharacterInterpretation::Literal,
+            fred::CharacterInterpretation::Normal};
+        fred::PatternParser parser("/./", std::move(interpretation));
+        const auto node = parser.parse();
+        require(node->kind() == fred::AstNodeKind::PatternLiteral,
+                "literal metadata neutralizes dot");
+    }
+    {
+        std::vector<fred::CharacterInterpretation> interpretation{
+            fred::CharacterInterpretation::Normal,
+            fred::CharacterInterpretation::ForcedSpecial,
+            fred::CharacterInterpretation::Normal};
+        fred::PatternParser parser("/./", std::move(interpretation));
+        const auto node = parser.parse();
+        require(node->kind() == fred::AstNodeKind::PatternAnyCharacter,
+                "ForcedSpecial dot keeps special meaning");
+    }
+    {
+        std::vector<fred::CharacterInterpretation> interpretation{
+            fred::CharacterInterpretation::Normal,
+            fred::CharacterInterpretation::Normal,
+            fred::CharacterInterpretation::Literal,
+            fred::CharacterInterpretation::Normal,
+            fred::CharacterInterpretation::Normal};
+        fred::PatternParser parser("/a/b/", std::move(interpretation));
+        const auto node = parser.parse();
+        require(node->kind() == fred::AstNodeKind::PatternSequence,
+                "literal delimiter remains in pattern");
+        require(static_cast<const fred::SequencePatternNode&>(*node).elements().size() == 3,
+                "literal delimiter pattern size");
     }
 
     require_error("");
