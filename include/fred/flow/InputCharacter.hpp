@@ -1,5 +1,7 @@
 #pragma once
 
+#include "fred/core/CharacterInterpretation.hpp"
+
 #include <cstddef>
 
 namespace fred {
@@ -7,7 +9,7 @@ namespace fred {
 struct InputCharacter {
     char value{};
     std::size_t level{};
-    bool literal{};
+    CharacterInterpretation interpretation{CharacterInterpretation::Normal};
 };
 
 } // namespace fred

@@ -162,6 +162,36 @@ int main() {
     }
 
     {
+        fred::FlowEngine flow(buffers);
+        const auto characters =
+            flow.expand_command_input_characters(
+                "JM!\\S(literal-doc)!");
+
+        bool saw_literal_slash = false;
+        bool saw_normal_prefix = false;
+
+        for (const auto& character : characters) {
+            if (character.value == 'J' &&
+                character.interpretation ==
+                    fred::CharacterInterpretation::Normal) {
+                saw_normal_prefix = true;
+            }
+            if (character.value == '\\' &&
+                character.interpretation ==
+                    fred::CharacterInterpretation::Literal) {
+                saw_literal_slash = true;
+            }
+        }
+
+        if (!saw_normal_prefix || !saw_literal_slash) {
+            std::cerr
+                << "FAILED: command flow character interpretation "
+                   "was not preserved\n";
+            return EXIT_FAILURE;
+        }
+    }
+
+    {
         const std::string max_name(64, 'n');
         buffers.create_or_select(max_name);
     }

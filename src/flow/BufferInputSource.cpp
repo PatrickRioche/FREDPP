@@ -5,12 +5,12 @@ namespace fred {
 BufferInputSource::BufferInputSource(const Buffer& buffer,
                                            std::size_t level,
                                            bool emit_newlines,
-                                           bool literal)
+                                           CharacterInterpretation interpretation)
     : buffer_(&buffer),
       description_("buffer(" + buffer.name() + ")"),
       level_(level),
       emit_newlines_(emit_newlines),
-      literal_(literal) {}
+      interpretation_(interpretation) {}
 
 std::optional<InputCharacter> BufferInputSource::next() {
     while (line_index_ < buffer_->line_count()) {
@@ -18,12 +18,12 @@ std::optional<InputCharacter> BufferInputSource::next() {
 
         if (column_index_ < current.size()) {
             return InputCharacter{
-                current.at(column_index_++), level_, literal_};
+                current.at(column_index_++), level_, interpretation_};
         }
 
         if (emit_newlines_ && !emit_newline_) {
             emit_newline_ = true;
-            return InputCharacter{'\n', level_, literal_};
+            return InputCharacter{'\n', level_, interpretation_};
         }
 
         ++line_index_;

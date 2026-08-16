@@ -1,3 +1,4 @@
+#include "fred/flow/FlowCharacterStream.hpp"
 #include "fred/lexer/StringCharacterStream.hpp"
 
 #include <cstdlib>
@@ -80,6 +81,37 @@ int main() {
 
     expect_throws([&] { stream.rewind(5); },
                   "invalid character rewind throws");
+
+    {
+        std::vector<fred::InputCharacter> input{
+            {'A', 0, fred::CharacterInterpretation::Normal},
+            {'\\', 2, fred::CharacterInterpretation::Literal},
+            {'S', 2, fred::CharacterInterpretation::Literal}
+        };
+
+        fred::FlowCharacterStream flow_stream(std::move(input));
+
+        const auto normal = flow_stream.consume();
+        expect(normal.has_value(), "flow normal character exists");
+        expect(
+            normal->interpretation ==
+                fred::CharacterInterpretation::Normal,
+            "flow normal interpretation");
+        expect(
+            normal->location.flow_level == 0,
+            "flow normal level");
+
+        const auto literal = flow_stream.consume();
+        expect(literal.has_value(), "flow literal character exists");
+        expect(literal->value == '\\', "flow literal value");
+        expect(
+            literal->interpretation ==
+                fred::CharacterInterpretation::Literal,
+            "flow literal interpretation");
+        expect(
+            literal->location.flow_level == 2,
+            "flow literal level");
+    }
 
     std::cout << "CharacterStream tests passed.\n";
     return EXIT_SUCCESS;

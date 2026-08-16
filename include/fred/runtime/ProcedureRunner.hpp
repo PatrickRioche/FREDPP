@@ -11,6 +11,7 @@ class BufferManager;
 class CommandExecutor;
 class CommandRegistry;
 class ExecutionContext;
+struct ExpandedCommandInput;
 
 class ProcedureRunner {
 public:
@@ -32,9 +33,10 @@ private:
     void execute_procedure_line(const std::vector<std::string>& lines,
                                 std::size_t& index,
                                 std::size_t depth);
-    void execute_single_command(std::string_view source,
-                                const std::vector<std::string>* lines,
-                                std::size_t* index);
+    void execute_single_command(
+        const ExpandedCommandInput& source,
+        const std::vector<std::string>* lines,
+        std::size_t* index);
 
     BufferManager* buffers_;
     ExecutionContext* context_;

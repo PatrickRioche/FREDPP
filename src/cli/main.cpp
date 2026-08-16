@@ -18,6 +18,7 @@
 #include "Terminal.h"
 #include "HelpPager.h"
 #include "fred/flow/CommandInputExpansion.hpp"
+#include "fred/flow/FlowCharacterStream.hpp"
 #include "fred/runtime/ProcedureRunner.hpp"
 #include "fred/runtime/ExecutionContext.hpp"
 
@@ -503,13 +504,17 @@ int main(int argc, char** argv) {
                 continue;
             }
 
-            std::string command_input = input;
+            fred::ExpandedCommandInput expanded_command =
+                fred::make_command_input(input);
             if (first_non_space != std::string::npos &&
                 input[first_non_space] != ':' &&
                 input[first_non_space] != '"') {
-                command_input =
-                    fred::expand_command_input(input, manager);
+                expanded_command =
+                    fred::expand_command_input_with_metadata(
+                        input, manager);
             }
+            const std::string& command_input =
+                expanded_command.text;
 
             if (procedure_runner.execute_buffer_directive(command_input)) {
                 if (execution_context.exit_requested()) {
@@ -550,7 +555,9 @@ int main(int argc, char** argv) {
             } else if (!input.empty() && input.front() == ':') {
                 std::cout << "Unknown development command\n";
             } else if (!input.empty()) {
-                fred::Lexer lexer(command_input);
+                fred::FlowCharacterStream character_stream(
+                    std::move(expanded_command.characters));
+                fred::Lexer lexer(character_stream);
                 fred::TokenStream tokens(lexer);
                 fred::CommandParser parser(tokens, command_registry);
 

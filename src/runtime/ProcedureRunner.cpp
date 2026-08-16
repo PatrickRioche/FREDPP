@@ -4,6 +4,7 @@
 #include "fred/command/CommandRegistry.hpp"
 #include "fred/core/BufferManager.hpp"
 #include "fred/flow/CommandInputExpansion.hpp"
+#include "fred/flow/FlowCharacterStream.hpp"
 #include "fred/flow/FlowEngine.hpp"
 #include "fred/lexer/Lexer.hpp"
 #include "fred/lexer/TokenStream.hpp"
@@ -515,12 +516,12 @@ void ProcedureRunner::execute_procedure_line(
         return;
     }
 
-    const std::string expanded_source =
+    const ExpandedCommandInput expanded_source =
         is_comment(raw_value)
-            ? std::string(raw_value)
-            : expand_command_input(
+            ? make_command_input(raw_value)
+            : expand_command_input_with_metadata(
                   raw_value, *buffers_, maximum_depth_);
-    const auto value = trim(expanded_source);
+    const auto value = trim(expanded_source.text);
 
     try {
         if (const auto nested = parse_buffer_directive(value)) {
@@ -569,7 +570,8 @@ void ProcedureRunner::execute_procedure_line(
         }
 
 
-        execute_single_command(value, &lines, &index);
+        execute_single_command(
+            expanded_source, &lines, &index);
     } catch (const ReportedProcedureError&) {
         // Une procédure imbriquée a déjà affiché son contexte exact.
         throw;
@@ -582,10 +584,10 @@ void ProcedureRunner::execute_procedure_line(
 
 
 void ProcedureRunner::execute_single_command(
-    std::string_view source,
+    const ExpandedCommandInput& source,
     const std::vector<std::string>* lines,
     std::size_t* index) {
-    const auto raw_value = trim(source);
+    const auto raw_value = trim(source.text);
     if (raw_value.empty()) {
         return;
     }
@@ -594,9 +596,8 @@ void ProcedureRunner::execute_single_command(
         context_->output().write_line(raw_value);
     }
 
-    const std::string_view value = raw_value;
-
-    Lexer lexer(value);
+    FlowCharacterStream character_stream(source.characters);
+    Lexer lexer(character_stream);
     TokenStream tokens(lexer);
     CommandParser parser(tokens, *registry_);
 

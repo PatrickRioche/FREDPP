@@ -8,6 +8,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 namespace fred {
 
@@ -19,6 +20,8 @@ public:
     [[nodiscard]] std::string expand_buffer(std::string_view buffer_name);
     [[nodiscard]] std::string expand_input(std::string_view source);
     [[nodiscard]] std::string expand_command_input(std::string_view source);
+    [[nodiscard]] std::vector<InputCharacter>
+    expand_command_input_characters(std::string_view source);
 
 private:
     [[nodiscard]] std::string expand_current_input();
@@ -29,7 +32,8 @@ private:
     void push_buffer(std::string_view buffer_name,
                      std::size_t level,
                      bool emit_newlines = true,
-                     bool literal = false);
+                     CharacterInterpretation interpretation =
+                         CharacterInterpretation::Normal);
 
     const BufferManager* buffers_;
     InputStack input_;
