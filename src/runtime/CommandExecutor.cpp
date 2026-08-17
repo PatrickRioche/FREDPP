@@ -175,18 +175,59 @@ DecodedFile read_file(const std::string& filename) {
     return decode_file(std::move(bytes), filename);
 }
 
-void execute_read(const ReadCommandNode& command, ExecutionContext& context) {
+void execute_read(const ReadCommandNode& command,
+                  ExecutionContext& context) {
     auto& buffer = context.current_buffer();
-    if (!buffer.empty() || buffer.modified() || buffer.has_associated_file()) {
+
+    std::string filename;
+    if (command.filename()) {
+        filename = *command.filename();
+    } else if (buffer.associated_file()) {
+        filename = *buffer.associated_file();
+    } else {
         throw CommandExecutionError(
-            "R requires an empty, unassociated, unmodified current buffer");
+            "R requires a filename when the buffer has no associated file");
     }
 
-    auto decoded = read_file(command.filename());
+    if (command.address() == nullptr) {
+        if (!buffer.empty()) {
+            throw CommandExecutionError("buffer not empty");
+        }
+
+        auto decoded = read_file(filename);
+        const auto line_count = decoded.lines.size();
+        buffer.load_file(std::move(decoded.lines), filename,
+                         decoded.encoding, decoded.line_ending,
+                         decoded.final_newline);
+        context.set_counter(line_count);
+        context.set_condition(true);
+        return;
+    }
+
+    Buffer::LineNumber insertion_after{};
+    if (buffer.empty()) {
+        // For addressed R, historical '$' is the end insertion position.
+        // On an empty buffer that position is zero. This special case belongs
+        // to R insertion semantics; AddressEvaluator remains strict for the
+        // other commands and address forms.
+        if (command.address()->kind() != AstNodeKind::LastAddress) {
+            throw CommandExecutionError(
+                "cannot address lines in an empty buffer");
+        }
+        insertion_after = 0;
+    } else {
+        const auto range =
+            AddressEvaluator{}.evaluate(command.address(), buffer);
+        if (range.first != range.last) {
+            throw CommandExecutionError(
+                "R insertion address must be a single line");
+        }
+        insertion_after = range.first;
+    }
+
+    auto decoded = read_file(filename);
     const auto line_count = decoded.lines.size();
-    buffer.load_file(std::move(decoded.lines), command.filename(),
-                     decoded.encoding, decoded.line_ending,
-                     decoded.final_newline);
+    buffer.insert_after(insertion_after, std::move(decoded.lines));
     context.set_counter(line_count);
     context.set_condition(true);
 }

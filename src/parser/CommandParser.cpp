@@ -248,17 +248,15 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         }
 
         if (mnemonic == 'R') {
-            if (address) {
-                throw ParseError("R does not accept a line address",
-                                 address->location());
+            if (address && address->kind() == AstNodeKind::RangeAddress) {
+                throw ParseError(
+                    "R insertion address must be a single line",
+                    address->location());
             }
             auto filename = parse_optional_filename();
-            if (!filename) {
-                throw ParseError("R requires a filename", command.location);
-            }
             require_command_end();
-            return std::make_unique<ReadCommandNode>(std::move(*filename),
-                                                      command.location);
+            return std::make_unique<ReadCommandNode>(
+                std::move(address), std::move(filename), command.location);
         }
 
         if (mnemonic == 'W') {

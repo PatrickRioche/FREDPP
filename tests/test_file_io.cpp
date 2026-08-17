@@ -97,6 +97,123 @@ int main() {
         assert(!buffers.current().modified());
     }
 
+
+    // Historical FRED R semantics are isolated in their own buffer so that
+    // the pre-existing W/encoding tests remain unchanged.
+    buffers.create_or_select("read_history");
+    {
+        const auto command = parse("R " + quoted(ascii_file));
+        executor.execute(*command, context);
+        assert(buffers.current().associated_file() &&
+               *buffers.current().associated_file() == ascii_file.string());
+        assert(!buffers.current().modified());
+    }
+
+    const auto second_file = root / "second input.txt";
+    write_bytes(second_file, "delta\nomega\n");
+
+    // Unaddressed R still refuses a non-empty current buffer.
+    expect_execution_error(
+        [&] {
+            const auto command = parse("R " + quoted(second_file));
+            executor.execute(*command, context);
+        },
+        "buffer not empty");
+
+    // After *D the buffer is empty but remains associated and modified.
+    // Historical R with a new filename must be allowed and replaces the
+    // association; a successful complete read leaves the buffer clean.
+    buffers.current().erase(1, buffers.current().line_count());
+    assert(buffers.current().empty());
+    assert(buffers.current().modified());
+    assert(buffers.current().associated_file() &&
+           *buffers.current().associated_file() == ascii_file.string());
+    {
+        const auto command = parse("R " + quoted(second_file));
+        executor.execute(*command, context);
+        assert(buffers.current().line_count() == 2);
+        assert(buffers.current().line(1) == "delta");
+        assert(buffers.current().line(2) == "omega");
+        assert(buffers.current().associated_file() &&
+               *buffers.current().associated_file() == second_file.string());
+        assert(!buffers.current().modified());
+    }
+
+    // Official FRED '*d r': reload the already associated file.
+    buffers.current().erase(1, buffers.current().line_count());
+    assert(buffers.current().empty());
+    assert(buffers.current().modified());
+    {
+        const auto command = parse("R");
+        executor.execute(*command, context);
+        assert(buffers.current().line_count() == 2);
+        assert(buffers.current().line(1) == "delta");
+        assert(buffers.current().line(2) == "omega");
+        assert(buffers.current().associated_file() &&
+               *buffers.current().associated_file() == second_file.string());
+        assert(!buffers.current().modified());
+    }
+
+    // $R file appends after the final line, preserves the existing file
+    // association, and marks the buffer modified.
+    const auto append_file = root / "append input.txt";
+    write_bytes(append_file, "tail-one\ntail-two\n");
+    {
+        const auto command = parse("$R " + quoted(append_file));
+        executor.execute(*command, context);
+        assert(buffers.current().line_count() == 4);
+        assert(buffers.current().line(3) == "tail-one");
+        assert(buffers.current().line(4) == "tail-two");
+        assert(buffers.current().associated_file() &&
+               *buffers.current().associated_file() == second_file.string());
+        assert(buffers.current().modified());
+        assert(context.counter() == 2);
+        assert(context.condition());
+    }
+
+    // Addressed R without filename reads the associated file and inserts it
+    // after the addressed line without changing the association.
+    {
+        const auto command = parse("1R");
+        executor.execute(*command, context);
+        assert(buffers.current().line_count() == 6);
+        assert(buffers.current().line(2) == "delta");
+        assert(buffers.current().line(3) == "omega");
+        assert(buffers.current().associated_file() &&
+               *buffers.current().associated_file() == second_file.string());
+        assert(buffers.current().modified());
+    }
+    // $R on an empty buffer uses insertion position zero. This is the
+    // historical behavior required by procedures that accumulate files with
+    // B(proc) followed by $R file. Addressed R must not create an association.
+    buffers.create_or_select("read_empty_dollar");
+    assert(buffers.current().empty());
+    assert(!buffers.current().associated_file());
+    assert(!buffers.current().modified());
+    {
+        const auto command = parse("$R " + quoted(append_file));
+        executor.execute(*command, context);
+        assert(buffers.current().line_count() == 2);
+        assert(buffers.current().line(1) == "tail-one");
+        assert(buffers.current().line(2) == "tail-two");
+        assert(!buffers.current().associated_file());
+        assert(buffers.current().modified());
+        assert(context.counter() == 2);
+        assert(context.condition());
+    }
+
+    // Other line addresses on an empty buffer remain invalid.
+    buffers.create_or_select("read_empty_line_one");
+    expect_execution_error(
+        [&] {
+            const auto command = parse("1R " + quoted(append_file));
+            executor.execute(*command, context);
+        },
+        "cannot address lines in an empty buffer");
+    assert(buffers.current().empty());
+    assert(!buffers.current().associated_file());
+    assert(!buffers.current().modified());
+
     const auto utf8_input = root / "utf8 input.txt";
     const auto utf8_output = root / "utf8 output.txt";
     write_bytes(utf8_input, std::string("\xEF\xBB\xBF") + "café\n");
@@ -154,6 +271,14 @@ int main() {
             executor.execute(*command, context);
         },
         "requires a filename");
+
+    buffers.create_or_select("read_no_file");
+    expect_execution_error(
+        [&] {
+            const auto command = parse("R");
+            executor.execute(*command, context);
+        },
+        "R requires a filename when the buffer has no associated file");
 
     std::filesystem::remove_all(root);
     return 0;

@@ -224,7 +224,27 @@ int main() {
         const auto node = parse("R \"sample file.txt\"");
         assert(node->kind() == fred::AstNodeKind::ReadCommand);
         const auto& read = static_cast<const fred::ReadCommandNode&>(*node);
-        assert(read.filename() == "sample file.txt");
+        assert(read.address() == nullptr);
+        assert(read.filename() && *read.filename() == "sample file.txt");
+    }
+    {
+        const auto node = parse("R");
+        const auto& read = static_cast<const fred::ReadCommandNode&>(*node);
+        assert(read.address() == nullptr);
+        assert(!read.filename());
+    }
+    {
+        const auto node = parse("$R \"append file.txt\"");
+        const auto& read = static_cast<const fred::ReadCommandNode&>(*node);
+        assert(read.address() != nullptr);
+        assert(read.address()->kind() == fred::AstNodeKind::LastAddress);
+        assert(read.filename() && *read.filename() == "append file.txt");
+    }
+    {
+        const auto node = parse("1R");
+        const auto& read = static_cast<const fred::ReadCommandNode&>(*node);
+        assert(read.address() != nullptr);
+        assert(!read.filename());
     }
     {
         const auto node = parse("W");
@@ -308,8 +328,8 @@ int main() {
     expect_error("T", "T requires a destination address");
     expect_error("1T2,3", "T destination must be a single line address");
     expect_error("1L", "L does not accept a line address");
-    expect_error("R", "R requires a filename");
-    expect_error("1R file.txt", "R does not accept a line address");
+    expect_error("1,2R file.txt",
+                 "R insertion address must be a single line");
     expect_error("print", "expected a command, got 'print'");
 
     std::cout << "command parser tests passed\n";

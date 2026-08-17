@@ -245,18 +245,21 @@ enum class FileWriteMode {
 
 class ReadCommandNode final : public CommandNode {
 public:
-    ReadCommandNode(std::string filename, SourceLocation location) noexcept
-        : CommandNode(nullptr, location), filename_(std::move(filename)) {}
+    ReadCommandNode(std::unique_ptr<AddressNode> address,
+                    std::optional<std::string> filename,
+                    SourceLocation location) noexcept
+        : CommandNode(std::move(address), location),
+          filename_(std::move(filename)) {}
 
     [[nodiscard]] AstNodeKind kind() const noexcept override {
         return AstNodeKind::ReadCommand;
     }
-    [[nodiscard]] const std::string& filename() const noexcept {
+    [[nodiscard]] const std::optional<std::string>& filename() const noexcept {
         return filename_;
     }
 
 private:
-    std::string filename_;
+    std::optional<std::string> filename_;
 };
 
 class WriteCommandNode final : public CommandNode {

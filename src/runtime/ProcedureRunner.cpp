@@ -472,7 +472,8 @@ void ProcedureRunner::load_and_execute_file(
     }
 
     const std::string procedure_buffer_name = buffer.name();
-    ReadCommandNode read_command(filename, SourceLocation{});
+    ReadCommandNode read_command(
+        nullptr, filename, SourceLocation{});
 
     try {
         executor_->execute(read_command, *context_);
