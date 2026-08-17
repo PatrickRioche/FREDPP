@@ -1,85 +1,105 @@
-﻿# FREDPP v0.0.20 — Sauts arrière dans les procédures
+﻿# FREDPP v0.0.21 — Lecture historique `R` et bibliothèque d'exemples
 
-FREDPP v0.0.20 complète le contrôle de flot des procédures FRED avec la prise en charge des sauts vers une étiquette située avant l'instruction courante.
+FREDPP v0.0.21 restaure la sémantique historique essentielle de la commande
+`R` et ajoute au kit Windows une petite bibliothèque de procédures FREDPP
+utilisables comme exemples réels.
 
-## Commande `J` et boucles historiques
+## Commande historique `R`
 
-La commande `J(label)` peut désormais cibler une étiquette `@(label)` située plus haut dans la procédure.
+Sans adresse, `R` effectue une lecture complète dans le buffer courant.
 
-FREDPP conserve la recherche vers l'avant en priorité. Si aucune étiquette correspondante n'est trouvée après l'instruction `J`, la recherche reprend depuis le début de la procédure afin de permettre un saut arrière.
+Le buffer doit être vide, mais il n'a plus besoin d'être sans association ni
+dans un état non modifié. Ceci permet notamment le cas historique :
 
-Ce comportement est indispensable aux boucles utilisées dans les procédures FRED historiques.
+    *D
+    R
+
+Après `*D`, le buffer est vide tout en conservant son association. `R` sans nom
+de fichier relit alors le fichier associé.
+
+Un nouveau nom reste possible :
+
+    *D
+    R nouveau.fredpp
+
+La lecture complète remplace alors l'association du buffer par le nouveau
+fichier et laisse le buffer propre.
+
+## Lecture adressée
+
+Lorsqu'une adresse est fournie, `R` insère le fichier après la position
+adressée sans remplacer l'association du buffer courant.
 
 Exemple :
 
-    @(loop)
-    ...
-    J(loop)
+    $R autre.fredpp
 
-Les formes conditionnelles `J(label)T` et `J(label)F` bénéficient du même mécanisme de résolution des étiquettes.
+Sur un buffer non vide, le fichier est ajouté après la dernière ligne.
 
-Une étiquette réellement absente continue de provoquer l'erreur :
+Sur un buffer vide, `$` représente la position d'insertion de fin `0`. Le
+fichier est donc inséré au début du buffer. Cette règle est propre à
+l'insertion par `R` : une adresse de ligne inexistante comme `1R fichier` reste
+invalide sur un buffer vide.
 
-    ? label not found
+Ce comportement est notamment nécessaire à des procédures qui construisent un
+buffer par concaténations successives avec `$R`.
 
-## Validation avec une procédure historique
+## Bibliothèque minimale d'exemples — Windows
 
-Le comportement a notamment été validé avec la procédure `index.fredpp`.
+Le ZIP Windows contient désormais un répertoire :
 
-Cette procédure utilise une boucle de la forme :
+    library/
 
-    @(ttqlistproc)
-    B(listproc)
-    N(listproc):$=0 J(fttqlistproc)T
-    1M(1fic)
-    JM/ le fichier est : .../
-    J(ttqlistproc)
+avec quatre procédures fournies comme exemples :
 
-    @(fttqlistproc)
+    aide.fredpp
+    hello.fredpp
+    index.fredpp
+    ouya.fredpp
 
-Le saut `J(ttqlistproc)` revient désormais correctement vers l'étiquette située en amont.
+`index.fredpp` parcourt la bibliothèque et affiche la description des
+procédures disponibles.
 
-La procédure peut ainsi parcourir successivement les fichiers présents dans la bibliothèque FREDPP avant de sortir de la boucle lorsque la condition de fin est satisfaite.
+`ouya.fredpp` est volontairement adapté à Windows. Les exemples contenant des
+chemins ou commandes Windows ne sont donc pas ajoutés tels quels aux archives
+Debian/macOS.
 
-## Résolution des étiquettes
+## Validation
 
-La résolution d'un `J(label)` suit désormais l'ordre suivant :
-
-1. recherche d'une étiquette correspondante après l'instruction courante ;
-2. si aucune n'est trouvée, recherche depuis le début de la procédure jusqu'à l'instruction courante ;
-3. si aucune étiquette correspondante n'existe, émission de `? label not found`.
-
-Cette stratégie conserve le comportement existant pour les sauts vers l'avant tout en ajoutant la possibilité d'effectuer des boucles arrière.
-
-## Tests
-
-La suite automatisée complète a été exécutée après l'implémentation :
+La suite automatisée complète a été exécutée après la correction :
 
     100% tests passed out of 50
 
-Le fonctionnement a également été vérifié directement avec `index.fredpp` sur une bibliothèque réelle.
+Le fonctionnement a également été validé directement avec :
 
-## Compatibilité
+    fredpp index
 
-Cette version n'introduit aucun changement de syntaxe.
+Résultat attendu et obtenu :
 
-Elle complète l'implémentation de la commande historique `J` afin de permettre les structures de contrôle utilisant des sauts arrière et améliore ainsi la compatibilité de FREDPP avec les procédures FRED historiques.
+    aide  - Affiche l'aide de la procedure fredpp
+    hello - Classique Hello Word
+    index - Liste les usages des procedures sous /fred/library
+    ouya  - Recherche dans le chemin la liste de fichier correspondant au model
+
+Les fichiers historiques sous `docs/fr/reference/commandes` restent inchangés.
 
 ## Paquets de release
 
-Le workflow de release existant produit les artefacts supportés du projet :
+Le workflow de release continue de produire les artefacts supportés du projet :
 
 - Windows x64 ;
 - Debian/Linux amd64 ;
 - Debian/Linux ARM64 ;
 - macOS Intel x64 ;
 - macOS Apple Silicon ARM64 ;
-- extension Visual Studio Code FREDPP ;
+- extension Visual Studio Code FREDPP 0.1.0 ;
 - sommes de contrôle SHA-256.
 
 ### Windows 11
 
-`fredpp.exe` n'est pas encore signé numériquement. Selon la configuration de Windows 11, Smart App Control ou Microsoft Defender SmartScreen peut donc bloquer son exécution.
+`fredpp.exe` n'est pas encore signé numériquement. Selon la configuration de
+Windows 11, Smart App Control ou Microsoft Defender SmartScreen peut donc
+bloquer son exécution.
 
 Télécharger FREDPP uniquement depuis les Releases GitHub officielles.
 

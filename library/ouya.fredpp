@@ -1,0 +1,29 @@
+" Auteur: Patrick Rioche    le 11/08/2026   a Angers
+" @(fredpp): ouya  - Recherche dans le chemin la liste de fichier correspondant au model
+"
+" Syntaxe:
+"   fredpp ouya <chemin> <modele>
+"
+" Options:
+"   <chemin>    Chemin d'ou rechercher. Exemple: c:\fredpp
+"   <modele>    Modele à recherche.     Exemple: *.fredd
+"
+n(np):$>0 j(param)t
+jm/Mode d'emploi :/
+jm/ fredpp ouya <chemin> <model_a_rechercher>/
+qq
+
+@(param)
+1m(chemin)
+1m(model)
+
+zg(list)!dir \S(chemin) /B /S
+b(list)
+g~/\S(model)/d
+n(nl):$=0 j(yarien)t
+*
+qq
+
+@(yarien)
+jm/rien de correspond au \S(model) dans le \S(chemin)/
+qq

@@ -1,0 +1,28 @@
+" Auteur: Patrick Rioche    le 14/08/2026   a Angers
+" @(fredpp): aide  - Affiche l'aide de la procedure fredpp
+"
+" Syntaxe:
+"     fredpp aide <procedure>
+"
+" Description:
+"   fredpp aide donne des explications sur la procedure specifiee
+"   en affichant les commentaires commencant en debut de ligne.
+"   aide recherche un fichier de nom "<procedure>", ou "/fred/"<procedure>",
+"   library/fred/"<procedure>" et en dernier "fred/"<procedure>".
+"
+n(np):$>0 j(param)t
+jm/Mode d'emploi :/
+jm/  fredpp aide <procedure>/
+qq
+
+@(param)
+b(0)
+1m(procedure)
+    "
+b(doc)
+r c:/fredpp/library/\S(procedure).fredpp
+g~/^"/d
+1,$s/^"//
+1,3d
+*
+qq

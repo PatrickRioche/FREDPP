@@ -42,5 +42,15 @@ foreach ($File in @("LICENSE", "NOTICE", "CHANGELOG.md", "ROADMAP.md", "RELEASE_
     Copy-Item (Join-Path $ProjectRoot $File) (Join-Path $StageDirectory $File)
 }
 
+$LibraryDirectory = Join-Path $StageDirectory "library"
+New-Item -ItemType Directory -Path $LibraryDirectory -Force | Out-Null
+foreach ($Procedure in @("aide.fredpp", "hello.fredpp", "index.fredpp", "ouya.fredpp")) {
+    $ProcedureSource = Join-Path (Join-Path $ProjectRoot "library") $Procedure
+    if (-not (Test-Path $ProcedureSource)) {
+        throw "Missing release library procedure: $Procedure"
+    }
+    Copy-Item $ProcedureSource (Join-Path $LibraryDirectory $Procedure)
+}
+
 Compress-Archive -Path $StageDirectory -DestinationPath $ArchivePath -CompressionLevel Optimal
 Write-Host "Created: $ArchivePath"

@@ -1,3 +1,37 @@
+## v0.0.21 — Lecture historique `R` et bibliothèque d'exemples
+
+### Corrigé
+
+- la commande `R` sans adresse suit désormais la sémantique historique : le
+  buffer doit être vide, mais peut rester associé et/ou modifié après `*D` ;
+- `R` sans nom de fichier recharge le fichier déjà associé au buffer ;
+- `R nouveau.fichier` sur un buffer vide remplace correctement l'association
+  existante et laisse le buffer propre ;
+- `adresse R fichier` insère le contenu après la ligne adressée sans modifier
+  l'association du buffer courant ;
+- `$R fichier` fonctionne sur un buffer vide : `$` représente alors la position
+  d'insertion de fin `0`, ce qui permet l'insertion au début du buffer ;
+- une adresse de ligne inexistante, telle que `1R fichier` sur un buffer vide,
+  reste rejetée.
+
+### Distribution Windows
+
+- ajout d'une bibliothèque minimale d'exemples dans `library/` du ZIP Windows :
+  `aide.fredpp`, `hello.fredpp`, `index.fredpp` et `ouya.fredpp` ;
+- `ouya.fredpp` est volontairement adapté à Windows ;
+- les procédures Windows ne sont pas ajoutées telles quelles aux paquets
+  Debian/macOS.
+
+### Validation
+
+- suite Windows : **50/50 tests réussis** ;
+- validation réelle de `R`, `*D` puis `R`, `$R` et de la conservation des
+  associations de fichiers ;
+- validation end-to-end avec `fredpp index`, qui parcourt la bibliothèque et
+  affiche les quatre procédures d'exemple ;
+- les 104 fichiers historiques sous `docs/fr/reference/commandes` restent
+  strictement inchangés.
+
 ## v0.0.20 ? Sauts arri?re dans les proc?dures
 
 ### Fixed

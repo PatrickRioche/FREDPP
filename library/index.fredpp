@@ -1,0 +1,32 @@
+" Auteur: Patrick Rioche    le 15/08/2026   a Angers
+" @(fredpp): index - Liste les usages des procedures sous /fred/library
+"
+" Syntaxe:
+"  fredpp index
+"
+" Description:
+"   Affiche un index de tous les procedures sous /fredpp/library
+"
+zg(listproc)!dir c:\fredpp\library /B /S
+b(listproc)
+
+    "
+    " Tant que simple sur contenu d'un buffer
+    "
+@(ttqlistproc)
+    b(listproc)
+    n(listproc):$=0 j(fttqlistproc)t
+
+    1m(1fic)
+    b(proc)
+    $r \S(1fic)
+
+    j(ttqlistproc)
+
+@(fttqlistproc)
+
+b(proc)
+g~/^" @/d
+1,$s/^" @.*: //
+*
+qq

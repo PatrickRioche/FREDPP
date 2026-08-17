@@ -15,6 +15,10 @@ set(required_files
     packaging/LISEZMOI-WINDOWS.txt
     packaging/LISEZMOI-DEBIAN.txt
     packaging/LISEZMOI-MACOS.txt
+    library/aide.fredpp
+    library/hello.fredpp
+    library/index.fredpp
+    library/ouya.fredpp
     scripts/package-release.ps1
     scripts/package-release.sh
     scripts/package-release-macos.sh

@@ -1,0 +1,21 @@
+" Auteur: PatrickRioche     le 08/08/2026   a Angers
+" @(fredpp): hello - Classique Hello Word
+"
+" Syntaxe:
+"   fredpp hello
+"
+" Description:
+"   Afficher "Hello word!!!"
+"
+b(hello)
+a
+Hello
+\F
+
+b(word)
+a
+word
+\F
+
+jp/\S(hello)/ jp/ /jp/\S(word)/ jp/!!!/
+qq
