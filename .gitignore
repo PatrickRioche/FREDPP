@@ -35,3 +35,9 @@ Thumbs.db
 *.vsix
 SHA256SUMS.txt
 apply_*.py
+# Android / Gradle
+.gradle/
+local.properties
+*.apk
+*.aab
+android/app/.cxx/

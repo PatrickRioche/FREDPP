@@ -1,3 +1,26 @@
+## v0.0.22 — Application Android native
+
+### Ajouté
+
+- Android devient une plateforme FREDPP avec une application Kotlin / Jetpack Compose ;
+- le moteur historique reste le même `fredpp_core` C++20, embarqué via JNI/NDK ;
+- ouverture de procédures texte / `.fredpp` depuis le sélecteur Android ;
+- logo officiel conservé comme référence graphique dans `assets/branding/` ;
+- icône Android compacte dérivée du logo et réservée aux emplacements nécessitant une icône ;
+- CI Android dédiée et génération d'un APK dans la release GitHub.
+
+### Architecture
+
+- nouvelle option CMake `FREDPP_BUILD_CLI`, activée par défaut ;
+- le build Android désactive uniquement le CLI et les tests dans son sous-build natif ;
+- `fredpp_core` reste commun aux plateformes existantes et à Android ;
+- la session JNI conserve les buffers entre deux exécutions.
+
+### Distribution
+
+- ajout de `FREDPP-v0.0.22-android.apk` aux artefacts de release ;
+- l'APK est inclus dans `SHA256SUMS.txt`.
+
 ## v0.0.21 — Lecture historique `R` et bibliothèque d'exemples
 
 ### Corrigé

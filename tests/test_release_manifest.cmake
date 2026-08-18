@@ -27,6 +27,25 @@ set(required_files
     editors/vscode/syntaxes/fredpp.tmLanguage.json
     editors/vscode/snippets/fredpp.json
     editors/vscode/README.md
+    assets/branding/README.md
+    assets/branding/fredpp-logo-reference.png
+    assets/branding/fredpp-android-icon.png
+    android/settings.gradle.kts
+    android/build.gradle.kts
+    android/gradle.properties
+    android/gradlew
+    android/gradlew.bat
+    android/gradle/wrapper/gradle-wrapper.jar
+    android/gradle/wrapper/gradle-wrapper.properties
+    android/app/build.gradle.kts
+    android/app/src/main/AndroidManifest.xml
+    android/app/src/main/cpp/CMakeLists.txt
+    android/app/src/main/cpp/native-lib.cpp
+    android/app/src/main/java/fr/fredpp/android/MainActivity.kt
+    android/app/src/main/java/fr/fredpp/android/NativeBridge.kt
+    android/app/src/main/res/drawable-nodpi/fredpp_logo.png
+    android/app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
+    .github/workflows/android-ci.yml
     scripts/release-stats.ps1
     scripts/release-stats.sh
     .github/workflows/release.yml
