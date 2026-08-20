@@ -10,6 +10,8 @@ StringCharacterStream::StringCharacterStream(std::string_view source,
     : storage_(source) {
     characters_.reserve(storage_.size());
 
+    // Locations are computed once at construction time. This keeps later
+    // peek/consume operations constant-time and independent from source scans.
     std::size_t line = 1;
     std::size_t column = 1;
 
@@ -27,6 +29,8 @@ StringCharacterStream::StringCharacterStream(std::string_view source,
         }
     }
 
+    // EOF has a real source position so diagnostics and the End token can
+    // point immediately after the last input character.
     end_location_ =
         SourceLocation{storage_.size(), line, column, flow_level};
 }
@@ -56,6 +60,7 @@ std::size_t StringCharacterStream::position() const noexcept {
 }
 
 void StringCharacterStream::rewind(std::size_t position) {
+    // The position equal to size() is valid and represents EOF.
     if (position > characters_.size()) {
         throw std::out_of_range("character stream position out of range");
     }

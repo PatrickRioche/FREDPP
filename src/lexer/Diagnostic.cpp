@@ -31,6 +31,9 @@ std::string format_diagnostic(const Diagnostic& diagnostic) {
     if (!diagnostic.source_line.empty()) {
         output << '\n' << diagnostic.source_line << '\n';
 
+        // SourceLocation columns are normally one-based. The defensive
+        // column==0 branch avoids an unsigned underflow in malformed/external
+        // diagnostics.
         const auto spaces =
             diagnostic.location.column > 0
                 ? diagnostic.location.column - 1

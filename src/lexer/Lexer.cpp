@@ -7,6 +7,8 @@ namespace fred {
 
 namespace {
 
+// Lexical classification is intentionally ASCII-specific. Avoiding locale-
+// dependent ctype functions keeps FRED parsing deterministic across platforms.
 bool is_ascii_digit(char value) noexcept {
     return value >= '0' && value <= '9';
 }
@@ -70,6 +72,8 @@ Token Lexer::next() {
     const auto current_character = stream_->peek();
     const char current = peek();
 
+    // Literal structural characters are deliberately downgraded to Symbol.
+    // This is the lexical half of the FRED flow/directive protection model.
     if (current_character &&
         is_literal_lexical_syntax(*current_character)) {
         const Character consumed = advance();
@@ -142,6 +146,8 @@ Token Lexer::next() {
 std::vector<Token> Lexer::tokenize() {
     std::vector<Token> result;
 
+    // End is included in the returned vector by design so downstream code can
+    // use the same termination contract as incremental TokenStream consumers.
     while (true) {
         auto token = next();
         const bool done = token.type == TokenType::End;
@@ -168,6 +174,10 @@ Character Lexer::advance() noexcept {
     if (character) {
         return *character;
     }
+
+    // Internal callers normally guard against EOF. The synthetic value makes
+    // this helper total and preserves a meaningful source location if invoked
+    // at the boundary.
     return Character{'\0', stream_->end_location()};
 }
 
@@ -179,6 +189,9 @@ SourceLocation Lexer::location() const noexcept {
 void Lexer::skip_horizontal_whitespace() noexcept {
     while (!at_end()) {
         const auto character = stream_->peek();
+
+        // Non-Normal whitespace carries flow semantics and must reach the token
+        // stream instead of disappearing during lexical preprocessing.
         if (!character ||
             character->interpretation !=
                 CharacterInterpretation::Normal) {
@@ -232,6 +245,8 @@ Token Lexer::lex_identifier_or_command() {
         lexeme.push_back(advance().value);
     }
 
+    // The lexer only identifies a single-letter command candidate. Registry
+    // lookup and command semantics belong to CommandParser.
     const bool command =
         lexeme.size() == 1 && is_ascii_letter(lexeme.front());
 
