@@ -27,6 +27,16 @@
 
 namespace {
 
+/**
+ * @brief Complete persistent native state for one Android terminal session.
+ *
+ * The session owns the same Core/Runtime services used by the desktop front end
+ * and adds Android-specific command queuing/text-input state. `context` borrows
+ * `buffers` and `output`; `runner` borrows buffers/context/registry/executor.
+ *
+ * A per-session mutex serializes JNI execute/prompt calls against this mutable
+ * state. The Java/Kotlin side owns the session through an opaque jlong handle.
+ */
 struct AndroidSession {
     fred::BufferManager buffers;
     fred::StringOutput output;
@@ -46,6 +56,13 @@ struct AndroidSession {
           runner(buffers, context, registry, executor) {}
 };
 
+/**
+ * @brief Converts an opaque JNI handle back to its native session pointer.
+ * @throws std::runtime_error when handle is zero.
+ *
+ * @warning Non-zero stale/foreign handles cannot be validated here; lifecycle
+ * correctness is the responsibility of NativeSession/create/destroy pairing.
+ */
 AndroidSession* from_handle(jlong handle) {
     if (handle == 0) {
         throw std::runtime_error("session Android FREDPP invalide");
@@ -54,10 +71,15 @@ AndroidSession* from_handle(jlong handle) {
         static_cast<std::intptr_t>(handle));
 }
 
+/** @brief Encodes a native session pointer as the jlong handle used by Kotlin. */
 jlong to_handle(AndroidSession* session) noexcept {
     return static_cast<jlong>(reinterpret_cast<std::intptr_t>(session));
 }
 
+/**
+ * @brief Copies a Java string through JNI modified-UTF-8 access.
+ * @return Empty string for a null jstring or failed GetStringUTFChars().
+ */
 std::string from_jstring(JNIEnv* env, jstring value) {
     if (value == nullptr) {
         return {};
@@ -71,6 +93,12 @@ std::string from_jstring(JNIEnv* env, jstring value) {
     return result;
 }
 
+/**
+ * @brief Creates a Java string from native text using NewStringUTF.
+ *
+ * JNI NewStringUTF uses modified UTF-8 semantics; this bridge therefore does
+ * not constitute a general arbitrary-byte transport API.
+ */
 jstring to_jstring(JNIEnv* env, std::string_view value) {
     return env->NewStringUTF(std::string(value).c_str());
 }
@@ -84,12 +112,18 @@ std::string trim_copy(std::string_view value) {
     return std::string(value.substr(first, last - first + 1));
 }
 
+/** @return true for A/I/C nodes that require subsequent text lines. */
 bool is_text_input_command(const fred::CommandNode& node) noexcept {
     return node.kind() == fred::AstNodeKind::AppendCommand ||
            node.kind() == fred::AstNodeKind::InsertCommand ||
            node.kind() == fred::AstNodeKind::ChangeCommand;
 }
 
+/**
+ * @brief Appends the Android `:print` debug view to session StringOutput.
+ *
+ * This is a front-end/debug representation, not execution of historical P.
+ */
 void write_current_buffer(AndroidSession& session) {
     const auto& buffer = session.buffers.current();
     session.output.write("[");
@@ -106,6 +140,14 @@ void write_current_buffer(AndroidSession& session) {
     }
 }
 
+/**
+ * @brief Executes Android-side help/version/debug meta commands.
+ *
+ * @return true when the input was fully handled as a meta command.
+ *
+ * Current Android-specific compatibility includes `:help` as an alias for the
+ * FREDPP special help page, in addition to ordinary `?` help and `:print`.
+ */
 bool execute_meta_command(AndroidSession& session, std::string_view source) {
     const std::string value = trim_copy(source);
 
@@ -163,6 +205,12 @@ bool execute_meta_command(AndroidSession& session, std::string_view source) {
     return false;
 }
 
+/**
+ * @brief Completes the pending A/I/C command using accumulated text lines.
+ *
+ * Ownership of the pending AST and line vector is consumed. The function is a
+ * no-op if no text command is pending.
+ */
 void execute_text_command(AndroidSession& session) {
     if (!session.pending_text_command) {
         return;
@@ -190,6 +238,12 @@ void execute_text_command(AndroidSession& session) {
     }
 }
 
+/**
+ * @brief Executes queued parsed commands until completion, exit, or A/I/C.
+ *
+ * Encountering A/I/C moves that AST into pending_text_command and pauses the
+ * remaining chain. After `\F`, execution resumes with queued commands.
+ */
 void run_queued_commands(AndroidSession& session) {
     while (!session.queued_commands.empty() &&
            !session.context.exit_requested()) {
@@ -206,6 +260,14 @@ void run_queued_commands(AndroidSession& session) {
     }
 }
 
+/**
+ * @brief Applies the Android command pipeline and queues one parsed command line.
+ *
+ * Normal FRED input uses the same central metadata-preserving Flow expansion as
+ * the desktop CLI, then FlowCharacterStream -> Lexer -> TokenStream ->
+ * CommandParser. Lines beginning (after horizontal whitespace) with `:` or `"`
+ * intentionally bypass command-input expansion.
+ */
 void parse_and_queue_command_line(AndroidSession& session,
                                   std::string_view source) {
     fred::ExpandedCommandInput expanded = fred::make_command_input(source);
@@ -243,6 +305,19 @@ void parse_and_queue_command_line(AndroidSession& session,
     run_queued_commands(session);
 }
 
+/**
+ * @brief Executes one UI-submitted line against a persistent Android session.
+ *
+ * The complete operation is serialized by the session mutex and output is
+ * cleared per submitted line. Once Q/QQ requests exit, only Reset (new session)
+ * re-enables execution.
+ *
+ * Text-input mode accepts exactly `\F` as terminator; other lines are stored
+ * literally until the pending A/I/C operation is completed.
+ *
+ * Parser/runtime exceptions are converted to textual `error:` output and any
+ * queued/pending command state is cleared.
+ */
 std::string execute_line(AndroidSession& session, std::string_view source) {
     std::lock_guard<std::mutex> guard(session.mutex);
     session.output.clear();
@@ -289,6 +364,12 @@ std::string execute_line(AndroidSession& session, std::string_view source) {
     return session.output.content();
 }
 
+/**
+ * @brief Returns the prompt appropriate to the session's current state.
+ *
+ * `text> ` denotes A/I/C input, `[Q] ` denotes a terminated session, otherwise
+ * the prompt is `<current-buffer-name>> `.
+ */
 std::string current_prompt(AndroidSession& session) {
     std::lock_guard<std::mutex> guard(session.mutex);
     if (session.pending_text_command) {
@@ -302,6 +383,12 @@ std::string current_prompt(AndroidSession& session) {
 
 } // namespace
 
+/**
+ * @brief JNI NativeBridge.createSession().
+ * @return Opaque handle to a new AndroidSession, or 0 if construction fails.
+ *
+ * The Java/Kotlin caller becomes responsible for destroySession().
+ */
 extern "C" JNIEXPORT jlong JNICALL
 Java_fr_fredpp_android_NativeBridge_createSession(
     JNIEnv*, jobject) {
@@ -312,6 +399,12 @@ Java_fr_fredpp_android_NativeBridge_createSession(
     }
 }
 
+/**
+ * @brief JNI NativeBridge.destroySession().
+ *
+ * Deletes the pointer represented by the handle. Kotlin NativeSession prevents
+ * normal double-destroy by setting its handle to zero after close().
+ */
 extern "C" JNIEXPORT void JNICALL
 Java_fr_fredpp_android_NativeBridge_destroySession(
     JNIEnv*, jobject, jlong handle) {
@@ -319,6 +412,13 @@ Java_fr_fredpp_android_NativeBridge_destroySession(
         static_cast<std::intptr_t>(handle));
 }
 
+/**
+ * @brief JNI NativeBridge.executeLine().
+ *
+ * Converts Java input, executes one native session line and returns textual
+ * output. Escaping native exceptions are converted into an `error:` string so
+ * C++ exceptions never cross the JNI boundary.
+ */
 extern "C" JNIEXPORT jstring JNICALL
 Java_fr_fredpp_android_NativeBridge_executeLine(
     JNIEnv* env, jobject, jlong handle, jstring input) {
@@ -332,6 +432,10 @@ Java_fr_fredpp_android_NativeBridge_executeLine(
     }
 }
 
+/**
+ * @brief JNI NativeBridge.prompt().
+ * @return Current native prompt, or `?> ` if native prompt generation fails.
+ */
 extern "C" JNIEXPORT jstring JNICALL
 Java_fr_fredpp_android_NativeBridge_prompt(
     JNIEnv* env, jobject, jlong handle) {
@@ -343,6 +447,10 @@ Java_fr_fredpp_android_NativeBridge_prompt(
     }
 }
 
+/**
+ * @brief JNI NativeBridge.version().
+ * @return Build-generated FREDPP version string.
+ */
 extern "C" JNIEXPORT jstring JNICALL
 Java_fr_fredpp_android_NativeBridge_version(
     JNIEnv* env, jobject) {
