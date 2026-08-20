@@ -4,7 +4,9 @@
 
 namespace fred {
 
-ExecutionContext::ExecutionContext(BufferManager& buffers, Output& output) noexcept
+ExecutionContext::ExecutionContext(
+    BufferManager& buffers,
+    Output& output) noexcept
     : buffers_(&buffers), output_(&output) {}
 
 BufferManager& ExecutionContext::buffers() noexcept {
@@ -28,6 +30,9 @@ Output& ExecutionContext::output() noexcept {
 }
 
 Output& ExecutionContext::exchange_output(Output& output) noexcept {
+    // Used by ZG to capture nested command output temporarily. Ownership of
+    // neither sink changes; callers are responsible for restoring/keeping the
+    // referenced Output objects alive.
     Output* previous = output_;
     output_ = &output;
     return *previous;
@@ -50,6 +55,9 @@ void ExecutionContext::set_numeric_register(
 std::int64_t ExecutionContext::numeric_register(
     std::string_view name) const {
     const auto found = numeric_registers_.find(std::string(name));
+
+    // Historical/procedure numeric code currently treats an absent register as
+    // value zero. has_numeric_register() exists when absence matters.
     return found == numeric_registers_.end() ? 0 : found->second;
 }
 
@@ -59,7 +67,6 @@ bool ExecutionContext::has_numeric_register(
            numeric_registers_.end();
 }
 
-
 void ExecutionContext::set_condition(bool value) noexcept {
     condition_ = value;
 }
@@ -68,7 +75,8 @@ bool ExecutionContext::condition() const noexcept {
     return condition_;
 }
 
-void ExecutionContext::set_input_parentheses_required(bool value) noexcept {
+void ExecutionContext::set_input_parentheses_required(
+    bool value) noexcept {
     input_parentheses_required_ = value;
 }
 
@@ -85,6 +93,8 @@ bool ExecutionContext::monitor_commands() const noexcept {
 }
 
 void ExecutionContext::request_exit(bool immediate) noexcept {
+    // A later request overwrites the immediate flag while preserving the
+    // monotonic "exit requested" state.
     exit_requested_ = true;
     immediate_exit_requested_ = immediate;
 }

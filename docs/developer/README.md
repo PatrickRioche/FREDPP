@@ -25,10 +25,17 @@ AddressParser / PatternParser / CommandParser
           ↓
 AST
           ↓
-AddressEvaluator
+AddressEvaluator / PatternMatcher
           ↓
-Runtime
+CommandExecutor
+          ↓
+ExecutionContext
+   ├── BufferManager
+   └── Output
 ```
+
+`ProcedureRunner` coordinates the same Flow -> Lexer -> Parser -> Executor
+pipeline for procedure buffers/files and adds procedure-only control syntax.
 
 For command text, flow/substitution that is valid in historical FRED syntax is
 a **pre-parsing language stage**. It must remain centralized rather than being
@@ -42,6 +49,7 @@ implemented independently by each command.
 - [Command descriptors and registry](COMMAND.md)
 - [Core buffers, manager and limits](CORE.md)
 - [Flow engine and command-input expansion](FLOW.md)
+- [Runtime evaluation, execution and procedures](RUNTIME.md)
 
 Further modules are added incrementally as the source-documentation lots are
 completed.
@@ -66,3 +74,4 @@ completed.
 7. Flow/substitution in command arguments is a transversal language capability:
    when historical syntax permits it, expansion occurs before command parsing,
    never as command-by-command patches.
+8. Runtime receives parsed AST and must not reparse source command text.
