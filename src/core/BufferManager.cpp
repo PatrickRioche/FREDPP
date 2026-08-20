@@ -8,10 +8,14 @@
 namespace fred {
 
 BufferManager::BufferManager() {
+    // Buffer 0 is the bootstrap/default buffer and establishes the invariant
+    // that a freshly constructed manager has a valid current buffer.
     create_or_select("0");
 }
 
 void BufferManager::touch(std::string_view name) {
+    // Maintain a unique MRU list: remove any older occurrence, then place the
+    // selected buffer at the front.
     const std::string value(name);
     usage_order_.erase(
         std::remove(usage_order_.begin(), usage_order_.end(), value),
@@ -29,6 +33,8 @@ Buffer& BufferManager::create_or_select(std::string name) {
             std::to_string(limits::max_buffer_name_length) + " characters");
     }
 
+    // Decide whether the buffer being left is a disposable transient buffer
+    // before changing current_. Buffer 0 is explicitly protected.
     std::string previous_name;
     bool remove_previous = false;
     if (current_ != nullptr && current_->name() != name &&
@@ -67,6 +73,9 @@ Buffer& BufferManager::get_or_create(std::string name) {
             std::to_string(limits::max_buffer_name_length) + " characters");
     }
 
+    // This API intentionally does not select or touch the MRU list. It is used
+    // by bootstrap/runtime code that needs an owned buffer without changing the
+    // user's current-buffer state.
     auto [it, inserted] = buffers_.try_emplace(name, nullptr);
     if (inserted) {
         it->second = std::make_unique<Buffer>(name);
@@ -110,9 +119,12 @@ void BufferManager::erase(std::string_view name) {
         usage_order_.end());
 
     if (buffers_.empty()) {
+        // Preserve the manager invariant by recreating the bootstrap buffer.
         current_ = nullptr;
         create_or_select("0");
     } else if (deleting_current) {
+        // unordered_map iteration order is not a semantic ordering; therefore
+        // callers must not rely on which remaining buffer becomes current.
         current_ = buffers_.begin()->second.get();
     }
 }
@@ -143,6 +155,7 @@ std::vector<std::string> BufferManager::names() const {
 }
 
 std::vector<std::string> BufferManager::recent_names() const {
+    // Return a copy so callers cannot mutate the manager's MRU bookkeeping.
     return usage_order_;
 }
 

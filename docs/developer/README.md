@@ -10,26 +10,38 @@ limits, and the relationships between layers.
 ## Source pipeline
 
 ```text
-FlowEngine
-    ↓
+Buffer / BufferManager
+          ↑
+          │ lookup
+FlowEngine / CommandInputExpansion
+          ↓
 CharacterStream
-    ↓
+          ↓
 Lexer
-    ↓
+          ↓
 TokenStream
-    ↓
+          ↓
 AddressParser / PatternParser / CommandParser
-    ↓
+          ↓
 AST
-    ↓
+          ↓
 AddressEvaluator
-    ↓
+          ↓
 Runtime
 ```
+
+For command text, flow/substitution that is valid in historical FRED syntax is
+a **pre-parsing language stage**. It must remain centralized rather than being
+implemented independently by each command.
 
 ## Module documentation
 
 - [Lexer and character/token infrastructure](LEXER.md)
+- [AST nodes and ownership](AST.md)
+- [Address, pattern and command parsers](PARSER.md)
+- [Command descriptors and registry](COMMAND.md)
+- [Core buffers, manager and limits](CORE.md)
+- [Flow engine and command-input expansion](FLOW.md)
 
 Further modules are added incrementally as the source-documentation lots are
 completed.
@@ -43,7 +55,14 @@ completed.
    - architectural constraints;
    - current implementation limits;
    - historical FRED language rules;
+   - FREDPP extensions;
    - functionality not yet implemented.
 4. Documentation-only lots must not change runtime behavior.
 5. Statements about behavior should be cross-checked against implementation and
    tests before being written as a contract.
+6. Older milestone specifications are not assumed to describe every feature of
+   the current implementation; later code/tests take precedence when the
+   developer documentation describes the current source tree.
+7. Flow/substitution in command arguments is a transversal language capability:
+   when historical syntax permits it, expansion occurs before command parsing,
+   never as command-by-command patches.

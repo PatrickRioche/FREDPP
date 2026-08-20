@@ -19,6 +19,9 @@ void InputStack::push(std::unique_ptr<InputSource> source) {
     if (sources_.size() >= maximum_depth_) {
         throw std::runtime_error("maximum buffer-flow depth exceeded");
     }
+
+    // back() is the active source, giving injected/nested input normal stack
+    // semantics: consume child first, then resume its parent.
     sources_.push_back(std::move(source));
 }
 
@@ -27,6 +30,9 @@ std::optional<InputCharacter> InputStack::next() {
         if (auto character = sources_.back()->next()) {
             return character;
         }
+
+        // Exhausted sources are destroyed immediately; the next loop iteration
+        // resumes the previous caller/source.
         sources_.pop_back();
     }
     return std::nullopt;
@@ -34,6 +40,8 @@ std::optional<InputCharacter> InputStack::next() {
 
 bool InputStack::empty() const noexcept { return sources_.empty(); }
 std::size_t InputStack::depth() const noexcept { return sources_.size(); }
-std::size_t InputStack::maximum_depth() const noexcept { return maximum_depth_; }
+std::size_t InputStack::maximum_depth() const noexcept {
+    return maximum_depth_;
+}
 
 } // namespace fred

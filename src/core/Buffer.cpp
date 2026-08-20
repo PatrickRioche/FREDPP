@@ -7,6 +7,8 @@
 namespace fred {
 
 Buffer::Buffer(std::string name) : name_(std::move(name)) {
+    // Buffer itself enforces only the non-empty invariant. The FREDPP-wide
+    // length limit is applied by BufferManager creation paths.
     if (name_.empty()) {
         throw std::invalid_argument("buffer name must not be empty");
     }
@@ -44,6 +46,8 @@ void Buffer::append(std::string text) {
 }
 
 void Buffer::insert_before(LineNumber number, std::string text) {
+    // One position immediately after the current last line is intentionally
+    // accepted as the append-at-end spelling.
     if (number == lines_.size() + 1) {
         append(std::move(text));
         return;
@@ -56,10 +60,13 @@ void Buffer::insert_before(LineNumber number, std::string text) {
 }
 
 void Buffer::insert_after(LineNumber number, std::vector<std::string> text) {
+    // Unlike APIs requiring an existing line, 0 is meaningful here: inserting
+    // after position zero inserts before the first stored line.
     if (number > lines_.size()) {
         throw std::out_of_range("line number out of range");
     }
 
+    // Empty insertion is a cursor operation only and must not dirty the Buffer.
     if (text.empty()) {
         current_line_ = number;
         return;
@@ -76,6 +83,8 @@ void Buffer::insert_after(LineNumber number, std::vector<std::string> text) {
 
 void Buffer::replace(LineNumber number, std::string text) {
     require_existing_line(number);
+    // Re-selecting/replacing with identical text changes the cursor but
+    // deliberately does not introduce a new modified state.
     if (lines_.at(number - 1) != text) {
         lines_.at(number - 1) = std::move(text);
         mark_modified();
@@ -90,11 +99,15 @@ void Buffer::erase(LineNumber first, LineNumber last) {
         throw std::invalid_argument("first line must not exceed last line");
     }
 
+    // `last` is inclusive in the public API; vector::erase uses an exclusive
+    // end iterator, hence the iterator at index `last`.
     lines_.erase(
         lines_.begin() + static_cast<std::ptrdiff_t>(first - 1),
         lines_.begin() + static_cast<std::ptrdiff_t>(last)
     );
 
+    // Historical/editor cursor behavior: prefer the line that moved into the
+    // erased range's first position; otherwise fall back to the new last line.
     if (lines_.empty()) {
         current_line_ = 0;
     } else if (first <= lines_.size()) {
@@ -106,6 +119,7 @@ void Buffer::erase(LineNumber first, LineNumber last) {
 }
 
 void Buffer::set_current_line(LineNumber number) {
+    // Zero is intentionally permitted as the no-current-line position.
     if (number > lines_.size()) {
         throw std::out_of_range("line number out of range");
     }
@@ -117,6 +131,7 @@ void Buffer::load_file(std::vector<std::string> lines,
                        TextEncoding encoding,
                        LineEnding line_ending,
                        bool final_newline) {
+    // Loading establishes a new clean baseline and replaces all file metadata.
     lines_ = std::move(lines);
     current_line_ = lines_.size();
     associated_file_ = std::move(filename);
@@ -130,6 +145,8 @@ void Buffer::associate_file(std::string filename,
                             TextEncoding encoding,
                             LineEnding line_ending,
                             bool final_newline) {
+    // Association metadata may change independently of the content's modified
+    // flag; callers decide when a write establishes a clean state.
     associated_file_ = std::move(filename);
     encoding_ = encoding;
     line_ending_ = line_ending;
@@ -140,6 +157,7 @@ void Buffer::mark_clean() noexcept { modified_ = false; }
 void Buffer::mark_modified() noexcept { modified_ = true; }
 
 void Buffer::require_existing_line(LineNumber number) const {
+    // Existing logical lines are strictly one-based.
     if (number == 0 || number > lines_.size()) {
         throw std::out_of_range("line number out of range");
     }

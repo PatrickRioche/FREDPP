@@ -11,8 +11,30 @@
 
 namespace fred {
 
+/**
+ * @brief CharacterStream adapter for already-expanded flow characters.
+ *
+ * FlowCharacterStream owns an expanded vector of InputCharacter values and
+ * converts it once to Lexer Character objects. It preserves flow level and
+ * CharacterInterpretation while computing ordinary output-relative
+ * offset/line/column locations.
+ *
+ * This class is the bridge from the flow-expansion layer into Lexer.
+ */
 class FlowCharacterStream final : public CharacterStream {
 public:
+    /**
+     * @brief Takes ownership of expanded input and precomputes locations.
+     *
+     * @param input Expanded characters to consume.
+     *
+     * @post Locations are based on the expanded character stream:
+     *       offset starts at 0; line/column start at 1.
+     * @post `\n` increments line and resets column to 1.
+     *
+     * @note end_location().flow_level is the last input character's level, or 0
+     *       for empty input.
+     */
     explicit FlowCharacterStream(std::vector<InputCharacter> input) {
         characters_.reserve(input.size());
 
@@ -41,6 +63,10 @@ public:
             SourceLocation{input.size(), line, column, end_level};
     }
 
+    /**
+     * @return Character at current position + lookahead, or nullopt past EOF.
+     * @note Does not change position().
+     */
     [[nodiscard]] std::optional<Character>
     peek(std::size_t lookahead = 0) const noexcept override {
         const auto index = position_ + lookahead;
@@ -50,6 +76,9 @@ public:
         return characters_[index];
     }
 
+    /**
+     * @return Current character and advances one position, or nullopt at EOF.
+     */
     [[nodiscard]] std::optional<Character> consume() noexcept override {
         if (eof()) {
             return std::nullopt;
@@ -57,14 +86,24 @@ public:
         return characters_[position_++];
     }
 
+    /** @return true when position() is at or beyond size(). */
     [[nodiscard]] bool eof() const noexcept override {
         return position_ >= characters_.size();
     }
 
+    /** @return Current zero-based stream cursor. */
     [[nodiscard]] std::size_t position() const noexcept override {
         return position_;
     }
 
+    /**
+     * @brief Sets the stream cursor to any valid position, including EOF.
+     *
+     * @param position New position in 0..size().
+     * @throws std::out_of_range when position > size().
+     *
+     * @note This API permits both backward rewind and forward repositioning.
+     */
     void rewind(std::size_t position) override {
         if (position > characters_.size()) {
             throw std::out_of_range(
@@ -73,10 +112,12 @@ public:
         position_ = position;
     }
 
+    /** @return Precomputed location immediately after the final character. */
     [[nodiscard]] SourceLocation end_location() const noexcept override {
         return end_location_;
     }
 
+    /** @return Number of owned Character values. */
     [[nodiscard]] std::size_t size() const noexcept {
         return characters_.size();
     }

@@ -10,6 +10,12 @@
 namespace fred {
 namespace {
 
+/**
+ * InputSource for the outer string passed to expand_input().
+ *
+ * The source text is copied so the InputSource owns stable storage even when
+ * the caller passed a temporary/string_view into unrelated storage.
+ */
 class StringInputSource final : public InputSource {
 public:
     explicit StringInputSource(std::string_view source, std::size_t level)
@@ -37,6 +43,13 @@ private:
     std::size_t position_{0};
 };
 
+/**
+ * Concatenates logical Buffer lines without introducing newline characters.
+ *
+ * This is used when a nested \S(...) expansion computes another buffer name:
+ * the referenced Buffer contributes literal name characters, not line
+ * separators.
+ */
 std::string literal_buffer_text(const Buffer& buffer) {
     std::string text;
     for (const auto& line : buffer.lines()) {
@@ -45,6 +58,7 @@ std::string literal_buffer_text(const Buffer& buffer) {
     return text;
 }
 
+/** Extracts only character bytes from a metadata-preserving expansion. */
 std::string input_characters_text(
     const std::vector<InputCharacter>& characters) {
     std::string text;
@@ -55,6 +69,14 @@ std::string input_characters_text(
     return text;
 }
 
+/**
+ * Appends Buffer content with Literal interpretation.
+ *
+ * \S uses emit_newlines=false and therefore concatenates Buffer lines.
+ * \L uses emit_newlines=true and preserves logical line boundaries as '\n'.
+ * In both cases Literal metadata prevents the injected text from being
+ * interpreted as another flow directive during this command-expansion pass.
+ */
 void append_literal_buffer_text(
     std::vector<InputCharacter>& output,
     const Buffer& buffer,
@@ -72,6 +94,14 @@ void append_literal_buffer_text(
     }
 }
 
+/**
+ * Recursive command-input expander.
+ *
+ * This path is deliberately separate from expand_current_input(): command
+ * parsing needs per-character Literal/ForcedSpecial metadata to survive until
+ * Lexer/PatternParser. Expansion is centralized here rather than duplicated in
+ * individual command parsers.
+ */
 std::vector<InputCharacter> expand_command_literal_buffer_segment(
     std::string_view source,
     std::size_t& position,
@@ -82,6 +112,8 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
     std::vector<InputCharacter> expanded;
 
     while (position < source.size()) {
+        // In a recursive buffer-name segment an unprotected ')' belongs to the
+        // directive syntax, not to the resulting name.
         if (stop_at_closing_parenthesis && source[position] == ')') {
             ++position;
             return expanded;
@@ -99,6 +131,8 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
                     "missing character after \\C");
             }
 
+            // FREDPP keeps the ordinary character byte and carries the
+            // historical "literal" effect as metadata.
             expanded.push_back(InputCharacter{
                 source[position + 2],
                 depth,
@@ -130,6 +164,9 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
         if (source[position] == '\\' &&
             position + 1 < source.size() &&
             source[position + 1] == '\\') {
+            // Command-input expansion preserves the two source backslashes.
+            // Full-flow expand_current_input() has different escape behavior
+            // and collapses "\\" to one output backslash.
             expanded.push_back(InputCharacter{
                 '\\', depth, CharacterInterpretation::Normal});
             expanded.push_back(InputCharacter{
@@ -147,6 +184,7 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
              source[position + 1] == 'l') &&
             source[position + 2] == '(';
 
+        // Unknown/non-command-input directives remain ordinary source text.
         if (!is_literal_buffer_directive) {
             expanded.push_back(InputCharacter{
                 source[position++],
@@ -166,6 +204,9 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
             directive == 'L' || directive == 'l';
 
         position += 3; // skip \S( or \L(
+
+        // The buffer name itself is subject to the same central expansion.
+        // This enables forms such as \S(\S(nombuf)).
         const auto buffer_name_characters =
             expand_command_literal_buffer_segment(
                 source, position, buffers,
@@ -202,10 +243,14 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
 
 } // namespace
 
-FlowEngine::FlowEngine(const BufferManager& buffers, std::size_t maximum_depth)
+FlowEngine::FlowEngine(
+    const BufferManager& buffers,
+    std::size_t maximum_depth)
     : buffers_(&buffers), input_(maximum_depth) {}
 
 std::string FlowEngine::expand_buffer(std::string_view buffer_name) {
+    // Full-flow operations share input_; overlapping/reentrant execution would
+    // corrupt stack semantics, so reject it explicitly.
     if (!input_.empty()) {
         throw std::logic_error("flow engine is already executing");
     }
@@ -234,6 +279,8 @@ FlowEngine::expand_command_input_characters(std::string_view source) {
         throw std::logic_error("flow engine is already executing");
     }
 
+    // This helper operates directly on source positions instead of input_ so
+    // it can preserve lexical interpretation metadata in its result.
     std::size_t position = 0;
     return expand_command_literal_buffer_segment(
         source, position, *buffers_, 0, input_.maximum_depth(), false);
@@ -241,7 +288,9 @@ FlowEngine::expand_command_input_characters(std::string_view source) {
 
 std::string FlowEngine::expand_current_input() {
     std::string output;
+
     while (auto character = read_raw()) {
+        // Literal injected characters bypass directive recognition entirely.
         if (character->interpretation == CharacterInterpretation::Literal ||
             character->value != '\\') {
             output.push_back(character->value);
@@ -250,10 +299,13 @@ std::string FlowEngine::expand_current_input() {
 
         auto directive = read_raw();
         if (!directive) {
+            // A trailing raw backslash is preserved.
             output.push_back('\\');
             break;
         }
 
+        // A directive introducer cannot consume its directive letter from a
+        // different nested input level. Preserve both bytes instead.
         if (directive->level != character->level) {
             output.push_back('\\');
             output.push_back(directive->value);
@@ -277,6 +329,9 @@ std::string FlowEngine::expand_current_input() {
                     "literal character after \\C crossed an input level");
             }
 
+            // In text-only full-flow output, consuming the directive and
+            // emitting the following byte directly is enough to protect it
+            // from this expansion pass.
             output.push_back(literal->value);
             continue;
         }
@@ -298,13 +353,20 @@ std::string FlowEngine::expand_current_input() {
         }
 
         if (directive->value == 'B' || directive->value == 'b') {
-            const auto name = parse_buffer_name(character->level, 'B');
+            const auto name =
+                parse_buffer_name(character->level, 'B');
+
+            // \B is active flow injection: Normal interpretation and generated
+            // newlines mean directives inside the injected Buffer may execute.
             push_buffer(name, character->level + 1);
             continue;
         }
 
         if (directive->value == 'S' || directive->value == 's') {
-            const auto name = parse_buffer_name(character->level, 'S');
+            const auto name =
+                parse_buffer_name(character->level, 'S');
+
+            // \S is literal substitution and suppresses line boundaries.
             push_buffer(name,
                         character->level + 1,
                         false,
@@ -313,7 +375,11 @@ std::string FlowEngine::expand_current_input() {
         }
 
         if (directive->value == 'L' || directive->value == 'l') {
-            const auto name = parse_buffer_name(character->level, 'L');
+            const auto name =
+                parse_buffer_name(character->level, 'L');
+
+            // \L is literal substitution while preserving Buffer line
+            // boundaries as generated newline characters.
             push_buffer(name,
                         character->level + 1,
                         true,
@@ -321,6 +387,7 @@ std::string FlowEngine::expand_current_input() {
             continue;
         }
 
+        // Unknown flow directives are preserved rather than silently consumed.
         output.push_back('\\');
         output.push_back(directive->value);
     }
@@ -332,20 +399,26 @@ std::optional<InputCharacter> FlowEngine::read_raw() {
     return input_.next();
 }
 
-std::string FlowEngine::parse_buffer_name(std::size_t directive_level,
-                                          char directive,
-                                          std::size_t nesting_depth) {
+std::string FlowEngine::parse_buffer_name(
+    std::size_t directive_level,
+    char directive,
+    std::size_t nesting_depth) {
     const std::string prefix = std::string("\\") + directive;
     const auto opening = read_raw();
-    if (!opening || opening->level != directive_level || opening->value != '(') {
+    if (!opening ||
+        opening->level != directive_level ||
+        opening->value != '(') {
         throw std::runtime_error("expected '(' after " + prefix);
     }
 
     std::string name;
     while (auto character = read_raw()) {
+        // Parentheses/name syntax may not be completed by a character injected
+        // from a different flow level.
         if (character->level != directive_level) {
             throw std::runtime_error("buffer name crossed an input level");
         }
+
         if (character->value == '\\') {
             const auto nested_directive = read_raw();
             if (!nested_directive ||
@@ -363,6 +436,8 @@ std::string FlowEngine::parse_buffer_name(std::size_t directive_level,
                         "literal character after \\C crossed an input level");
                 }
 
+                // This is how a normally structural ')' can become part of the
+                // actual Buffer name.
                 name.push_back(literal->value);
                 continue;
             }
@@ -379,17 +454,22 @@ std::string FlowEngine::parse_buffer_name(std::size_t directive_level,
                     parse_buffer_name(
                         directive_level, 'S', nesting_depth + 1);
 
-                if (nested_name.size() > limits::max_buffer_name_length) {
+                if (nested_name.size() >
+                    limits::max_buffer_name_length) {
                     throw std::runtime_error(
                         "buffer name exceeds FREDPP limit of " +
-                        std::to_string(limits::max_buffer_name_length));
+                        std::to_string(
+                            limits::max_buffer_name_length));
                 }
 
+                // Nested \S used in a name concatenates referenced logical
+                // lines; it does not inject newline separators into the name.
                 name += literal_buffer_text(
                     buffers_->get(nested_name));
                 continue;
             }
 
+            // Unknown nested escape is retained as literal name text.
             name.push_back('\\');
             name.push_back(nested_directive->value);
             continue;
@@ -397,7 +477,8 @@ std::string FlowEngine::parse_buffer_name(std::size_t directive_level,
 
         if (character->value == ')') {
             if (name.empty()) {
-                throw std::runtime_error("empty buffer name in " + prefix);
+                throw std::runtime_error(
+                    "empty buffer name in " + prefix);
             }
             if (name.size() > limits::max_buffer_name_length) {
                 throw std::runtime_error(
@@ -406,20 +487,24 @@ std::string FlowEngine::parse_buffer_name(std::size_t directive_level,
             }
             return name;
         }
+
         if (character->value == '\n') {
             throw std::runtime_error(
                 "unterminated buffer name in " + prefix);
         }
+
         name.push_back(character->value);
     }
 
-    throw std::runtime_error("unterminated buffer name in " + prefix);
+    throw std::runtime_error(
+        "unterminated buffer name in " + prefix);
 }
 
-void FlowEngine::push_buffer(std::string_view buffer_name,
-                             std::size_t level,
-                             bool emit_newlines,
-                             CharacterInterpretation interpretation) {
+void FlowEngine::push_buffer(
+    std::string_view buffer_name,
+    std::size_t level,
+    bool emit_newlines,
+    CharacterInterpretation interpretation) {
     const auto& buffer = buffers_->get(buffer_name);
     input_.push(std::make_unique<BufferInputSource>(
         buffer, level, emit_newlines, interpretation));
