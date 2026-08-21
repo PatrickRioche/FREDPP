@@ -1,3 +1,11 @@
+/**
+ * @file CommandParser.cpp
+ * @brief Builds FRED command AST from an already expanded TokenStream.
+ *
+ * CommandParser owns no Buffer/editor state and executes no commands. Normal front ends feed it input after central Flow expansion. Parsing is transactional: failed public parses restore the TokenStream position.
+ *
+ * @note FREDPP_LOT8_CPP_DOCUMENTATION
+ */
 #include "fred/parser/CommandParser.hpp"
 
 #include "fred/ast/AbsoluteAddressNode.hpp"
@@ -17,10 +25,14 @@
 namespace fred {
 namespace {
 
+/** @return true when the token is the FREDPP `*` whole-buffer alias. */
 bool is_whole_buffer_alias(const Token& token) noexcept {
     return token.type == TokenType::Symbol && token.lexeme == "*";
 }
 
+/**
+ * @brief Expands the `*` alias to the syntactic address range `1,$`.
+ */
 std::unique_ptr<AddressNode> make_whole_buffer_address(
     SourceLocation location) {
     return std::make_unique<RangeAddressNode>(
@@ -29,11 +41,17 @@ std::unique_ptr<AddressNode> make_whole_buffer_address(
         location);
 }
 
+/**
+ * @brief Tests byte-offset adjacency in the original/reconstructed token source.
+ */
 bool is_adjacent(const Token& first, const Token& second) noexcept {
     return second.location.offset ==
            first.location.offset + first.lexeme.size();
 }
 
+/**
+ * @brief Recognizes the one-character compact B syntax allowed by the parser.
+ */
 bool is_short_buffer_name_token(const Token& command,
                                 const Token& token) noexcept {
     if (!is_adjacent(command, token) || token.lexeme.size() != 1) {
@@ -46,6 +64,13 @@ bool is_short_buffer_name_token(const Token& command,
            token.type != TokenType::RightParenthesis;
 }
 
+/**
+ * @brief Reconstructs a plain-text operand until newline/EOF.
+ *
+ * Lexer has already removed Normal horizontal whitespace. Gaps inferred from
+ * SourceLocation columns are therefore reinserted as ordinary spaces; original
+ * tabs/CR bytes are not preserved byte-for-byte.
+ */
 std::string consume_plain_text(TokenStream& tokens) {
     std::string result;
     bool first = true;
@@ -67,6 +92,9 @@ std::string consume_plain_text(TokenStream& tokens) {
     return result;
 }
 
+/**
+ * @brief Tests the delimiter immediately following the two-byte JM/JP spelling.
+ */
 bool is_message_delimiter(
     const Token& command,
     const Token& token) noexcept {
@@ -76,7 +104,7 @@ bool is_message_delimiter(
         return false;
     }
 
-    // JM et JP occupent deux caractères dans l'entrée originale.
+    // JM and JP occupy two bytes in the original input spelling.
     if (token.location.offset != command.location.offset + 2) {
         return false;
     }
@@ -88,6 +116,9 @@ bool is_message_delimiter(
            std::isspace(value) == 0;
 }
 
+/**
+ * @brief Consumes a delimiter-wrapped J message and reconstructs source gaps.
+ */
 std::string consume_delimited_message(
     TokenStream& tokens,
     const Token& command) {
@@ -136,6 +167,13 @@ CommandParser::CommandParser(TokenStream& tokens,
                              const CommandRegistry& registry) noexcept
     : tokens_(&tokens), registry_(&registry) {}
 
+/**
+ * @brief Parses one complete command under the current trailing-command policy.
+ *
+ * The method first parses an optional address/`*` alias, normalizes supported
+ * compact spellings (QQ, WA/WU/WB, FB/FO, JM/JP, Bx, ZG), then constructs the
+ * appropriate AST. Any exception rewinds the TokenStream to the entry mark.
+ */
 std::unique_ptr<CommandNode> CommandParser::parse() {
     const auto mark = tokens_->position();
 
@@ -541,6 +579,12 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
 }
 
 
+/**
+ * @brief Parses one command from a chained input line.
+ *
+ * Temporarily allows trailing tokens so the caller can repeatedly parse_one()
+ * until EOF. The prior parser mode is restored on success and failure.
+ */
 std::unique_ptr<CommandNode> CommandParser::parse_one() {
     const bool previous_mode = allow_trailing_commands_;
     allow_trailing_commands_ = true;
@@ -564,6 +608,9 @@ bool CommandParser::begins_address(const Token& token) const noexcept {
             token.lexeme == "+" || token.lexeme == "-");
 }
 
+/**
+ * @brief Reconstructs a non-empty parenthesized buffer-name operand.
+ */
 std::string CommandParser::parse_parenthesized_buffer_name() {
     const auto opening = tokens_->consume();
     if (opening.type != TokenType::LeftParenthesis) {
@@ -599,6 +646,12 @@ std::string CommandParser::parse_parenthesized_buffer_name() {
 }
 
 
+/**
+ * @brief Parses an optional quoted or unquoted filename operand.
+ *
+ * SourceLocation gaps are reconstructed as spaces for the same reason as
+ * consume_plain_text().
+ */
 std::optional<std::string> CommandParser::parse_optional_filename() {
     if (tokens_->peek().type == TokenType::End ||
         tokens_->peek().type == TokenType::NewLine) {
@@ -647,6 +700,12 @@ std::optional<std::string> CommandParser::parse_optional_filename() {
 }
 
 
+/**
+ * @brief Reconstructs a G pattern plus per-byte interpretation metadata.
+ *
+ * Only `/` and `?` are currently accepted by G here. Literal metadata and
+ * escaped-delimiter parity determine whether a delimiter closes the pattern.
+ */
 std::unique_ptr<PatternNode> CommandParser::parse_delimited_pattern() {
     const auto opening = tokens_->consume();
     if (opening.type != TokenType::Symbol ||
@@ -697,6 +756,12 @@ std::unique_ptr<PatternNode> CommandParser::parse_delimited_pattern() {
 
 
 std::pair<std::unique_ptr<PatternNode>, std::string>
+/**
+ * @brief Parses S pattern/replacement segments around one symbolic delimiter.
+ *
+ * Pattern interpretation metadata is preserved into PatternParser; replacement
+ * text remains an ordinary string consumed later by Runtime substitution.
+ */
 CommandParser::parse_substitution_parts() {
     const auto opening = tokens_->consume();
     if (opening.type != TokenType::Symbol || opening.lexeme.size() != 1) {
@@ -773,6 +838,9 @@ CommandParser::parse_substitution_parts() {
     return {std::move(pattern), std::move(replacement)};
 }
 
+/**
+ * @brief Enforces command termination unless parse_one() enabled chaining.
+ */
 void CommandParser::require_command_end() {
     if (tokens_->peek().type == TokenType::NewLine) {
         (void)tokens_->consume();

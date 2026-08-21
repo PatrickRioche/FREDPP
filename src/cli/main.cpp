@@ -1,3 +1,11 @@
+/**
+ * @file main.cpp
+ * @brief Desktop CLI bootstrap, developer tooling and interactive REPL orchestration.
+ *
+ * This front end coordinates shared FREDPP services but does not own normal FRED command semantics. Ordinary commands use central Flow expansion -> FlowCharacterStream -> Lexer -> TokenStream -> CommandParser -> CommandExecutor.
+ *
+ * @note FREDPP_LOT8_CPP_DOCUMENTATION
+ */
 #include "fredpp/version.hpp"
 #include "HelpManager.h"
 #include "fred/ast/AbsoluteAddressNode.hpp"
@@ -39,6 +47,11 @@
 
 namespace {
 
+/**
+ * @brief Requests UTF-8 console input/output code pages on Windows.
+ *
+ * The calls are best-effort front-end configuration; non-Windows builds are a no-op.
+ */
 void configure_console_utf8() {
 #ifdef _WIN32
     SetConsoleOutputCP(CP_UTF8);
@@ -46,6 +59,11 @@ void configure_console_utf8() {
 #endif
 }
 
+/**
+ * @brief Implements the desktop `:print` developer view of one Buffer.
+ *
+ * This is front-end diagnostic output and is not historical P execution.
+ */
 void print_buffer(const fred::Buffer& buffer) {
     std::cout << "[" << buffer.name() << "]\n";
     std::size_t number = 1;
@@ -56,6 +74,7 @@ void print_buffer(const fred::Buffer& buffer) {
     }
 }
 
+/** @brief Implements the eager `:lex` developer token dump. */
 void print_tokens(std::string_view source) {
     fred::Lexer lexer(source);
     for (const auto& token : lexer.tokenize()) {
@@ -68,6 +87,7 @@ void print_tokens(std::string_view source) {
     }
 }
 
+/** @brief Implements the lazy TokenStream `:tokens` developer dump. */
 void print_token_stream(std::string_view source) {
     fred::Lexer lexer(source);
     fred::TokenStream stream(lexer);
@@ -87,6 +107,7 @@ void print_token_stream(std::string_view source) {
     }
 }
 
+/** @brief Parses and prints an address AST for the `:address` developer tool. */
 void print_address(std::string_view source) {
     fred::Lexer lexer(source);
     fred::TokenStream stream(lexer);
@@ -124,6 +145,12 @@ void print_address(std::string_view source) {
 }
 
 
+/**
+ * @brief Parses and prints a compact command-AST summary for `:command`.
+ *
+ * This debug presentation is intentionally not the authoritative list of every
+ * current AstNodeKind label.
+ */
 void print_command(std::string_view source) {
     fred::Lexer lexer(source);
     fred::TokenStream stream(lexer);
@@ -164,12 +191,17 @@ void print_command(std::string_view source) {
     std::cout << ")\n";
 }
 
+/** @brief Parses and describes a pattern for the `:pattern` developer tool. */
 void print_pattern(std::string_view source) {
     fred::PatternParser parser(source);
     const auto node = parser.parse();
     std::cout << fred::describe_pattern(*node) << '\n';
 }
 
+/**
+ * @brief Loads, renders and pages one help topic.
+ * @return false when HelpManager/rendering raises a standard exception.
+ */
 bool print_help_topic(const fredpp::HelpManager& help, std::string_view topic) {
     try {
         const auto rendered = help.load_for_terminal(topic);
@@ -180,6 +212,9 @@ bool print_help_topic(const fredpp::HelpManager& help, std::string_view topic) {
     }
 }
 
+/**
+ * @brief Prints build-generated software/Git/source-state metadata.
+ */
 void print_version_info() {
     std::cout << "FREDPP v" << fredpp::version() << '\n'
               << "Commit Git : " << fredpp::git_commit() << '\n'
@@ -189,6 +224,7 @@ void print_version_info() {
 }
 
 
+/** @brief Adds `.fredpp` only when a procedure path has no extension. */
 std::filesystem::path with_fredpp_extension(std::filesystem::path path) {
     if (!path.has_extension()) {
         path += ".fredpp";
@@ -196,6 +232,13 @@ std::filesystem::path with_fredpp_extension(std::filesystem::path path) {
     return path;
 }
 
+/**
+ * @brief Resolves a requested procedure according to current desktop search policy.
+ *
+ * Explicit paths are tested directly (and with `.fredpp` when extensionless).
+ * Simple names are searched in the current directory and, on Windows only, the
+ * fixed `C:\fredpp\library` location.
+ */
 std::filesystem::path resolve_procedure_path(std::string_view name) {
     if (name.empty()) {
         throw std::runtime_error("procedure name must not be empty");
@@ -235,6 +278,12 @@ std::filesystem::path resolve_procedure_path(std::string_view name) {
     throw std::runtime_error(message);
 }
 
+/**
+ * @brief Populates historical parameter Buffer `0` from argv[2..].
+ *
+ * The buffer must still be empty, clean and unassociated when bootstrap reaches
+ * this step.
+ */
 void initialize_parameter_buffer(fred::BufferManager& manager,
                                  int argc, char** argv) {
     auto& parameters = manager.get_or_create("0");
@@ -249,6 +298,7 @@ void initialize_parameter_buffer(fred::BufferManager& manager,
 }
 
 
+/** @brief Obtains local civil time through the platform-safe C runtime API. */
 std::tm current_local_time() {
     const std::time_t now = std::time(nullptr);
     if (now == static_cast<std::time_t>(-1)) {
@@ -268,6 +318,7 @@ std::tm current_local_time() {
     return local;
 }
 
+/** @brief Formats the historical bootstrap date/time Buffer values. */
 std::string format_bootstrap_time(const std::tm& local,
                                   const char* format) {
     std::ostringstream stream;
@@ -278,6 +329,9 @@ std::string format_bootstrap_time(const std::tm& local,
     return stream.str();
 }
 
+/**
+ * @brief Resolves the current user identifier from platform environment variables.
+ */
 std::string current_user_id() {
 #ifdef _WIN32
     if (const char* value = std::getenv("USERNAME");
@@ -297,6 +351,11 @@ std::string current_user_id() {
     return "unknown";
 }
 
+/**
+ * @brief Creates/populates one historical single-line bootstrap Buffer.
+ *
+ * Explicit selection records the buffer in BufferManager's MRU view used by FB.
+ */
 void initialize_single_line_bootstrap_buffer(
     fred::BufferManager& manager,
     std::string name,
@@ -310,17 +369,23 @@ void initialize_single_line_bootstrap_buffer(
     }
     buffer.append(std::move(value));
 
-    // FB doit connaître tous les buffers ouverts. get_or_create() ne modifie
-    // volontairement pas l'ordre MRU ; la sélection explicite enregistre donc
-    // d, t et u dans l'ordre d'utilisation historique.
+    // FB must know every opened Buffer. get_or_create() intentionally does
+    // not touch MRU ordering, so explicit selection records d, t and u in the
+    // historical bootstrap usage order.
     manager.select(name);
 }
 
+/**
+ * @brief Creates the desktop procedure-startup `d`, `t` and `u` Buffers.
+ *
+ * This process bootstrap policy belongs to the desktop front end and is not a
+ * generic Core/Runtime constructor responsibility.
+ */
 void initialize_historical_bootstrap_environment(
     fred::BufferManager& manager) {
     const auto local = current_local_time();
 
-    // DNB11A : B(d) = mm/jj/aa, B(t) = hh:mn, B(u) = USER-ID.
+    // DNB11A bootstrap values: B(d)=mm/dd/yy, B(t)=hh:mm, B(u)=USER-ID.
     initialize_single_line_bootstrap_buffer(
         manager, "d", format_bootstrap_time(local, "%m/%d/%y"));
     initialize_single_line_bootstrap_buffer(
@@ -328,18 +393,27 @@ void initialize_historical_bootstrap_environment(
     initialize_single_line_bootstrap_buffer(
         manager, "u", current_user_id());
 
-    // Le bootstrap historique construit B(0) après l'exécution du .init.
-    // Le buffer est matérialisé ensuite par initialize_parameter_buffer().
+    // Historical bootstrap populates B(0) after user init execution.
+    // initialize_parameter_buffer() performs that later materialization step.
     manager.select("u");
 }
 
 
+/**
+ * @brief Resolved `.init.fredpp` location and policy flags.
+ */
 struct UserInitLocation {
     std::filesystem::path path;
     bool explicit_override{};
     bool disabled{};
 };
 
+/**
+ * @brief Resolves FREDPP_INIT override/default/disabled user-init policy.
+ *
+ * An explicitly empty FREDPP_INIT disables init. Missing default home also
+ * disables it, while a non-empty explicit override must later exist.
+ */
 UserInitLocation resolve_user_init_location() {
     if (const char* override_path = std::getenv("FREDPP_INIT");
         override_path != nullptr) {
@@ -366,12 +440,19 @@ UserInitLocation resolve_user_init_location() {
         false};
 }
 
+/** @brief Removes the reserved temporary `__init` Buffer when present. */
 void erase_bootstrap_init_buffer(fred::BufferManager& manager) {
     if (manager.contains("__init")) {
         manager.erase("__init");
     }
 }
 
+/**
+ * @brief Executes the optional user init procedure in reserved Buffer `__init`.
+ *
+ * Missing default init is not an error. Missing explicit FREDPP_INIT is an
+ * error. The temporary Buffer is erased on both success and exception paths.
+ */
 void execute_user_init_if_present(
     fred::ProcedureRunner& procedure_runner,
     fred::BufferManager& manager) {
@@ -393,7 +474,7 @@ void execute_user_init_if_present(
             throw std::runtime_error(
                 "FREDPP_INIT file not found: " + location.path.string());
         }
-        // Comme dans le bootstrap FRED, l'absence du .init n'est pas une erreur.
+        // As in FRED bootstrap behavior, a missing default init is not an error.
         return;
     }
 
@@ -428,6 +509,21 @@ void execute_user_init_if_present(
 
 } // namespace
 
+/**
+ * @brief Desktop FREDPP process entry point.
+ *
+ * `--version` exits before service construction. Procedure mode performs
+ * historical d/t/u bootstrap, user init, B(0) parameters and path resolution,
+ * then executes the requested procedure. Procedure failure preserves state and
+ * falls through to the interactive debug REPL.
+ *
+ * Interactive normal commands use central Flow expansion before parsing.
+ * A/I/C text collection is a front-end concern; Q/QQ exit exclusively through
+ * ExecutionContext rather than a duplicate CLI quit flag.
+ *
+ * @return 0 for normal/version/procedure completion, 1 for startup/bootstrap
+ * failures before procedure execution.
+ */
 int main(int argc, char** argv) {
     configure_console_utf8();
 
@@ -468,8 +564,8 @@ int main(int argc, char** argv) {
             std::cerr << "error: " << error.what() << '\n';
             std::cerr
                 << "procedure stopped; entering interactive debug mode\n";
-            // Pas de return : on conserve les buffers et on tombe dans
-            // la boucle interactive FREDPP ci-dessous.
+            // Do not return: preserve current Buffer/runtime state and fall
+            // through to the interactive FREDPP debug loop below.
         }
     }
 

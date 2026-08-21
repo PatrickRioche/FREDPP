@@ -1,3 +1,11 @@
+/**
+ * @file HelpManager.cpp
+ * @brief Embedded-help lookup and controlled Markdown-to-terminal rendering.
+ *
+ * This implementation deliberately supports the subset of Markdown used by FREDPP help pages. It is presentation code, not a general CommonMark renderer. Public HelpManager contracts are documented in HelpManager.h.
+ *
+ * @note FREDPP_LOT8_CPP_DOCUMENTATION
+ */
 #include "HelpManager.h"
 #include "EmbeddedHelp.hpp"
 
@@ -16,6 +24,11 @@ constexpr std::string_view kMajorRule =
 constexpr std::string_view kMinorRule =
     "------------------------------------------------------------";
 
+/**
+ * @brief Returns a non-owning view with surrounding ASCII whitespace removed.
+ *
+ * The returned view always refers to the caller-provided storage.
+ */
 std::string_view trim_view(std::string_view text) {
     const auto first = text.find_first_not_of(" \t\r\n");
     if (first == std::string_view::npos) {
@@ -25,10 +38,17 @@ std::string_view trim_view(std::string_view text) {
     return text.substr(first, last - first + 1);
 }
 
+/** @brief Returns an owning trimmed copy used by renderer helpers. */
 std::string trim_copy(std::string_view text) {
     return std::string(trim_view(text));
 }
 
+/**
+ * @brief Computes the renderer's approximate terminal width.
+ *
+ * UTF-8 continuation bytes are ignored, so the result approximates Unicode
+ * code-point count. It is intentionally not wcwidth/grapheme aware.
+ */
 std::size_t display_width(std::string_view text) {
     std::size_t width = 0;
     for (const unsigned char ch : text) {
@@ -40,6 +60,12 @@ std::size_t display_width(std::string_view text) {
 }
 
 
+/**
+ * @brief Uppercases the French-oriented heading subset used by embedded help.
+ *
+ * Common accented lowercase sequences are replaced explicitly before ASCII
+ * uppercasing. This is not a general Unicode case-mapping implementation.
+ */
 std::string uppercase_heading(std::string text) {
     static constexpr std::pair<std::string_view, std::string_view> replacements[] = {
         {"à", "À"}, {"â", "Â"}, {"ä", "Ä"}, {"ç", "Ç"},
@@ -65,6 +91,9 @@ std::string uppercase_heading(std::string text) {
     return text;
 }
 
+/**
+ * @brief Collapses repeated blank output lines and guarantees one final newline.
+ */
 std::string collapse_blank_lines(std::string text) {
     std::istringstream input(std::move(text));
     std::ostringstream output;
@@ -88,6 +117,12 @@ std::string collapse_blank_lines(std::string text) {
     return result;
 }
 
+/**
+ * @brief Removes the limited inline Markdown syntax supported by terminal help.
+ *
+ * Link targets are discarded while labels are preserved; backticks and simple
+ * bold markers are removed. Nested/general Markdown parsing is out of scope.
+ */
 std::string strip_inline_markdown(std::string_view source) {
     std::string result;
     result.reserve(source.size());
@@ -125,11 +160,15 @@ std::string strip_inline_markdown(std::string_view source) {
     return result;
 }
 
+/** @return true for the pipe-delimited table-row shape used by help pages. */
 bool is_table_row(std::string_view line) {
     const auto trimmed = trim_view(line);
     return trimmed.size() >= 2 && trimmed.front() == '|' && trimmed.back() == '|';
 }
 
+/**
+ * @brief Splits one supported Markdown table row and strips inline formatting.
+ */
 std::vector<std::string> parse_table_row(std::string_view line) {
     const auto trimmed = trim_view(line);
     std::vector<std::string> cells;
@@ -148,6 +187,9 @@ std::vector<std::string> parse_table_row(std::string_view line) {
     return cells;
 }
 
+/**
+ * @brief Recognizes the Markdown separator row made of dashes/colons.
+ */
 bool is_table_separator(const std::vector<std::string>& cells) {
     if (cells.empty()) {
         return false;
@@ -168,6 +210,11 @@ bool is_table_separator(const std::vector<std::string>& cells) {
     return true;
 }
 
+/**
+ * @brief Renders parsed table rows as a fixed-width plain-text table.
+ *
+ * Width calculations inherit display_width()'s approximate Unicode behavior.
+ */
 void append_table(std::ostringstream& output,
                   const std::vector<std::vector<std::string>>& rows) {
     if (rows.empty()) {
@@ -217,6 +264,9 @@ void append_table(std::ostringstream& output,
     output << '\n';
 }
 
+/**
+ * @brief Renders a normalized heading with the FREDPP major/minor rule style.
+ */
 void append_heading(std::ostringstream& output,
                     std::string_view heading,
                     int level) {
@@ -265,6 +315,13 @@ std::string HelpManager::load_for_terminal(std::string_view topic) const {
     return render_markdown_for_terminal(load(topic));
 }
 
+/**
+ * @brief Converts the supported FREDPP-help Markdown subset to terminal text.
+ *
+ * Supported structures include headings, fenced code, simple pipe tables,
+ * quotes, bullets and a restricted set of inline markers. Unknown/general
+ * Markdown constructs are intentionally not interpreted as CommonMark.
+ */
 std::string HelpManager::render_markdown_for_terminal(std::string_view markdown) {
     std::vector<std::string> lines;
     std::istringstream input{std::string(markdown)};

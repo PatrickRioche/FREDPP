@@ -240,3 +240,27 @@ file in the maintained product source roots listed above.
 
 Future source files must be added to this inventory (or generated-file exclusion
 list) when introduced.
+
+
+## 9. In-source implementation documentation standard
+
+The original seven-lot coverage count meant that every maintained C++ source
+file had been reviewed and assigned to developer documentation.
+
+The stricter post-audit rule additionally requires appropriate documentation
+inside implementation source when behavior is non-trivial.
+
+After Lot 8, coverage therefore means:
+
+```text
+reviewed
++
+developer-documentation mapping
++
+public API documentation
++
+appropriate in-source implementation documentation
+```
+
+This does not require repetitive comments on trivial forwarding/getter
+implementations. See `../CPP-DOCUMENTATION.md`.

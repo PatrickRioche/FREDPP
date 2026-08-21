@@ -1,3 +1,11 @@
+/**
+ * @file CommandExecutor.cpp
+ * @brief Executes already-parsed FRED CommandNode AST against Runtime state.
+ *
+ * This layer performs editor mutation, address evaluation, file/system I/O and Output effects. It must never re-tokenize or reparse original command source. Command-specific insertion/address exceptions stay here rather than weakening generic AddressEvaluator semantics.
+ *
+ * @note FREDPP_LOT8_CPP_DOCUMENTATION
+ */
 #include "fred/runtime/CommandExecutor.hpp"
 
 #include "fred/ast/AbsoluteAddressNode.hpp"
@@ -22,6 +30,9 @@
 namespace fred {
 namespace {
 
+/**
+ * @brief Executes P and advances the current line to the last printed line.
+ */
 void execute_print(const PrintCommandNode& command, ExecutionContext& context) {
     auto& buffer = context.current_buffer();
     const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
@@ -31,12 +42,18 @@ void execute_print(const PrintCommandNode& command, ExecutionContext& context) {
     buffer.set_current_line(range.last);
 }
 
+/** @brief Executes D over the evaluated range. */
 void execute_delete(const DeleteCommandNode& command, ExecutionContext& context) {
     auto& buffer = context.current_buffer();
     const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
     buffer.erase(range.first, range.last);
 }
 
+/**
+ * @brief Executes the currently implemented file-explicit L form.
+ *
+ * The current-file implicit form remains a Runtime implementation gap.
+ */
 void execute_list(const ListCommandNode& command, ExecutionContext& context) {
     if (!command.filename()) {
         throw CommandExecutionError(
@@ -62,6 +79,9 @@ void execute_list(const ListCommandNode& command, ExecutionContext& context) {
 }
 
 
+/**
+ * @brief Normalized text-file payload plus encoding/newline metadata detected by R.
+ */
 struct DecodedFile {
     std::vector<std::string> lines;
     TextEncoding encoding{TextEncoding::Unknown};
@@ -69,6 +89,12 @@ struct DecodedFile {
     bool final_newline{false};
 };
 
+/**
+ * @brief Validates UTF-8 byte sequences accepted by current FREDPP text I/O.
+ *
+ * Rejects invalid starts/continuations, overlong encodings, surrogate code
+ * points and values above U+10FFFF.
+ */
 bool is_valid_utf8(std::string_view text) noexcept {
     std::size_t index = 0;
     while (index < text.size()) {
@@ -116,6 +142,13 @@ bool is_valid_utf8(std::string_view text) noexcept {
     return true;
 }
 
+/**
+ * @brief Decodes text bytes into Buffer lines and file metadata.
+ *
+ * NUL-containing input is classified as unsupported binary. UTF-8 BOM is
+ * removed, ASCII/UTF-8 is classified, CRLF/LF style and final newline are
+ * recorded for later round-tripping.
+ */
 DecodedFile decode_file(std::string bytes, const std::string& filename) {
     if (bytes.find('\0') != std::string::npos) {
         throw CommandExecutionError("binary file is not supported: " + filename);
@@ -162,6 +195,7 @@ DecodedFile decode_file(std::string bytes, const std::string& filename) {
     return result;
 }
 
+/** @brief Reads a file as bytes and delegates text validation to decode_file(). */
 DecodedFile read_file(const std::string& filename) {
     std::ifstream input(filename, std::ios::binary);
     if (!input) {
@@ -175,6 +209,13 @@ DecodedFile read_file(const std::string& filename) {
     return decode_file(std::move(bytes), filename);
 }
 
+/**
+ * @brief Executes R using either full-buffer load or addressed insertion semantics.
+ *
+ * A full load establishes file association/encoding metadata through Buffer;
+ * addressed R inserts decoded lines and leaves generic AddressEvaluator strict.
+ * Counter records the number of read lines and condition becomes true on success.
+ */
 void execute_read(const ReadCommandNode& command,
                   ExecutionContext& context) {
     auto& buffer = context.current_buffer();
@@ -254,6 +295,12 @@ void validate_utf8_lines(const Buffer& buffer, LineRange range) {
     }
 }
 
+/**
+ * @brief Executes W/WA/WU and preserves the Buffer's newline/final-newline policy.
+ *
+ * WB is rejected as unsupported historical BCD. Full-buffer writes update file
+ * association/encoding and mark the Buffer clean; partial writes do not.
+ */
 void execute_write(const WriteCommandNode& command, ExecutionContext& context) {
     auto& buffer = context.current_buffer();
     if (command.mode() == FileWriteMode::BcdUnsupported) {
@@ -337,6 +384,9 @@ void execute_write(const WriteCommandNode& command, ExecutionContext& context) {
     }
 }
 
+/**
+ * @brief Resolves A's insertion position, including the command-specific 0 case.
+ */
 Buffer::LineNumber evaluate_append_address(const AppendCommandNode& command,
                                            const Buffer& buffer) {
     const auto* address = command.address();
@@ -353,6 +403,11 @@ Buffer::LineNumber evaluate_append_address(const AppendCommandNode& command,
     return AddressEvaluator{}.evaluate(address, buffer).first;
 }
 
+/**
+ * @brief Resolves I to the position after which text will be inserted.
+ *
+ * This keeps I's zero/before-current behavior outside generic AddressEvaluator.
+ */
 Buffer::LineNumber evaluate_insert_position(const InsertCommandNode& command,
                                             const Buffer& buffer) {
     const auto* address = command.address();
@@ -373,6 +428,9 @@ Buffer::LineNumber evaluate_insert_position(const InsertCommandNode& command,
 }
 
 
+/**
+ * @brief Resolves T's single destination address, including destination zero.
+ */
 Buffer::LineNumber evaluate_transfer_destination(
     const TransferCommandNode& command, const Buffer& buffer) {
     const auto* destination = command.destination();
@@ -389,6 +447,12 @@ Buffer::LineNumber evaluate_transfer_destination(
     return AddressEvaluator{}.evaluate(destination, buffer).first;
 }
 
+/**
+ * @brief Moves the selected source range into a destination Buffer.
+ *
+ * M replaces the destination content. Moving to the current Buffer is handled
+ * specially; cross-buffer moves reselect the source before deleting moved lines.
+ */
 void execute_move(const MoveCommandNode& command,
                   ExecutionContext& context) {
     auto& manager = context.buffers();
@@ -402,8 +466,8 @@ void execute_move(const MoveCommandNode& command,
         moved_lines.push_back(source.line(line));
     }
 
-    // Le buffer destination peut être le buffer courant. Dans ce cas, son
-    // contenu entier est remplacé par les lignes sélectionnées.
+    // The destination may be the current Buffer. In that case its complete
+    // content is replaced by the selected source lines.
     if (command.buffer_name() == source_name) {
         source.erase(1, source.line_count());
         for (auto& line : moved_lines) {
@@ -412,7 +476,7 @@ void execute_move(const MoveCommandNode& command,
         return;
     }
 
-    // M(buffer) remplace le contenu antérieur du buffer destination.
+    // M(buffer) replaces the destination Buffer's previous content.
     auto& destination = manager.create_or_select(command.buffer_name());
     if (!destination.empty()) {
         destination.erase(1, destination.line_count());
@@ -421,13 +485,14 @@ void execute_move(const MoveCommandNode& command,
         destination.append(std::move(line));
     }
 
-    // On resélectionne explicitement la source avant de la modifier.
+    // Reselect the source explicitly before deleting the moved range.
     manager.select(source_name);
     auto& source_after = manager.current();
     source_after.erase(range.first, range.last);
 }
 
 
+/** @brief Copies the selected range within the current Buffer for T. */
 void execute_transfer(const TransferCommandNode& command,
                       ExecutionContext& context) {
     auto& buffer = context.current_buffer();
@@ -510,6 +575,11 @@ std::optional<std::string> substitute_all(const PatternNode& pattern,
     return result;
 }
 
+/**
+ * @brief Executes S over an evaluated range and updates condition/current line.
+ *
+ * No-match is a Runtime error. Optional P output reports the final changed line.
+ */
 void execute_substitute(const SubstituteCommandNode& command,
                         ExecutionContext& context) {
     auto& buffer = context.current_buffer();
@@ -586,6 +656,11 @@ void execute_option(const OptionCommandNode& command,
     }
 }
 
+/**
+ * @brief Implements Q/QQ through ExecutionContext exit state.
+ *
+ * Normal Q refuses to exit while modified buffers exist; QQ skips that guard.
+ */
 void execute_quit(const QuitCommandNode& command, ExecutionContext& context) {
     if (!command.immediate()) {
         const auto modified = context.buffers().modified_names();
@@ -624,6 +699,12 @@ LineRange evaluate_global_range(const GlobalCommandNode& command,
     return AddressEvaluator{}.evaluate(command.address(), buffer);
 }
 
+/**
+ * @brief Executes current G selection semantics over a stable logical range.
+ *
+ * Current Runtime support is intentionally limited to nested P/D/Z/S. This is
+ * an implementation limit, not an architectural prohibition on future forms.
+ */
 void execute_global(const GlobalCommandNode& command,
                     ExecutionContext& context) {
     auto& buffer = context.current_buffer();
@@ -684,6 +765,12 @@ void execute_global(const GlobalCommandNode& command,
     context.set_counter(selected_count);
 }
 
+/**
+ * @brief Executes `!` through the host shell and forwards combined output.
+ *
+ * Condition reflects the shell process status. This is inherently platform
+ * dependent front-facing behavior implemented at Runtime command level.
+ */
 void execute_system(const SystemCommandNode& command,
                     ExecutionContext& context) {
     std::string shell_command = command.command();
@@ -725,6 +812,12 @@ std::vector<std::string> captured_lines(std::string_view text) {
     return lines;
 }
 
+/**
+ * @brief Captures nested command Output and appends it to the destination Buffer.
+ *
+ * The previous Output sink is restored on both success and exceptions; Output
+ * ownership never transfers to ExecutionContext.
+ */
 void execute_zap_gather(const ZapGatherCommandNode& command,
                         ExecutionContext& context) {
     StringOutput captured;
@@ -791,6 +884,12 @@ void execute_buffer(const BufferCommandNode& command, ExecutionContext& context)
 
 } // namespace
 
+/**
+ * @brief Dispatches one already-parsed command AST to its Runtime implementation.
+ *
+ * A/I/C deliberately require the specialized text-input entry points because
+ * front ends/procedures own text collection.
+ */
 void CommandExecutor::execute(const CommandNode& command,
                               ExecutionContext& context) const {
     switch (command.kind()) {
@@ -861,6 +960,7 @@ void CommandExecutor::execute(const CommandNode& command,
     }
 }
 
+/** @brief Completes an already-parsed A command with collected text lines. */
 void CommandExecutor::execute_append(const AppendCommandNode& command,
                                      ExecutionContext& context,
                                      std::vector<std::string> lines) const {
@@ -869,6 +969,7 @@ void CommandExecutor::execute_append(const AppendCommandNode& command,
     buffer.insert_after(after, std::move(lines));
 }
 
+/** @brief Completes an already-parsed I command with collected text lines. */
 void CommandExecutor::execute_insert(const InsertCommandNode& command,
                                      ExecutionContext& context,
                                      std::vector<std::string> lines) const {
@@ -877,6 +978,9 @@ void CommandExecutor::execute_insert(const InsertCommandNode& command,
     buffer.insert_after(after, std::move(lines));
 }
 
+/**
+ * @brief Completes C by erasing the addressed range then inserting collected text.
+ */
 void CommandExecutor::execute_change(const ChangeCommandNode& command,
                                      ExecutionContext& context,
                                      std::vector<std::string> lines) const {

@@ -1,3 +1,11 @@
+/**
+ * @file PatternParser.cpp
+ * @brief Recursive-descent parser and debug description for the current FRED pattern AST.
+ *
+ * Pattern parsing is independent from Buffer state. CharacterInterpretation metadata supplied by Flow/CommandParser decides whether a source byte may act as structural pattern syntax.
+ *
+ * @note FREDPP_LOT8_CPP_DOCUMENTATION
+ */
 #include "fred/parser/PatternParser.hpp"
 #include "fred/parser/ParseError.hpp"
 
@@ -12,6 +20,7 @@ namespace fred {
 
 namespace {
 
+/** @brief Escapes one byte for the developer-facing AST description. */
 std::string quote_char(char value) {
     switch (value) {
     case '\\': return "\\\\";
@@ -23,6 +32,9 @@ std::string quote_char(char value) {
     }
 }
 
+/**
+ * @brief Recursively builds the stable developer/debug description of a pattern AST.
+ */
 std::string describe_impl(const PatternNode& node) {
     switch (node.kind()) {
     case AstNodeKind::PatternLiteral: {
@@ -98,6 +110,12 @@ PatternParser::PatternParser(
     }
 }
 
+/**
+ * @brief Parses one complete delimiter-wrapped FRED pattern.
+ *
+ * Grammar descent starts at alternation. The opening delimiter must be
+ * symbolic, and the parser requires a matching non-Literal closing delimiter.
+ */
 std::unique_ptr<PatternNode> PatternParser::parse() {
     if (source_.empty()) fail("expected a delimited FRED pattern");
     delimiter_ = consume();
@@ -113,6 +131,7 @@ std::unique_ptr<PatternNode> PatternParser::parse() {
     return expression;
 }
 
+/** @brief Parses the lowest-precedence `|` alternation layer. */
 std::unique_ptr<PatternNode> PatternParser::parse_alternation() {
     const auto start = location();
     std::vector<std::unique_ptr<PatternNode>> alternatives;
@@ -128,6 +147,7 @@ std::unique_ptr<PatternNode> PatternParser::parse_alternation() {
     return std::make_unique<AlternationPatternNode>(std::move(alternatives), start);
 }
 
+/** @brief Parses a concatenated sequence until delimiter, `)` or `|`. */
 std::unique_ptr<PatternNode> PatternParser::parse_sequence() {
     const auto start = location();
     std::vector<std::unique_ptr<PatternNode>> elements;
@@ -139,6 +159,9 @@ std::unique_ptr<PatternNode> PatternParser::parse_sequence() {
     return std::make_unique<SequencePatternNode>(std::move(elements), start);
 }
 
+/**
+ * @brief Parses one atom followed by at most one `*` or `+` repetition operator.
+ */
 std::unique_ptr<PatternNode> PatternParser::parse_repetition() {
     const auto start = location();
     auto atom = parse_atom();
@@ -153,6 +176,12 @@ std::unique_ptr<PatternNode> PatternParser::parse_repetition() {
     return atom;
 }
 
+/**
+ * @brief Parses one atomic pattern expression.
+ *
+ * Bytes marked Literal by Flow metadata bypass structural interpretation and
+ * become LiteralPatternNode values even when their byte normally has syntax.
+ */
 std::unique_ptr<PatternNode> PatternParser::parse_atom() {
     const auto start = location();
     if (at_end()) fail("expected a pattern atom");
@@ -174,6 +203,7 @@ std::unique_ptr<PatternNode> PatternParser::parse_atom() {
     }
 }
 
+/** @brief Parses a non-empty parenthesized pattern expression. */
 std::unique_ptr<PatternNode> PatternParser::parse_group() {
     const auto start = location();
     consume();
@@ -184,6 +214,9 @@ std::unique_ptr<PatternNode> PatternParser::parse_group() {
     return std::make_unique<GroupPatternNode>(std::move(expression), start);
 }
 
+/**
+ * @brief Parses a character class, including negation, ranges and escapes.
+ */
 std::unique_ptr<PatternNode> PatternParser::parse_character_class() {
     const auto start = location();
     consume();
@@ -218,6 +251,12 @@ std::unique_ptr<PatternNode> PatternParser::parse_character_class() {
 }
 
 bool PatternParser::at_end() const noexcept { return position_ >= source_.size(); }
+/**
+ * @brief Tests whether the byte at position is allowed to act as pattern syntax.
+ *
+ * Empty interpretation metadata means ordinary parser input; otherwise Literal
+ * bytes are protected from structural interpretation.
+ */
 bool PatternParser::is_special(std::size_t position) const noexcept {
     return position < source_.size() &&
            (interpretations_.empty() || interpretations_[position] != CharacterInterpretation::Literal);
@@ -234,6 +273,12 @@ char PatternParser::consume() {
     if (at_end()) fail("unexpected end of pattern");
     return source_[position_++];
 }
+/**
+ * @brief Returns the current fragment-relative pattern location.
+ *
+ * Line is currently fixed to 1 and column/offset are relative to the pattern
+ * fragment reconstructed by the caller, not necessarily the original command.
+ */
 SourceLocation PatternParser::location() const noexcept {
     return SourceLocation{position_, 1, position_ + 1, flow_level_};
 }

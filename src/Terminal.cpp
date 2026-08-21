@@ -1,3 +1,11 @@
+/**
+ * @file Terminal.cpp
+ * @brief Cross-platform terminal primitives used by the interactive help pager.
+ *
+ * Windows uses native console APIs where appropriate; POSIX uses termios, ioctl/select and ANSI sequences. Terminal state restoration follows RAII.
+ *
+ * @note FREDPP_LOT8_CPP_DOCUMENTATION
+ */
 #include "Terminal.h"
 
 #include <cstdio>
@@ -23,10 +31,15 @@ constexpr std::size_t kDefaultTerminalRows = 25;
 
 #ifdef _WIN32
 
+/** @return Current Windows standard-output console handle. */
 HANDLE console_output_handle() noexcept {
     return GetStdHandle(STD_OUTPUT_HANDLE);
 }
 
+/**
+ * @brief Clears a Windows console through native screen-buffer APIs.
+ * @return true when all native clear/cursor operations succeed.
+ */
 bool clear_windows_console() noexcept {
     const HANDLE output = console_output_handle();
     if (output == INVALID_HANDLE_VALUE || output == nullptr) {
@@ -67,6 +80,12 @@ bool clear_windows_console() noexcept {
 
 #else
 
+/**
+ * @brief RAII guard that temporarily places POSIX stdin in noncanonical mode.
+ *
+ * Construction records the original terminal attributes and disables ICANON
+ * and ECHO. The destructor restores the saved state when activation succeeded.
+ */
 class RawTerminalMode {
 public:
     RawTerminalMode() noexcept {
@@ -99,6 +118,10 @@ private:
     bool active_{false};
 };
 
+/**
+ * @brief Reads one POSIX stdin byte with a select()-based timeout.
+ * @return true only when exactly one byte was read before the timeout.
+ */
 bool read_byte_with_timeout(unsigned char& value, long microseconds) noexcept {
     fd_set read_set;
     FD_ZERO(&read_set);
@@ -121,6 +144,11 @@ bool read_byte_with_timeout(unsigned char& value, long microseconds) noexcept {
 
 } // namespace
 
+/**
+ * @brief Clears the current terminal using the best platform-specific method.
+ *
+ * Windows first attempts the native console path and falls back to ANSI.
+ */
 void clear_terminal() {
 #ifdef _WIN32
     if (clear_windows_console()) {
@@ -128,7 +156,7 @@ void clear_terminal() {
     }
 #endif
 
-    // Repli portable pour terminaux ANSI / pseudo-terminaux.
+    // Portable fallback for ANSI terminals and pseudo-terminals.
     std::cout << "\x1b[2J\x1b[H" << std::flush;
 }
 
@@ -164,6 +192,12 @@ std::size_t terminal_rows() noexcept {
     return kDefaultTerminalRows;
 }
 
+/**
+ * @brief Maps platform-specific keyboard sequences to the pager key abstraction.
+ *
+ * A failed terminal/raw-mode read is treated as Quit so the pager cannot leave
+ * the user trapped in an unreadable interactive state.
+ */
 PagerKey read_pager_key() {
 #ifdef _WIN32
     const int first = _getch();
@@ -202,7 +236,7 @@ PagerKey read_pager_key() {
         return PagerKey::Other;
     }
 
-    // PageUp/PageDown : ESC [ 5 ~ / ESC [ 6 ~
+    // Common PageUp/PageDown escape sequences: ESC [ 5 ~ / ESC [ 6 ~.
     unsigned char second = 0;
     if (!read_byte_with_timeout(second, 100000L)) {
         return PagerKey::Quit;

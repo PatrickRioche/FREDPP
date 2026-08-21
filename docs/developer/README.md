@@ -55,6 +55,7 @@ implemented independently by each command.
 - [End-to-end source flows](SOURCE-FLOW.md)
 - [Limits and compatibility classifications](SOURCE-LIMITS.md)
 - [Complete C++ source inventory and coverage](files/SOURCE-FILES.md)
+- [C++ implementation documentation completeness](CPP-DOCUMENTATION.md)
 
 The completed seven-lot audit assigns every maintained product `.hpp`, `.h` and
 `.cpp` file under `include/`, `src/` and the Android native C++ source directory

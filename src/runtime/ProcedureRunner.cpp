@@ -1,3 +1,11 @@
+/**
+ * @file ProcedureRunner.cpp
+ * @brief Procedure-control orchestration around the shared Flow/Parser/Runtime pipeline.
+ *
+ * ProcedureRunner handles procedure-only control syntax (buffer calls, labels, jumps, minimal N operations and A/I/C text blocks). Ordinary FRED command lines still follow central Flow expansion -> Lexer -> CommandParser -> CommandExecutor.
+ *
+ * @note FREDPP_LOT8_CPP_DOCUMENTATION
+ */
 #include "fred/runtime/ProcedureRunner.hpp"
 
 #include "fred/ast/CommandNode.hpp"
@@ -26,6 +34,7 @@
 namespace fred {
 namespace {
 
+/** @brief Returns a non-owning view with procedure-line whitespace trimmed. */
 std::string_view trim(std::string_view text) noexcept {
     while (!text.empty() &&
            std::isspace(static_cast<unsigned char>(text.front())) != 0) {
@@ -38,6 +47,12 @@ std::string_view trim(std::string_view text) noexcept {
     return text;
 }
 
+/**
+ * @brief Performs an ASCII-oriented case-insensitive prefix comparison.
+ *
+ * @note This helper is currently unused; Lot 8 documents but deliberately does
+ * not remove it because this lot is non-functional.
+ */
 bool starts_with_ci(std::string_view text, std::string_view prefix) noexcept {
     if (text.size() < prefix.size()) {
         return false;
@@ -52,11 +67,17 @@ bool starts_with_ci(std::string_view text, std::string_view prefix) noexcept {
     return true;
 }
 
+/** @return true when the trimmed procedure line begins with FRED `"`. */
 bool is_comment(std::string_view source) noexcept {
     const auto value = trim(source);
     return !value.empty() && value.front() == '"';
 }
 
+/**
+ * @brief Recognizes and validates standalone procedure `\B(buffer)` control syntax.
+ *
+ * @return std::nullopt when the line is not a buffer directive.
+ */
 std::optional<std::string> parse_buffer_directive(std::string_view source) {
     const auto value = trim(source);
     if (value.size() < 3 || value.front() != '\\' ||
@@ -80,6 +101,9 @@ std::optional<std::string> parse_buffer_directive(std::string_view source) {
     return std::string(name);
 }
 
+/**
+ * @brief Recognizes a trimmed procedure text terminator (`\F` or `\f`).
+ */
 bool is_text_terminator(std::string_view source) noexcept {
     const auto value = trim(source);
     return value == "\\F" || value == "\\f";
@@ -89,11 +113,15 @@ bool is_text_terminator(std::string_view source) noexcept {
 
 namespace {
 
+/**
+ * @brief Parsed procedure jump target plus optional required condition state.
+ */
 struct JumpDirective {
     std::string label;
     std::optional<bool> required_condition;
 };
 
+/** @brief Performs ASCII-oriented case-insensitive exact comparison. */
 bool equals_ci(std::string_view left, std::string_view right) noexcept {
     if (left.size() != right.size()) {
         return false;
@@ -110,6 +138,9 @@ bool equals_ci(std::string_view left, std::string_view right) noexcept {
     return true;
 }
 
+/**
+ * @brief Enforces the currently preserved historical 15-character label limit.
+ */
 std::string validate_label_name(std::string_view name) {
     if (name.empty()) {
         throw CommandExecutionError("label name must not be empty");
@@ -125,6 +156,9 @@ std::string validate_label_name(std::string_view name) {
     return std::string(name);
 }
 
+/**
+ * @brief Parses `@(label)`; non-strict mode is used while scanning jump targets.
+ */
 std::optional<std::string> parse_label_definition(
     std::string_view source,
     bool strict = true) {
@@ -153,6 +187,9 @@ std::optional<std::string> parse_label_definition(
     return validate_label_name(name);
 }
 
+/**
+ * @brief Parses `J(label)` with the currently implemented optional T/F suffix.
+ */
 std::optional<JumpDirective> parse_jump_directive(
     std::string_view source) {
     const auto value = trim(source);
@@ -196,6 +233,11 @@ std::optional<JumpDirective> parse_jump_directive(
         "J(label) accepts only optional T or F in this lot");
 }
 
+/**
+ * @brief Finds a label using forward search followed by wrap-around backward search.
+ *
+ * The wrap permits historical procedure loops that jump to earlier labels.
+ */
 std::size_t find_jump_target(
     const std::vector<std::string>& lines,
     std::size_t current_index,
@@ -227,6 +269,9 @@ std::size_t find_jump_target(
     throw CommandExecutionError("? label not found");
 }
 
+/**
+ * @brief Enforces the historical 14-character numeric-register name limit.
+ */
 std::string validate_numeric_register_name(
     std::string_view name) {
     if (name.empty()) {
@@ -244,6 +289,9 @@ std::string validate_numeric_register_name(
     return std::string(name);
 }
 
+/**
+ * @brief Parses one signed decimal procedure operand with overflow reporting.
+ */
 std::int64_t parse_decimal_integer(
     std::string_view source,
     std::size_t& position) {
@@ -285,6 +333,9 @@ std::int64_t parse_decimal_integer(
     return result;
 }
 
+/**
+ * @brief Resolves the implemented N operand set: integer, `$`, `.`, or `#`.
+ */
 std::int64_t parse_numeric_operand(
     std::string_view source,
     std::size_t& position,
@@ -321,6 +372,12 @@ std::int64_t parse_numeric_operand(
     return parse_decimal_integer(source, position);
 }
 
+/**
+ * @brief Executes the currently implemented `N(register)` operation sequence.
+ *
+ * Supported operators are `:`, `=`, `<` and `>`. The returned tail is reserved
+ * for the currently supported same-line J(label)[T|F] continuation.
+ */
 std::optional<std::string_view> execute_numeric_sequence(
     std::string_view source,
     ExecutionContext& context) {
@@ -399,6 +456,9 @@ std::optional<std::string_view> execute_numeric_sequence(
     return trim(value.substr(position));
 }
 
+/**
+ * @brief Applies a parsed jump only when its optional condition requirement matches.
+ */
 void apply_jump(
     const JumpDirective& jump,
     const std::vector<std::string>& lines,
@@ -413,12 +473,18 @@ void apply_jump(
     }
 }
 
+/**
+ * @brief Marker exception indicating that procedure context was already printed.
+ */
 class ReportedProcedureError final : public std::runtime_error {
 public:
     explicit ReportedProcedureError(const std::string& message)
         : std::runtime_error(message) {}
 };
 
+/**
+ * @brief Emits the current and following procedure lines after an execution failure.
+ */
 void report_procedure_error_context(
     ExecutionContext& context,
     const std::vector<std::string>& lines,
@@ -499,6 +565,12 @@ bool ProcedureRunner::execute_buffer_directive(std::string_view source) {
     return true;
 }
 
+/**
+ * @brief Executes a snapshot of a procedure Buffer with depth protection.
+ *
+ * The line vector is copied before execution so edits to Buffer state do not
+ * mutate the physical procedure source currently being iterated.
+ */
 void ProcedureRunner::execute_buffer_impl(std::string_view buffer_name,
                                           std::size_t depth) {
     if (depth >= maximum_depth_) {
@@ -521,6 +593,13 @@ void ProcedureRunner::execute_buffer_impl(std::string_view buffer_name,
     }
 }
 
+/**
+ * @brief Expands and dispatches one physical procedure line.
+ *
+ * Comments bypass expansion; other lines use the central metadata-preserving
+ * command-input expansion before procedure-control recognition and normal
+ * command parsing.
+ */
 void ProcedureRunner::execute_procedure_line(
     const std::vector<std::string>& lines,
     std::size_t& index,
@@ -588,7 +667,7 @@ void ProcedureRunner::execute_procedure_line(
         execute_single_command(
             expanded_source, &lines, &index);
     } catch (const ReportedProcedureError&) {
-        // Une procédure imbriquée a déjà affiché son contexte exact.
+        // A nested procedure has already reported its exact source context.
         throw;
     } catch (const std::exception& error) {
         report_procedure_error_context(*context_, lines, index);
@@ -598,6 +677,12 @@ void ProcedureRunner::execute_procedure_line(
 
 
 
+/**
+ * @brief Runs ordinary FRED command syntax through the shared parser/executor path.
+ *
+ * A/I/C nodes consume subsequent physical procedure lines through the trimmed
+ * `\F`/`\f` terminator; all other nodes execute directly.
+ */
 void ProcedureRunner::execute_single_command(
     const ExpandedCommandInput& source,
     const std::vector<std::string>* lines,
