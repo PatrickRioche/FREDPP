@@ -3,7 +3,7 @@ name: Windows development checks
 on:
   push:
     branches:
-      - "work/fredpp-windows-*"
+      - dev
     paths:
       - "include/**"
       - "src/**"

@@ -72,6 +72,16 @@ jobs:
             exit 1
           fi
 
+          # Stable releases must be tagged on the current main commit, after
+          # the development branch has been promoted. Development-only tags
+          # never authorize a public release, even if prefixed with v.
+          git fetch --no-tags origin refs/heads/main
+          main_commit="$(git rev-parse FETCH_HEAD)"
+          if [ "$(git rev-parse HEAD)" != "${main_commit}" ]; then
+            echo "Release tag ${release_tag} must point to the current main commit" >&2
+            exit 1
+          fi
+
           if [ -n "$(git status --porcelain)" ]; then
             echo "Release checkout is not clean" >&2
             git status --short

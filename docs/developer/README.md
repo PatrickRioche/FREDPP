@@ -63,8 +63,9 @@ to a documentation lot.
 
 ## Windows-focused development lane
 
-Branches named `work/fredpp-windows-*` trigger the dedicated Windows/MSVC build
-in `.github/workflows/windows-development.yml`. This lane compiles all C++
+Every push to the `dev` branch with product code, test or CI changes triggers
+the dedicated Windows/MSVC build in `.github/workflows/windows-development.yml`.
+This lane compiles all C++
 targets and runs only the `test_flow` and `test_command_executor` engineering
 regressions for the current hardening work. It does not replace the deferred
 historical compatibility suite or user validation on Windows 11.
