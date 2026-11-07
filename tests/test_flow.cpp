@@ -99,11 +99,37 @@ int main() {
         (void)flow.expand_buffer("bad");
     }, "missing buffer raises an error");
 
+    // A failed nested expansion must not strand its parent InputSource. Reuse
+    // the same engine with both full-flow and command-input operations.
+    {
+        fred::FlowEngine flow(buffers);
+        expect_throws([&] {
+            (void)flow.expand_input("before\\B(missing)after");
+        }, "missing nested buffer fails without poisoning the engine");
+        expect_equal(flow.expand_buffer("plain"), "hello\n",
+                     "full flow succeeds after a missing nested buffer");
+        expect_equal(flow.expand_command_input("JM/ok/"), "JM/ok/",
+                     "command input succeeds after full-flow failure");
+        expect_throws([&] {
+            (void)flow.expand_input("prefix\\C");
+        }, "malformed directive fails without poisoning the engine");
+        expect_equal(flow.expand_input("recovered"), "recovered",
+                     "full flow succeeds after malformed directive");
+    }
+
     buffers.create_or_select("self").append("\\B(self)");
     expect_throws([&] {
         fred::FlowEngine flow(buffers, 8);
         (void)flow.expand_buffer("self");
     }, "recursive flow reaches depth protection");
+    {
+        fred::FlowEngine flow(buffers, 8);
+        expect_throws([&] { (void)flow.expand_buffer("self"); },
+                      "recursive expansion fails at maximum depth");
+        expect_equal(flow.expand_input("depth recovered"),
+                     "depth recovered",
+                     "flow engine reusable after recursion failure");
+    }
 
     buffers.create_or_select("nombuf").append("doc1");
     buffers.create_or_select("doc1").append("BONJOUR");

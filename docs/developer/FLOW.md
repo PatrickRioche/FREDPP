@@ -644,18 +644,15 @@ if (!input_.empty())
     throw logic_error("flow engine is already executing");
 ```
 
-A successful full expansion drains the stack.
+Full-flow expansion now uses a scope guard to clear the owned stack on both
+success and exception. Partially consumed parent/child InputSources are destroyed
+if a directive is malformed, a referenced Buffer is missing, or maximum nesting
+is exceeded. The same FlowEngine can then process a subsequent independent
+expansion, including command input. This does **not** enable simultaneous or
+reentrant expansion, which continues to be rejected.
 
-A current technical caveat is that an exception occurring while full-flow
-sources remain on the stack does not explicitly clear `input_`.
-
-Reusing that same `FlowEngine` instance after such an exception can therefore
-fail with "already executing".
-
-High-level command-input helpers construct a fresh FlowEngine per call, avoiding
-this issue for the central command-expansion path.
-
-This is a **technical implementation limit**, not a historical FRED rule.
+This recovery guarantee is a FREDPP implementation contract, not an additional
+historical FRED language feature.
 
 ## 19. Buffer-name length compatibility
 

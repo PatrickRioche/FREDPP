@@ -1,3 +1,13 @@
+## Développement Windows — correctifs internes non publiés (novembre 2026)
+
+- l'évaluation des adresses relatives avant (`+n`) refuse maintenant un
+  dépassement arithmétique avant l'addition non signée ;
+- le moteur de flot libère toutes ses sources actives après une erreur et peut
+  être réutilisé pour une nouvelle expansion indépendante ;
+- des tests de régression ciblés et les commentaires des sources C++20 ont été
+  ajoutés, sans reprise de la campagne de compatibilité historique ;
+- validation finale sous Windows 11 / MSVC encore à effectuer.
+
 ## v0.0.22 — Application Android native
 
 ### Ajouté

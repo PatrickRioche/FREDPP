@@ -38,6 +38,8 @@ std::optional<InputCharacter> InputStack::next() {
     return std::nullopt;
 }
 
+void InputStack::clear() noexcept { sources_.clear(); }
+
 bool InputStack::empty() const noexcept { return sources_.empty(); }
 std::size_t InputStack::depth() const noexcept { return sources_.size(); }
 std::size_t InputStack::maximum_depth() const noexcept {

@@ -7,6 +7,7 @@
 #include "fred/ast/RelativeAddressNode.hpp"
 #include "fred/runtime/CommandExecutionError.hpp"
 
+#include <limits>
 #include <string>
 
 namespace fred {
@@ -78,8 +79,14 @@ Buffer::LineNumber AddressEvaluator::evaluate_single(
         const auto current = buffer.current_line();
 
         if (relative.direction() == RelativeDirection::Forward) {
-            // The final require_existing() below catches a result beyond the
-            // last line.
+            // Guard the unsigned addition before it can wrap to an existing
+            // line. Ordinary (non-overflowing) out-of-range addresses still
+            // receive the established require_existing() diagnostic below.
+            if (relative.distance() >
+                std::numeric_limits<Buffer::LineNumber>::max() - current) {
+                throw CommandExecutionError(
+                    "relative line address out of range");
+            }
             result = current + relative.distance();
         } else {
             // Reject subtraction reaching/passing zero before unsigned

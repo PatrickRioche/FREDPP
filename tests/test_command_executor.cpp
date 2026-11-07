@@ -2,6 +2,7 @@
 #include "fred/ast/CommandNode.hpp"
 #include "fred/ast/LastAddressNode.hpp"
 #include "fred/ast/RangeAddressNode.hpp"
+#include "fred/ast/RelativeAddressNode.hpp"
 #include "fred/core/BufferManager.hpp"
 #include "fred/runtime/CommandExecutionError.hpp"
 #include "fred/runtime/CommandExecutor.hpp"
@@ -9,9 +10,11 @@
 #include "fred/runtime/Output.hpp"
 
 #include <cassert>
+#include <cstdlib>
 #include <filesystem>
 #include <fstream>
 #include <memory>
+#include <limits>
 #include <string>
 #include <string_view>
 
@@ -43,6 +46,28 @@ int main() {
     fred::CommandExecutor executor;
 
     append_sample(buffers.current());
+
+    // An unsigned wraparound must never turn a huge forward address into a
+    // valid small line. This case used to wrap (4 + SIZE_MAX) to line 3.
+    {
+        fred::PrintCommandNode command(
+            std::make_unique<fred::RelativeAddressNode>(
+                fred::RelativeDirection::Forward,
+                std::numeric_limits<std::size_t>::max(),
+                fred::SourceLocation{}),
+            fred::SourceLocation{});
+        bool rejected = false;
+        try {
+            executor.execute(command, context);
+        } catch (const fred::CommandExecutionError& error) {
+            rejected = std::string_view(error.what()) ==
+                       "relative line address out of range";
+        }
+        if (!rejected || !output.content().empty() ||
+            buffers.current().current_line() != 4) {
+            std::exit(EXIT_FAILURE);
+        }
+    }
 
     {
         fred::PrintCommandNode command(

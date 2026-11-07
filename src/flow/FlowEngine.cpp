@@ -287,6 +287,15 @@ FlowEngine::expand_command_input_characters(std::string_view source) {
 }
 
 std::string FlowEngine::expand_current_input() {
+    // A malformed directive, missing Buffer or depth error may interrupt the
+    // nested source stream before its parents reach EOF. Always discard that
+    // partial stream on exit so a later expansion starts with an idle engine.
+    // This guard owns no sources: InputStack retains their exclusive ownership.
+    struct ResetInputOnExit {
+        InputStack& input;
+        ~ResetInputOnExit() { input.clear(); }
+    } reset_input{input_};
+
     std::string output;
 
     while (auto character = read_raw()) {

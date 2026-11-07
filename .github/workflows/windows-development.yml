@@ -1,0 +1,39 @@
+name: Windows development checks
+
+on:
+  push:
+    branches:
+      - "work/fredpp-windows-*"
+    paths:
+      - "include/**"
+      - "src/**"
+      - "tests/**"
+      - "CMakeLists.txt"
+      - "cmake/**"
+      - ".github/workflows/windows-development.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows_msvc:
+    name: Windows MSVC / focused regression
+    runs-on: windows-latest
+
+    steps:
+      - name: Check out branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure MSVC x64 Release
+        run: cmake -S . -B out/build/windows-dev -A x64 -DFREDPP_BUILD_TESTS=ON
+
+      - name: Compile all FREDPP C++ targets
+        run: cmake --build out/build/windows-dev --config Release --parallel 1
+
+      # This development lane deliberately runs targeted engineering
+      # regressions, not the deferred historical compatibility campaign.
+      - name: Test flow recovery and address safety
+        run: ctest --test-dir out/build/windows-dev -C Release --output-on-failure -R "^(test_flow|test_command_executor)$"

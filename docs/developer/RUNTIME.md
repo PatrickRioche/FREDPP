@@ -372,20 +372,15 @@ first <= last
 
 is required.
 
-### Current technical anomaly
+### Overflow safety
 
-Forward relative evaluation currently computes:
+For forward relative addresses, AddressEvaluator checks that `current + distance`
+is representable by `Buffer::LineNumber` **before** adding. Overflow is rejected
+as `relative line address out of range`; non-overflowing addresses beyond the
+Buffer still use the existing generic line-range error. This prevents a huge
+relative displacement from wrapping to an apparently valid small line number.
 
-```cpp
-current + distance
-```
-
-in unsigned `size_t` before range validation.
-
-There is no explicit overflow guard. In an extreme artificial value, wraparound
-could theoretically produce an apparently valid small line number.
-
-This is a **technical implementation issue**, not FRED language behavior.
+This is a FREDPP runtime safety guarantee, not new historical FRED syntax.
 
 ## 15. `PatternMatcher`
 

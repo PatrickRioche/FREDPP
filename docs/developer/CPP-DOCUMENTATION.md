@@ -81,13 +81,13 @@ and compares pre/post source after removing comments and whitespace.
 
 ## 5. Known issues deliberately left for separate work
 
-Examples include:
+Examples identified in the audit include:
 
 ```text
 ProcedureRunner starts_with_ci() unused warning
 old "Lot 4"/"this lot" runtime diagnostic wording
-AddressEvaluator forward relative size_t overflow guard
-FlowEngine reuse after an exceptional active stack
+AddressEvaluator forward relative size_t overflow guard (resolved Nov 2026)
+FlowEngine reuse after an exceptional active stack (resolved Nov 2026)
 front-end whitespace asymmetries
 Android hard-coded version fallback
 ```

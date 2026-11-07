@@ -28,7 +28,9 @@ struct LineRange {
  * @par Validation
  * Except for command-specific insertion rules handled by CommandExecutor,
  * evaluated lines must already exist in the Buffer. Empty-buffer evaluation,
- * line 0, out-of-range lines and reversed ranges raise CommandExecutionError.
+ * line 0, out-of-range lines, relative arithmetic overflow and reversed ranges
+ * raise CommandExecutionError. Relative addition is checked before evaluating
+ * the resulting line against Buffer bounds.
  */
 class AddressEvaluator {
 public:

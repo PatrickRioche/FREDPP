@@ -323,32 +323,20 @@ are stale milestone text, not language rules.
 
 ## 21. Relative forward address overflow
 
-AddressEvaluator computes forward relative address using unsigned arithmetic
-before ordinary bounds validation.
+**RESOLVED — runtime safety hardening (November 2026).**
 
-There is no explicit overflow guard.
-
-**TECHNICAL IMPLEMENTATION LIMIT**
-
-This matters only for extreme artificial values but should be addressed in a
-future behavior-focused pass.
+AddressEvaluator now checks whether the forward displacement would overflow
+`Buffer::LineNumber` before unsigned addition. Ordinary range validation remains
+unchanged. A regression case covers the wraparound of `4 + SIZE_MAX`.
 
 ## 22. FlowEngine reuse after exception
 
-Full-flow expansion shares an InputStack.
+**RESOLVED — exception recovery (November 2026).**
 
-If an exception escapes while stack content remains, the engine does not
-explicitly clear that stack before reuse.
-
-A reused instance can then report:
-
-```text
-flow engine is already executing
-```
-
-**TECHNICAL IMPLEMENTATION LIMIT**
-
-High-level command expansion normally avoids it by creating a fresh FlowEngine.
+Full-flow expansion shares an InputStack, but a scope guard now discards all
+partially consumed sources on success or failure. The engine can be reused after
+missing buffers, malformed directives and depth errors. Overlapping/reentrant
+expansions remain unsupported by design.
 
 ## 23. Whitespace reconstruction
 

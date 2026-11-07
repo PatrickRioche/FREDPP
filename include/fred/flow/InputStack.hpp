@@ -50,6 +50,16 @@ public:
      */
     [[nodiscard]] std::optional<InputCharacter> next();
 
+    /**
+     * @brief Discards every active source, including partially read parents.
+     *
+     * Full-flow expansion uses this to restore an idle stack after an error.
+     * This does not change maximum_depth() or the borrowed BufferManager.
+     *
+     * @post empty() is true and all previously owned sources are destroyed.
+     */
+    void clear() noexcept;
+
     /** @return true when no owned InputSource remains. */
     [[nodiscard]] bool empty() const noexcept;
 

@@ -52,7 +52,9 @@ namespace fred {
  *
  * @par Reentrancy/lifetime
  * The BufferManager is borrowed and must outlive FlowEngine. A FlowEngine does
- * not support overlapping expansion operations.
+     * not support overlapping expansion operations. After a failed full-flow
+     * expansion, its partial input stack is discarded so the same engine can
+     * be used for another independent expansion.
  */
 class FlowEngine {
 public:
@@ -137,11 +139,8 @@ private:
      *
      * @return Expanded text.
      *
-     * @warning If an exception escapes while full-flow sources remain stacked,
-     *          the current implementation does not reset input_. Reusing that
-     *          same FlowEngine instance may then report "already executing".
-     *          High-level command helpers avoid this by constructing a fresh
-     *          FlowEngine per expansion.
+     * @post All full-flow input sources are released on normal return or
+     *       exception, leaving the engine reusable for the next operation.
      */
     [[nodiscard]] std::string expand_current_input();
 
