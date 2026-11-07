@@ -70,6 +70,8 @@ regressions covering Flow, Runtime, parsing, historical T implementation, M, G
 and S. It does not replace the deferred historical compatibility suite or user
 validation on Windows 11.
 
+- [Visible T condition/jump integration test on Windows](TESTING-T-CONDITION.md)
+
 ## Module documentation
 
 - [Lexer and character/token infrastructure](LEXER.md)

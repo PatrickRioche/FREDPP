@@ -152,6 +152,14 @@ add_test(NAME cli_message_delimiters
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_message_delimiters.cmake"
 )
 
+# Historical T is silent; this CLI fixture makes its conditional result visible.
+add_test(NAME cli_test_condition_t
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_condition_t.cmake"
+)
+
 add_test(NAME test_release_manifest
     COMMAND ${CMAKE_COMMAND}
         -DFREDPP_SOURCE_DIR=${CMAKE_SOURCE_DIR}

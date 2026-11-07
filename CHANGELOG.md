@@ -1,5 +1,9 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- ajout d'un scénario Windows qui rend les résultats de `T` visibles au moyen
+  des sauts conditionnels `J(étiquette)T/F` et de `JM`, avec vérification
+  automatique de la sortie complète ; aucune modification de la commande `T` ;
+
 - réalignement de `T` sur la commande historique de test de modèle : `T` et
   `T~` utilisent la plage adressée et mettent à jour le registre de condition,
   sans copier ni déplacer de lignes ;
