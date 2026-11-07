@@ -943,6 +943,9 @@ void CommandExecutor::execute(const CommandNode& command,
     case AstNodeKind::MoveCommand:
         execute_move(static_cast<const MoveCommandNode&>(command), context);
         return;
+    case AstNodeKind::CopyCommand:
+        execute_copy(static_cast<const CopyCommandNode&>(command), context);
+        return;
     case AstNodeKind::TestCommand:
         execute_test(static_cast<const TestCommandNode&>(command), context);
         return;
