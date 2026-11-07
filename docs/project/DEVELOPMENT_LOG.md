@@ -11,7 +11,7 @@ Ce journal suit les **travaux sur la branche `dev`** avant leur intégration
 Les heures ci-dessous sont en **heure de Paris (CET)**. Les commits Git
 conservent leurs horodatages originaux en UTC.
 
-## État au 7 novembre 2026
+## État mis à jour le 8 novembre 2026
 
 | Élément | État vérifié |
 |---|---|
@@ -19,10 +19,10 @@ conservent leurs horodatages originaux en UTC.
 | Branche active | `dev` |
 | Dernier commit du lot | [`d723877`](https://github.com/PatrickRioche/FREDPP/commit/d723877a4f0e545cd506fc7bfe6704e3520e493c) |
 | Branche stable | `main`, non modifiée par ces travaux |
-| Écart de `dev` sur `main` | 6 commits au moment du relevé |
+| Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
 | Dernière CI Windows/MSVC ciblée | [10/10 tests réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42417481573) |
 | Validation locale Windows 11 — T | Confirmée par l'utilisateur (scénario et CTest 1/1) |
-| Validation locale Windows 11 — K | En attente du retour utilisateur |
+| Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |
 | Homologation historique complète | Reportée |
 | Nouvelle release officielle | Aucune ; pas de fusion dans `main` |
 
@@ -54,8 +54,11 @@ conservent leurs horodatages originaux en UTC.
   a raccordé `CopyCommand` au répartiteur Runtime.
 - **Validation automatique finale :** [Windows/MSVC, 10/10 tests](https://github.com/PatrickRioche/FREDPP/actions/runs/42417481573),
   dont `test_copy` et `cli_copy`, réussis.
-- **Validation utilisateur Windows 11 :** en attente.
-- **Statut :** candidat fonctionnel ; homologation historique complète reportée.
+- **Validation utilisateur Windows 11 :** confirmée le 8 novembre 2026 :
+  transcription de `cli_copy.fredpp` conforme au résultat attendu ;
+  `test_copy` et `cli_copy` réussis (2/2, durée totale 0,66 seconde).
+- **Statut :** scénario Windows 11 validé localement et en CI ;
+  homologation historique complète reportée.
 
 ### Lot T — test de modèle et embranchements (7 novembre 2026)
 
@@ -83,6 +86,21 @@ conservent leurs horodatages originaux en UTC.
   versions approuvées. Les tags intermédiaires sont facultatifs.
 - **Publication :** aucune fusion ni release automatique depuis `dev`.
   Une version officielle suppose validation, fusion approuvée et tag stable.
+
+## Retour de validation locale — 8 novembre 2026
+
+L'utilisateur a transmis la sortie PowerShell de son poste Windows 11,
+depuis le dépôt FREDPP situé dans Google Drive :
+
+- build Debug de FREDPP `0.0.22`, commit `706253b` : compilation terminée ;
+- exécution de `tests/fixtures/cli_copy.fredpp` : sortie strictement conforme
+  au scénario documenté dans `docs/developer/TESTING-K-COPY.md` ;
+- `ctest -R "^(test_copy|cli_copy)$"` : **2 tests sur 2 réussis**
+  (`test_copy` : 0,60 s ; `cli_copy` : 0,05 s ; total : 0,66 s).
+
+Cette validation locale est rapportée par l'utilisateur et complète la CI
+Windows [10/10 réussie](https://github.com/PatrickRioche/FREDPP/actions/runs/42417481573).
+Elle n'implique ni fusion dans `main` ni publication officielle.
 
 ## Règle de mise à jour pour les prochains lots
 
