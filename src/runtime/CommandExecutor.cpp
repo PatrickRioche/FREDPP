@@ -429,6 +429,45 @@ Buffer::LineNumber evaluate_insert_position(const InsertCommandNode& command,
 
 
 /**
+ * @brief Copies addressed source lines into a destination Buffer (historical K).
+ *
+ * K replaces the previous destination content but leaves the source text and
+ * modified flag intact. The source cursor becomes the last copied line; the
+ * receiver cursor becomes its new last line. A same-Buffer copy uses a snapshot
+ * before replacing content so overlapping addresses cannot corrupt the copy.
+ */
+void execute_copy(const CopyCommandNode& command,
+                  ExecutionContext& context) {
+    auto& manager = context.buffers();
+    auto& source = context.current_buffer();
+    const auto range = AddressEvaluator{}.evaluate(command.address(), source);
+
+    std::vector<std::string> copied_lines;
+    copied_lines.reserve(range.last - range.first + 1);
+    for (auto line = range.first; line <= range.last; ++line) {
+        copied_lines.push_back(source.line(line));
+    }
+
+    if (command.buffer_name() == source.name()) {
+        source.erase(1, source.line_count());
+        for (auto& line : copied_lines) {
+            source.append(std::move(line));
+        }
+        return;
+    }
+
+    // get_or_create does not change the selected source Buffer or MRU order.
+    auto& destination = manager.get_or_create(command.buffer_name());
+    if (!destination.empty()) {
+        destination.erase(1, destination.line_count());
+    }
+    for (auto& line : copied_lines) {
+        destination.append(std::move(line));
+    }
+    source.set_current_line(range.last);
+}
+
+/**
  * @brief Moves the selected source range into a destination Buffer.
  *
  * M replaces the destination content. Moving to the current Buffer is handled

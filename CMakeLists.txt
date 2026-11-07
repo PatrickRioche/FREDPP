@@ -92,6 +92,7 @@ set(FREDPP_IMPLEMENTED_HELP_TOPICS
     i
     jm
     jp
+    k
     l
     m
     p

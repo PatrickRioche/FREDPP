@@ -33,6 +33,7 @@ enum class AstNodeKind {
     InsertCommand,
     ChangeCommand,
     MoveCommand,
+    CopyCommand,
     TestCommand,
     BufferCommand,
     GlobalCommand,

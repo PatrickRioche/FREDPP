@@ -6,16 +6,16 @@ Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/ref
 
 | Famille | Total référence | Implémenté / homologué | Reste |
 |---|---:|---:|---:|
-| Commandes principales | 22 | 15 | 7 |
+| Commandes principales | 22 | 16 | 6 |
 | Commandes spéciales | 7 | 1 (`\"`) | 6 |
 | Famille F | 7 | 2 (`FB`, `FO`) | 5 |
 | Famille J | 5 | 2 (`JM`, `JP`) | 3 |
 | Famille N | 21 | 0 | 21 |
 | Famille O | 24 | 2 (`OI(`, `OM`) | 22 |
 | Famille Z | 17 | 0 | 17 |
-| **Total** | **103** | **22** | **81** |
+| **Total** | **103** | **23** | **80** |
 
-La couverture fonctionnelle de la référence est de **22 / 103**, soit environ **21,4 %**.
+La couverture fonctionnelle de la référence est de **23 / 103**, soit environ **22,3 %**.
 
 | Commande | État dans FREDPP | Aide embarquée |
 |---|---|:---:|
@@ -27,6 +27,7 @@ La couverture fonctionnelle de la référence est de **22 / 103**, soit environ 
 | FO | Disponible; affiche les options effectivement en service | Oui (`?fo`) |
 | G | Disponible avec une commande imbriquée P, D, Z ou S | Oui |
 | I | Disponible | Oui |
+| K | Copie vers un buffer avec remplacement ; candidat en validation historique | Oui (`?k`) |
 | `\"` | Disponible : tout le reste de la ligne est ignoré comme commentaire | Oui (`?\"`) |
 | JM | Disponible : message avec retour à la ligne, formes `JM texte` et `JM/texte/` | Oui (`?jm`) |
 | JP | Disponible : message sans retour à la ligne, formes `JP texte` et `JP/texte/` | Oui (`?jp`) |

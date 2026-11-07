@@ -156,6 +156,37 @@ private:
 };
 
 /**
+ * @brief Historical K command: copy addressed lines into a named Buffer.
+ *
+ * The destination's previous content is replaced while the source lines are
+ * preserved. This node owns syntax only; Runtime performs the transfer.
+ */
+class CopyCommandNode final : public CommandNode {
+public:
+    /**
+     * @param address Optional source address; defaults to the current line.
+     * @param buffer_name Destination Buffer name owned by this node.
+     * @param location Location of the K command.
+     */
+    CopyCommandNode(std::unique_ptr<AddressNode> address,
+                    std::string buffer_name,
+                    SourceLocation location) noexcept
+        : CommandNode(std::move(address), location),
+          buffer_name_(std::move(buffer_name)) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::CopyCommand;
+    }
+
+    [[nodiscard]] const std::string& buffer_name() const noexcept {
+        return buffer_name_;
+    }
+
+private:
+    std::string buffer_name_;
+};
+
+/**
  * @brief Historical `T` command AST for testing a pattern over addressed lines.
  *
  * T is read-only: it updates the shared runtime condition flag, not the Buffer.

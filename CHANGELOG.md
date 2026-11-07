@@ -1,5 +1,10 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- implémentation expérimentale de la commande historique `K` : copie des lignes
+  adressées vers un buffer avec remplacement du contenu antérieur, sans
+  suppression des lignes d'origine ; ajout de tests Windows unitaires et CLI,
+  d'une spécification et de la documentation source, sans release officielle ;
+
 - ajout d'un scénario Windows qui rend les résultats de `T` visibles au moyen
   des sauts conditionnels `J(étiquette)T/F` et de `JM`, avec vérification
   automatique de la sortie complète ; aucune modification de la commande `T` ;

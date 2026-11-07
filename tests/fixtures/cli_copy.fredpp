@@ -1,0 +1,21 @@
+" Windows K integration test: destination replacement and source preservation.
+B(target)
+A
+obsolete
+\F
+B(source)
+A
+alpha
+beta
+gamma
+\F
+1,2K(target)
+JM/FREDPP-K-SOURCE-CURRENT/
+P
+JM/FREDPP-K-SOURCE-ALL/
+1,3P
+B(target)
+JM/FREDPP-K-DEST-CURRENT/
+P
+JM/FREDPP-K-DEST-ALL/
+1,$P

@@ -147,6 +147,21 @@ int main() {
         assert(move.buffer_name() == "chemin");
     }
     {
+        const auto node = parse("K(target)");
+        assert(node->kind() == fred::AstNodeKind::CopyCommand);
+        assert(!node->has_address());
+        const auto& copy = static_cast<const fred::CopyCommandNode&>(*node);
+        assert(copy.buffer_name() == "target");
+    }
+    {
+        const auto node = parse("1,2k(target)");
+        assert(node->kind() == fred::AstNodeKind::CopyCommand);
+        assert(node->has_address());
+        assert(node->address()->kind() == fred::AstNodeKind::RangeAddress);
+        const auto& copy = static_cast<const fred::CopyCommandNode&>(*node);
+        assert(copy.buffer_name() == "target");
+    }
+    {
         const auto node = parse("2,3T/alpha/");
         assert(node->kind() == fred::AstNodeKind::TestCommand);
         assert(node->has_address());

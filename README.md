@@ -53,7 +53,7 @@ The repository currently contains:
 - AddressParser, PatternParser and CommandParser;
 - AST nodes and address evaluation;
 - ExecutionContext and CommandExecutor;
-- executable `P`, `L`, `D`, `A`, `B`, `I`, `C`, `M`, `T`, `G`, `Z`, `S`, `Q`, `R` and `W` commands;
+- executable `P`, `L`, `D`, `A`, `B`, `I`, `C`, `K`, `M`, `T`, `G`, `Z`, `S`, `Q`, `R` and `W` commands;
 - file reading with automatic ASCII or UTF-8 detection;
 - file writing with `W`, forced ASCII with `WA`, and UTF-8 without BOM with the FREDPP extension `WU`;
 - recognition of historical `WB` with an explicit unsupported GCOS/BCD diagnostic;

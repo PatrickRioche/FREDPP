@@ -127,6 +127,14 @@ CommandRegistry make_core_command_registry() {
         }});
 
     registry.register_command(CommandDescriptor{
+        'K', "Kopie",
+        [](std::unique_ptr<AddressNode> address, SourceLocation location) {
+            // Placeholder only: CommandParser parses the destination Buffer.
+            return std::make_unique<CopyCommandNode>(
+                std::move(address), std::string{}, location);
+        }});
+
+    registry.register_command(CommandDescriptor{
         'T', "Test",
         [](std::unique_ptr<AddressNode> address, SourceLocation location) {
             // Placeholder/default only; a real T command requires a parsed

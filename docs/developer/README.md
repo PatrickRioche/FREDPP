@@ -71,6 +71,7 @@ and S. It does not replace the deferred historical compatibility suite or user
 validation on Windows 11.
 
 - [Visible T condition/jump integration test on Windows](TESTING-T-CONDITION.md)
+- [Historical K copy integration test on Windows](TESTING-K-COPY.md)
 
 ## Module documentation
 

@@ -540,6 +540,19 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 std::move(address), std::move(buffer_name), command.location);
         }
 
+        if (mnemonic == 'K') {
+            if (tokens_->peek().type != TokenType::LeftParenthesis) {
+                throw ParseError(
+                    "K requires a destination buffer",
+                    tokens_->peek().location);
+            }
+
+            auto buffer_name = parse_parenthesized_buffer_name();
+            require_command_end();
+            return std::make_unique<CopyCommandNode>(
+                std::move(address), std::move(buffer_name), command.location);
+        }
+
         if (mnemonic == 'T') {
             // Historical T is a read-only pattern predicate. Its former
             // FREDPP transfer/destination-address interpretation was incorrect.

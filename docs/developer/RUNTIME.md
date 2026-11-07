@@ -772,6 +772,19 @@ M semantics currently:
 
 So M **replaces**, rather than appends to, an existing destination Buffer.
 
+## 26a. K — Copy to a named Buffer
+
+`CopyCommandNode` owns an optional source address and destination name.
+`execute_copy()` resolves and snapshots the selected source lines first.
+The destination's prior lines are replaced, and its cursor becomes the last
+copied line. For distinct Buffers, the source text and modified state remain
+unchanged, its current line moves to the last copied source line, and the
+selected Buffer does not change.
+
+If destination equals source, the snapshot replaces the complete source
+content. Invalid source ranges fail before any destination is touched.
+See `docs/specs/SPEC-028-COPY.md`.
+
 ## 27. T — Historical pattern test
 
 The previous FREDPP `T` line-transfer implementation was incompatible with the

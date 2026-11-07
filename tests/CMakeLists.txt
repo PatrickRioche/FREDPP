@@ -26,6 +26,7 @@ fredpp_add_test(test_append test_append.cpp)
 fredpp_add_test(test_insert test_insert.cpp)
 fredpp_add_test(test_change test_change.cpp)
 fredpp_add_test(test_move test_move.cpp)
+fredpp_add_test(test_copy test_copy.cpp)
 fredpp_add_test(test_test_command test_test_command.cpp)
 fredpp_add_test(test_buffer_command test_buffer_command.cpp)
 fredpp_add_test(test_options test_options.cpp)
@@ -152,7 +153,14 @@ add_test(NAME cli_message_delimiters
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_message_delimiters.cmake"
 )
 
-# Historical T is silent; this CLI fixture makes its conditional result visible.
+# Focused CLI regressions for historical K and T commands.
+add_test(NAME cli_copy
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_copy.cmake"
+)
+
 add_test(NAME cli_test_condition_t
     COMMAND ${CMAKE_COMMAND}
         "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
