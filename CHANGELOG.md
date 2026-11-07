@@ -1,5 +1,11 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- réalignement de `T` sur la commande historique de test de modèle : `T` et
+  `T~` utilisent la plage adressée et mettent à jour le registre de condition,
+  sans copier ni déplacer de lignes ;
+- remplacement de l'ancien test de transfert incorrect par des tests ciblés
+  du modèle et de la condition ; documentation source et spécification mises
+  à jour, homologation historique complète encore différée ;
 - l'évaluation des adresses relatives avant (`+n`) refuse maintenant un
   dépassement arithmétique avant l'addition non signée ;
 - le moteur de flot libère toutes ses sources actives après une erreur et peut

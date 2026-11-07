@@ -156,32 +156,41 @@ private:
 };
 
 /**
- * @brief `T` command AST containing optional source and required destination.
+ * @brief Historical `T` command AST for testing a pattern over addressed lines.
+ *
+ * T is read-only: it updates the shared runtime condition flag, not the Buffer.
  */
-class TransferCommandNode final : public CommandNode {
+class TestCommandNode final : public CommandNode {
 public:
     /**
-     * @param source Optional source address; ownership is transferred to base.
-     * @param destination Destination address; ownership is transferred.
+     * @param address Optional test range; defaults to the current line.
+     * @param pattern Pattern to search for; ownership is transferred.
+     * @param inverted true for `T~`, which negates the range-wide result.
      * @param location Location of the T command.
+     * @pre `pattern` must be non-null for execution.
      */
-    TransferCommandNode(std::unique_ptr<AddressNode> source,
-                        std::unique_ptr<AddressNode> destination,
-                        SourceLocation location) noexcept
-        : CommandNode(std::move(source), location),
-          destination_(std::move(destination)) {}
+    TestCommandNode(std::unique_ptr<AddressNode> address,
+                    std::unique_ptr<PatternNode> pattern,
+                    bool inverted,
+                    SourceLocation location) noexcept
+        : CommandNode(std::move(address), location),
+          pattern_(std::move(pattern)), inverted_(inverted) {}
 
     [[nodiscard]] AstNodeKind kind() const noexcept override {
-        return AstNodeKind::TransferCommand;
+        return AstNodeKind::TestCommand;
     }
 
-    /** @return Non-owning destination pointer; parser-produced nodes use non-null. */
-    [[nodiscard]] const AddressNode* destination() const noexcept {
-        return destination_.get();
+    /** @return Borrowed pattern reference; valid for the AST node's lifetime. */
+    [[nodiscard]] const PatternNode& pattern() const noexcept {
+        return *pattern_;
     }
+
+    /** @return Whether the `~` condition inversion was requested. */
+    [[nodiscard]] bool inverted() const noexcept { return inverted_; }
 
 private:
-    std::unique_ptr<AddressNode> destination_;
+    std::unique_ptr<PatternNode> pattern_;
+    bool inverted_{};
 };
 
 /** @brief `B` buffer-selection command AST. */

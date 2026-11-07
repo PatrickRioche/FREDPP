@@ -239,7 +239,7 @@ Some placeholder callbacks can create AST objects whose child pointers are null.
 
 Examples:
 
-- T descriptor -> `TransferCommandNode(..., nullptr, ...)`;
+- T descriptor -> `TestCommandNode(..., nullptr, false, ...)`;
 - G descriptor -> null pattern and nested command;
 - S descriptor -> null pattern.
 

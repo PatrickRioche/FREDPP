@@ -112,8 +112,9 @@ private:
     [[nodiscard]] std::optional<std::string> parse_optional_filename();
 
     /**
-     * @brief Reconstructs and parses a G pattern delimited by `/` or `?`.
+     * @brief Reconstructs a G/T pattern delimited by `/` or `?`.
      *
+     * @param mnemonic Command name for accurate diagnostic wording.
      * @return Owned PatternNode tree.
      * @throws ParseError for invalid/unterminated delimiter syntax or any
      *         PatternParser failure.
@@ -121,7 +122,7 @@ private:
      * Literal delimiter metadata and escaped-delimiter parity are preserved
      * while rebuilding the pattern source from tokens.
      */
-    [[nodiscard]] std::unique_ptr<PatternNode> parse_delimited_pattern();
+    [[nodiscard]] std::unique_ptr<PatternNode> parse_delimited_pattern(char mnemonic);
 
     /**
      * @brief Parses the pattern and replacement portions of S.

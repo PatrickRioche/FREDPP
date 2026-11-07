@@ -35,5 +35,5 @@ jobs:
 
       # This development lane deliberately runs targeted engineering
       # regressions, not the deferred historical compatibility campaign.
-      - name: Test flow recovery and address safety
-        run: ctest --test-dir out/build/windows-dev -C Release --output-on-failure -R "^(test_flow|test_command_executor)$"
+      - name: Test targeted core and T-command regressions
+        run: ctest --test-dir out/build/windows-dev -C Release --output-on-failure -R "^(test_flow|test_command_executor|test_command_parser|test_test_command|test_move|test_global|test_substitute)$"

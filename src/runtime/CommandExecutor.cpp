@@ -429,25 +429,6 @@ Buffer::LineNumber evaluate_insert_position(const InsertCommandNode& command,
 
 
 /**
- * @brief Resolves T's single destination address, including destination zero.
- */
-Buffer::LineNumber evaluate_transfer_destination(
-    const TransferCommandNode& command, const Buffer& buffer) {
-    const auto* destination = command.destination();
-    if (destination == nullptr) {
-        throw CommandExecutionError("T requires a destination address");
-    }
-    if (destination->kind() == AstNodeKind::RangeAddress) {
-        throw CommandExecutionError("T destination must be a single line address");
-    }
-    if (destination->kind() == AstNodeKind::AbsoluteAddress &&
-        static_cast<const AbsoluteAddressNode&>(*destination).line() == 0) {
-        return 0;
-    }
-    return AddressEvaluator{}.evaluate(destination, buffer).first;
-}
-
-/**
  * @brief Moves the selected source range into a destination Buffer.
  *
  * M replaces the destination content. Moving to the current Buffer is handled
@@ -492,20 +473,26 @@ void execute_move(const MoveCommandNode& command,
 }
 
 
-/** @brief Copies the selected range within the current Buffer for T. */
-void execute_transfer(const TransferCommandNode& command,
-                      ExecutionContext& context) {
-    auto& buffer = context.current_buffer();
+/**
+ * @brief Implements historical T (pattern test), including `T~` inversion.
+ *
+ * The condition is true when at least one addressed line matches, or when no
+ * line matches for T~. Neither editor lines nor the current-line cursor nor
+ * the numeric counter are modified. Invalid addresses propagate before the
+ * condition flag is changed.
+ */
+void execute_test(const TestCommandNode& command, ExecutionContext& context) {
+    const auto& buffer = context.current_buffer();
     const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
-    const auto destination = evaluate_transfer_destination(command, buffer);
-
-    std::vector<std::string> copied_lines;
-    copied_lines.reserve(range.last - range.first + 1);
+    const PatternMatcher matcher;
+    bool found = false;
     for (auto line = range.first; line <= range.last; ++line) {
-        copied_lines.push_back(buffer.line(line));
+        if (matcher.search(command.pattern(), buffer.line(line))) {
+            found = true;
+            break;
+        }
     }
-
-    buffer.insert_after(destination, std::move(copied_lines));
+    context.set_condition(command.inverted() ? !found : found);
 }
 
 
@@ -917,8 +904,8 @@ void CommandExecutor::execute(const CommandNode& command,
     case AstNodeKind::MoveCommand:
         execute_move(static_cast<const MoveCommandNode&>(command), context);
         return;
-    case AstNodeKind::TransferCommand:
-        execute_transfer(static_cast<const TransferCommandNode&>(command), context);
+    case AstNodeKind::TestCommand:
+        execute_test(static_cast<const TestCommandNode&>(command), context);
         return;
     case AstNodeKind::BufferCommand:
         execute_buffer(static_cast<const BufferCommandNode&>(command), context);

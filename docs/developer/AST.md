@@ -171,7 +171,7 @@ These currently carry no operand beyond the optional base address:
 |---|---|
 | `ListCommandNode` | optional filename |
 | `MoveCommandNode` | destination buffer name |
-| `TransferCommandNode` | destination AddressNode |
+| `TestCommandNode` | pattern + inversion flag (`T~`) |
 | `BufferCommandNode` | buffer name + short-form flag |
 | `GlobalCommandNode` | pattern + inverted flag + nested command |
 | `ZapGatherCommandNode` | buffer name + nested command |

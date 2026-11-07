@@ -772,23 +772,23 @@ M semantics currently:
 
 So M **replaces**, rather than appends to, an existing destination Buffer.
 
-## 27. T — Transfer/copy
+## 27. T — Historical pattern test
 
-Source address uses generic evaluation.
+The previous FREDPP `T` line-transfer implementation was incompatible with the
+historical command definition and has been replaced with a condition test.
 
-A destination AST is required and must be a single address.
+`TestCommandNode` owns a PatternNode and an optional source range; `T~`
+stores an inversion flag. Runtime evaluates the addressed range, searches each
+line using the existing PatternMatcher and sets `ExecutionContext::condition()`
+to true if any line matched. `T~` negates the range-wide result.
 
-Absolute destination 0 is allowed as an insertion position.
+Omitting the address tests the current line. The supported delimiters are `/`
+and `?`. No Buffer content, cursor, counter or Output is changed. Invalid
+addresses throw before changing the condition flag. Procedure jumps can then
+read the same shared condition flag.
 
-Runtime copies source lines, then:
-
-```cpp
-buffer.insert_after(destination, copied_lines)
-```
-
-Source lines remain in place.
-
-T operates within the current Buffer; it is not a cross-buffer command.
+This is a functional implementation candidate; broader historical tests are
+deferred. See `docs/specs/SPEC-020-TEST.md`.
 
 ## 28. S — Substitute
 

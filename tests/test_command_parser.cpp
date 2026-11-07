@@ -147,22 +147,21 @@ int main() {
         assert(move.buffer_name() == "chemin");
     }
     {
-        const auto node = parse("2,3T5");
-        assert(node->kind() == fred::AstNodeKind::TransferCommand);
+        const auto node = parse("2,3T/alpha/");
+        assert(node->kind() == fred::AstNodeKind::TestCommand);
         assert(node->has_address());
         assert(node->address()->kind() == fred::AstNodeKind::RangeAddress);
-        const auto& transfer = static_cast<const fred::TransferCommandNode&>(*node);
-        assert(transfer.destination() != nullptr);
-        assert(transfer.destination()->kind() == fred::AstNodeKind::AbsoluteAddress);
+        const auto& test = static_cast<const fred::TestCommandNode&>(*node);
+        assert(!test.inverted());
+        assert(test.pattern().kind() == fred::AstNodeKind::PatternSequence ||
+               test.pattern().kind() == fred::AstNodeKind::PatternLiteral);
     }
     {
-        const auto node = parse("t0");
-        assert(node->kind() == fred::AstNodeKind::TransferCommand);
+        const auto node = parse("t~?alpha?");
+        assert(node->kind() == fred::AstNodeKind::TestCommand);
         assert(!node->has_address());
-        const auto& transfer = static_cast<const fred::TransferCommandNode&>(*node);
-        const auto& destination =
-            static_cast<const fred::AbsoluteAddressNode&>(*transfer.destination());
-        assert(destination.line() == 0);
+        const auto& test = static_cast<const fred::TestCommandNode&>(*node);
+        assert(test.inverted());
     }
     {
         const auto node = parse("1,$G/recherche$/D");
@@ -325,8 +324,8 @@ int main() {
     expect_error("ZG(capture)", "ZG requires a command");
     expect_error("M", "M requires a destination buffer");
     expect_error("1M2,3", "M requires a destination buffer");
-    expect_error("T", "T requires a destination address");
-    expect_error("1T2,3", "T destination must be a single line address");
+    expect_error("T", "T requires a pattern delimited by '/' or '?'");
+    expect_error("1T2,3", "T requires a pattern delimited by '/' or '?'");
     expect_error("1L", "L does not accept a line address");
     expect_error("1,2R file.txt",
                  "R insertion address must be a single line");

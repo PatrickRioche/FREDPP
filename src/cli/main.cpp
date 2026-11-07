@@ -167,7 +167,7 @@ void print_command(std::string_view source) {
     case fred::AstNodeKind::InsertCommand: name = "Insert"; break;
     case fred::AstNodeKind::ChangeCommand: name = "Change"; break;
     case fred::AstNodeKind::MoveCommand: name = "Move"; break;
-    case fred::AstNodeKind::TransferCommand: name = "Transfer"; break;
+    case fred::AstNodeKind::TestCommand: name = "Test"; break;
     case fred::AstNodeKind::BufferCommand: name = "Buffer"; break;
     case fred::AstNodeKind::GlobalCommand: name = "Global"; break;
     case fred::AstNodeKind::ZapCommand: name = "Zap"; break;

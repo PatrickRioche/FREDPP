@@ -65,10 +65,10 @@ to a documentation lot.
 
 Every push to the `dev` branch with product code, test or CI changes triggers
 the dedicated Windows/MSVC build in `.github/workflows/windows-development.yml`.
-This lane compiles all C++
-targets and runs only the `test_flow` and `test_command_executor` engineering
-regressions for the current hardening work. It does not replace the deferred
-historical compatibility suite or user validation on Windows 11.
+This lane compiles all C++ targets and runs a small, explicit set of engineering
+regressions covering Flow, Runtime, parsing, historical T implementation, M, G
+and S. It does not replace the deferred historical compatibility suite or user
+validation on Windows 11.
 
 ## Module documentation
 

@@ -435,7 +435,7 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 inverted = true;
             }
 
-            auto pattern = parse_delimited_pattern();
+            auto pattern = parse_delimited_pattern('G');
             if (tokens_->peek().type == TokenType::End ||
                 tokens_->peek().type == TokenType::NewLine) {
                 throw ParseError("G requires a command after the pattern",
@@ -541,22 +541,20 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         }
 
         if (mnemonic == 'T') {
-            if (!begins_address(tokens_->peek())) {
-                throw ParseError("T requires a destination address",
-                                 tokens_->peek().location);
+            // Historical T is a read-only pattern predicate. Its former
+            // FREDPP transfer/destination-address interpretation was incorrect.
+            bool inverted = false;
+            if (tokens_->peek().type == TokenType::Symbol &&
+                tokens_->peek().lexeme == "~") {
+                (void)tokens_->consume();
+                inverted = true;
             }
 
-            AddressParser destination_parser(*tokens_);
-            auto destination = destination_parser.parse_prefix();
-            if (destination->kind() == AstNodeKind::RangeAddress) {
-                throw ParseError(
-                    "T destination must be a single line address",
-                    destination->location());
-            }
-
+            auto pattern = parse_delimited_pattern('T');
             require_command_end();
-            return std::make_unique<TransferCommandNode>(
-                std::move(address), std::move(destination), command.location);
+            return std::make_unique<TestCommandNode>(
+                std::move(address), std::move(pattern), inverted,
+                command.location);
         }
 
         if (mnemonic == 'L') {
@@ -701,16 +699,18 @@ std::optional<std::string> CommandParser::parse_optional_filename() {
 
 
 /**
- * @brief Reconstructs a G pattern plus per-byte interpretation metadata.
+ * @brief Reconstructs a G/T pattern plus per-byte interpretation metadata.
  *
- * Only `/` and `?` are currently accepted by G here. Literal metadata and
+ * Only `/` and `?` are currently accepted here. Literal metadata and
  * escaped-delimiter parity determine whether a delimiter closes the pattern.
  */
-std::unique_ptr<PatternNode> CommandParser::parse_delimited_pattern() {
+std::unique_ptr<PatternNode> CommandParser::parse_delimited_pattern(
+    char mnemonic) {
     const auto opening = tokens_->consume();
     if (opening.type != TokenType::Symbol ||
         (opening.lexeme != "/" && opening.lexeme != "?")) {
-        throw ParseError("G requires a pattern delimited by '/' or '?'",
+        throw ParseError(std::string(1, mnemonic) +
+                             " requires a pattern delimited by '/' or '?'",
                          opening.location);
     }
 

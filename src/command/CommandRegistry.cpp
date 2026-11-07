@@ -127,12 +127,12 @@ CommandRegistry make_core_command_registry() {
         }});
 
     registry.register_command(CommandDescriptor{
-        'T', "Transfer",
+        'T', "Test",
         [](std::unique_ptr<AddressNode> address, SourceLocation location) {
             // Placeholder/default only; a real T command requires a parsed
-            // destination address and is constructed by CommandParser.
-            return std::make_unique<TransferCommandNode>(
-                std::move(address), nullptr, location);
+            // pattern and is constructed by CommandParser.
+            return std::make_unique<TestCommandNode>(
+                std::move(address), nullptr, false, location);
         }});
 
     registry.register_command(CommandDescriptor{

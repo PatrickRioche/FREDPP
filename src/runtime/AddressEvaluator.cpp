@@ -26,7 +26,7 @@ void require_existing(Buffer::LineNumber line, const Buffer& buffer) {
 LineRange AddressEvaluator::evaluate(const AddressNode* address,
                                      const Buffer& buffer) const {
     // Generic address evaluation is intentionally strict on empty buffers.
-    // Command-specific insertion semantics (A/I/R/T address 0/$ cases) are
+    // Command-specific insertion semantics (A/I/R address 0/$ cases) are
     // handled by CommandExecutor rather than weakening this common rule.
     if (buffer.empty()) {
         throw CommandExecutionError("current buffer is empty");
