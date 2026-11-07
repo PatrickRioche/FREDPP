@@ -19,6 +19,13 @@ The command displays:
 
 No version number is duplicated manually in this README.
 
+## Development history
+
+- [Chronological development log](docs/project/DEVELOPMENT_LOG.md): dated work on `dev`, CI results, and local validation status.
+- [Changelog](CHANGELOG.md): version-oriented summary of product changes.
+- [Roadmap](ROADMAP.md): upcoming features and milestones.
+- [Git history](https://github.com/PatrickRioche/FREDPP/commits/dev/): authoritative commit-level traceability.
+
 ## Help
 
 Inside FREDPP:

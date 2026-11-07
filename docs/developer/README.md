@@ -72,6 +72,7 @@ validation on Windows 11.
 
 - [Visible T condition/jump integration test on Windows](TESTING-T-CONDITION.md)
 - [Historical K copy integration test on Windows](TESTING-K-COPY.md)
+- [Dated development log and verification status](../project/DEVELOPMENT_LOG.md)
 
 ## Module documentation
 
