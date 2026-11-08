@@ -21,7 +21,7 @@ conservent leurs horodatages originaux en UTC.
 | Nouveau lot | `ZK` implémenté ; CI Windows Release 12/12 et validation locale Windows 11 Debug 2/2 réussies |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
-| Dernière CI Windows/MSVC ciblée | [12/12 tests réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42428354349) (Release) |
+| Dernière CI Windows/MSVC ciblée | [15/15 tests Release et 2/2 Debug réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42455541228) |
 | Validation locale Windows 11 — T | Confirmée par l'utilisateur (scénario et CTest 1/1) |
 | Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |
 | Validation locale Windows 11 — ZK | Confirmée par l'utilisateur (Debug, scénario exact et CTest 2/2), après build isolé |
@@ -40,6 +40,9 @@ conservent leurs horodatages originaux en UTC.
 | 07/11/2026 22:46 | [`d723877`](https://github.com/PatrickRioche/FREDPP/commit/d723877a4f0e545cd506fc7bfe6704e3520e493c) | Correctif du répartiteur d'exécution pour `K` |
 | 08/11/2026 01:07 | [`c1f0fc0`](https://github.com/PatrickRioche/FREDPP/commit/c1f0fc03ea1af89441e9ace002ff949ff17301a4) | Implémentation candidate `ZK`, tests et documentation |
 | 08/11/2026 01:10 | [`58308e7`](https://github.com/PatrickRioche/FREDPP/commit/58308e7144d728729d90f42a81d24af5459bc6d9) | Résultat CI Windows 12/12 consigné |
+| 08/11/2026 01:14 | [`2b9bfd7`](https://github.com/PatrickRioche/FREDPP/commit/2b9bfd781443d9e8d1e3ba8b3c8ee3aa5882831e) | Anomalie MSVC Debug `LNK1163` rapportée |
+| 08/11/2026 01:18 | [`ef78cf7`](https://github.com/PatrickRioche/FREDPP/commit/ef78cf7a0536cf232751beb92582236d6287b7c6) | Validation locale de `ZK` 2/2 et procédure de compilation isolée |
+| 08/11/2026 07:37 | [`7fad17a`](https://github.com/PatrickRioche/FREDPP/commit/7fad17a31b8410df577e507c0c44c8b8d30b4867) | Version `0.0.24` synchronisée et scripts Windows externes |
 
 ## Détails des lots et des validations
 
@@ -56,9 +59,8 @@ conservent leurs horodatages originaux en UTC.
   `FREDPP_BUILD_DIR` configurable ; les wrappers PowerShell suivent cette
   logique. La compilation reste sérialisée, les sources restent dans Google
   Drive et `rebuild.bat` évite la suppression globale des dossiers de sortie.
-- **Validation automatique :** vérification prévue des wrappers Debug par la
-  CI Windows en complément de la suite ciblée Release.
-- **Validation locale Windows 11 :** en attente pour ces nouveaux scripts.
+- **Validation automatique :** [CI Windows/MSVC 42455541228](https://github.com/PatrickRioche/FREDPP/actions/runs/42455541228) réussie : compilation Release et **15/15 tests ciblés** (dont `cli_smoke`, `test_version` et `test_release_manifest`) ; compilation Debug intégrale via `scripts/build.bat` et **2/2 tests** via `scripts/test.bat` dans un répertoire externe au dépôt. La garde CMake de version a passé la configuration.
+- **Validation locale Windows 11 :** en attente du premier lancement du nouveau `scripts/build.bat` / `scripts/test.bat` par l'utilisateur ; l'ancienne compilation Debug manuelle isolée de `ZK` reste validée.
 - **Gouvernance :** `dev` uniquement ; pas de changement de `main`, de tag
   officiel ni de release.
 
