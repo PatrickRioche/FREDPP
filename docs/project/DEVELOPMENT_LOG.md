@@ -18,7 +18,7 @@ conservent leurs horodatages originaux en UTC.
 | Version du projet | `0.0.24` (développement ; 24/103 commandes) |
 | Branche active | `dev` |
 | Dernier lot fonctionnel | `R` : listes de fichiers avec noms cités ; [commit `af17a34`](https://github.com/PatrickRioche/FREDPP/commit/af17a349392109d9b9230432d3f284d8042c2b96) |
-| État des tests | CI Windows verte ; revalidation locale du nouveau sous-lot `R` en attente |
+| État des tests | CI Windows verte ; nouveau sous-lot `R` validé localement (1/1, 1,48 s) |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
 | Dernière CI Windows/MSVC ciblée | [16/16 tests Release, 3 × 2/2 Debug et 1/1 R réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42469707212) |
@@ -70,7 +70,7 @@ conservent leurs horodatages originaux en UTC.
   synchronisés ; référence historique source inchangée.
 - **Version :** `0.0.24` inchangée, `R` déjà comptabilisée.
 - **Validation CI Windows :** [exécution 42469707212](https://github.com/PatrickRioche/FREDPP/actions/runs/42469707212) **réussie** : compilation MSVC Release, **16/16 tests ciblés**, compilation Debug et toutes les vérifications PowerShell/batch, dont **1/1** pour `test_file_io`.
-- **Validation locale Windows 11 :** nouveau sous-lot avec alternatives citées à confirmer par l'utilisateur après synchronisation de `dev`.
+- **Validation locale Windows 11 :** **confirmée par l'utilisateur le 8 novembre 2026** : `./scripts/test.ps1 -R "^test_file_io$"` réussit **1/1** ; durée `test_file_io` **0,88 s**, CTest total **1,48 s**. Le résultat couvre également les nouvelles listes de noms entre guillemets, ajoutées dans `test_file_io`.
 
 ### Lot R — recherche ordonnée de fichiers (8 novembre 2026)
 

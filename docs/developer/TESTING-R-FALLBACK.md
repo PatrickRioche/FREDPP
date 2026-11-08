@@ -35,7 +35,7 @@ cover quoted alternatives with spaces, priority of the first readable file,
 addressed insertion, all-file failure and unterminated quotes. See
 `docs/specs/SPEC-026-READ-WRITE.md`.
 
-CI Windows/MSVC: [run 42469707212](https://github.com/PatrickRioche/FREDPP/actions/runs/42469707212) passed all 16 Release checks and the Debug file-I/O test (1/1), including the new quoted-list cases. The preceding unquoted-list version was confirmed locally on Windows 11 on 8 November 2026 (`test_file_io` 1/1, 0.90 s; CTest total 1.53 s). Local confirmation of the **new quoted-list cases** remains pending.
+CI Windows/MSVC: [run 42469707212](https://github.com/PatrickRioche/FREDPP/actions/runs/42469707212) passed all 16 Release checks and the Debug file-I/O test (1/1), including the new quoted-list cases. The preceding unquoted-list version was confirmed locally on Windows 11 on 8 November 2026 (`test_file_io` 1/1, 0.90 s; CTest total 1.53 s). Local Windows 11 validation of the new quoted-list regression was confirmed by the user on 8 November 2026: `test_file_io` passed 1/1 in 0.88 s (CTest total 1.48 s).
 
 This is a focused Windows regression, not historical multi-platform
 homologation. The `WX` block-statistics behavior remains deferred until the
