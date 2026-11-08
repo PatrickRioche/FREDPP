@@ -860,7 +860,7 @@ successful.
 The error text "no text changed" is therefore slightly broader than the exact
 implementation condition.
 
-## 29. FB / FO — Facts
+## 29. FB / FF / FO — Facts
 
 ### FO
 
@@ -882,6 +882,20 @@ b(name) current,line_count [associated-file] [?]
 `?` marks modified buffers.
 
 Order is MRU selection order, not lexicographic name order.
+
+### FF
+
+Iterates `BufferManager::names()` in lexicographic name order, retaining
+only buffers with an associated file. Each line has the form
+`b(name) path`, followed by ` ?` when modified. Never-selected
+buffers are included. The selection and buffer state are unchanged.
+
+### Historical special command =
+
+For an unaddressed `=`, Runtime prints `Buffer::current_line()`, including
+`0` for an empty buffer. For `2=` or `$=`, it uses
+`AddressEvaluator` to validate one existing line and prints its number.
+The query never changes the current line, buffer contents or registers.
 
 ## 30. O — Option
 

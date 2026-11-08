@@ -159,6 +159,7 @@ test.
 These currently carry no operand beyond the optional base address:
 
 - `PrintCommandNode`
+- `LineNumberCommandNode` (`=` with optional single-line address)
 - `DeleteCommandNode`
 - `AppendCommandNode`
 - `InsertCommandNode`

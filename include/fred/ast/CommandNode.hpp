@@ -65,6 +65,21 @@ public:
 };
 
 /**
+ * @brief Historical `=` command AST: print a line number without moving
+ * the current cursor.
+ *
+ * An optional single-line address is owned by the base class; no address means
+ * the current line, which is 0 for an empty buffer.
+ */
+class LineNumberCommandNode final : public CommandNode {
+public:
+    using CommandNode::CommandNode;
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::LineNumberCommand;
+    }
+};
+
+/**
  * @brief Historical `L` command AST: list a file on the terminal.
  *
  * Unlike ordinary addressed commands, ListCommandNode is constructed without a

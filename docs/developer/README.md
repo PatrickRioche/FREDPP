@@ -95,6 +95,7 @@ validation on Windows 11.
 - [Historical ZK insertion-copy test on Windows](TESTING-ZK-COPY.md)
 - [Historical R file-list fallback test on Windows](TESTING-R-FALLBACK.md)
 - [Historical FF file-association listing test on Windows](TESTING-FF.md)
+- [Historical equals line-number test on Windows](TESTING-LINE-NUMBER.md)
 - [Dated development log and verification status](../project/DEVELOPMENT_LOG.md)
 
 ## Module documentation

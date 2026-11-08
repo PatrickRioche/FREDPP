@@ -171,7 +171,7 @@ CommandParser::CommandParser(TokenStream& tokens,
  * @brief Parses one complete command under the current trailing-command policy.
  *
  * The method first parses an optional address/`*` alias, normalizes supported
- * compact spellings (QQ, WA/WU/WB, FB/FO, JM/JP, Bx, ZG), then constructs the
+ * compact spellings (QQ, WA/WU/WB, FB/FF/FO, JM/JP, Bx, ZG), then constructs the
  * appropriate AST. Any exception rewinds the TokenStream to the entry mark.
  */
 std::unique_ptr<CommandNode> CommandParser::parse() {
@@ -246,6 +246,15 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 command.type = TokenType::Command;
                 command.lexeme = "Z";
             }
+        }
+        if (command.type == TokenType::Symbol && command.lexeme == "=") {
+            if (address && address->kind() == AstNodeKind::RangeAddress) {
+                throw ParseError("= accepts a single line address, not a range",
+                                 address->location());
+            }
+            require_command_end();
+            return std::make_unique<LineNumberCommandNode>(
+                std::move(address), command.location);
         }
         if (command.type == TokenType::Symbol && command.lexeme == "!") {
             if (address) {

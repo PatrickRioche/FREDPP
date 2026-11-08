@@ -15,10 +15,10 @@ conservent leurs horodatages originaux en UTC.
 
 | Élément | État vérifié |
 |---|---|
-| Version du projet | `0.0.25` (développement ; 25/103 commandes, `FF` ajouté) |
+| Version du projet | `0.0.26` (développement ; 26/103 commandes, `=` ajouté) |
 | Branche active | `dev` |
-| Dernier lot fonctionnel | `FF` : buffers associés à des fichiers ; [commit `51e6d1f`](https://github.com/PatrickRioche/FREDPP/commit/51e6d1f7c2332fb25d6c818252c8b86297744680) |
-| État des tests | CI Windows/MSVC verte : Release 18/18, Debug `FF` 2/2 ; confirmation locale Windows 11 en attente |
+| Dernier lot fonctionnel | Commande spéciale `=` : impression du numéro de ligne, candidate Windows |
+| État des tests | `0.0.25` : CI 18/18 et `FF` local 2/2 validés ; nouveaux tests `=` ajoutés, CI `0.0.26` en attente |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
 | Dernière CI Windows/MSVC ciblée | [Exécution 42532206878 réussie : 18/18 Release, 2/2 FF Debug, régressions et scripts verts](https://github.com/PatrickRioche/FREDPP/actions/runs/42532206878) |
@@ -26,6 +26,7 @@ conservent leurs horodatages originaux en UTC.
 | Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |
 | Validation locale Windows 11 — ZK | Confirmée (scénario Debug, CTest 2/2 et relance via `test.ps1` 2/2 en 0,55 s) |
 | Validation locale Windows 11 — R (liste de fichiers) | Confirmée par l'utilisateur : `test_file_io` 1/1, CTest total 1,53 s |
+| Validation locale Windows 11 — FF | Confirmée par l'utilisateur : `test_facts` et `test_help_manager`, 2/2, CTest total 0,04 s ; commit `afe0d0f` |
 | Homologation historique complète | Reportée |
 | Nouvelle release officielle | Aucune ; pas de fusion dans `main` |
 
@@ -56,6 +57,29 @@ conservent leurs horodatages originaux en UTC.
 
 ## Détails des lots et des validations
 
+### Lot = — affichage du numéro de ligne (8 novembre 2026)
+
+- **Référence normative :** `docs/fr/reference/commandes/equals.md`
+  décrit `=`, `2=` et `$=` ; fichier historique conservé intact.
+- **Analyse syntaxique :** `=` reconnu comme symbole de commande,
+  avec une adresse de ligne unique facultative. Les plages et arguments
+  supplémentaires sont refusés explicitement.
+- **Exécution :** `=` imprime la position courante (`0` si buffer vide),
+  `2=` imprime `2`, `$=` le numéro de la dernière ligne. Les adresses
+  explicites invalides sont signalées sans affichage, et aucun état de
+  buffer ou registre n'est modifié. Une adresse ne repositionne pas le
+  curseur : le cas `2=` suivi de `=` le vérifie.
+- **Couverture :** la commande spéciale `=` devient la **26e commande
+  historique comptabilisée** : `0.0.26`, **26/103** (25,2 %).
+  L'aide `?=` est embarquée depuis la référence Markdown à la compilation.
+- **Tests ajoutés :** `test_line_number` et `cli_line_number` (sortie
+  intégrale), plus `test_help_manager` étendu ; CI Windows/MSVC Release
+  et Debug ciblée.
+- **Validation :** CI Windows en attente ; validation sur le poste Windows
+  11 demandée ensuite via
+  `scripts/test.ps1 -R "^(test_line_number|cli_line_number|test_help_manager)$"`.
+  Aucun changement de `main`, aucune release, aucun tag.
+
 ### Lot FF — liste des buffers associés à un fichier (8 novembre 2026)
 
 - **Référence :** `docs/fr/reference/commandes/ff.md` : `FF` imprime
@@ -78,8 +102,11 @@ conservent leurs horodatages originaux en UTC.
   **réussie le 8 novembre 2026** : configuration et compilation MSVC Release,
   **18/18 tests ciblés**, compilation Debug et **2/2 tests `FF` / aide** via
   `test.ps1`, ainsi que toutes les vérifications de régression précédentes.
-- **Validation locale Windows 11 :** encore attendue ; lancer
-  `scripts/test.ps1 -R "^(test_facts|test_help_manager)$"` sur le poste utilisateur.
+- **Validation locale Windows 11 :** **confirmée par l'utilisateur le
+  8 novembre 2026** : `test_facts` et `test_help_manager` **2/2**,
+  CTest total **0,04 s** ; `--version` indique `0.0.25`, commit
+  `afe0d0f`. Deux fichiers journaux Android/JVM non suivis sont
+  signalés par `git status --short` ; les sources suivies sont propres.
   Pas de fusion vers `main`, pas de tag ni publication stable.
 
 ### Lot R — noms entre guillemets dans les listes (8 novembre 2026)

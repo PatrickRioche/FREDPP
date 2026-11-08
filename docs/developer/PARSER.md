@@ -279,6 +279,7 @@ WA -> W + Ascii
 WU -> W + Utf8
 WB -> W + BcdUnsupported
 FB -> F + Buffers
+FF -> F + Files
 FO -> F + Options
 JM -> J + newline=true
 JP -> J + newline=false
@@ -336,9 +337,17 @@ The parser is case-insensitive for these command letters.
 
 Current code recognizes only JM and JP.
 
-### `FB` / `FO`
+### `FB` / `FF` / `FO`
 
-Only these F forms are currently implemented.
+These three F forms are currently implemented. `FF` lists all buffers
+associated with files without changing the selected buffer.
+
+### `=`
+
+The historical special symbol `=` is parsed directly before ordinary
+single-letter command registry lookup. It accepts one optional line address,
+but rejects ranges and trailing arguments. The AST preserves that address
+for Runtime validation; it does not advance the cursor.
 
 ### `O`
 

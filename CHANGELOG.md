@@ -1,5 +1,11 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- commande spéciale historique `=` : impression du numéro de la ligne
+  courante, ou de celui d'une adresse unique (ex. `2=`, `$=`), sans déplacer
+  le curseur et sans modifier les registres ou le buffer ; `0` sur un buffer
+  vide non adressé ; vérifications unitaires, CLI et aide `?=` ; passage de
+  `dev` en **0.0.26** pour **26/103 commandes** (25,2 %), sans release ;
+
 - commande historique `FF` : affichage des buffers possédant un fichier
   associé (`b(nom) chemin`, suivi de `?` si modifié), y compris les buffers
   jamais sélectionnés ; ordre stable par nom, tests unitaires et aide `?ff` ;

@@ -46,14 +46,16 @@ index
 !
 *
 "
+=
 oi(
 om
 procedure
 wu
 ```
 
-This makes 9 special entries in addition to the normal implemented command
-topics.
+This makes 10 special entries in addition to the normal implemented command
+topics. The `=` entry comes directly from the unchanged historical `equals.md`
+source and is available as `?=`.
 
 The main `?` index is intentionally not identical to `HelpManager::topics()`.
 

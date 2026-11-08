@@ -27,6 +27,7 @@ enum class AstNodeKind {
     PatternCharacterClass,
     PatternGroup,
     PrintCommand,
+    LineNumberCommand,
     ListCommand,
     DeleteCommand,
     AppendCommand,

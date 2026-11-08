@@ -228,7 +228,8 @@ The current `CommandParser` therefore follows this pattern:
 ```
 
 Examples handled directly by `CommandParser` include R, W, S, Q, J, F, O, G,
-Z, B, M, T and L.
+Z, B, M, T and L. The historical special symbol `=` is also handled
+before registry lookup, preserving its optional line address.
 
 The generic descriptor callback remains the normal final path for simple
 commands such as P, D, A, I and C.

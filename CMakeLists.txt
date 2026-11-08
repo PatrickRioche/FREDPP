@@ -9,7 +9,7 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.25 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.26 LANGUAGES CXX)
 
 # Development version contract: the patch number equals the number of
 # historical reference commands recorded as available in COMMAND_STATUS.md.
@@ -142,7 +142,7 @@ foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
 endforeach()
 
 list(LENGTH FREDPP_HELP_FILES FREDPP_HELP_FILES_LENGTH)
-math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 9")
+math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 10")
 
 string(CONCAT FREDPP_HELP_INDEX
 "============================================================\n"
@@ -168,8 +168,9 @@ string(APPEND FREDPP_HELP_INDEX
 "\nOPTION HISTORIQUE IMPLÉMENTÉE\n\n"
 "    ?oi(        Afficher l'aide de l'option OI(\n"
 "    ?om         Afficher l'aide de l'option OM (monitorage)\n"
-"\nCOMMANDE SPÉCIALE HISTORIQUE IMPLÉMENTÉE\n\n"
+"\nCOMMANDES SPÉCIALES HISTORIQUES IMPLÉMENTÉES\n\n"
 "    ?\"          Afficher l'aide des commentaires FRED\n"
+"    ?=          Afficher l'aide du numéro de ligne\n"
 "\nALIAS HISTORIQUE IMPLÉMENTÉ\n\n"
 "    ?*          Afficher l'aide de l'alias * (1,$)\n"
 )
@@ -208,6 +209,18 @@ file(READ "${FREDPP_QUOTE_HELP_FILE}" FREDPP_QUOTE_HELP_CONTENT)
 string(FIND "${FREDPP_QUOTE_HELP_CONTENT}" ")FREDPP_HELP\"" FREDPP_QUOTE_HELP_COLLISION)
 if(NOT FREDPP_QUOTE_HELP_COLLISION EQUAL -1)
     message(FATAL_ERROR "Quote help contains the reserved raw-string delimiter")
+endif()
+
+set(FREDPP_EQUALS_HELP_FILE
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/fr/reference/commandes/equals.md"
+)
+if(NOT EXISTS "${FREDPP_EQUALS_HELP_FILE}")
+    message(FATAL_ERROR "Missing historical equals help: ${FREDPP_EQUALS_HELP_FILE}")
+endif()
+file(READ "${FREDPP_EQUALS_HELP_FILE}" FREDPP_EQUALS_HELP_CONTENT)
+string(FIND "${FREDPP_EQUALS_HELP_CONTENT}" ")FREDPP_HELP\"" FREDPP_EQUALS_HELP_COLLISION)
+if(NOT FREDPP_EQUALS_HELP_COLLISION EQUAL -1)
+    message(FATAL_ERROR "Equals help contains the reserved raw-string delimiter")
 endif()
 
 set(FREDPP_OI_HELP_FILE
@@ -283,6 +296,7 @@ file(WRITE "${FREDPP_EMBEDDED_HELP_CPP}"
 "    Entry{\"!\", R\"FREDPP_HELP(${FREDPP_BANG_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"*\", R\"FREDPP_HELP(${FREDPP_STAR_ALIAS_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"\\\"\", R\"FREDPP_HELP(${FREDPP_QUOTE_HELP_CONTENT})FREDPP_HELP\"},\n"
+"    Entry{\"=\", R\"FREDPP_HELP(${FREDPP_EQUALS_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"oi(\", R\"FREDPP_HELP(${FREDPP_OI_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"om\", R\"FREDPP_HELP(${FREDPP_OM_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"procedure\", R\"FREDPP_HELP(${FREDPP_PROCEDURE_HELP_CONTENT})FREDPP_HELP\"},\n"

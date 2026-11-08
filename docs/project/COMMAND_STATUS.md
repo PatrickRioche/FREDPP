@@ -7,17 +7,17 @@ Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/ref
 | Famille | Total référence | Implémenté / homologué | Reste |
 |---|---:|---:|---:|
 | Commandes principales | 22 | 16 | 6 |
-| Commandes spéciales | 7 | 1 (`\"`) | 6 |
+| Commandes spéciales | 7 | 2 (`\"`, `=`) | 5 |
 | Famille F | 7 | 3 (`FB`, `FF`, `FO`) | 4 |
 | Famille J | 5 | 2 (`JM`, `JP`) | 3 |
 | Famille N | 21 | 0 | 21 |
 | Famille O | 24 | 2 (`OI(`, `OM`) | 22 |
 | Famille Z | 17 | 1 (`ZK`, candidat Windows) | 16 |
-| **Total** | **103** | **25** | **78** |
+| **Total** | **103** | **26** | **77** |
 
-La couverture fonctionnelle provisoire de la référence est de **25 / 103**, soit environ **24,3 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
+La couverture fonctionnelle provisoire de la référence est de **26 / 103**, soit environ **25,2 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
 
-**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **25 commandes = `0.0.25`** ; une commande supplémentaire intégrée et comptabilisée donnera `0.0.26`. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. La publication stable reste une décision distincte.
+**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **26 commandes = `0.0.26`** ; une commande supplémentaire intégrée et comptabilisée donnera `0.0.27`. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. La publication stable reste une décision distincte.
 
 | Commande | État dans FREDPP | Aide embarquée |
 |---|---|:---:|
@@ -32,6 +32,7 @@ La couverture fonctionnelle provisoire de la référence est de **25 / 103**, so
 | I | Disponible | Oui |
 | K | Copie vers un buffer avec remplacement ; candidat en validation historique | Oui (`?k`) |
 | `\"` | Disponible : tout le reste de la ligne est ignoré comme commentaire | Oui (`?\"`) |
+| `=` | Disponible : affiche le numéro de la ligne courante ou de la ligne adressée (`2=`, `$=`) sans déplacer le curseur | Oui (`?=`) |
 | JM | Disponible : message avec retour à la ligne, formes `JM texte` et `JM/texte/` | Oui (`?jm`) |
 | JP | Disponible : message sans retour à la ligne, formes `JP texte` et `JP/texte/` | Oui (`?jp`) |
 | L | Disponible avec un nom de fichier | Oui |

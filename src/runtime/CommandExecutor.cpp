@@ -34,6 +34,17 @@ namespace {
 /**
  * @brief Executes P and advances the current line to the last printed line.
  */
+void execute_line_number(const LineNumberCommandNode& command,
+                         ExecutionContext& context) {
+    const auto& buffer = context.current_buffer();
+    // The unaddressed historical '=' prints the cursor, including 0 for an
+    // empty buffer; addressed '=' validates an existing single line.
+    const auto line = command.address()
+        ? AddressEvaluator{}.evaluate(command.address(), buffer).first
+        : buffer.current_line();
+    context.output().write_line(std::to_string(line));
+}
+
 void execute_print(const PrintCommandNode& command, ExecutionContext& context) {
     auto& buffer = context.current_buffer();
     const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
@@ -1062,6 +1073,10 @@ void execute_buffer(const BufferCommandNode& command, ExecutionContext& context)
 void CommandExecutor::execute(const CommandNode& command,
                               ExecutionContext& context) const {
     switch (command.kind()) {
+    case AstNodeKind::LineNumberCommand:
+        execute_line_number(static_cast<const LineNumberCommandNode&>(command),
+                            context);
+        return;
     case AstNodeKind::PrintCommand:
         execute_print(static_cast<const PrintCommandNode&>(command), context);
         return;

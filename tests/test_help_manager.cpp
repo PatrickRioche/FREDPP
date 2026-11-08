@@ -16,6 +16,7 @@ int main() {
     assert(help.exists("b"));
     assert(help.exists("fb"));
     assert(help.exists("ff"));
+    assert(help.exists("="));
     assert(help.exists("fo"));
     assert(help.exists("jm"));
     assert(help.exists("jp"));
@@ -40,6 +41,7 @@ int main() {
     assert(index.find("AIDE FRED — COMMANDES DISPONIBLES") != std::string::npos);
     assert(index.find("    ?fb") != std::string::npos);
     assert(index.find("    ?ff") != std::string::npos);
+    assert(index.find("    ?=") != std::string::npos);
     assert(index.find("    ?fo") != std::string::npos);
     assert(index.find("    ?jm") != std::string::npos);
     assert(index.find("    ?jp") != std::string::npos);
@@ -86,6 +88,9 @@ int main() {
     assert(special.find("Pour l'aide des commandes FRED") != std::string::npos);
     assert(special.find("| Commande |") == std::string::npos);
     assert(special.find("## GESTION") == std::string::npos);
+
+    const auto equals = help.load_for_terminal("=");
+    assert(equals.find("IMPRESSION DU NUMÉRO DE LIGNE") != std::string::npos);
 
     const auto star = help.load_for_terminal("*");
     assert(star.find("ALIAS DE LA TOTALITÉ DU BUFFER") != std::string::npos);

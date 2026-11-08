@@ -1,0 +1,14 @@
+" Historical equals integration: cursor read-only, explicit address, last line.
+B(data)
+A
+alpha
+beta
+gamma
+\F
+1Z
+JM/FREDPP-EQUALS-BEGIN/
+=
+$=
+2=
+=
+JM/FREDPP-EQUALS-END/
