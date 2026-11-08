@@ -21,9 +21,10 @@ conservent leurs horodatages originaux en UTC.
 | Nouveau lot | `ZK` implémenté ; CI Windows 12/12 réussie, validation locale en attente |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
-| Dernière CI Windows/MSVC ciblée | [10/10 tests réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42417481573) |
+| Dernière CI Windows/MSVC ciblée | [12/12 tests réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42428354349) (Release) |
 | Validation locale Windows 11 — T | Confirmée par l'utilisateur (scénario et CTest 1/1) |
 | Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |
+| Validation locale Windows 11 — ZK | Bloquée par `LNK1163` lors du build Debug ; CLI non lancée |
 | Homologation historique complète | Reportée |
 | Nouvelle release officielle | Aucune ; pas de fusion dans `main` |
 
@@ -37,6 +38,8 @@ conservent leurs horodatages originaux en UTC.
 | 07/11/2026 22:30 | [`33e9275`](https://github.com/PatrickRioche/FREDPP/commit/33e927583d5ccf87f9a4cd680cd15582542890ce) | Test visible `T` + sauts conditionnels dans une procédure |
 | 07/11/2026 22:43 | [`cf4b811`](https://github.com/PatrickRioche/FREDPP/commit/cf4b811e934e2243363fdc0e20c14e8efb152f08) | Implémentation candidate de `K`, tests et documentation |
 | 07/11/2026 22:46 | [`d723877`](https://github.com/PatrickRioche/FREDPP/commit/d723877a4f0e545cd506fc7bfe6704e3520e493c) | Correctif du répartiteur d'exécution pour `K` |
+| 08/11/2026 01:07 | [`c1f0fc0`](https://github.com/PatrickRioche/FREDPP/commit/c1f0fc03ea1af89441e9ace002ff949ff17301a4) | Implémentation candidate `ZK`, tests et documentation |
+| 08/11/2026 01:10 | [`58308e7`](https://github.com/PatrickRioche/FREDPP/commit/58308e7144d728729d90f42a81d24af5459bc6d9) | Résultat CI Windows 12/12 consigné |
 
 ## Détails des lots et des validations
 
@@ -53,10 +56,26 @@ conservent leurs horodatages originaux en UTC.
   `docs/developer/TESTING-ZK-COPY.md`, documentation Runtime et `?zk`.
   Le manuel historique français n'a pas été modifié.
 - **Validation CI Windows/MSVC :** [exécution 42428354349](https://github.com/PatrickRioche/FREDPP/actions/runs/42428354349), compilation réussie et **12/12 tests passés** (0,29 s pour CTest ciblé), dont `test_zap_copy` et `cli_zap_copy`.
-- **Validation locale Windows 11 :** en attente du retour utilisateur.
+- **Validation locale Windows 11 :** première tentative reçue le 8 novembre : récupération du commit `58308e7` réussie, mais édition de liens MSVC Debug interrompue par `LNK1163` sur plusieurs modules, dont `CommandParser.obj` et `CommandRegistry.obj`. La commande CLI ne peut pas être lancée car `fredpp.exe` n'a pas été créé. Aucun échec fonctionnel de `ZK` n'est établi à ce stade ; nouvelle compilation isolée à réaliser.
 - **Commit du lot :** [`c1f0fc0`](https://github.com/PatrickRioche/FREDPP/commit/c1f0fc03ea1af89441e9ace002ff949ff17301a4).
 - **Statut :** candidat en `dev`, version `0.0.22` inchangée ;
   pas de fusion `main`, de tag stable ni de release.
+
+### Anomalie locale de compilation Debug — 8 novembre 2026
+
+L'utilisateur a transmis le journal de `scripts/build.bat` après `git pull
+--ff-only origin dev` : configuration Visual Studio 18 2026 réussie, puis
+plusieurs échecs d'édition de liens `LNK1163` (« sélection non valide pour
+la section COMDAT »). Le binaire Debug n'existe pas après cette compilation.
+Les tests locaux `ZK` ne sont donc pas encore évaluables. La compilation
+Windows/MSVC **Release** en CI et ses 12 tests ont réussi sur le même code.
+
+**Hypothèses à vérifier, non confirmées :** objets `.obj` invalides ou
+cache de build local, éventuelle interaction avec la synchronisation Google
+Drive du répertoire de build, ou différence de configuration Debug/Release.
+**Prochaine vérification :** nouveau dossier de build en dehors de Google
+Drive, sources conservées à leur emplacement et compilation sérialisée.
+Aucun nettoyage des journaux Android non suivis n'est requis.
 
 ### Lot K — copie de lignes vers un buffer (7 novembre 2026)
 
