@@ -200,7 +200,7 @@ P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, WA, WU, FB, FF, FO, JM, JP
 
 Les limites détaillées sont suivies dans `docs/project/COMMAND_STATUS.md`.
 
-**Suivi de `dev` au 8 novembre 2026 :** version `0.0.26` pour **26 commandes
+**Suivi de `dev` au 9 novembre 2026 :** version `0.0.26` pour **26 commandes
 référencées prises en charge sur 103** (25,2 % de couverture fonctionnelle
 provisoire), incluant la commande spéciale `=` (numéro de ligne), `FF` (buffers
 associés à des fichiers), et les candidats `K` et `ZK` précédemment validés

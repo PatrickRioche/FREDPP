@@ -11,17 +11,17 @@ Ce journal suit les **travaux sur la branche `dev`** avant leur intégration
 Les heures ci-dessous sont en **heure de Paris (CET)**. Les commits Git
 conservent leurs horodatages originaux en UTC.
 
-## État mis à jour le 8 novembre 2026
+## État mis à jour le 9 novembre 2026
 
 | Élément | État vérifié |
 |---|---|
 | Version du projet | `0.0.26` (développement ; 26/103 commandes, `=` ajouté) |
 | Branche active | `dev` |
-| Dernier lot fonctionnel | Commande spéciale `=` : impression du numéro de ligne, candidate Windows |
-| État des tests | `0.0.25` : CI 18/18 et `FF` local 2/2 validés ; nouveaux tests `=` ajoutés, CI `0.0.26` en attente |
+| Dernier lot fonctionnel | `=` : numéro de ligne ; [commit `78ddd8d`](https://github.com/PatrickRioche/FREDPP/commit/78ddd8df8848b05b5a55569c4910e8cf3135f2da) |
+| État des tests | `0.0.26` : CI Windows/MSVC verte, Release 20/20, Debug `=` et aide 3/3 ; confirmation locale Windows 11 attendue |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
-| Dernière CI Windows/MSVC ciblée | [Exécution 42532206878 réussie : 18/18 Release, 2/2 FF Debug, régressions et scripts verts](https://github.com/PatrickRioche/FREDPP/actions/runs/42532206878) |
+| Dernière CI Windows/MSVC ciblée | [Exécution 42533608679 réussie : 20/20 Release, 3/3 Debug `=`, régressions et scripts verts](https://github.com/PatrickRioche/FREDPP/actions/runs/42533608679) |
 | Validation locale Windows 11 — T | Confirmée par l'utilisateur (scénario et CTest 1/1) |
 | Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |
 | Validation locale Windows 11 — ZK | Confirmée (scénario Debug, CTest 2/2 et relance via `test.ps1` 2/2 en 0,55 s) |
@@ -54,10 +54,11 @@ conservent leurs horodatages originaux en UTC.
 | 08/11/2026 10:57 | [`5846310`](https://github.com/PatrickRioche/FREDPP/commit/5846310123c252f53dfb2389ed6717fbfd2a7bfc) | Test local Windows `R` 1/1 validé |
 | 08/11/2026 11:02 | [`af17a34`](https://github.com/PatrickRioche/FREDPP/commit/af17a349392109d9b9230432d3f284d8042c2b96) | `R` : alternatives citées avec espaces et tests |
 | 08/11/2026 23:50 | [`51e6d1f`](https://github.com/PatrickRioche/FREDPP/commit/51e6d1f7c2332fb25d6c818252c8b86297744680) | `FF` implémentée, aide `?ff`, tests, passage à `0.0.25` |
+| 09/11/2026 00:07 | [`78ddd8d`](https://github.com/PatrickRioche/FREDPP/commit/78ddd8df8848b05b5a55569c4910e8cf3135f2da) | `=` implémentée, aide `?=`, tests, passage à `0.0.26` |
 
 ## Détails des lots et des validations
 
-### Lot = — affichage du numéro de ligne (8 novembre 2026)
+### Lot = — affichage du numéro de ligne (8–9 novembre 2026)
 
 - **Référence normative :** `docs/fr/reference/commandes/equals.md`
   décrit `=`, `2=` et `$=` ; fichier historique conservé intact.
@@ -75,8 +76,12 @@ conservent leurs horodatages originaux en UTC.
 - **Tests ajoutés :** `test_line_number` et `cli_line_number` (sortie
   intégrale), plus `test_help_manager` étendu ; CI Windows/MSVC Release
   et Debug ciblée.
-- **Validation :** CI Windows en attente ; validation sur le poste Windows
-  11 demandée ensuite via
+- **Validation CI Windows :** [exécution 42533608679](https://github.com/PatrickRioche/FREDPP/actions/runs/42533608679)
+  **réussie** : configuration et compilation MSVC Release, **20/20 tests
+  ciblés**, compilation Debug et **3/3 tests `=` / CLI / aide** via
+  `test.ps1`, plus tous les contrôles précédents (scripts et commandes `R`,
+  `FF`, `ZK`). `0.0.26` et commit `78ddd8d` affichés par CMake.
+- **Validation locale Windows 11 :** encore attendue ; lancer
   `scripts/test.ps1 -R "^(test_line_number|cli_line_number|test_help_manager)$"`.
   Aucun changement de `main`, aucune release, aucun tag.
 
