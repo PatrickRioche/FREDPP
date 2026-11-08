@@ -109,6 +109,12 @@ From PowerShell at the repository root:
 .\scripts\test.bat
 ```
 
+Windows Debug artifacts are stored by default in
+`%LOCALAPPDATA%\FREDPP\build\x64-Debug`, outside the source checkout and
+`%TEMP%`. Set `$env:FREDPP_BUILD_DIR` before building/testing to select a
+different permanent directory. VS 2022 users can set
+`$env:FREDPP_CMAKE_GENERATOR = 'Visual Studio 17 2022'`.
+
 For a clean rebuild followed by tests:
 
 ```powershell
@@ -128,11 +134,13 @@ Inside FREDPP, use `Q` for a normal exit. `Q` refuses to leave while a buffer co
 
 ## Run the editor
 
-Windows Debug build:
+Windows Debug build (after `scripts/build.bat`):
 
 ```powershell
-.\out\build\x64-Debug\Debug\fredpp.exe
+& "$env:LOCALAPPDATA\FREDPP\build\x64-Debug\Debug\fredpp.exe"
 ```
+
+With a custom `FREDPP_BUILD_DIR`, run `& "$env:FREDPP_BUILD_DIR\Debug\fredpp.exe"` instead.
 
 Linux GCC build:
 

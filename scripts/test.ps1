@@ -1,4 +1,6 @@
 $ErrorActionPreference = 'Stop'
-$Root = Split-Path -Parent $PSScriptRoot
-Set-Location $Root
-ctest --test-dir out/build/x64-Debug -C Debug --output-on-failure
+# Inherit FREDPP_BUILD_DIR and test selection from the shared batch entry point.
+& (Join-Path $PSScriptRoot 'test.bat') @args
+if ($LASTEXITCODE -ne 0) {
+    throw "FREDPP Debug tests failed (exit code $LASTEXITCODE)"
+}

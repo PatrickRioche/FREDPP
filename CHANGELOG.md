@@ -1,5 +1,12 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- version de développement réalignée sur les **24 commandes historiques
+  référencées prises en charge** : `0.0.24` sur `dev`; garde CMake empêchant
+  un décalage avec le tableau de couverture, sans publication officielle ;
+- scripts Windows `build`/`test`/`rebuild` harmonisés autour d'un répertoire
+  MSVC Debug local persistant hors de Google Drive et de `%TEMP%`, avec chemin
+  et générateur Visual Studio configurables et validation CI dédiée ;
+
 - implémentation expérimentale de `ZK` : insertion des lignes sélectionnées
   après la ligne courante d'un buffer cible sans remplacer ses anciennes
   lignes ; protection des copies sur le même buffer, tests unitaires/CLI

@@ -11,7 +11,8 @@ Run from the checkout root in PowerShell:
 ```powershell
 .\scripts\build.bat
 $env:FREDPP_INIT = ""
-.\out\build\x64-Debug\Debug\fredpp.exe .\tests\fixtures\cli_zap_copy.fredpp
+$buildDir = if ($env:FREDPP_BUILD_DIR) { $env:FREDPP_BUILD_DIR } else { Join-Path $env:LOCALAPPDATA 'FREDPP\build\x64-Debug' }
+& "$buildDir\Debug\fredpp.exe" .\tests\fixtures\cli_zap_copy.fredpp
 ```
 
 ### If MSVC Debug linking fails with LNK1163
@@ -21,9 +22,10 @@ sync directory produced COMDAT-related `LNK1163` failures. A fresh build in an
 external folder succeeded. This does **not** prove that Google Drive was the
 cause: stale objects or cache may also explain the difference.
 
-For a persistent external build, keep the repository where it is and configure
-an independent directory (do not put build outputs under `%TEMP%`, which makes
-MSBuild report `MSB8029`):
+The development build script now defaults to a persistent directory under
+`%LOCALAPPDATA%`. For a different location such as
+`C:\dev\FREDPP-build-debug`, set `FREDPP_BUILD_DIR`. Avoid `%TEMP%` for build
+outputs because MSBuild reports `MSB8029` there:
 
 ```powershell
 New-Item -ItemType Directory -Path 'C:\dev' -Force | Out-Null
@@ -62,7 +64,7 @@ are tested by unaddressed `P`.
 ## Focused tests
 
 ```powershell
-ctest --test-dir .\out\build\x64-Debug -C Debug --output-on-failure -R "^(test_zap_copy|cli_zap_copy)$"
+.\scripts\test.bat -R "^(test_zap_copy|cli_zap_copy)$"
 ```
 
 The CLI test disables the user init file and compares stdout exactly.

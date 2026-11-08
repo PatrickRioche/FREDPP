@@ -9,7 +9,30 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.22 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.24 LANGUAGES CXX)
+
+# Development version contract: the patch number equals the number of
+# historical reference commands recorded as available in COMMAND_STATUS.md.
+# Keep the source document and project() VERSION in sync when implementing a
+# new reference command; internal fixes do not change the command count.
+file(STRINGS "${CMAKE_CURRENT_SOURCE_DIR}/docs/project/COMMAND_STATUS.md"
+    FREDPP_REFERENCE_TOTAL_ROW REGEX "^[|] [*][*]Total[*][*] [|]")
+if(NOT FREDPP_REFERENCE_TOTAL_ROW)
+    message(FATAL_ERROR "Missing historical command coverage total row")
+endif()
+string(REGEX MATCHALL "[0-9]+" FREDPP_REFERENCE_TOTAL_VALUES
+    "${FREDPP_REFERENCE_TOTAL_ROW}")
+list(LENGTH FREDPP_REFERENCE_TOTAL_VALUES FREDPP_REFERENCE_TOTAL_FIELDS)
+if(NOT FREDPP_REFERENCE_TOTAL_FIELDS EQUAL 3)
+    message(FATAL_ERROR "Invalid historical command coverage total row")
+endif()
+list(GET FREDPP_REFERENCE_TOTAL_VALUES 1 FREDPP_IMPLEMENTED_REFERENCE_COUNT)
+if(NOT "${PROJECT_VERSION_PATCH}" STREQUAL "${FREDPP_IMPLEMENTED_REFERENCE_COUNT}")
+    message(FATAL_ERROR
+        "FREDPP version ${PROJECT_VERSION} does not match the "
+        "${FREDPP_IMPLEMENTED_REFERENCE_COUNT} implemented reference commands; "
+        "update project(VERSION) and COMMAND_STATUS.md together")
+endif()
 
 if(MSVC)
     set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT

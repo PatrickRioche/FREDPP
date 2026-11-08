@@ -1,6 +1,6 @@
 # SPEC-029 — Historical ZK: insert-copy between buffers
 
-**Status:** Windows 11 implementation candidate on `dev`, version `0.0.22`.
+**Status:** Windows 11 implementation candidate on `dev`, current version `0.0.24` (24 referenced commands).
 Historical conformance is not yet certified.
 
 ## Intent

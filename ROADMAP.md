@@ -200,6 +200,13 @@ P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, WA, WU, FB, FO, JM, JP
 
 Les limites détaillées sont suivies dans `docs/project/COMMAND_STATUS.md`.
 
+**Suivi de `dev` au 8 novembre 2026 :** version `0.0.24` pour **24 commandes
+référencées prises en charge sur 103** (23,3 % de couverture fonctionnelle
+provisoire), incluant les candidats `K` et `ZK` validés sur Windows 11.
+Chaque nouvelle commande comptabilisée incrémente le dernier nombre de
+la version de développement ; les correctifs internes n'y touchent pas.
+`main` et les releases restent indépendants de ce suivi.
+
 Les options `OI(` et `OM` sont disponibles ; `OM` est implicitement à `O-M`.
 
 La commande spéciale `\"` est disponible pour commenter les procédures.

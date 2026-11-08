@@ -17,7 +17,8 @@ From the FREDPP checkout in PowerShell:
 ```powershell
 .\scripts\build.bat
 $env:FREDPP_INIT = ""
-.\out\build\x64-Debug\Debug\fredpp.exe .\tests\fixtures\cli_test_condition_t.fredpp
+$buildDir = if ($env:FREDPP_BUILD_DIR) { $env:FREDPP_BUILD_DIR } else { Join-Path $env:LOCALAPPDATA 'FREDPP\build\x64-Debug' }
+& "$buildDir\Debug\fredpp.exe" .\tests\fixtures\cli_test_condition_t.fredpp
 ```
 
 Expected output (the test procedure exits on completion):
@@ -41,7 +42,7 @@ branch behavior. The printed buffer checks that T left the text unchanged.
 ## Automated focused regression
 
 ```powershell
-ctest --test-dir .\out\build\x64-Debug -C Debug --output-on-failure -R "^cli_test_condition_t$"
+.\scripts\test.bat -R "^cli_test_condition_t$"
 ```
 
 CTest runs `tests/test_cli_condition_t.cmake`, which executes

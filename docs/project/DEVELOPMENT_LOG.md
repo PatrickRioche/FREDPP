@@ -15,7 +15,7 @@ conservent leurs horodatages originaux en UTC.
 
 | Élément | État vérifié |
 |---|---|
-| Version du projet | `0.0.22` (développement) |
+| Version du projet | `0.0.24` (développement ; 24/103 commandes) |
 | Branche active | `dev` |
 | Dernier commit du lot K validé | [`d723877`](https://github.com/PatrickRioche/FREDPP/commit/d723877a4f0e545cd506fc7bfe6704e3520e493c) |
 | Nouveau lot | `ZK` implémenté ; CI Windows Release 12/12 et validation locale Windows 11 Debug 2/2 réussies |
@@ -42,6 +42,26 @@ conservent leurs horodatages originaux en UTC.
 | 08/11/2026 01:10 | [`58308e7`](https://github.com/PatrickRioche/FREDPP/commit/58308e7144d728729d90f42a81d24af5459bc6d9) | Résultat CI Windows 12/12 consigné |
 
 ## Détails des lots et des validations
+
+### Lot numérotation dev et scripts Windows (8 novembre 2026)
+
+- **Décision utilisateur :** aligner le dernier nombre de la version de
+  développement sur les commandes historiques prises en charge : 24 =
+  `0.0.24` ; commande supplémentaire comptabilisée = `0.0.25`.
+- **Garantie CMake :** le nombre `N` de `0.0.N` est comparé au total du tableau
+  `docs/project/COMMAND_STATUS.md` pendant la configuration ; un décalage
+  empêche la génération du projet.
+- **Scripts Windows :** `build.bat`, `test.bat` et `rebuild.bat` utilisent
+  désormais un même dossier Debug persistant dans `%LOCALAPPDATA%`, avec
+  `FREDPP_BUILD_DIR` configurable ; les wrappers PowerShell suivent cette
+  logique. La compilation reste sérialisée, les sources restent dans Google
+  Drive et `rebuild.bat` évite la suppression globale des dossiers de sortie.
+- **Validation automatique :** vérification prévue des wrappers Debug par la
+  CI Windows en complément de la suite ciblée Release.
+- **Validation locale Windows 11 :** en attente pour ces nouveaux scripts.
+- **Gouvernance :** `dev` uniquement ; pas de changement de `main`, de tag
+  officiel ni de release.
+
 
 ### Lot ZK — copie avec insertion (8 novembre 2026)
 

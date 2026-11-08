@@ -63,6 +63,18 @@ to a documentation lot.
 
 ## Windows-focused development lane
 
+Windows Debug scripts (`scripts/build.bat`, `test.bat`, and `rebuild.bat`,
+with PowerShell wrappers) use an external persistent build directory:
+`%LOCALAPPDATA%\FREDPP\build\x64-Debug` by default, or
+`FREDPP_BUILD_DIR` when configured. This avoids writing MSVC objects into
+Google Drive synchronized sources, and a rebuild cleans only selected build
+targets instead of deleting whole output trees. VS 2022 users can override
+`FREDPP_CMAKE_GENERATOR`.
+
+The development version `0.0.N` follows the number `N` of implemented
+historical commands in `docs/project/COMMAND_STATUS.md`; CMake rejects
+mismatches during configuration. This never authorizes an automatic release.
+
 Every push to the `dev` branch with product code, test or CI changes triggers
 the dedicated Windows/MSVC build in `.github/workflows/windows-development.yml`.
 This lane compiles all C++ targets and runs a small, explicit set of engineering

@@ -10,7 +10,8 @@ From the repository root in PowerShell:
 ```powershell
 .\scripts\build.bat
 $env:FREDPP_INIT = ""
-.\out\build\x64-Debug\Debug\fredpp.exe .\tests\fixtures\cli_copy.fredpp
+$buildDir = if ($env:FREDPP_BUILD_DIR) { $env:FREDPP_BUILD_DIR } else { Join-Path $env:LOCALAPPDATA 'FREDPP\build\x64-Debug' }
+& "$buildDir\Debug\fredpp.exe" .\tests\fixtures\cli_copy.fredpp
 ```
 
 Expected transcript:
@@ -35,7 +36,7 @@ not append. Both Buffer cursors are checked by an unaddressed `P`.
 ## Automated focused checks
 
 ```powershell
-ctest --test-dir .\out\build\x64-Debug -C Debug --output-on-failure -R "^(test_copy|cli_copy)$"
+.\scripts\test.bat -R "^(test_copy|cli_copy)$"
 ```
 
 The CLI CTest executes the exact fixture with user init disabled and compares

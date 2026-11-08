@@ -17,6 +17,8 @@ Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/ref
 
 La couverture fonctionnelle provisoire de la référence est de **24 / 103**, soit environ **23,3 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
 
+**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **24 commandes = `0.0.24`** ; une commande supplémentaire intégrée et comptabilisée donnera `0.0.25`. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. La publication stable reste une décision distincte.
+
 | Commande | État dans FREDPP | Aide embarquée |
 |---|---|:---:|
 | A | Disponible | Oui |

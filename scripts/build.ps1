@@ -1,5 +1,6 @@
 $ErrorActionPreference = 'Stop'
-$Root = Split-Path -Parent $PSScriptRoot
-Set-Location $Root
-cmake -S . -B out/build/x64-Debug
-cmake --build out/build/x64-Debug --config Debug --parallel
+# Keep the PowerShell entry point consistent with the Windows batch wrapper.
+& (Join-Path $PSScriptRoot 'build.bat') @args
+if ($LASTEXITCODE -ne 0) {
+    throw "FREDPP Debug build failed (exit code $LASTEXITCODE)"
+}
