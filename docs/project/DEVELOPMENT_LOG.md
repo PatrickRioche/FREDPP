@@ -18,7 +18,7 @@ conservent leurs horodatages originaux en UTC.
 | Version du projet | `0.0.22` (développement) |
 | Branche active | `dev` |
 | Dernier commit du lot K validé | [`d723877`](https://github.com/PatrickRioche/FREDPP/commit/d723877a4f0e545cd506fc7bfe6704e3520e493c) |
-| Nouveau lot | `ZK` en développement ; tests CI et validation locale encore en attente |
+| Nouveau lot | `ZK` implémenté ; CI Windows 12/12 réussie, validation locale en attente |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
 | Dernière CI Windows/MSVC ciblée | [10/10 tests réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42417481573) |
@@ -52,8 +52,9 @@ conservent leurs horodatages originaux en UTC.
 - **Documentation :** `docs/specs/SPEC-029-ZAP-COPY.md`,
   `docs/developer/TESTING-ZK-COPY.md`, documentation Runtime et `?zk`.
   Le manuel historique français n'a pas été modifié.
-- **Validation CI Windows/MSVC :** en attente à l'ouverture du lot.
+- **Validation CI Windows/MSVC :** [exécution 42428354349](https://github.com/PatrickRioche/FREDPP/actions/runs/42428354349), compilation réussie et **12/12 tests passés** (0,29 s pour CTest ciblé), dont `test_zap_copy` et `cli_zap_copy`.
 - **Validation locale Windows 11 :** en attente du retour utilisateur.
+- **Commit du lot :** [`c1f0fc0`](https://github.com/PatrickRioche/FREDPP/commit/c1f0fc03ea1af89441e9ace002ff949ff17301a4).
 - **Statut :** candidat en `dev`, version `0.0.22` inchangée ;
   pas de fusion `main`, de tag stable ni de release.
 
