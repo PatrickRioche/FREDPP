@@ -8,16 +8,16 @@ Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/ref
 |---|---:|---:|---:|
 | Commandes principales | 22 | 16 | 6 |
 | Commandes spéciales | 7 | 1 (`\"`) | 6 |
-| Famille F | 7 | 2 (`FB`, `FO`) | 5 |
+| Famille F | 7 | 3 (`FB`, `FF`, `FO`) | 4 |
 | Famille J | 5 | 2 (`JM`, `JP`) | 3 |
 | Famille N | 21 | 0 | 21 |
 | Famille O | 24 | 2 (`OI(`, `OM`) | 22 |
 | Famille Z | 17 | 1 (`ZK`, candidat Windows) | 16 |
-| **Total** | **103** | **24** | **79** |
+| **Total** | **103** | **25** | **78** |
 
-La couverture fonctionnelle provisoire de la référence est de **24 / 103**, soit environ **23,3 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
+La couverture fonctionnelle provisoire de la référence est de **25 / 103**, soit environ **24,3 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
 
-**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **24 commandes = `0.0.24`** ; une commande supplémentaire intégrée et comptabilisée donnera `0.0.25`. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. La publication stable reste une décision distincte.
+**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **25 commandes = `0.0.25`** ; une commande supplémentaire intégrée et comptabilisée donnera `0.0.26`. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. La publication stable reste une décision distincte.
 
 | Commande | État dans FREDPP | Aide embarquée |
 |---|---|:---:|
@@ -26,6 +26,7 @@ La couverture fonctionnelle provisoire de la référence est de **24 / 103**, so
 | C | Disponible | Oui |
 | D | Disponible | Oui |
 | FB | Disponible; ordre décroissant de dernière utilisation, ligne courante, nombre de lignes, fichier associé et état modifié | Oui (`?fb`) |
+| FF | Disponible; liste de tous les buffers associés à un fichier, triée par nom de buffer, avec indication de modification (`?`) | Oui (`?ff`) |
 | FO | Disponible; affiche les options effectivement en service | Oui (`?fo`) |
 | G | Disponible avec une commande imbriquée P, D, Z ou S | Oui |
 | I | Disponible | Oui |

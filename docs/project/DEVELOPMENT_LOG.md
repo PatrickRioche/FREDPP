@@ -15,10 +15,10 @@ conservent leurs horodatages originaux en UTC.
 
 | Élément | État vérifié |
 |---|---|
-| Version du projet | `0.0.24` (développement ; 24/103 commandes) |
+| Version du projet | `0.0.25` (développement ; 25/103 commandes, `FF` ajouté) |
 | Branche active | `dev` |
-| Dernier lot fonctionnel | `R` : listes de fichiers avec noms cités ; [commit `af17a34`](https://github.com/PatrickRioche/FREDPP/commit/af17a349392109d9b9230432d3f284d8042c2b96) |
-| État des tests | CI Windows verte ; nouveau sous-lot `R` validé localement (1/1, 1,48 s) |
+| Dernier lot fonctionnel | `FF` : affichage des buffers associés à des fichiers, candidat en validation Windows |
+| État des tests | `R` validé localement ; nouveaux tests `FF` ajoutés, validation CI Windows en attente |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
 | Dernière CI Windows/MSVC ciblée | [16/16 tests Release, 3 × 2/2 Debug et 1/1 R réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42469707212) |
@@ -54,6 +54,28 @@ conservent leurs horodatages originaux en UTC.
 | 08/11/2026 11:02 | [`af17a34`](https://github.com/PatrickRioche/FREDPP/commit/af17a349392109d9b9230432d3f284d8042c2b96) | `R` : alternatives citées avec espaces et tests |
 
 ## Détails des lots et des validations
+
+### Lot FF — liste des buffers associés à un fichier (8 novembre 2026)
+
+- **Référence :** `docs/fr/reference/commandes/ff.md` : `FF` imprime
+  les buffers ayant un fichier associé, avec l'indicateur `?` de modification.
+  La référence historique est conservée intacte.
+- **Analyse syntaxique :** `FF` / `ff` interprétés comme un sélecteur de faits,
+  aux côtés de `FB` et `FO` ; aucune adresse ni argument admis.
+- **Exécution :** sortie `b(nom) chemin`, suivie de ` ?` si le buffer est
+  modifié. Les buffers sans fichier associé sont omis ; les buffers jamais
+  sélectionnés sont inclus. L'ordre est lexicographique par nom de buffer ;
+  les positions, états de sélection, flags et compteurs ne sont pas modifiés.
+- **Couverture :** `FF` est la **25e commande historique comptabilisée**,
+  la version de développement passe à `0.0.25` : **25/103**, soit **24,3 %**.
+  L'aide `?ff` provient de la référence Markdown embarquée à la compilation.
+- **Vérifications ajoutées :** `test_facts` (casse mixte, filtrage,
+  format, buffer non sélectionné, état inchangé), `test_help_manager`
+  (aide et index). Compilation et exécution automatisées Windows/MSVC
+  Release et Debug dans `.github/workflows/windows-development.yml`.
+- **État initial :** validation CI Windows en attente ; demander le résultat
+  de `scripts/test.ps1 -R "^(test_facts|test_help_manager)$"` sur Windows 11.
+  Pas de fusion vers `main`, pas de tag ni publication stable.
 
 ### Lot R — noms entre guillemets dans les listes (8 novembre 2026)
 

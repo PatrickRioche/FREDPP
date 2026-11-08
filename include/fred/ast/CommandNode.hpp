@@ -566,11 +566,14 @@ enum class FactsKind {
     /** FB: buffer facts. */
     Buffers,
 
+    /** FF: buffers associated with files. */
+    Files,
+
     /** FO: option facts. */
     Options
 };
 
-/** @brief `FB` or `FO` AST. */
+/** @brief `FB`, `FF` or `FO` AST. */
 class FactsCommandNode final : public CommandNode {
 public:
     FactsCommandNode(FactsKind facts,

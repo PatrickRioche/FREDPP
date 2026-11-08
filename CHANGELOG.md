@@ -1,5 +1,11 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- commande historique `FF` : affichage des buffers possédant un fichier
+  associé (`b(nom) chemin`, suivi de `?` si modifié), y compris les buffers
+  jamais sélectionnés ; ordre stable par nom, tests unitaires et aide `?ff` ;
+  passage de `dev` en **0.0.25** pour **25/103 commandes** (24,3 %),
+  sans fusion vers `main`, sans tag ni release ;
+
 - `R` : prise en charge des noms entre guillemets au sein des listes de
   fichiers, notamment les chemins Windows avec espaces ; syntaxe mal formée
   rejetée, tests de priorité, insertion adressée et absence de mutation en

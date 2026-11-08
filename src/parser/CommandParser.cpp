@@ -218,8 +218,10 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 write_mode = second == 'A' ? FileWriteMode::Ascii
                            : second == 'U' ? FileWriteMode::Utf8
                                            : FileWriteMode::BcdUnsupported;
-            } else if (first == 'F' && (second == 'B' || second == 'O')) {
+            } else if (first == 'F' &&
+                       (second == 'B' || second == 'F' || second == 'O')) {
                 facts_kind = second == 'B' ? FactsKind::Buffers
+                           : second == 'F' ? FactsKind::Files
                                            : FactsKind::Options;
                 command.type = TokenType::Command;
                 command.lexeme = "F";
@@ -398,7 +400,7 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                                  address->location());
             }
             if (!facts_kind) {
-                throw ParseError("only FB and FO are implemented",
+                throw ParseError("only FB, FF and FO are implemented",
                                  command.location);
             }
             require_command_end();

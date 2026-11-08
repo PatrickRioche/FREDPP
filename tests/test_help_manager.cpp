@@ -15,6 +15,7 @@ int main() {
     assert(help.exists("a"));
     assert(help.exists("b"));
     assert(help.exists("fb"));
+    assert(help.exists("ff"));
     assert(help.exists("fo"));
     assert(help.exists("jm"));
     assert(help.exists("jp"));
@@ -38,6 +39,7 @@ int main() {
     const auto index = help.load_for_terminal("");
     assert(index.find("AIDE FRED — COMMANDES DISPONIBLES") != std::string::npos);
     assert(index.find("    ?fb") != std::string::npos);
+    assert(index.find("    ?ff") != std::string::npos);
     assert(index.find("    ?fo") != std::string::npos);
     assert(index.find("    ?jm") != std::string::npos);
     assert(index.find("    ?jp") != std::string::npos);

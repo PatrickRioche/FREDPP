@@ -202,7 +202,7 @@ case-sensitive.
 | W | Write | default Preserve/no-filename construction |
 | S | Substitute | placeholder null pattern |
 | J | Jump | registry metadata name retained; parser handles current JM/JP forms |
-| F | Facts | default Buffers placeholder |
+| F | Facts | default Buffers placeholder; parser recognizes FB, FF and FO |
 | O | Option | default InputParenthesis/enabled placeholder |
 | Q | Quit | default non-immediate Q |
 

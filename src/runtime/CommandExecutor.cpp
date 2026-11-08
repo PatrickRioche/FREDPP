@@ -737,6 +737,16 @@ std::string describe_buffer(const Buffer& buffer) {
     return result;
 }
 
+std::string describe_file_association(const Buffer& buffer) {
+    // FF omits unassociated buffers and buffer position information, unlike FB.
+    std::string result = "b(" + buffer.name() + ") " +
+                         *buffer.associated_file();
+    if (buffer.modified()) {
+        result += " ?";
+    }
+    return result;
+}
+
 void execute_facts(const FactsCommandNode& command,
                    ExecutionContext& context) {
     switch (command.facts()) {
@@ -751,6 +761,18 @@ void execute_facts(const FactsCommandNode& command,
         for (const auto& name : context.buffers().recent_names()) {
             context.output().write_line(
                 describe_buffer(context.buffers().get(name)));
+        }
+        return;
+
+    case FactsKind::Files:
+        // Iterate every owned buffer, even one never selected via B(name).
+        // names() is sorted, so output does not depend on selection history.
+        for (const auto& name : context.buffers().names()) {
+            const auto& buffer = context.buffers().get(name);
+            if (buffer.has_associated_file()) {
+                context.output().write_line(
+                    describe_file_association(buffer));
+            }
         }
         return;
     }
