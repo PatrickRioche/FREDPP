@@ -56,3 +56,11 @@ jobs:
         env:
           FREDPP_BUILD_DIR: ${{ runner.workspace }}\fredpp-debug
         run: call scripts\test.bat -R "^(test_zap_copy|cli_zap_copy)$"
+
+      # PowerShell strips command-line quoting differently from cmd.exe.
+      # Keep this exact invocation as a regression for regex alternation.
+      - name: Test Windows Debug wrapper from PowerShell
+        shell: pwsh
+        env:
+          FREDPP_BUILD_DIR: ${{ runner.workspace }}\fredpp-debug
+        run: .\scripts\test.bat -R "^(test_zap_copy|cli_zap_copy)$"

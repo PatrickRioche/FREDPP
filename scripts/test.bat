@@ -17,5 +17,22 @@ if not exist "%FREDPP_BUILD_DIR%\CTestTestfile.cmake" (
     exit /b 2
 )
 
-ctest --test-dir "%FREDPP_BUILD_DIR%" -C Debug --output-on-failure %*
+rem PowerShell may strip argument quotes when calling .bat files.
+rem Never forward %*: unquoted regex alternation would become a cmd pipe.
+if "%~1"=="" goto run_all
+if /I "%~1"=="-R" goto run_regex
+goto usage
+
+:run_regex
+if "%~2"=="" goto usage
+if not "%~3"=="" goto usage
+ctest --test-dir "%FREDPP_BUILD_DIR%" -C Debug --output-on-failure -R "%~2"
 exit /b %errorlevel%
+
+:run_all
+ctest --test-dir "%FREDPP_BUILD_DIR%" -C Debug --output-on-failure
+exit /b %errorlevel%
+
+:usage
+echo Usage: test.bat [-R "test_regex"]
+exit /b 2

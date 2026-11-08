@@ -71,6 +71,10 @@ Google Drive synchronized sources, and a rebuild cleans only selected build
 targets instead of deleting whole output trees. VS 2022 users can override
 `FREDPP_CMAKE_GENERATOR`.
 
+The `test.bat -R` selector is quoted internally when forwarded to CTest,
+so regex alternation such as `^(test_zap_copy|cli_zap_copy)$` remains safe
+when the batch file is invoked from PowerShell.
+
 The development version `0.0.N` follows the number `N` of implemented
 historical commands in `docs/project/COMMAND_STATUS.md`; CMake rejects
 mismatches during configuration. This never authorizes an automatic release.

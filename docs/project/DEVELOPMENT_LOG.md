@@ -46,6 +46,19 @@ conservent leurs horodatages originaux en UTC.
 
 ## Détails des lots et des validations
 
+### Correctif test.bat — arguments PowerShell (8 novembre 2026)
+
+- **Retour utilisateur :** après un build de `0.0.24` réussi (commit
+  `b1f7def`), l'appel PowerShell
+  `scripts/test.bat -R "^(test_zap_copy|cli_zap_copy)$"` échoue avant CTest :
+  `'cli_zap_copy)$' n’est pas reconnu`. Le shell `cmd.exe` interprète le
+  `|` de l'expression lorsque `%*` est injecté sans réencadrement.
+- **Correction :** transmission de l'argument `-R` par `"%~2"` dans
+  `test.bat`, sans expansion brute de `%*` ; validation prévue avec la même
+  syntaxe lancée depuis PowerShell dans la CI Windows.
+- **Version :** inchangée à `0.0.24` (aucune nouvelle commande FRED).
+- **Validation :** en attente du résultat CI et d'un nouveau test local.
+
 ### Lot numérotation dev et scripts Windows (8 novembre 2026)
 
 - **Décision utilisateur :** aligner le dernier nombre de la version de
