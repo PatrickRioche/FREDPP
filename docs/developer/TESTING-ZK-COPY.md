@@ -14,6 +14,29 @@ $env:FREDPP_INIT = ""
 .\out\build\x64-Debug\Debug\fredpp.exe .\tests\fixtures\cli_zap_copy.fredpp
 ```
 
+### If MSVC Debug linking fails with LNK1163
+
+On one Windows 11 machine, the pre-existing build folder under a Google Drive
+sync directory produced COMDAT-related `LNK1163` failures. A fresh build in an
+external folder succeeded. This does **not** prove that Google Drive was the
+cause: stale objects or cache may also explain the difference.
+
+For a persistent external build, keep the repository where it is and configure
+an independent directory (do not put build outputs under `%TEMP%`, which makes
+MSBuild report `MSB8029`):
+
+```powershell
+New-Item -ItemType Directory -Path 'C:\dev' -Force | Out-Null
+$buildDir = 'C:\dev\FREDPP-build-debug'
+cmake -S . -B $buildDir -G 'Visual Studio 18 2026' -A x64 -DFREDPP_BUILD_TESTS=ON
+cmake --build $buildDir --config Debug --parallel 1 --target fredpp test_zap_copy
+& "$buildDir\Debug\fredpp.exe" .\tests\fixtures\cli_zap_copy.fredpp
+ctest --test-dir $buildDir -C Debug --output-on-failure -R '^(test_zap_copy|cli_zap_copy)$'
+```
+
+The external directory is for generated build files only. Inspect an existing
+folder before reusing it; do not remove project source files or untracked logs.
+
 Expected exact transcript:
 
 ```text

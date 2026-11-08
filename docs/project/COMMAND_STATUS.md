@@ -40,7 +40,7 @@ La couverture fonctionnelle provisoire de la référence est de **24 / 103**, so
 | T | Test de modèle `T`/`T~` et registre de condition ; homologation historique restante | Oui |
 | W | Disponible avec W, WA et l'extension WU; WB reconnu mais GCOS/BCD non pris en charge | Oui (`?w`, `?wu`) |
 | Z | Disponible | Oui |
-| ZK | Copie avec insertion après la ligne courante du destinataire ; candidat Windows, validation locale en attente | Oui (`?zk`) |
+| ZK | Copie avec insertion après la ligne courante du destinataire ; tests Windows locaux et CI réussis, homologation historique restante | Oui (`?zk`) |
 
 ## Limite actuelle de JM / JP
 
