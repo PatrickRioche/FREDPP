@@ -17,11 +17,11 @@ conservent leurs horodatages originaux en UTC.
 |---|---|
 | Version du projet | `0.0.25` (développement ; 25/103 commandes, `FF` ajouté) |
 | Branche active | `dev` |
-| Dernier lot fonctionnel | `FF` : affichage des buffers associés à des fichiers, candidat en validation Windows |
-| État des tests | `R` validé localement ; nouveaux tests `FF` ajoutés, validation CI Windows en attente |
+| Dernier lot fonctionnel | `FF` : buffers associés à des fichiers ; [commit `51e6d1f`](https://github.com/PatrickRioche/FREDPP/commit/51e6d1f7c2332fb25d6c818252c8b86297744680) |
+| État des tests | CI Windows/MSVC verte : Release 18/18, Debug `FF` 2/2 ; confirmation locale Windows 11 en attente |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
-| Dernière CI Windows/MSVC ciblée | [16/16 tests Release, 3 × 2/2 Debug et 1/1 R réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42469707212) |
+| Dernière CI Windows/MSVC ciblée | [Exécution 42532206878 réussie : 18/18 Release, 2/2 FF Debug, régressions et scripts verts](https://github.com/PatrickRioche/FREDPP/actions/runs/42532206878) |
 | Validation locale Windows 11 — T | Confirmée par l'utilisateur (scénario et CTest 1/1) |
 | Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |
 | Validation locale Windows 11 — ZK | Confirmée (scénario Debug, CTest 2/2 et relance via `test.ps1` 2/2 en 0,55 s) |
@@ -52,6 +52,7 @@ conservent leurs horodatages originaux en UTC.
 | 08/11/2026 10:52 | [`cd9f7b9`](https://github.com/PatrickRioche/FREDPP/commit/cd9f7b994c2ddb49d497712503f7df92f97bafb5) | CI du sous-lot `R` validée |
 | 08/11/2026 10:57 | [`5846310`](https://github.com/PatrickRioche/FREDPP/commit/5846310123c252f53dfb2389ed6717fbfd2a7bfc) | Test local Windows `R` 1/1 validé |
 | 08/11/2026 11:02 | [`af17a34`](https://github.com/PatrickRioche/FREDPP/commit/af17a349392109d9b9230432d3f284d8042c2b96) | `R` : alternatives citées avec espaces et tests |
+| 08/11/2026 23:50 | [`51e6d1f`](https://github.com/PatrickRioche/FREDPP/commit/51e6d1f7c2332fb25d6c818252c8b86297744680) | `FF` implémentée, aide `?ff`, tests, passage à `0.0.25` |
 
 ## Détails des lots et des validations
 
@@ -73,8 +74,12 @@ conservent leurs horodatages originaux en UTC.
   format, buffer non sélectionné, état inchangé), `test_help_manager`
   (aide et index). Compilation et exécution automatisées Windows/MSVC
   Release et Debug dans `.github/workflows/windows-development.yml`.
-- **État initial :** validation CI Windows en attente ; demander le résultat
-  de `scripts/test.ps1 -R "^(test_facts|test_help_manager)$"` sur Windows 11.
+- **Validation CI Windows :** [exécution 42532206878](https://github.com/PatrickRioche/FREDPP/actions/runs/42532206878)
+  **réussie le 8 novembre 2026** : configuration et compilation MSVC Release,
+  **18/18 tests ciblés**, compilation Debug et **2/2 tests `FF` / aide** via
+  `test.ps1`, ainsi que toutes les vérifications de régression précédentes.
+- **Validation locale Windows 11 :** encore attendue ; lancer
+  `scripts/test.ps1 -R "^(test_facts|test_help_manager)$"` sur le poste utilisateur.
   Pas de fusion vers `main`, pas de tag ni publication stable.
 
 ### Lot R — noms entre guillemets dans les listes (8 novembre 2026)
