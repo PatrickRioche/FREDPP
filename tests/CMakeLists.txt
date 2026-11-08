@@ -38,6 +38,7 @@ fredpp_add_test(test_system_zg test_system_zg.cpp)
 fredpp_add_test(test_help_manager test_help_manager.cpp)
 fredpp_add_test(test_global test_global.cpp)
 fredpp_add_test(test_zap test_zap.cpp)
+fredpp_add_test(test_zap_copy test_zap_copy.cpp)
 fredpp_add_test(test_star_alias test_star_alias.cpp)
 fredpp_add_test(test_substitute test_substitute.cpp)
 fredpp_add_test(test_quit test_quit.cpp)
@@ -153,12 +154,19 @@ add_test(NAME cli_message_delimiters
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_message_delimiters.cmake"
 )
 
-# Focused CLI regressions for historical K and T commands.
+# Focused CLI regressions for historical K, ZK and T commands.
 add_test(NAME cli_copy
     COMMAND ${CMAKE_COMMAND}
         "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
         "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_copy.cmake"
+)
+
+add_test(NAME cli_zap_copy
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_zap_copy.cmake"
 )
 
 add_test(NAME cli_test_condition_t

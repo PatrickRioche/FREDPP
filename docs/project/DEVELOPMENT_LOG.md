@@ -17,7 +17,8 @@ conservent leurs horodatages originaux en UTC.
 |---|---|
 | Version du projet | `0.0.22` (développement) |
 | Branche active | `dev` |
-| Dernier commit du lot | [`d723877`](https://github.com/PatrickRioche/FREDPP/commit/d723877a4f0e545cd506fc7bfe6704e3520e493c) |
+| Dernier commit du lot K validé | [`d723877`](https://github.com/PatrickRioche/FREDPP/commit/d723877a4f0e545cd506fc7bfe6704e3520e493c) |
+| Nouveau lot | `ZK` en développement ; tests CI et validation locale encore en attente |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
 | Dernière CI Windows/MSVC ciblée | [10/10 tests réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42417481573) |
@@ -38,6 +39,23 @@ conservent leurs horodatages originaux en UTC.
 | 07/11/2026 22:46 | [`d723877`](https://github.com/PatrickRioche/FREDPP/commit/d723877a4f0e545cd506fc7bfe6704e3520e493c) | Correctif du répartiteur d'exécution pour `K` |
 
 ## Détails des lots et des validations
+
+### Lot ZK — copie avec insertion (8 novembre 2026)
+
+- **Objectif :** `ZK(destination)` conserve le contenu du destinataire et
+  insère les lignes source après sa ligne courante, contrairement à `K`.
+- **Code :** nouveau type AST `ZapCopyCommandNode`, reconnaissance de
+  `ZK` dans le parseur, dispatch et exécution avec snapshot des lignes ;
+  protection du recouvrement dans les copies sur un même buffer.
+- **Tests :** `test_zap_copy`, `cli_zap_copy`, couverture du parseur et
+  extension de la CI Windows ciblée à 12 tests.
+- **Documentation :** `docs/specs/SPEC-029-ZAP-COPY.md`,
+  `docs/developer/TESTING-ZK-COPY.md`, documentation Runtime et `?zk`.
+  Le manuel historique français n'a pas été modifié.
+- **Validation CI Windows/MSVC :** en attente à l'ouverture du lot.
+- **Validation locale Windows 11 :** en attente du retour utilisateur.
+- **Statut :** candidat en `dev`, version `0.0.22` inchangée ;
+  pas de fusion `main`, de tag stable ni de release.
 
 ### Lot K — copie de lignes vers un buffer (7 novembre 2026)
 

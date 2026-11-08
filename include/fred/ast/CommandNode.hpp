@@ -323,6 +323,32 @@ public:
 };
 
 /**
+ * @brief `ZK(buffer)` AST for copying lines after a destination cursor.
+ *
+ * Owns the optional source range and destination Buffer name. Runtime must
+ * snapshot source text before inserting, particularly for same-Buffer copies.
+ */
+class ZapCopyCommandNode final : public CommandNode {
+public:
+    ZapCopyCommandNode(std::unique_ptr<AddressNode> address,
+                       std::string buffer_name,
+                       SourceLocation location) noexcept
+        : CommandNode(std::move(address), location),
+          buffer_name_(std::move(buffer_name)) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::ZapCopyCommand;
+    }
+
+    [[nodiscard]] const std::string& buffer_name() const noexcept {
+        return buffer_name_;
+    }
+
+private:
+    std::string buffer_name_;
+};
+
+/**
  * @brief `ZG(buffer) command` AST.
  *
  * Owns the destination buffer name and nested command.

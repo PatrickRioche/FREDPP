@@ -35,5 +35,5 @@ jobs:
 
       # This development lane deliberately runs targeted engineering
       # regressions, not the deferred historical compatibility campaign.
-      - name: Test targeted core, K-copy and T-jump regressions
-        run: ctest --test-dir out/build/windows-dev -C Release --output-on-failure -R "^(test_flow|test_command_executor|test_command_parser|test_test_command|cli_test_condition_t|test_move|test_copy|cli_copy|test_global|test_substitute)$"
+      - name: Test targeted core, K-copy, ZK-insert and T-jump regressions
+        run: ctest --test-dir out/build/windows-dev -C Release --output-on-failure -R "^(test_flow|test_command_executor|test_command_parser|test_test_command|cli_test_condition_t|test_move|test_copy|cli_copy|test_zap_copy|cli_zap_copy|test_global|test_substitute)$"

@@ -705,6 +705,41 @@ void execute_quit(const QuitCommandNode& command, ExecutionContext& context) {
     context.request_exit(command.immediate());
 }
 
+/**
+ * @brief Insert a stable snapshot of addressed lines after the target cursor.
+ *
+ * Unlike K, historical ZK preserves the target's existing content. Both
+ * Buffer cursors point to their respective last copied line on success.
+ * A same-Buffer copy cannot include its insertion cursor in the source range.
+ */
+void execute_zap_copy(const ZapCopyCommandNode& command,
+                      ExecutionContext& context) {
+    auto& source = context.current_buffer();
+    const auto range = AddressEvaluator{}.evaluate(command.address(), source);
+
+    if (command.buffer_name() == source.name() &&
+        source.current_line() >= range.first &&
+        source.current_line() <= range.last) {
+        throw CommandExecutionError(
+            "ZK cannot copy the current line into the same buffer");
+    }
+
+    // Snapshot before mutation: self-insertion must not alter source reads.
+    std::vector<std::string> copied_lines;
+    copied_lines.reserve(range.last - range.first + 1);
+    for (auto line = range.first; line <= range.last; ++line) {
+        copied_lines.push_back(source.line(line));
+    }
+
+    // get_or_create never changes the selected buffer or its MRU position.
+    auto& destination = context.buffers().get_or_create(command.buffer_name());
+    destination.insert_after(destination.current_line(),
+                             std::move(copied_lines));
+    if (&destination != &source) {
+        source.set_current_line(range.last);
+    }
+}
+
 void execute_zap(const ZapCommandNode& command, ExecutionContext& context) {
     auto& buffer = context.current_buffer();
     const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
@@ -957,6 +992,9 @@ void CommandExecutor::execute(const CommandNode& command,
         return;
     case AstNodeKind::ZapCommand:
         execute_zap(static_cast<const ZapCommandNode&>(command), context);
+        return;
+    case AstNodeKind::ZapCopyCommand:
+        execute_zap_copy(static_cast<const ZapCopyCommandNode&>(command), context);
         return;
     case AstNodeKind::ZapGatherCommand:
         execute_zap_gather(

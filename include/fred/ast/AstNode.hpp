@@ -38,6 +38,7 @@ enum class AstNodeKind {
     BufferCommand,
     GlobalCommand,
     ZapCommand,
+    ZapCopyCommand,
     ZapGatherCommand,
     SystemCommand,
     SubstituteCommand,

@@ -162,6 +162,21 @@ int main() {
         assert(copy.buffer_name() == "target");
     }
     {
+        const auto node = parse("1,2ZK(target)");
+        assert(node->kind() == fred::AstNodeKind::ZapCopyCommand);
+        assert(node->has_address());
+        assert(node->address()->kind() == fred::AstNodeKind::RangeAddress);
+        const auto& zap_copy =
+            static_cast<const fred::ZapCopyCommandNode&>(*node);
+        assert(zap_copy.buffer_name() == "target");
+    }
+    {
+        const auto node = parse("zk(target)");
+        assert(node->kind() == fred::AstNodeKind::ZapCopyCommand);
+        assert(!node->has_address());
+    }
+    expect_error("ZK", "ZK requires a destination buffer");
+    {
         const auto node = parse("2,3T/alpha/");
         assert(node->kind() == fred::AstNodeKind::TestCommand);
         assert(node->has_address());

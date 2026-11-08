@@ -12,10 +12,10 @@ Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/ref
 | Famille J | 5 | 2 (`JM`, `JP`) | 3 |
 | Famille N | 21 | 0 | 21 |
 | Famille O | 24 | 2 (`OI(`, `OM`) | 22 |
-| Famille Z | 17 | 0 | 17 |
-| **Total** | **103** | **23** | **80** |
+| Famille Z | 17 | 1 (`ZK`, candidat Windows) | 16 |
+| **Total** | **103** | **24** | **79** |
 
-La couverture fonctionnelle de la référence est de **23 / 103**, soit environ **22,3 %**.
+La couverture fonctionnelle provisoire de la référence est de **24 / 103**, soit environ **23,3 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
 
 | Commande | État dans FREDPP | Aide embarquée |
 |---|---|:---:|
@@ -40,6 +40,7 @@ La couverture fonctionnelle de la référence est de **23 / 103**, soit environ 
 | T | Test de modèle `T`/`T~` et registre de condition ; homologation historique restante | Oui |
 | W | Disponible avec W, WA et l'extension WU; WB reconnu mais GCOS/BCD non pris en charge | Oui (`?w`, `?wu`) |
 | Z | Disponible | Oui |
+| ZK | Copie avec insertion après la ligne courante du destinataire ; candidat Windows, validation locale en attente | Oui (`?zk`) |
 
 ## Limite actuelle de JM / JP
 

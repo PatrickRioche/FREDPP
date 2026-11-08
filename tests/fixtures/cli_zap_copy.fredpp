@@ -1,0 +1,23 @@
+" Windows ZK integration test: insertion after target cursor, source preserved.
+B(target)
+A
+old-1
+old-2
+\F
+1Z
+B(source)
+A
+alpha
+beta
+gamma
+\F
+1,2ZK(target)
+JM/FREDPP-ZK-SOURCE-CURRENT/
+P
+JM/FREDPP-ZK-SOURCE-ALL/
+1,3P
+B(target)
+JM/FREDPP-ZK-DEST-CURRENT/
+P
+JM/FREDPP-ZK-DEST-ALL/
+1,$P

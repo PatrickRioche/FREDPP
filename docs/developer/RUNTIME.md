@@ -1027,6 +1027,20 @@ If destination is empty, captured lines are appended.
 
 Otherwise they are inserted after the destination's current line.
 
+### ZK — Insert-copy from selected Buffer to another Buffer
+
+ZK evaluates the optional line range against the selected source Buffer,
+then snapshots all selected lines before any destination mutation. It uses
+`get_or_create` (no selection change) and `insert_after` to append these
+lines after the destination's current line, **retaining** old destination
+content. When the destination is different, the source cursor advances to
+the final original source line, without altering source text or its dirty
+flag. A same-Buffer copy is permitted only when the addressed range excludes
+the insertion cursor; the final cursor then points to the last inserted line.
+Invalid addresses and overlapping same-Buffer ranges fail before mutation.
+See [SPEC-029](../specs/SPEC-029-ZAP-COPY.md) and
+[Windows ZK test](TESTING-ZK-COPY.md).
+
 ## 36. `"` — Comment
 
 Runtime comment execution is an intentional no-op.

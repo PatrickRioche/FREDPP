@@ -197,6 +197,7 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             : tokens_->consume();
         bool immediate_quit = false;
         bool zap_gather = false;
+        bool zap_copy = false;
         FileWriteMode write_mode = FileWriteMode::Preserve;
         std::optional<std::string> compact_buffer_name;
         std::optional<FactsKind> facts_kind;
@@ -236,6 +237,10 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 command.lexeme = "B";
             } else if (first == 'Z' && second == 'G') {
                 zap_gather = true;
+                command.type = TokenType::Command;
+                command.lexeme = "Z";
+            } else if (first == 'Z' && second == 'K') {
+                zap_copy = true;
                 command.type = TokenType::Command;
                 command.lexeme = "Z";
             }
@@ -456,6 +461,17 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         }
 
         if (mnemonic == 'Z') {
+            if (zap_copy) {
+                if (tokens_->peek().type != TokenType::LeftParenthesis) {
+                    throw ParseError("ZK requires a destination buffer",
+                                     tokens_->peek().location);
+                }
+                std::string buffer_name = parse_parenthesized_buffer_name();
+                require_command_end();
+                return std::make_unique<ZapCopyCommandNode>(
+                    std::move(address), std::move(buffer_name), command.location);
+            }
+
             if (zap_gather) {
                 if (address) {
                     throw ParseError("ZG does not accept a line address",

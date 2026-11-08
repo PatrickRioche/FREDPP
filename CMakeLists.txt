@@ -103,6 +103,7 @@ set(FREDPP_IMPLEMENTED_HELP_TOPICS
     w
     z
     zg
+    zk
 )
 
 set(FREDPP_HELP_FILES)

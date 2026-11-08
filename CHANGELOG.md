@@ -1,5 +1,10 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- implémentation expérimentale de `ZK` : insertion des lignes sélectionnées
+  après la ligne courante d'un buffer cible sans remplacer ses anciennes
+  lignes ; protection des copies sur le même buffer, tests unitaires/CLI
+  Windows et documentation source ; version `0.0.22` conservée, pas de release ;
+
 - implémentation expérimentale de la commande historique `K` : copie des lignes
   adressées vers un buffer avec remplacement du contenu antérieur, sans
   suppression des lignes d'origine ; ajout de tests Windows unitaires et CLI,
