@@ -1,5 +1,10 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- `R` : prise en charge des noms entre guillemets au sein des listes de
+  fichiers, notamment les chemins Windows avec espaces ; syntaxe mal formée
+  rejetée, tests de priorité, insertion adressée et absence de mutation en
+  échec complet ;
+
 - extension de la commande historique `R` : recherche ordonnée dans une liste
   de fichiers séparés par des espaces, sélection du premier lisible, maintien
   du comportement des chemins uniques avec espaces, absence de mutation si

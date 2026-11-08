@@ -2,8 +2,14 @@
 
 The historical `R` command attempts file names in order until one can be
 read. This incremental implementation preserves the existing single-file
-behavior, including paths containing spaces: the complete operand is tried
-first, then whitespace-separated alternatives.
+behavior, including unquoted paths containing spaces: the complete unquoted
+operand is tried first, then whitespace-separated alternatives. Quoting an
+individual alternative allows embedded spaces:
+
+```fred
+R "missing candidate.txt" "available candidate.txt"
+1R "missing candidate.txt" "available candidate.txt"
+```
 
 ## Run on Windows 11
 
@@ -24,8 +30,10 @@ The regression checks three focused cases:
 3. When every path is unreadable, no buffer mutation occurs.
 
 The existing test also covers an entire filename containing spaces and the
-previous ASCII/UTF-8, CRLF/LF, and W file I/O behavior. A file name **inside
-a list** cannot yet contain spaces; see `docs/specs/SPEC-026-READ-WRITE.md`.
+previous ASCII/UTF-8, CRLF/LF, and W file I/O behavior. New regression cases
+cover quoted alternatives with spaces, priority of the first readable file,
+addressed insertion, all-file failure and unterminated quotes. See
+`docs/specs/SPEC-026-READ-WRITE.md`.
 
 CI Windows/MSVC: [run 42468744288](https://github.com/PatrickRioche/FREDPP/actions/runs/42468744288) passed with all 16 Release checks and this Debug file-I/O check (1/1). Local Windows 11 validation was confirmed by the user on 8 November 2026: `test_file_io` passed (1/1) in 0.90 s, with total CTest time 1.53 s.
 

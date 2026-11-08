@@ -37,7 +37,7 @@ La couverture fonctionnelle provisoire de la référence est de **24 / 103**, so
 | M | Disponible sous forme provisoire, réalignement historique requis | Oui |
 | P | Disponible | Oui |
 | Q | Disponible pour `Q` et `QQ`; Q protège désormais les buffers modifiés; `Q!` reporté | Oui |
-| R | Lecture ASCII/UTF-8, insertion adressée et essai ordonné de noms de fichiers séparés par des espaces (limites documentées) | Oui |
+| R | Lecture ASCII/UTF-8, insertion adressée et liste ordonnée de fichiers, y compris les noms individuels entre guillemets avec espaces (formes avancées restantes) | Oui |
 | S | Disponible pour les substitutions globales, les plages, `&`, le suffixe P et l'emploi dans G | Oui |
 | T | Test de modèle `T`/`T~` et registre de condition ; homologation historique restante | Oui |
 | W | Disponible avec W, WA et l'extension WU; WB reconnu mais GCOS/BCD non pris en charge | Oui (`?w`, `?wu`) |
@@ -125,7 +125,7 @@ La substitution porte sur toutes les occurrences non chevauchantes. `&` réinsè
 
 ## Limites actuelles de R et W
 
-`R` lit un fichier unique dans un buffer vide, non associé et non modifié. `W` écrit le buffer complet ou une plage. `WA` force l'ASCII et `WU` force l'UTF-8 sans BOM. `WB` reste réservé au GCOS/BCD historique et n'est pas implémenté. `WX`, les listes de fichiers et les encodages autres que l'ASCII ou l'UTF-8 sont reportés.
+`R` charge un fichier dans un buffer vide ou insère ses lignes à une adresse. Il parcourt une liste de noms en ordre, avec guillemets possibles pour les espaces ; les formes historiques avancées de `R` restent à étudier. `W` écrit le buffer complet ou une plage. `WA` force l'ASCII et `WU` force l'UTF-8 sans BOM. `WB` reste réservé au GCOS/BCD historique et n'est pas implémenté. `WX` et les encodages autres que l'ASCII ou l'UTF-8 restent reportés.
 
 ## Alias historiques
 

@@ -50,6 +50,22 @@ conservent leurs horodatages originaux en UTC.
 
 ## Détails des lots et des validations
 
+### Lot R — noms entre guillemets dans les listes (8 novembre 2026)
+
+- **Objectif :** permettre `R "fichier absent.txt" "fichier présent.txt"`
+  et la variante adressée, tout en conservant les chemins uniques avec espaces.
+- **Analyse syntaxique :** `CommandParser` conserve les guillemets de
+  l'opérande `R` et rejette une citation non refermée, sans modifier `W`/`L`.
+- **Exécution :** découpage des candidats en respectant les guillemets, sélection
+  du premier fichier lisible, association correcte et absence de mutation si
+  aucun candidat ne réussit.
+- **Tests :** `test_file_io` étendu aux chemins cités, à la priorité, à
+  l'insertion adressée, aux erreurs de syntaxe et à l'échec total.
+- **Documentation :** spécification, suivi des commandes et guide développeur
+  synchronisés ; référence historique source inchangée.
+- **Version :** `0.0.24` inchangée, `R` déjà comptabilisée.
+- **Validation :** CI Windows et essai local en attente.
+
 ### Lot R — recherche ordonnée de fichiers (8 novembre 2026)
 
 - **Référence :** `docs/fr/reference/commandes/r.md` demande de parcourir

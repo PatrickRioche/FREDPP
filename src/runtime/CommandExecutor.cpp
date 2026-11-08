@@ -16,6 +16,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cctype>
 #include <cstdio>
 #include <cstdint>
 #include <fstream>
@@ -210,38 +211,88 @@ DecodedFile read_file(const std::string& filename) {
 }
 
 /**
- * @brief Resolves a historical R fallback list without breaking existing paths.
+ * @brief Splits an R operand into names, preserving whitespace within quotes.
  *
- * The complete operand is tried first because FREDPP already accepts unquoted
- * paths containing spaces. If that fails, whitespace-separated names are
- * attempted in order. Buffer mutations happen only after a successful read.
+ * Quote characters delimit a filename, but are not passed to the filesystem.
+ * On Windows a literal quote cannot be part of a filename.
  */
+std::vector<std::string> read_filename_candidates(std::string_view operand) {
+    std::vector<std::string> result;
+    std::string candidate;
+    bool quoted = false;
+    bool started = false;
+    for (const char character : operand) {
+        if (character == '"') {
+            quoted = !quoted;
+            started = true;
+        } else if (!quoted && std::isspace(
+                       static_cast<unsigned char>(character))) {
+            if (started) {
+                if (candidate.empty()) {
+                    throw CommandExecutionError("R filename must not be empty");
+                }
+                result.push_back(std::move(candidate));
+                candidate.clear();
+                started = false;
+            }
+        } else {
+            candidate.push_back(character);
+            started = true;
+        }
+    }
+    if (quoted) {
+        throw CommandExecutionError("unterminated quoted filename in R");
+    }
+    if (started) {
+        if (candidate.empty()) {
+            throw CommandExecutionError("R filename must not be empty");
+        }
+        result.push_back(std::move(candidate));
+    }
+    return result;
+}
+
+/** @brief A decoded file paired with the selected on-disk path. */
 struct ResolvedReadFile {
     std::string filename;
     DecodedFile decoded;
 };
 
+/**
+ * @brief Tries the complete path first, then R's ordered quoted-name list.
+ *
+ * The complete operand is attempted only if no quote is present: this keeps
+ * legacy unquoted single paths with spaces usable. No Buffer state is changed
+ * until a candidate has been decoded successfully.
+ */
 ResolvedReadFile read_first_available_file(const std::string& operand) {
-    try {
-        return {operand, read_file(operand)};
-    } catch (const CommandExecutionError&) {
-        std::istringstream candidates(operand);
-        std::string candidate;
-        std::size_t count = 0;
-        while (candidates >> candidate) {
-            ++count;
-            try {
-                return {candidate, read_file(candidate)};
-            } catch (const CommandExecutionError&) {
-                // The historical R list continues with the next candidate.
+    const auto candidates = read_filename_candidates(operand);
+    if (candidates.empty()) {
+        throw CommandExecutionError("R filename must not be empty");
+    }
+    if (operand.find('"') == std::string::npos) {
+        try {
+            return {operand, read_file(operand)};
+        } catch (const CommandExecutionError&) {
+            if (candidates.size() == 1) {
+                throw;
             }
         }
-        if (count < 2) {
-            throw;
-        }
-        throw CommandExecutionError(
-            "R cannot read any file from list: " + operand);
     }
+
+    std::string last_error;
+    for (const auto& candidate : candidates) {
+        try {
+            return {candidate, read_file(candidate)};
+        } catch (const CommandExecutionError& error) {
+            last_error = error.what();
+        }
+    }
+    if (candidates.size() == 1) {
+        throw CommandExecutionError(last_error);
+    }
+    throw CommandExecutionError(
+        "R cannot read any file from list: " + operand);
 }
 
 /**

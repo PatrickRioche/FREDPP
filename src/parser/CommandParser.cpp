@@ -296,7 +296,27 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                     "R insertion address must be a single line",
                     address->location());
             }
-            auto filename = parse_optional_filename();
+            // Preserve quote characters for the R-specific candidate list.
+            // W and L still use the existing single-filename parser.
+            std::optional<std::string> filename;
+            if (tokens_->peek().type != TokenType::End &&
+                tokens_->peek().type != TokenType::NewLine) {
+                filename = consume_plain_text(*tokens_);
+                bool inside_quotes = false;
+                for (const char character : *filename) {
+                    if (character == '"') {
+                        inside_quotes = !inside_quotes;
+                    }
+                }
+                if (inside_quotes) {
+                    throw ParseError("unterminated quoted filename",
+                                     command.location);
+                }
+                if (filename->empty()) {
+                    throw ParseError("filename must not be empty",
+                                     command.location);
+                }
+            }
             require_command_end();
             return std::make_unique<ReadCommandNode>(
                 std::move(address), std::move(filename), command.location);

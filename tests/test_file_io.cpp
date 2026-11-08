@@ -4,6 +4,7 @@
 #include "fred/lexer/Lexer.hpp"
 #include "fred/lexer/TokenStream.hpp"
 #include "fred/parser/CommandParser.hpp"
+#include "fred/parser/ParseError.hpp"
 #include "fred/runtime/CommandExecutionError.hpp"
 #include "fred/runtime/CommandExecutor.hpp"
 #include "fred/runtime/ExecutionContext.hpp"
@@ -326,6 +327,72 @@ int main() {
         [&] {
             const auto command = parse(
                 "R " + missing_first.string() + " " + missing_second.string());
+            executor.execute(*command, context);
+        },
+        "R cannot read any file from list");
+    assert(buffers.current().empty());
+    assert(!buffers.current().associated_file());
+    assert(!buffers.current().modified());
+
+    // Each filename in an R list may now be quoted to preserve its spaces.
+    const auto missing_quoted = root / "missing candidate.txt";
+    const auto available_quoted = root / "available candidate.txt";
+    write_bytes(available_quoted, "quoted-result\n");
+    const auto quoted_alternatives =
+        quoted(missing_quoted) + " " + quoted(available_quoted);
+    buffers.create_or_select("read_quoted_fallback");
+    {
+        const auto command = parse("R " + quoted_alternatives);
+        executor.execute(*command, context);
+        const auto& buffer = buffers.current();
+        assert(buffer.line_count() == 1);
+        assert(buffer.line(1) == "quoted-result");
+        assert(buffer.associated_file() &&
+               *buffer.associated_file() == available_quoted.string());
+        assert(!buffer.modified());
+        assert(context.counter() == 1);
+    }
+
+    // Addressed R must preserve file association with quoted alternatives.
+    buffers.create_or_select("read_quoted_addressed");
+    buffers.current().append("before");
+    {
+        const auto command = parse("1R " + quoted_alternatives);
+        executor.execute(*command, context);
+        assert(buffers.current().line_count() == 2);
+        assert(buffers.current().line(2) == "quoted-result");
+        assert(!buffers.current().associated_file());
+        assert(buffers.current().modified());
+    }
+
+    // A quoted first candidate wins over a later readable candidate.
+    const auto first_quoted = root / "first candidate.txt";
+    write_bytes(first_quoted, "first-result\n");
+    buffers.create_or_select("read_quoted_first");
+    {
+        const auto command = parse(
+            "R " + quoted(first_quoted) + " " + quoted(available_quoted));
+        executor.execute(*command, context);
+        assert(buffers.current().line(1) == "first-result");
+        assert(buffers.current().associated_file() &&
+               *buffers.current().associated_file() == first_quoted.string());
+    }
+
+    // Malformed quoted operands are syntax errors, not partial reads.
+    try {
+        (void)parse("R \"unterminated filename");
+        assert(false && "expected ParseError");
+    } catch (const fred::ParseError& error) {
+        assert(std::string_view(error.what()).find("unterminated quoted") !=
+               std::string_view::npos);
+    }
+
+    buffers.create_or_select("read_quoted_failure");
+    expect_execution_error(
+        [&] {
+            const auto command = parse(
+                "R " + quoted(missing_quoted) + " " +
+                quoted(root / "missing second candidate.txt"));
             executor.execute(*command, context);
         },
         "R cannot read any file from list");

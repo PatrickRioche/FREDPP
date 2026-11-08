@@ -26,12 +26,20 @@ R <fichier-introuvable> <fichier-valide>
 ```
 
 La référence historique demande d'essayer les fichiers dans l'ordre jusqu'au
-premier qui peut être lu. FREDPP tente **d'abord l'opérande entier comme un
-nom de fichier unique**, afin de préserver les chemins existants contenant des
-espaces (y compris les noms entre guillemets). Si cette lecture échoue et que
-l'opérande comporte plusieurs mots séparés par des espaces, ils sont essayés
-dans l'ordre. Ce premier périmètre ne permet pas encore d'utiliser un nom
-contenant des espaces **au sein** d'une liste.
+premier qui peut être lu. La liste peut désormais contenir des noms
+individuels entre guillemets :
+
+```fred
+R "fichier absent.txt" "fichier valide.txt"
+1R "fichier absent.txt" "fichier valide.txt"
+```
+
+Les noms entre guillemets conservent leurs espaces. Les noms simples sans
+guillemets restent séparés par les espaces. Pour préserver les anciens chemins
+uniques non cités qui contiennent des espaces, FREDPP essaie d'abord
+**l'opérande entier comme un chemin unique** lorsqu'aucun guillemet n'est
+présent, puis parcourt les candidats séparés si cette lecture échoue.
+Une citation non fermée est rejetée à l'analyse syntaxique.
 
 La sélection réussie associe le nom effectivement lu lors d'un chargement
 complet ; la forme adressée insère le contenu sans changer l'association
@@ -73,7 +81,7 @@ WB <nom de fichier>
 Le premier périmètre n'inclut pas :
 
 - `WX` ;
-- les listes de `R` contenant des noms de fichiers avec espaces et les formes
-  avancées de sa grammaire ;
+- les formes avancées de `R` hors listes de noms (notamment `RX` et
+  les variantes d'adressage historiques encore non étudiées) ;
 - le format GCOS/BCD ;
 - les encodages autres que l'ASCII et l'UTF-8.
