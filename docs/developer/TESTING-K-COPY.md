@@ -36,7 +36,7 @@ not append. Both Buffer cursors are checked by an unaddressed `P`.
 ## Automated focused checks
 
 ```powershell
-.\scripts\test.bat -R "^(test_copy|cli_copy)$"
+.\scripts\test.ps1 -R "^(test_copy|cli_copy)$"
 ```
 
 The CLI CTest executes the exact fixture with user init disabled and compares

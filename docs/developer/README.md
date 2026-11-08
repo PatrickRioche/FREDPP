@@ -71,9 +71,13 @@ Google Drive synchronized sources, and a rebuild cleans only selected build
 targets instead of deleting whole output trees. VS 2022 users can override
 `FREDPP_CMAKE_GENERATOR`.
 
-The `test.bat -R` selector is quoted internally when forwarded to CTest,
-so regex alternation such as `^(test_zap_copy|cli_zap_copy)$` remains safe
-when the batch file is invoked from PowerShell.
+Use the native `scripts/test.ps1` entry point for PowerShell test filters
+containing regex alternation, for example:
+`./scripts/test.ps1 -R "^(test_zap_copy|cli_zap_copy)$"`.
+When PowerShell invokes a batch file, `cmd.exe` may interpret the `|`
+before the batch script can re-quote it. The batch wrapper remains suitable
+for simple filters such as `./scripts/test.bat -R zap_copy` or running
+all tests without `-R`.
 
 The development version `0.0.N` follows the number `N` of implemented
 historical commands in `docs/project/COMMAND_STATUS.md`; CMake rejects

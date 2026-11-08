@@ -43,6 +43,7 @@ conservent leurs horodatages originaux en UTC.
 | 08/11/2026 01:14 | [`2b9bfd7`](https://github.com/PatrickRioche/FREDPP/commit/2b9bfd781443d9e8d1e3ba8b3c8ee3aa5882831e) | Anomalie MSVC Debug `LNK1163` rapportée |
 | 08/11/2026 01:18 | [`ef78cf7`](https://github.com/PatrickRioche/FREDPP/commit/ef78cf7a0536cf232751beb92582236d6287b7c6) | Validation locale de `ZK` 2/2 et procédure de compilation isolée |
 | 08/11/2026 07:37 | [`7fad17a`](https://github.com/PatrickRioche/FREDPP/commit/7fad17a31b8410df577e507c0c44c8b8d30b4867) | Version `0.0.24` synchronisée et scripts Windows externes |
+| 08/11/2026 | [`cd6e07c`](https://github.com/PatrickRioche/FREDPP/commit/cd6e07c7506e2f43d4a24e171a3a1c17a1569f69) | Premier correctif de `test.bat` ; CI PowerShell échouée (voir bilan) |
 
 ## Détails des lots et des validations
 
@@ -53,11 +54,19 @@ conservent leurs horodatages originaux en UTC.
   `scripts/test.bat -R "^(test_zap_copy|cli_zap_copy)$"` échoue avant CTest :
   `'cli_zap_copy)$' n’est pas reconnu`. Le shell `cmd.exe` interprète le
   `|` de l'expression lorsque `%*` est injecté sans réencadrement.
-- **Correction :** transmission de l'argument `-R` par `"%~2"` dans
-  `test.bat`, sans expansion brute de `%*` ; validation prévue avec la même
-  syntaxe lancée depuis PowerShell dans la CI Windows.
+- **Premier correctif insuffisant :** `test.bat` transmet désormais
+  `-R` par `"%~2"`, sans `%*`. La [CI Windows
+  42456579501](https://github.com/PatrickRioche/FREDPP/actions/runs/42456579501)
+  confirme cependant que le `|` est interprété par `cmd.exe` **avant**
+  le démarrage du batch depuis PowerShell. Les validations Release 15/15
+  et Debug 2/2 ont réussi, mais l'étape PowerShell a échoué.
+- **Correction ciblée :** `scripts/test.ps1` appelle CTest directement,
+  sans passer par `cmd.exe`. La CI vérifie ce scénario exact, ainsi que
+  l'appel batch avec un filtre simple `-R zap_copy`.
+- **Documentation :** exemples PowerShell `K`, `ZK`, `T` et guide
+  développeur corrigés ; usages batch et PowerShell distingués.
 - **Version :** inchangée à `0.0.24` (aucune nouvelle commande FRED).
-- **Validation :** en attente du résultat CI et d'un nouveau test local.
+- **Validation :** nouveau cycle CI et re-test Windows 11 en attente.
 
 ### Lot numérotation dev et scripts Windows (8 novembre 2026)
 

@@ -107,7 +107,11 @@ From PowerShell at the repository root:
 ```powershell
 .\scripts\build.bat
 .\scripts\test.bat
+.\scripts\test.ps1 -R "^(test_zap_copy|cli_zap_copy)$"
 ```
+
+Use `test.ps1` for PowerShell regex filters with `|` alternation; invoking
+`test.bat` with such a regex can be parsed incorrectly by `cmd.exe`.
 
 Windows Debug artifacts are stored by default in
 `%LOCALAPPDATA%\FREDPP\build\x64-Debug`, outside the source checkout and

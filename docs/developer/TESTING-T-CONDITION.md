@@ -42,7 +42,7 @@ branch behavior. The printed buffer checks that T left the text unchanged.
 ## Automated focused regression
 
 ```powershell
-.\scripts\test.bat -R "^cli_test_condition_t$"
+.\scripts\test.ps1 -R "^cli_test_condition_t$"
 ```
 
 CTest runs `tests/test_cli_condition_t.cmake`, which executes

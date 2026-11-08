@@ -6,6 +6,9 @@
 - scripts Windows `build`/`test`/`rebuild` harmonisés autour d'un répertoire
   MSVC Debug local persistant hors de Google Drive et de `%TEMP%`, avec chemin
   et générateur Visual Studio configurables et validation CI dédiée ;
+- exécution native des filtres CTest sous PowerShell via `scripts/test.ps1`,
+  pour préserver `|` dans les expressions régulières ; `test.bat` conserve
+  les sélecteurs simples et l'exécution de toute la suite ;
 
 - implémentation expérimentale de `ZK` : insertion des lignes sélectionnées
   après la ligne courante d'un buffer cible sans remplacer ses anciennes

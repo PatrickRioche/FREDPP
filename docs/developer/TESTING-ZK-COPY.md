@@ -64,7 +64,7 @@ are tested by unaddressed `P`.
 ## Focused tests
 
 ```powershell
-.\scripts\test.bat -R "^(test_zap_copy|cli_zap_copy)$"
+.\scripts\test.ps1 -R "^(test_zap_copy|cli_zap_copy)$"
 ```
 
 The CLI test disables the user init file and compares stdout exactly.
