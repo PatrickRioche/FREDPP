@@ -48,6 +48,24 @@ conservent leurs horodatages originaux en UTC.
 
 ## Détails des lots et des validations
 
+### Lot R — recherche ordonnée de fichiers (8 novembre 2026)
+
+- **Référence :** `docs/fr/reference/commandes/r.md` demande de parcourir
+  une liste de fichiers jusqu'au premier lisible.
+- **Réalisation sur `dev` :** lecture prioritaire du nom complet (compatibilité
+  des chemins Windows contenant des espaces), puis essai ordonné des candidats
+  séparés par espaces. `R` complet associe le fichier réellement ouvert ;
+  `R` adressé insère sans modifier l'association.
+- **Sécurité :** aucun changement de buffer si tous les candidats échouent.
+  Les erreurs de fichier/décodage permettent de poursuivre la recherche.
+- **Tests :** `test_file_io` étendu (succès sur le deuxième candidat, insertion,
+  échec total sans mutation) ; test ajouté au ciblage CI Release et Debug.
+- **Limite :** les noms contenant des espaces au sein d'une liste ne sont pas
+  encore gérés ; le support `WX` attend une définition fidèle du comptage
+  historique des blocs.
+- **Version :** `0.0.24` inchangée : amélioration de `R`, déjà comptabilisé.
+- **Validation :** en attente de la CI Windows et du test local.
+
 ### Correctif test.bat — arguments PowerShell (8 novembre 2026)
 
 - **Retour utilisateur :** après un build de `0.0.24` réussi (commit

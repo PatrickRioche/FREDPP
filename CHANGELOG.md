@@ -1,5 +1,10 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- extension de la commande historique `R` : recherche ordonnée dans une liste
+  de fichiers séparés par des espaces, sélection du premier lisible, maintien
+  du comportement des chemins uniques avec espaces, absence de mutation si
+  tous les candidats échouent ; tests `test_file_io` et documentation source ;
+
 - version de développement réalignée sur les **24 commandes historiques
   référencées prises en charge** : `0.0.24` sur `dev`; garde CMake empêchant
   un décalage avec le tableau de couverture, sans publication officielle ;

@@ -280,6 +280,59 @@ int main() {
         },
         "R requires a filename when the buffer has no associated file");
 
+    // R tries a historical whitespace-separated list from left to right.
+    // A missing first candidate must not prevent reading the second file.
+    const auto missing_first = root / "missing_first.txt";
+    const auto available_second = root / "available_second.txt";
+    write_bytes(available_second, "fallback-alpha\nfallback-beta\n");
+    const auto alternatives =
+        missing_first.string() + " " + available_second.string();
+    buffers.create_or_select("read_fallback");
+    {
+        const auto command = parse("R " + alternatives);
+        executor.execute(*command, context);
+        const auto& buffer = buffers.current();
+        assert(buffer.line_count() == 2);
+        assert(buffer.line(1) == "fallback-alpha");
+        assert(buffer.line(2) == "fallback-beta");
+        assert(buffer.associated_file() &&
+               *buffer.associated_file() == available_second.string());
+        assert(!buffer.modified());
+        assert(context.counter() == 2);
+        assert(context.condition());
+    }
+
+    // Addressed R uses the same candidate selection but leaves the current
+    // buffer's existing file association and modification state intact.
+    buffers.create_or_select("read_fallback_addressed");
+    buffers.current().append("original");
+    {
+        const auto command = parse("1R " + alternatives);
+        executor.execute(*command, context);
+        const auto& buffer = buffers.current();
+        assert(buffer.line_count() == 3);
+        assert(buffer.line(1) == "original");
+        assert(buffer.line(2) == "fallback-alpha");
+        assert(buffer.line(3) == "fallback-beta");
+        assert(!buffer.associated_file());
+        assert(buffer.modified());
+        assert(context.counter() == 2);
+    }
+
+    // Failure of every candidate must leave an empty target unchanged.
+    buffers.create_or_select("read_fallback_failure");
+    const auto missing_second = root / "missing_second.txt";
+    expect_execution_error(
+        [&] {
+            const auto command = parse(
+                "R " + missing_first.string() + " " + missing_second.string());
+            executor.execute(*command, context);
+        },
+        "R cannot read any file from list");
+    assert(buffers.current().empty());
+    assert(!buffers.current().associated_file());
+    assert(!buffers.current().modified());
+
     std::filesystem::remove_all(root);
     return 0;
 }

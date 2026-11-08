@@ -210,6 +210,41 @@ DecodedFile read_file(const std::string& filename) {
 }
 
 /**
+ * @brief Resolves a historical R fallback list without breaking existing paths.
+ *
+ * The complete operand is tried first because FREDPP already accepts unquoted
+ * paths containing spaces. If that fails, whitespace-separated names are
+ * attempted in order. Buffer mutations happen only after a successful read.
+ */
+struct ResolvedReadFile {
+    std::string filename;
+    DecodedFile decoded;
+};
+
+ResolvedReadFile read_first_available_file(const std::string& operand) {
+    try {
+        return {operand, read_file(operand)};
+    } catch (const CommandExecutionError&) {
+        std::istringstream candidates(operand);
+        std::string candidate;
+        std::size_t count = 0;
+        while (candidates >> candidate) {
+            ++count;
+            try {
+                return {candidate, read_file(candidate)};
+            } catch (const CommandExecutionError&) {
+                // The historical R list continues with the next candidate.
+            }
+        }
+        if (count < 2) {
+            throw;
+        }
+        throw CommandExecutionError(
+            "R cannot read any file from list: " + operand);
+    }
+}
+
+/**
  * @brief Executes R using either full-buffer load or addressed insertion semantics.
  *
  * A full load establishes file association/encoding metadata through Buffer;
@@ -235,11 +270,11 @@ void execute_read(const ReadCommandNode& command,
             throw CommandExecutionError("buffer not empty");
         }
 
-        auto decoded = read_file(filename);
-        const auto line_count = decoded.lines.size();
-        buffer.load_file(std::move(decoded.lines), filename,
-                         decoded.encoding, decoded.line_ending,
-                         decoded.final_newline);
+        auto resolved = read_first_available_file(filename);
+        const auto line_count = resolved.decoded.lines.size();
+        buffer.load_file(std::move(resolved.decoded.lines), resolved.filename,
+                         resolved.decoded.encoding, resolved.decoded.line_ending,
+                         resolved.decoded.final_newline);
         context.set_counter(line_count);
         context.set_condition(true);
         return;
@@ -266,9 +301,9 @@ void execute_read(const ReadCommandNode& command,
         insertion_after = range.first;
     }
 
-    auto decoded = read_file(filename);
-    const auto line_count = decoded.lines.size();
-    buffer.insert_after(insertion_after, std::move(decoded.lines));
+    auto resolved = read_first_available_file(filename);
+    const auto line_count = resolved.decoded.lines.size();
+    buffer.insert_after(insertion_after, std::move(resolved.decoded.lines));
     context.set_counter(line_count);
     context.set_condition(true);
 }

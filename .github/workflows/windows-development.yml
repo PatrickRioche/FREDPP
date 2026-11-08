@@ -41,7 +41,7 @@ jobs:
       # This development lane deliberately runs targeted engineering
       # regressions, not the deferred historical compatibility campaign.
       - name: Test targeted core, K-copy, ZK-insert and T-jump regressions
-        run: ctest --test-dir out/build/windows-dev -C Release --output-on-failure -R "^(cli_smoke|test_version|test_release_manifest|test_flow|test_command_executor|test_command_parser|test_test_command|cli_test_condition_t|test_move|test_copy|cli_copy|test_zap_copy|cli_zap_copy|test_global|test_substitute)$"
+        run: ctest --test-dir out/build/windows-dev -C Release --output-on-failure -R "^(cli_smoke|test_version|test_release_manifest|test_flow|test_command_executor|test_command_parser|test_test_command|cli_test_condition_t|test_move|test_copy|cli_copy|test_file_io|test_zap_copy|cli_zap_copy|test_global|test_substitute)$"
 
       # Validate the same Debug entry points used on Windows 11 without
       # writing intermediate objects into the repository or runner.temp.
@@ -70,3 +70,9 @@ jobs:
         env:
           FREDPP_BUILD_DIR: ${{ runner.workspace }}\fredpp-debug
         run: .\scripts\test.bat -R zap_copy
+
+      - name: Test historical R fallback under Windows Debug
+        shell: pwsh
+        env:
+          FREDPP_BUILD_DIR: ${{ runner.workspace }}\fredpp-debug
+        run: .\scripts\test.ps1 -R "^test_file_io$"

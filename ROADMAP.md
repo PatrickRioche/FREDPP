@@ -271,7 +271,7 @@ Une nouvelle release officielle v0.0.12 est prévue après homologation et tests
 ### Prochaines versions 0.0.x
 
 - réaligner les commandes `M` et `T` sur leur comportement historique documenté ;
-- compléter les formes avancées de `R` et `W`, notamment `WX` ;
+- terminer les formes avancées de `R` (listes à noms espacés et grammaire complète) et de `W`, notamment `WX` ;
 - compléter les formes courtes de la commande `B` ;
 - poursuivre l'implémentation des commandes historiques documentées ;
 - étendre `G` aux suites de commandes et aux comportements historiques complémentaires ;

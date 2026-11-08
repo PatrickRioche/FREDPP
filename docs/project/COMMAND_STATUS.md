@@ -37,7 +37,7 @@ La couverture fonctionnelle provisoire de la référence est de **24 / 103**, so
 | M | Disponible sous forme provisoire, réalignement historique requis | Oui |
 | P | Disponible | Oui |
 | Q | Disponible pour `Q` et `QQ`; Q protège désormais les buffers modifiés; `Q!` reporté | Oui |
-| R | Disponible pour un fichier ASCII ou UTF-8 dans un buffer vide et non associé | Oui |
+| R | Lecture ASCII/UTF-8, insertion adressée et essai ordonné de noms de fichiers séparés par des espaces (limites documentées) | Oui |
 | S | Disponible pour les substitutions globales, les plages, `&`, le suffixe P et l'emploi dans G | Oui |
 | T | Test de modèle `T`/`T~` et registre de condition ; homologation historique restante | Oui |
 | W | Disponible avec W, WA et l'extension WU; WB reconnu mais GCOS/BCD non pris en charge | Oui (`?w`, `?wu`) |

@@ -18,6 +18,26 @@ R <nom de fichier>
 
 Le BOM n'est pas conservé dans le texte du buffer. Les fichiers binaires ou les séquences UTF-8 invalides sont refusés.
 
+### Liste de fichiers (développement Windows)
+
+```fred
+R <fichier-introuvable> <fichier-valide>
+1R <fichier-introuvable> <fichier-valide>
+```
+
+La référence historique demande d'essayer les fichiers dans l'ordre jusqu'au
+premier qui peut être lu. FREDPP tente **d'abord l'opérande entier comme un
+nom de fichier unique**, afin de préserver les chemins existants contenant des
+espaces (y compris les noms entre guillemets). Si cette lecture échoue et que
+l'opérande comporte plusieurs mots séparés par des espaces, ils sont essayés
+dans l'ordre. Ce premier périmètre ne permet pas encore d'utiliser un nom
+contenant des espaces **au sein** d'une liste.
+
+La sélection réussie associe le nom effectivement lu lors d'un chargement
+complet ; la forme adressée insère le contenu sans changer l'association
+existante. En cas d'échec de tous les candidats, le buffer reste inchangé.
+Les erreurs de lecture/décodage d'un candidat permettent d'essayer le suivant.
+
 ## Écriture avec W
 
 ```fred
@@ -53,6 +73,7 @@ WB <nom de fichier>
 Le premier périmètre n'inclut pas :
 
 - `WX` ;
-- les listes de noms de fichiers de `R` ;
+- les listes de `R` contenant des noms de fichiers avec espaces et les formes
+  avancées de sa grammaire ;
 - le format GCOS/BCD ;
 - les encodages autres que l'ASCII et l'UTF-8.
