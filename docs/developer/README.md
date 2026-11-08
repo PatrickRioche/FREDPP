@@ -93,6 +93,7 @@ validation on Windows 11.
 - [Visible T condition/jump integration test on Windows](TESTING-T-CONDITION.md)
 - [Historical K copy integration test on Windows](TESTING-K-COPY.md)
 - [Historical ZK insertion-copy test on Windows](TESTING-ZK-COPY.md)
+- [Historical R file-list fallback test on Windows](TESTING-R-FALLBACK.md)
 - [Dated development log and verification status](../project/DEVELOPMENT_LOG.md)
 
 ## Module documentation

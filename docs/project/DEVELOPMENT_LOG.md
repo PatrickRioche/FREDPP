@@ -21,7 +21,7 @@ conservent leurs horodatages originaux en UTC.
 | Nouveau lot | `ZK` implémenté ; CI Windows Release 12/12 et validation locale Windows 11 Debug 2/2 réussies |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
-| Dernière CI Windows/MSVC ciblée | [15/15 tests Release et 3 × 2/2 Debug réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42456990368) |
+| Dernière CI Windows/MSVC ciblée | [16/16 tests Release, 3 × 2/2 Debug et 1/1 R réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42468744288) |
 | Validation locale Windows 11 — T | Confirmée par l'utilisateur (scénario et CTest 1/1) |
 | Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |
 | Validation locale Windows 11 — ZK | Confirmée (scénario Debug, CTest 2/2 et relance via `test.ps1` 2/2 en 0,55 s) |
@@ -45,6 +45,7 @@ conservent leurs horodatages originaux en UTC.
 | 08/11/2026 07:37 | [`7fad17a`](https://github.com/PatrickRioche/FREDPP/commit/7fad17a31b8410df577e507c0c44c8b8d30b4867) | Version `0.0.24` synchronisée et scripts Windows externes |
 | 08/11/2026 | [`cd6e07c`](https://github.com/PatrickRioche/FREDPP/commit/cd6e07c7506e2f43d4a24e171a3a1c17a1569f69) | Premier correctif de `test.bat` ; CI PowerShell échouée (voir bilan) |
 | 08/11/2026 08:00 | [`e56bb70`](https://github.com/PatrickRioche/FREDPP/commit/e56bb70e04e8e76cbb8887943ef8e0cd3441a8d1) | `test.ps1` natif ; appels PowerShell et batch testés, CI Windows verte |
+| 08/11/2026 10:48 | [`05585a3`](https://github.com/PatrickRioche/FREDPP/commit/05585a32adf5ea067f520c1a3ed006e9b913ac96) | `R` multi-candidats, tests de repli et documentation Windows |
 
 ## Détails des lots et des validations
 
@@ -64,7 +65,8 @@ conservent leurs horodatages originaux en UTC.
   encore gérés ; le support `WX` attend une définition fidèle du comptage
   historique des blocs.
 - **Version :** `0.0.24` inchangée : amélioration de `R`, déjà comptabilisé.
-- **Validation :** en attente de la CI Windows et du test local.
+- **Validation CI Windows :** [exécution 42468744288](https://github.com/PatrickRioche/FREDPP/actions/runs/42468744288) réussie : compilation MSVC Release et **16/16 tests**, compilation Debug, trois passages ciblés **2/2**, puis **1/1** pour `test_file_io` via PowerShell ; toutes les étapes vertes.
+- **Validation locale Windows 11 :** nouveau sous-lot `R` à confirmer par l'utilisateur (`./scripts/test.ps1 -R "^test_file_io$"`).
 
 ### Correctif test.bat — arguments PowerShell (8 novembre 2026)
 
