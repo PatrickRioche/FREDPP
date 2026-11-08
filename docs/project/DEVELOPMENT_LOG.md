@@ -21,7 +21,7 @@ conservent leurs horodatages originaux en UTC.
 | Nouveau lot | `ZK` implémenté ; CI Windows Release 12/12 et validation locale Windows 11 Debug 2/2 réussies |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
-| Dernière CI Windows/MSVC ciblée | [15/15 tests Release et 2/2 Debug réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42455541228) |
+| Dernière CI Windows/MSVC ciblée | [15/15 tests Release et 3 × 2/2 Debug réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42456990368) |
 | Validation locale Windows 11 — T | Confirmée par l'utilisateur (scénario et CTest 1/1) |
 | Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |
 | Validation locale Windows 11 — ZK | Confirmée par l'utilisateur (Debug, scénario exact et CTest 2/2), après build isolé |
@@ -44,6 +44,7 @@ conservent leurs horodatages originaux en UTC.
 | 08/11/2026 01:18 | [`ef78cf7`](https://github.com/PatrickRioche/FREDPP/commit/ef78cf7a0536cf232751beb92582236d6287b7c6) | Validation locale de `ZK` 2/2 et procédure de compilation isolée |
 | 08/11/2026 07:37 | [`7fad17a`](https://github.com/PatrickRioche/FREDPP/commit/7fad17a31b8410df577e507c0c44c8b8d30b4867) | Version `0.0.24` synchronisée et scripts Windows externes |
 | 08/11/2026 | [`cd6e07c`](https://github.com/PatrickRioche/FREDPP/commit/cd6e07c7506e2f43d4a24e171a3a1c17a1569f69) | Premier correctif de `test.bat` ; CI PowerShell échouée (voir bilan) |
+| 08/11/2026 08:00 | [`e56bb70`](https://github.com/PatrickRioche/FREDPP/commit/e56bb70e04e8e76cbb8887943ef8e0cd3441a8d1) | `test.ps1` natif ; appels PowerShell et batch testés, CI Windows verte |
 
 ## Détails des lots et des validations
 
@@ -66,7 +67,8 @@ conservent leurs horodatages originaux en UTC.
 - **Documentation :** exemples PowerShell `K`, `ZK`, `T` et guide
   développeur corrigés ; usages batch et PowerShell distingués.
 - **Version :** inchangée à `0.0.24` (aucune nouvelle commande FRED).
-- **Validation :** nouveau cycle CI et re-test Windows 11 en attente.
+- **Validation automatique :** [CI Windows 42456990368](https://github.com/PatrickRioche/FREDPP/actions/runs/42456990368) **réussie** : compilation complète Release, 15/15 tests ciblés, compilation Debug, 2/2 tests depuis `cmd.exe`, 2/2 via `test.ps1` depuis PowerShell avec alternance, et 2/2 via `test.bat -R zap_copy` depuis PowerShell.
+- **Validation locale Windows 11 :** nouveau `test.ps1` à confirmer par l'utilisateur après `git pull --ff-only origin dev`.
 
 ### Lot numérotation dev et scripts Windows (8 novembre 2026)
 
