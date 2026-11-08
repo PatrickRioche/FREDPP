@@ -10,7 +10,7 @@ Cette spécification définit le premier périmètre opérationnel des commandes
 R <nom de fichier>
 ```
 
-`R` exige un buffer courant vide, non associé à un fichier et non modifié. Le fichier est lu en mode binaire, puis interprété comme :
+Sans adresse, `R` charge le fichier dans le buffer courant **s'il est vide** (y compris s'il est déjà associé à un fichier ou marqué modifié). La forme adressée insère les lignes après la ligne indiquée sans remplacer le contenu courant. Le fichier est lu en mode binaire, puis interprété comme :
 
 - ASCII si tous les octets sont inférieurs à 128 ;
 - UTF-8 si la séquence est valide ;

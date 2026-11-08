@@ -17,11 +17,11 @@ conservent leurs horodatages originaux en UTC.
 |---|---|
 | Version du projet | `0.0.24` (développement ; 24/103 commandes) |
 | Branche active | `dev` |
-| Dernier commit du lot K validé | [`d723877`](https://github.com/PatrickRioche/FREDPP/commit/d723877a4f0e545cd506fc7bfe6704e3520e493c) |
-| Nouveau lot | `ZK` implémenté ; CI Windows Release 12/12 et validation locale Windows 11 Debug 2/2 réussies |
+| Dernier lot fonctionnel | `R` : listes de fichiers avec noms cités ; [commit `af17a34`](https://github.com/PatrickRioche/FREDPP/commit/af17a349392109d9b9230432d3f284d8042c2b96) |
+| État des tests | CI Windows verte ; revalidation locale du nouveau sous-lot `R` en attente |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
-| Dernière CI Windows/MSVC ciblée | [16/16 tests Release, 3 × 2/2 Debug et 1/1 R réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42468744288) |
+| Dernière CI Windows/MSVC ciblée | [16/16 tests Release, 3 × 2/2 Debug et 1/1 R réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42469707212) |
 | Validation locale Windows 11 — T | Confirmée par l'utilisateur (scénario et CTest 1/1) |
 | Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |
 | Validation locale Windows 11 — ZK | Confirmée (scénario Debug, CTest 2/2 et relance via `test.ps1` 2/2 en 0,55 s) |
@@ -46,7 +46,12 @@ conservent leurs horodatages originaux en UTC.
 | 08/11/2026 07:37 | [`7fad17a`](https://github.com/PatrickRioche/FREDPP/commit/7fad17a31b8410df577e507c0c44c8b8d30b4867) | Version `0.0.24` synchronisée et scripts Windows externes |
 | 08/11/2026 | [`cd6e07c`](https://github.com/PatrickRioche/FREDPP/commit/cd6e07c7506e2f43d4a24e171a3a1c17a1569f69) | Premier correctif de `test.bat` ; CI PowerShell échouée (voir bilan) |
 | 08/11/2026 08:00 | [`e56bb70`](https://github.com/PatrickRioche/FREDPP/commit/e56bb70e04e8e76cbb8887943ef8e0cd3441a8d1) | `test.ps1` natif ; appels PowerShell et batch testés, CI Windows verte |
+| 08/11/2026 08:04 | [`38a31eb`](https://github.com/PatrickRioche/FREDPP/commit/38a31eb4bd0b174e91fa6a912155be05b185b589) | Résultat CI PowerShell consigné |
+| 08/11/2026 10:42 | [`c2eba74`](https://github.com/PatrickRioche/FREDPP/commit/c2eba74c1179c7c032abe27505619a9143802755) | Validation locale Windows du wrapper `ZK` consignée |
 | 08/11/2026 10:48 | [`05585a3`](https://github.com/PatrickRioche/FREDPP/commit/05585a32adf5ea067f520c1a3ed006e9b913ac96) | `R` multi-candidats, tests de repli et documentation Windows |
+| 08/11/2026 10:52 | [`cd9f7b9`](https://github.com/PatrickRioche/FREDPP/commit/cd9f7b994c2ddb49d497712503f7df92f97bafb5) | CI du sous-lot `R` validée |
+| 08/11/2026 10:57 | [`5846310`](https://github.com/PatrickRioche/FREDPP/commit/5846310123c252f53dfb2389ed6717fbfd2a7bfc) | Test local Windows `R` 1/1 validé |
+| 08/11/2026 11:02 | [`af17a34`](https://github.com/PatrickRioche/FREDPP/commit/af17a349392109d9b9230432d3f284d8042c2b96) | `R` : alternatives citées avec espaces et tests |
 
 ## Détails des lots et des validations
 
@@ -64,7 +69,8 @@ conservent leurs horodatages originaux en UTC.
 - **Documentation :** spécification, suivi des commandes et guide développeur
   synchronisés ; référence historique source inchangée.
 - **Version :** `0.0.24` inchangée, `R` déjà comptabilisée.
-- **Validation :** CI Windows et essai local en attente.
+- **Validation CI Windows :** [exécution 42469707212](https://github.com/PatrickRioche/FREDPP/actions/runs/42469707212) **réussie** : compilation MSVC Release, **16/16 tests ciblés**, compilation Debug et toutes les vérifications PowerShell/batch, dont **1/1** pour `test_file_io`.
+- **Validation locale Windows 11 :** nouveau sous-lot avec alternatives citées à confirmer par l'utilisateur après synchronisation de `dev`.
 
 ### Lot R — recherche ordonnée de fichiers (8 novembre 2026)
 
