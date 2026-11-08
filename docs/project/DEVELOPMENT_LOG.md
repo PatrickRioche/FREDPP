@@ -25,6 +25,7 @@ conservent leurs horodatages originaux en UTC.
 | Validation locale Windows 11 — T | Confirmée par l'utilisateur (scénario et CTest 1/1) |
 | Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |
 | Validation locale Windows 11 — ZK | Confirmée (scénario Debug, CTest 2/2 et relance via `test.ps1` 2/2 en 0,55 s) |
+| Validation locale Windows 11 — R (liste de fichiers) | Confirmée par l'utilisateur : `test_file_io` 1/1, CTest total 1,53 s |
 | Homologation historique complète | Reportée |
 | Nouvelle release officielle | Aucune ; pas de fusion dans `main` |
 
@@ -66,7 +67,7 @@ conservent leurs horodatages originaux en UTC.
   historique des blocs.
 - **Version :** `0.0.24` inchangée : amélioration de `R`, déjà comptabilisé.
 - **Validation CI Windows :** [exécution 42468744288](https://github.com/PatrickRioche/FREDPP/actions/runs/42468744288) réussie : compilation MSVC Release et **16/16 tests**, compilation Debug, trois passages ciblés **2/2**, puis **1/1** pour `test_file_io` via PowerShell ; toutes les étapes vertes.
-- **Validation locale Windows 11 :** nouveau sous-lot `R` à confirmer par l'utilisateur (`./scripts/test.ps1 -R "^test_file_io$"`).
+- **Validation locale Windows 11 :** **confirmée le 8 novembre 2026** par l'utilisateur sous PowerShell, dans le build Debug persistant `%LOCALAPPDATA%\\FREDPP\\build\\x64-Debug` : `./scripts/test.ps1 -R "^test_file_io$"` réussit **1/1**, `test_file_io` en **0,90 s**, CTest total **1,53 s**. Aucun échec.
 
 ### Correctif test.bat — arguments PowerShell (8 novembre 2026)
 

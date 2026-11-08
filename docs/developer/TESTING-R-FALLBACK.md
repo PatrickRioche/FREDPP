@@ -27,7 +27,7 @@ The existing test also covers an entire filename containing spaces and the
 previous ASCII/UTF-8, CRLF/LF, and W file I/O behavior. A file name **inside
 a list** cannot yet contain spaces; see `docs/specs/SPEC-026-READ-WRITE.md`.
 
-CI Windows/MSVC: [run 42468744288](https://github.com/PatrickRioche/FREDPP/actions/runs/42468744288) passed with all 16 Release checks and this Debug file-I/O check (1/1). Local Windows 11 confirmation remains pending.
+CI Windows/MSVC: [run 42468744288](https://github.com/PatrickRioche/FREDPP/actions/runs/42468744288) passed with all 16 Release checks and this Debug file-I/O check (1/1). Local Windows 11 validation was confirmed by the user on 8 November 2026: `test_file_io` passed (1/1) in 0.90 s, with total CTest time 1.53 s.
 
 This is a focused Windows regression, not historical multi-platform
 homologation. The `WX` block-statistics behavior remains deferred until the
