@@ -71,6 +71,9 @@ The CLI test disables the user init file and compares stdout exactly.
 The unit test verifies source preservation, both cursors, target insertion,
 same-buffer restrictions, empty-source and invalid-address failures.
 The Windows/MSVC dev workflow runs both tests in Release as well.
+The native PowerShell wrapper with regex alternation was also validated on
+Windows 11 on 8 November 2026 after syncing `dev`: both checks passed
+(2/2, 0.55 s), using the persistent Debug build under `%LOCALAPPDATA%`.
 
 ## Source ownership
 

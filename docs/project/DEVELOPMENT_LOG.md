@@ -24,7 +24,7 @@ conservent leurs horodatages originaux en UTC.
 | Dernière CI Windows/MSVC ciblée | [15/15 tests Release et 3 × 2/2 Debug réussis](https://github.com/PatrickRioche/FREDPP/actions/runs/42456990368) |
 | Validation locale Windows 11 — T | Confirmée par l'utilisateur (scénario et CTest 1/1) |
 | Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |
-| Validation locale Windows 11 — ZK | Confirmée par l'utilisateur (Debug, scénario exact et CTest 2/2), après build isolé |
+| Validation locale Windows 11 — ZK | Confirmée (scénario Debug, CTest 2/2 et relance via `test.ps1` 2/2 en 0,55 s) |
 | Homologation historique complète | Reportée |
 | Nouvelle release officielle | Aucune ; pas de fusion dans `main` |
 
@@ -68,7 +68,7 @@ conservent leurs horodatages originaux en UTC.
   développeur corrigés ; usages batch et PowerShell distingués.
 - **Version :** inchangée à `0.0.24` (aucune nouvelle commande FRED).
 - **Validation automatique :** [CI Windows 42456990368](https://github.com/PatrickRioche/FREDPP/actions/runs/42456990368) **réussie** : compilation complète Release, 15/15 tests ciblés, compilation Debug, 2/2 tests depuis `cmd.exe`, 2/2 via `test.ps1` depuis PowerShell avec alternance, et 2/2 via `test.bat -R zap_copy` depuis PowerShell.
-- **Validation locale Windows 11 :** nouveau `test.ps1` à confirmer par l'utilisateur après `git pull --ff-only origin dev`.
+- **Validation locale Windows 11 :** **confirmée par l'utilisateur le 8 novembre 2026** après `git pull --ff-only origin dev` (déjà à jour) : `./scripts/test.ps1 -R "^(test_zap_copy|cli_zap_copy)$"` exécute `test_zap_copy` et `cli_zap_copy` depuis `%LOCALAPPDATA%\FREDPP\build\x64-Debug`. Résultat **2/2 réussis**, aucune défaillance, **0,55 s**. L'incident de citation des arguments PowerShell est clos.
 
 ### Lot numérotation dev et scripts Windows (8 novembre 2026)
 
