@@ -606,6 +606,9 @@ enum class FactsKind {
     /** FF: only file-associated Buffers, sorted by Buffer name. */
     Files,
 
+    /** FN: created numeric registers and their current signed values. */
+    Registers,
+
     /** F?: current Buffer, followed by other modified Buffers in name order. */
     Modified,
 
@@ -614,7 +617,7 @@ enum class FactsKind {
 };
 
 /**
- * @brief `F`, `FB`, `FF`, `FO` or `F?` read-only query without an address.
+ * @brief `F`, `FB`, `FF`, `FN`, `FO` or `F?` read-only query without an address.
  *
  * The selected query determines the output format and ordering; the AST only
  * records the query kind, not a snapshot of Runtime state.

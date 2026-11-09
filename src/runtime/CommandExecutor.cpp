@@ -811,13 +811,14 @@ std::string describe_modified_buffer(const Buffer& buffer) {
 }
 
 /**
- * @brief Executes the read-only F, FB, FF, FO and F? information queries.
+ * @brief Executes the read-only F, FB, FF, FN, FO and F? queries.
  *
  * FB uses most-recently-selected Buffer order; FF examines every owned Buffer
  * but prints only file-associated entries in name order. F? prints the current
  * Buffer first and then every other modified Buffer in name order, including
- * buffers without files. FO prints the active OI( and OM states. None of these
- * queries select Buffers, move cursors, or change editor contents.
+ * buffers without files. FN prints the created numeric registers sorted by
+ * name, while FO prints the active OI( and OM states. None of these queries
+ * select Buffers, move cursors, or change editor or procedure state.
  */
 void execute_facts(const FactsCommandNode& command,
                    ExecutionContext& context) {
@@ -850,6 +851,16 @@ void execute_facts(const FactsCommandNode& command,
                 context.output().write_line(
                     describe_file_association(buffer));
             }
+        }
+        return;
+
+    case FactsKind::Registers:
+        // A register with value zero is still listed; uncreated registers are
+        // not. Sorting is done by ExecutionContext, not hash-table iteration.
+        for (const auto& name : context.numeric_register_names()) {
+            context.output().write_line(
+                "n(" + name + "):" +
+                std::to_string(context.numeric_register(name)));
         }
         return;
 

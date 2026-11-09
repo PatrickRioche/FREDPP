@@ -65,6 +65,14 @@ int main() {
         assert(facts.facts() == fred::FactsKind::Modified);
     }
     {
+        const auto node = parse("fN");
+        assert(node->kind() == fred::AstNodeKind::FactsCommand);
+        assert(!node->has_address());
+        const auto& facts = static_cast<const fred::FactsCommandNode&>(*node);
+        assert(facts.facts() == fred::FactsKind::Registers);
+    }
+    expect_error("1FN", "F does not accept a line address");
+    {
         const auto node = parse("*");
         assert(node->kind() == fred::AstNodeKind::PrintCommand);
         assert(node->has_address());

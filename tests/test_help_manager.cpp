@@ -17,6 +17,7 @@ int main() {
     assert(help.exists("f"));
     assert(help.exists("fb"));
     assert(help.exists("ff"));
+    assert(help.exists("fn"));
     assert(help.exists("fq"));
     assert(help.exists("f?"));
     assert(help.exists("="));
@@ -45,6 +46,7 @@ int main() {
     assert(index.find("    ?fb") != std::string::npos);
     assert(index.find("    ?f ") != std::string::npos);
     assert(index.find("    ?ff") != std::string::npos);
+    assert(index.find("    ?fn") != std::string::npos);
     assert(index.find("    ?f?") != std::string::npos);
     assert(index.find("    ?fq") == std::string::npos);
     assert(index.find("    ?=") != std::string::npos);
@@ -144,6 +146,10 @@ int main() {
     const auto facts_options = help.load_for_terminal("fo");
     assert(facts_options.find("FO") != std::string::npos);
 
+    const auto facts_registers = help.load_for_terminal("fn");
+    assert(facts_registers.find("FN") != std::string::npos);
+    assert(facts_registers.find("REGISTRES") != std::string::npos);
+
     const auto option_parenthesis = help.load_for_terminal("oi(");
     assert(option_parenthesis.find("OI(") != std::string::npos);
 
@@ -199,6 +205,7 @@ int main() {
     assert(std::find(topics.begin(), topics.end(), "*") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "b") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "fb") != topics.end());
+    assert(std::find(topics.begin(), topics.end(), "fn") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "fo") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "jm") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "jp") != topics.end());

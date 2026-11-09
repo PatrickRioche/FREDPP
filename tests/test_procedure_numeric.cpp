@@ -112,6 +112,19 @@ int main() {
     }
 
     {
+        const auto result = run_case(0, {
+            "N(zeta):10",
+            "N(alpha):-3",
+            "N(empty):0",
+            "FN",
+        });
+        assert(result.output ==
+               "n(alpha):-3\n"
+               "n(empty):0\n"
+               "n(zeta):10\n");
+    }
+
+    {
         const auto result = run_case(1, {
             "N(np):$>0 J(param)T",
             "JM/SHOULD-NOT-PRINT/",

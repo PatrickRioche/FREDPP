@@ -1,5 +1,6 @@
 #include "fred/runtime/ExecutionContext.hpp"
 
+#include <algorithm>
 #include <utility>
 
 namespace fred {
@@ -65,6 +66,16 @@ bool ExecutionContext::has_numeric_register(
     std::string_view name) const {
     return numeric_registers_.find(std::string(name)) !=
            numeric_registers_.end();
+}
+
+std::vector<std::string> ExecutionContext::numeric_register_names() const {
+    std::vector<std::string> names;
+    names.reserve(numeric_registers_.size());
+    for (const auto& entry : numeric_registers_) {
+        names.push_back(entry.first);
+    }
+    std::sort(names.begin(), names.end());
+    return names;
 }
 
 void ExecutionContext::set_condition(bool value) noexcept {

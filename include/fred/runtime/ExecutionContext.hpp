@@ -8,6 +8,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <vector>
 
 namespace fred {
 
@@ -97,6 +98,14 @@ public:
     /** @return true when an exact register name is present. */
     [[nodiscard]] bool has_numeric_register(
         std::string_view name) const;
+
+    /**
+     * @return Names of all created numeric registers in ascending order.
+     *
+     * @note An empty result means no registers have been created. The result
+     *       is a snapshot and does not expose mutable internal storage.
+     */
+    [[nodiscard]] std::vector<std::string> numeric_register_names() const;
 
     /** Sets the shared true/false condition used by conditional procedure jumps. */
     void set_condition(bool value) noexcept;

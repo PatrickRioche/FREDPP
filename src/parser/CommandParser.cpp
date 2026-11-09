@@ -171,7 +171,7 @@ CommandParser::CommandParser(TokenStream& tokens,
  * @brief Parses one complete command under the current trailing-command policy.
  *
  * The method first parses an optional address/`*` alias, normalizes supported
- * compact spellings (QQ, WA/WU/WB, FB/FF/FO/F?, JM/JP, Bx, ZG, ZK), then
+ * compact spellings (QQ, WA/WU/WB, FB/FF/FN/FO/F?, JM/JP, Bx, ZG, ZK), then
  * constructs the appropriate AST. Special symbols `=` and `"` are parsed
  * without registry lookup. Any exception rewinds the TokenStream to the entry
  * mark.
@@ -221,9 +221,11 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                            : second == 'U' ? FileWriteMode::Utf8
                                            : FileWriteMode::BcdUnsupported;
             } else if (first == 'F' &&
-                       (second == 'B' || second == 'F' || second == 'O')) {
+                       (second == 'B' || second == 'F' ||
+                        second == 'N' || second == 'O')) {
                 facts_kind = second == 'B' ? FactsKind::Buffers
                            : second == 'F' ? FactsKind::Files
+                           : second == 'N' ? FactsKind::Registers
                                            : FactsKind::Options;
                 command.type = TokenType::Command;
                 command.lexeme = "F";

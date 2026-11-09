@@ -1,11 +1,20 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- **v0.0.29 — 29/103 commandes (28,2 %) :** commande historique `FN`
+  disponible : impression des registres numériques déjà créés, triés par nom,
+  au format `n(nom):valeur` (zéro et valeurs négatives inclus) ; aucune mutation
+  des registres, du buffer, du compteur ou de la condition ; tests du parseur,
+  de l'exécution et des procédures, aide `?fn`, guide français des 29 commandes ;
+  **v0.0.28 validée sous Windows : 57/57 tests réussis en 51,17 s** ;
+  aucune modification de `main` ; prochain tag de jalon à 30 commandes,
+  directement sur `dev` et sans release automatique ;
+
 - **v0.0.28 — 28/103 commandes (27,2 %) :** commande historique `F`
   disponible : consultation des attributs du buffer courant ou changement de
   l'association à un fichier, sans lecture/écriture ni remise à zéro du marqueur
   de modification ; chemins avec espaces, tests de parseur/exécution/aide,
   référence `?f` embarquée, guide français des 28 commandes ; validation
-  Windows de cette version attendue, sans release ni modification de `main` ;
+  Windows de cette version réussie (57/57 tests, 51,17 s), sans release ni modification de `main` ;
 
 - **v0.0.27 — 27/103 commandes (26,2 %) :** ajout de la commande historique
   `F?` (buffer courant et autres buffers modifiés, association de fichier

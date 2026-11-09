@@ -64,6 +64,14 @@ int main() {
     }
 
     {
+        const auto node = parse("Fn");
+        assert(node->kind() == fred::AstNodeKind::FactsCommand);
+        const auto& facts =
+            static_cast<const fred::FactsCommandNode&>(*node);
+        assert(facts.facts() == fred::FactsKind::Registers);
+    }
+
+    {
         const auto node = parse("f?");
         assert(node->kind() == fred::AstNodeKind::FactsCommand);
         const auto& facts = static_cast<const fred::FactsCommandNode&>(*node);
@@ -82,6 +90,40 @@ int main() {
     // With no associated files, FF must be silent and leave state untouched.
     execute("FF", executor, context);
     assert(output.content().empty());
+
+    // FN has no header or placeholder when no register was ever created.
+    execute("FN", executor, context);
+    assert(output.content().empty());
+
+    // FN lists created registers, including zeros, in name order. It neither
+    // creates missing registers nor changes their values or procedure state.
+    context.set_numeric_register("zeta", -17);
+    context.set_numeric_register("alpha", 0);
+    context.set_numeric_register("middle", 42);
+    context.set_counter(99);
+    context.set_condition(true);
+    const auto initial_name = buffers.current().name();
+    const auto initial_cursor = buffers.current().current_line();
+    execute("fn", executor, context);
+    assert(output.content() ==
+           "n(alpha):0\n"
+           "n(middle):42\n"
+           "n(zeta):-17\n");
+    assert(context.numeric_register_names().size() == 3);
+    assert(!context.has_numeric_register("missing"));
+    assert(context.numeric_register("zeta") == -17);
+    assert(context.counter() == 99);
+    assert(context.condition());
+    assert(buffers.current().name() == initial_name);
+    assert(buffers.current().current_line() == initial_cursor);
+    output.clear();
+    context.set_numeric_register("middle", -1);
+    execute("FN", executor, context);
+    assert(output.content() ==
+           "n(alpha):0\n"
+           "n(middle):-1\n"
+           "n(zeta):-17\n");
+    output.clear();
 
     execute("FO", executor, context);
     assert(output.content() == "o+i(\no-m\n");
