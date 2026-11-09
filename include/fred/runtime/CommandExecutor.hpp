@@ -42,11 +42,14 @@ public:
     /**
      * @brief Executes A after its text lines have been collected.
      *
+     * @param command Parsed append command with an optional single-line address.
+     * @param context Mutable Buffer selection and Runtime services.
      * @param lines Lines inserted after the evaluated/default append position;
      *        ownership is transferred by value.
      *
      * @note Default A position is historical `$`. Absolute address 0 is
      *       explicitly accepted as insertion before the first line.
+     * @throws CommandExecutionError if the insertion address is invalid.
      */
     void execute_append(const AppendCommandNode& command,
                         ExecutionContext& context,
@@ -57,6 +60,11 @@ public:
      *
      * Default insertion is before the current line; on an empty Buffer the
      * insertion position is 0. Absolute 0 is also accepted explicitly.
+     *
+     * @param command Parsed insert command with an optional single-line address.
+     * @param context Mutable Buffer selection and Runtime services.
+     * @param lines Text lines to insert, transferred by value.
+     * @throws CommandExecutionError if the insertion address is invalid.
      */
     void execute_insert(const InsertCommandNode& command,
                         ExecutionContext& context,
@@ -68,6 +76,11 @@ public:
      * The original inclusive range is erased first. If `lines` is empty the
      * change acts as deletion; otherwise replacement lines are inserted where
      * the erased range began.
+     *
+     * @param command Parsed change command with its optional address/range.
+     * @param context Mutable Buffer selection and Runtime services.
+     * @param lines Replacement lines, transferred by value.
+     * @throws CommandExecutionError if the addressed range is invalid.
      */
     void execute_change(const ChangeCommandNode& command,
                         ExecutionContext& context,

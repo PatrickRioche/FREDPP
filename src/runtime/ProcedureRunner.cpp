@@ -692,6 +692,8 @@ void ProcedureRunner::execute_single_command(
         return;
     }
 
+    // O+M traces the expanded procedure command before parsing/execution.
+    // Historical comment lines remain silent even while monitoring is active.
     if (context_->monitor_commands() && !is_comment(raw_value)) {
         context_->output().write_line(raw_value);
     }

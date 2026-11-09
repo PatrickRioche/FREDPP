@@ -171,8 +171,10 @@ CommandParser::CommandParser(TokenStream& tokens,
  * @brief Parses one complete command under the current trailing-command policy.
  *
  * The method first parses an optional address/`*` alias, normalizes supported
- * compact spellings (QQ, WA/WU/WB, FB/FF/FO, JM/JP, Bx, ZG), then constructs the
- * appropriate AST. Any exception rewinds the TokenStream to the entry mark.
+ * compact spellings (QQ, WA/WU/WB, FB/FF/FO, JM/JP, Bx, ZG, ZK), then
+ * constructs the appropriate AST. Special symbols `=` and `"` are parsed
+ * without registry lookup. Any exception rewinds the TokenStream to the entry
+ * mark.
  */
 std::unique_ptr<CommandNode> CommandParser::parse() {
     const auto mark = tokens_->position();
@@ -423,6 +425,8 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                                  address->location());
             }
 
+            // Both implemented O options use an explicit +/- state. OI( also
+            // requires a literal '(' as part of the option name, not a value.
             const auto sign = tokens_->consume();
             if (sign.type != TokenType::Symbol ||
                 (sign.lexeme != "+" && sign.lexeme != "-")) {
@@ -493,6 +497,8 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
 
         if (mnemonic == 'Z') {
             if (zap_copy) {
+                // ZK is an insert-after-target-copy, distinct from K's
+                // replace-destination behavior and ZG's output capture.
                 if (tokens_->peek().type != TokenType::LeftParenthesis) {
                     throw ParseError("ZK requires a destination buffer",
                                      tokens_->peek().location);

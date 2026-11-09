@@ -173,8 +173,10 @@ private:
 /**
  * @brief Historical K command: copy addressed lines into a named Buffer.
  *
- * The destination's previous content is replaced while the source lines are
- * preserved. This node owns syntax only; Runtime performs the transfer.
+ * The destination's previous content is replaced. When source and destination
+ * are different Buffers, source text is preserved. When they are the same
+ * Buffer, the selected lines replace that Buffer's entire previous content.
+ * This node owns syntax only; Runtime performs the copy.
  */
 class CopyCommandNode final : public CommandNode {
 public:
@@ -239,7 +241,13 @@ private:
     bool inverted_{};
 };
 
-/** @brief `B` buffer-selection command AST. */
+/**
+ * @brief Selects or creates a named Buffer through historical B syntax.
+ *
+ * The parser records whether a compact one-character name was used. Runtime
+ * rejects that short form while the O+I( option requires parenthesized names;
+ * this AST does not itself change the selected Buffer.
+ */
 class BufferCommandNode final : public CommandNode {
 public:
     /**
@@ -328,7 +336,12 @@ private:
     std::unique_ptr<CommandNode> nested_command_;
 };
 
-/** @brief `Z` command AST. */
+/**
+ * @brief Selects the addressed line as the current cursor position.
+ *
+ * Z accepts at most one line address and does not modify the Buffer's text.
+ * An absent address resolves to the current line.
+ */
 class ZapCommandNode final : public CommandNode {
 public:
     using CommandNode::CommandNode;
@@ -420,7 +433,13 @@ private:
     std::string command_;
 };
 
-/** @brief `S` substitute-command AST. */
+/**
+ * @brief Holds the pattern, replacement and optional print suffix for S.
+ *
+ * Runtime substitutes all matches on each addressed line. An unescaped `&`
+ * in the replacement reproduces the matched text; a backslash quotes the
+ * following character. A command with no pattern match reports an error.
+ */
 class SubstituteCommandNode final : public CommandNode {
 public:
     /**
@@ -576,19 +595,24 @@ private:
     bool newline_{};
 };
 
-/** @brief Implemented `F` query selector. */
+/** @brief Selects one of the implemented read-only F information queries. */
 enum class FactsKind {
-    /** FB: buffer facts. */
+    /** FB: recently selected Buffers in MRU order, including cursor/count. */
     Buffers,
 
-    /** FF: buffers associated with files. */
+    /** FF: only file-associated Buffers, sorted by Buffer name. */
     Files,
 
-    /** FO: option facts. */
+    /** FO: currently effective input-parenthesis and monitor options. */
     Options
 };
 
-/** @brief `FB`, `FF` or `FO` AST. */
+/**
+ * @brief `FB`, `FF` or `FO` query without a line address or Buffer mutation.
+ *
+ * The selected query determines the output format and ordering; the AST only
+ * records the query kind, not a snapshot of Runtime state.
+ */
 class FactsCommandNode final : public CommandNode {
 public:
     FactsCommandNode(FactsKind facts,
@@ -607,14 +631,20 @@ private:
 
 /** @brief Option selector currently recognized by CommandParser. */
 enum class OptionKind {
-    /** O+I( / O-I( input-parenthesis option. */
+    /** O+I( requires parentheses in B names; O-I( permits compact names. */
     InputParenthesis,
 
-    /** O+M / O-M monitor option. */
+    /** O+M traces procedure commands; O-M disables that monitoring. */
     Monitor
 };
 
-/** @brief `O` option-change AST for currently implemented options. */
+/**
+ * @brief Changes one supported O option in the shared ExecutionContext.
+ *
+ * The `+` source spelling enables an option and `-` disables it. O does not
+ * accept a line address or directly edit Buffer text. FO reports the resulting
+ * option state; monitoring is applied by the procedure runner.
+ */
 class OptionCommandNode final : public CommandNode {
 public:
     OptionCommandNode(OptionKind option,

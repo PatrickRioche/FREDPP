@@ -1,5 +1,11 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- audit documentaire des **26 commandes** prises en charge : correction des
+  contrats de commentaires de `P`, `=`, `K`, précisions sur `B`, `FB`/`FF`/`FO`,
+  `S`, `Z`, `OI(`, `OM` et harmonisation des commentaires du parseur, du moteur
+  d'exécution et des procédures ; **aucun changement de logique exécutable**,
+  version de développement **0.0.26 conservée**, sans release ;
+
 - commande spéciale historique `=` : impression du numéro de la ligne
   courante, ou de celui d'une adresse unique (ex. `2=`, `$=`), sans déplacer
   le curseur et sans modifier les registres ou le buffer ; `0` sur un buffer

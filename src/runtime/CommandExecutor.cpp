@@ -32,19 +32,27 @@ namespace fred {
 namespace {
 
 /**
- * @brief Executes P and advances the current line to the last printed line.
+ * @brief Prints the addressed or current line number for historical `=`.
+ *
+ * Without an address, the current cursor is printed (0 for an empty Buffer).
+ * An explicit address must resolve to one existing line. Neither form moves
+ * the cursor, edits text, or changes the condition/counter registers.
  */
 void execute_line_number(const LineNumberCommandNode& command,
                          ExecutionContext& context) {
     const auto& buffer = context.current_buffer();
-    // The unaddressed historical '=' prints the cursor, including 0 for an
-    // empty buffer; addressed '=' validates an existing single line.
     const auto line = command.address()
         ? AddressEvaluator{}.evaluate(command.address(), buffer).first
         : buffer.current_line();
     context.output().write_line(std::to_string(line));
 }
 
+/**
+ * @brief Prints the addressed lines for P and selects the final printed line.
+ *
+ * The text and modified state remain unchanged; invalid addresses are
+ * rejected by AddressEvaluator before any line is printed.
+ */
 void execute_print(const PrintCommandNode& command, ExecutionContext& context) {
     auto& buffer = context.current_buffer();
     const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
@@ -528,10 +536,12 @@ Buffer::LineNumber evaluate_insert_position(const InsertCommandNode& command,
 /**
  * @brief Copies addressed source lines into a destination Buffer (historical K).
  *
- * K replaces the previous destination content but leaves the source text and
- * modified flag intact. The source cursor becomes the last copied line; the
- * receiver cursor becomes its new last line. A same-Buffer copy uses a snapshot
- * before replacing content so overlapping addresses cannot corrupt the copy.
+ * K replaces the destination content. For different source/destination Buffers,
+ * source text and its modified flag are preserved, the source cursor moves to
+ * the last copied line, and the destination cursor moves to its last new line.
+ * Copying into the same Buffer instead replaces that Buffer's entire content
+ * with the selected lines and marks it modified. In both cases source
+ * lines are snapshotted before the destination is changed.
  */
 void execute_copy(const CopyCommandNode& command,
                   ExecutionContext& context) {
@@ -633,6 +643,12 @@ void execute_test(const TestCommandNode& command, ExecutionContext& context) {
 
 
 
+/**
+ * @brief Expands a matched S replacement using FREDPP's current rules.
+ *
+ * An unescaped `&` inserts the matched text. A backslash quotes the next
+ * replacement character, including `&` and a literal backslash.
+ */
 std::string expand_substitution_replacement(std::string_view replacement,
                                             std::string_view matched_text) {
     std::string result;
@@ -649,6 +665,13 @@ std::string expand_substitution_replacement(std::string_view replacement,
     return result;
 }
 
+/**
+ * @brief Replaces every match on one line without changing the original text.
+ *
+ * Returns std::nullopt only if no match was found. Even zero-length matches
+ * advance the search to prevent infinite loops; a same-text replacement still
+ * counts as a match under the current S command semantics.
+ */
 std::optional<std::string> substitute_all(const PatternNode& pattern,
                                           std::string_view replacement,
                                           std::string_view text) {
@@ -733,6 +756,12 @@ void execute_substitute(const SubstituteCommandNode& command,
     }
 }
 
+/**
+ * @brief Formats one FB entry: name, cursor, line count, file and modified flag.
+ *
+ * FB only iterates Buffers in the selection-history list; a Buffer created
+ * without ever being selected need not appear in its output.
+ */
 std::string describe_buffer(const Buffer& buffer) {
     std::string result =
         "b(" + buffer.name() + ") " +
@@ -748,8 +777,14 @@ std::string describe_buffer(const Buffer& buffer) {
     return result;
 }
 
+/**
+ * @brief Formats an FF entry for a Buffer known to have a file association.
+ *
+ * Unlike FB, FF omits cursor/line count and lists only the associated path,
+ * followed by `?` when the Buffer is modified.
+ * @pre buffer.associated_file() must contain a filename.
+ */
 std::string describe_file_association(const Buffer& buffer) {
-    // FF omits unassociated buffers and buffer position information, unlike FB.
     std::string result = "b(" + buffer.name() + ") " +
                          *buffer.associated_file();
     if (buffer.modified()) {
@@ -758,6 +793,14 @@ std::string describe_file_association(const Buffer& buffer) {
     return result;
 }
 
+/**
+ * @brief Executes the read-only FB, FF and FO information queries.
+ *
+ * FB uses most-recently-selected Buffer order; FF examines every owned Buffer
+ * but prints only file-associated entries in name order. FO prints the active
+ * OI( and OM states. These queries do not select Buffers, move cursors, or
+ * change editor contents.
+ */
 void execute_facts(const FactsCommandNode& command,
                    ExecutionContext& context) {
     switch (command.facts()) {
@@ -789,6 +832,12 @@ void execute_facts(const FactsCommandNode& command,
     }
 }
 
+/**
+ * @brief Applies O+I(/O-I( or O+M/O-M to shared Runtime options.
+ *
+ * OI( controls acceptance of B's compact names; OM enables/disables procedure
+ * command monitoring performed by ProcedureRunner. No Buffer is edited here.
+ */
 void execute_option(const OptionCommandNode& command,
                     ExecutionContext& context) {
     switch (command.option()) {
@@ -859,6 +908,12 @@ void execute_zap_copy(const ZapCopyCommandNode& command,
     }
 }
 
+/**
+ * @brief Moves the current-line cursor to Z's single resolved line.
+ *
+ * Ranges are invalid. Z does not delete or overwrite any line and does not
+ * alter the buffer's modified state.
+ */
 void execute_zap(const ZapCommandNode& command, ExecutionContext& context) {
     auto& buffer = context.current_buffer();
     const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
@@ -1029,11 +1084,18 @@ void execute_zap_gather(const ZapGatherCommandNode& command,
     destination.insert_after(destination.current_line(), std::move(lines));
 }
 
+/** @brief Ignores the rest-of-line historical `"` comment at Runtime. */
 void execute_comment(const CommentCommandNode&,
                      ExecutionContext&) noexcept {
     // Historical FRED comments are intentionally a runtime no-op.
 }
 
+/**
+ * @brief Writes JM with a trailing newline or JP without one.
+ *
+ * Both spellings enforce the historical 2000-character expanded-message limit
+ * and do not modify any editor Buffer.
+ */
 void execute_message(const MessageCommandNode& command,
                      ExecutionContext& context) {
     const std::string& expanded = command.message();
@@ -1050,6 +1112,12 @@ void execute_message(const MessageCommandNode& command,
     }
 }
 
+/**
+ * @brief Selects or creates the B destination without modifying its text.
+ *
+ * A compact one-character B form is refused when O+I( requires parentheses;
+ * the normal parenthesized form is unaffected by that option.
+ */
 void execute_buffer(const BufferCommandNode& command, ExecutionContext& context) {
     if (command.short_form() && context.input_parentheses_required()) {
         throw CommandExecutionError("buff/reg name invalid");
