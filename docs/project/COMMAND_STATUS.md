@@ -2,6 +2,11 @@
 
 Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/reference/commandes/` restent inchangées et seules celles des commandes disponibles sont embarquées.
 
+Pour un emploi pratique des **26 commandes effectivement disponibles en
+v0.0.26** (syntaxe, effet, exemple, limites), consulter le
+[guide des commandes de FREDPP 0.0.26](../fr/fredpp/guide-commandes-0.0.26.md).
+Il complète les fiches historiques embarquées dans l'aide sans les altérer.
+
 ## Couverture de la référence historique
 
 | Famille | Total référence | Implémenté / homologué | Reste |

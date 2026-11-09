@@ -1,5 +1,10 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- ajout d'un guide pratique français des **26 commandes** de FREDPP 0.0.26
+  (syntaxe prise en charge, exemples, effets et limites), relié au README
+  et au suivi des commandes ; références historiques conservées sans changement
+  de l'exécution ni du numéro de version ;
+
 - correction des assertions obsolètes de `test_command_parser` pour les noms de
   fichiers entre guillemets de `R` (conservés dans l'AST puis normalisés lors
   de la lecture) et pour les 19 commandes enregistrées, dont `K` ; tests

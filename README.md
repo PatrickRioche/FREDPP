@@ -44,6 +44,11 @@ Inside FREDPP:
 
 Only the French documentation of implemented FRED commands is embedded. The source files under `docs/fr/reference/commandes/` are not modified by the build.
 
+For the actual syntax, supported behavior, examples and limitations of all
+**26 commands in v0.0.26**, use the [French practical command guide](docs/fr/fredpp/guide-commandes-0.0.26.md).
+The embedded `?commande` pages preserve the historical reference and may
+describe forms that FREDPP has not implemented yet.
+
 ## Historical lineage
 
 QED → Multics QED → FRED → FREDPP
