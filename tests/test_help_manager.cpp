@@ -18,6 +18,8 @@ int main() {
     assert(help.exists("fb"));
     assert(help.exists("ff"));
     assert(help.exists("fn"));
+    assert(help.exists("n:"));
+    assert(help.exists("ncolon"));
     assert(help.exists("fq"));
     assert(help.exists("f?"));
     assert(help.exists("="));
@@ -47,6 +49,8 @@ int main() {
     assert(index.find("    ?f ") != std::string::npos);
     assert(index.find("    ?ff") != std::string::npos);
     assert(index.find("    ?fn") != std::string::npos);
+    assert(index.find("    ?n:") != std::string::npos);
+    assert(index.find("    ?ncolon") == std::string::npos);
     assert(index.find("    ?f?") != std::string::npos);
     assert(index.find("    ?fq") == std::string::npos);
     assert(index.find("    ?=") != std::string::npos);
@@ -150,6 +154,11 @@ int main() {
     assert(facts_registers.find("FN") != std::string::npos);
     assert(facts_registers.find("REGISTRES") != std::string::npos);
 
+    const auto numeric_assignment = help.load_for_terminal("N:");
+    assert(numeric_assignment.find("AFFECTATION DE VALEUR") !=
+           std::string::npos);
+    assert(help.load_for_terminal("ncolon") == numeric_assignment);
+
     const auto option_parenthesis = help.load_for_terminal("oi(");
     assert(option_parenthesis.find("OI(") != std::string::npos);
 
@@ -206,6 +215,7 @@ int main() {
     assert(std::find(topics.begin(), topics.end(), "b") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "fb") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "fn") != topics.end());
+    assert(std::find(topics.begin(), topics.end(), "ncolon") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "fo") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "jm") != topics.end());
     assert(std::find(topics.begin(), topics.end(), "jp") != topics.end());

@@ -43,6 +43,7 @@ namespace fred {
  * - addressed nested commands inside G and ZG are rejected;
  * - Q! external TSS command support is not implemented;
  * - F file association and F/FB/FF/FN/FO/F? queries are implemented;
+ * - N(name):value assigns a numeric register in interactive/procedure input;
  * - only OI( and OM option forms are implemented;
  * - J messages are limited to the historical 2000-character maximum;
  * - WB is represented as FileWriteMode::BcdUnsupported.

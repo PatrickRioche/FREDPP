@@ -15,10 +15,10 @@ conservent leurs horodatages originaux en UTC.
 
 | Élément | État vérifié |
 |---|---|
-| Version du projet | `0.0.29` (développement ; 29/103 commandes, `FN` ajouté) |
+| Version du projet | `0.0.30` (développement ; 30/103 commandes, `N:` ajouté) |
 | Branche active | `dev` |
-| Dernier lot fonctionnel | `FN` : affichage trié des registres numériques existants, prêt pour validation Windows |
-| État des tests | `0.0.28` : **57/57 tests Windows 11 réussis** le 9 novembre 2026 (51,17 s) après compilation MSVC Debug ; `0.0.29` : trois tests C++20 ciblés Linux réussis, suite Windows attendue |
+| Dernier lot fonctionnel | `N:` : affectation d'un registre numérique en mode interactif, lisible avec `FN`, prêt pour validation Windows |
+| État des tests | `0.0.28` : **57/57 tests Windows 11 réussis** (51,17 s) ; `0.0.29` : **57/57 tests Windows 11 réussis** (108,55 s) le 9 novembre 2026 ; `0.0.30` : tests C++20 ciblés Linux, suite Windows attendue |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
 | Dernière CI Windows/MSVC ciblée | [Exécution 42533608679 réussie : 20/20 Release, 3/3 Debug `=`, régressions et scripts verts](https://github.com/PatrickRioche/FREDPP/actions/runs/42533608679) |
@@ -28,7 +28,7 @@ conservent leurs horodatages originaux en UTC.
 | Validation locale Windows 11 — R (liste de fichiers) | Confirmée par l'utilisateur : `test_file_io` 1/1, CTest total 1,53 s |
 | Validation locale Windows 11 — FF | Confirmée par l'utilisateur : `test_facts` et `test_help_manager`, 2/2, CTest total 0,04 s ; commit `afe0d0f` |
 | Homologation historique complète | Reportée |
-| Nouvelle release officielle | Aucune ; pas de fusion dans `main` ; tag de jalon `dev-0.0.30` prévu sur `dev` après validation, puis tous les 10 ajouts |
+| Nouvelle release officielle | Aucune ; pas de fusion dans `main` ; tag de jalon `dev-0.0.30` prévu sur `dev` **après validation Windows de la v0.0.30 par l'utilisateur**, puis tous les 10 ajouts |
 
 ## Chronologie des commits (ordre chronologique)
 
@@ -58,8 +58,29 @@ conservent leurs horodatages originaux en UTC.
 | 09/11/2026 | Lot `F?` sur [`dev`](https://github.com/PatrickRioche/FREDPP/commits/dev/) | Buffer courant et autres buffers modifiés ; aide `?f?`, tests ciblés et passage à `0.0.27` |
 | 09/11/2026 | Lot `F` sur [`dev`](https://github.com/PatrickRioche/FREDPP/commits/dev/) | Consultation du buffer courant, association du fichier, aide `?f`, tests ciblés et passage à `0.0.28` |
 | 09/11/2026 | Lot `FN` sur [`dev`](https://github.com/PatrickRioche/FREDPP/commits/dev/) | Liste des registres numériques créés, aide `?fn`, tests et passage à `0.0.29` |
+| 09/11/2026 | Lot `N:` sur [`dev`](https://github.com/PatrickRioche/FREDPP/commits/dev/) | Affectation interactive des registres numériques, aide `?n:`, tests et passage à `0.0.30` ; tag conditionné à la validation Windows |
 
 ## Détails des lots et des validations
+
+### Lot N: — affectation d'un registre numérique (9 novembre 2026)
+
+- **Référence :** `docs/fr/reference/commandes/ncolon.md`, conservée intacte.
+- **Analyse syntaxique :** `N(nom):valeur` et `n(nom):valeur` dans le terminal,
+  nom non vide de 14 caractères maximum et valeur entière décimale signée
+  sur 64 bits ; `#` (compteur), `.` (ligne courante) et `$` (dernière ligne)
+  sont aussi reconnus. Les adresses de ligne et les opérateurs distincts
+  `N=`, `N<`, `N>` restent indisponibles dans le parseur interactif.
+- **Exécution :** création ou modification du registre, compteur mis à la
+  valeur affectée ; aucune mutation du contenu, du curseur, de la sélection
+  ou de la condition. `FN` liste immédiatement le nouveau registre.
+- **Régression :** le moteur de procédures conserve ses opérateurs numériques
+  existants, sans ajout artificiel de commande historique dans l'inventaire.
+- **Aide :** `?n:` charge la fiche historique ; guide français des 30 commandes.
+- **Couverture :** 30/103 commandes (29,1 %), version `0.0.30`.
+- **Validation :** tests C++20 du parseur, de l'exécution interactive et de
+  régression des procédures ; test CLI interactif ajouté ; compilation et
+  **58 tests Windows/MSVC** à confirmer par l'utilisateur avant
+  la création du tag `dev-0.0.30` sur `dev`. `main` reste inchangée.
 
 ### Lot FN — liste des registres numériques (9 novembre 2026)
 
@@ -74,7 +95,7 @@ conservent leurs horodatages originaux en UTC.
   français des 29 commandes expose les usages et leurs limites.
 - **Validation :** tests de parsing, d'exécution et d'invocation depuis une
   procédure passés avec g++ C++20 ; tests d'aide étendus ; suite Windows/MSVC
-  attendue.
+  **57/57 réussis le 9 novembre 2026 en 108,55 s**.
 - **Jalons Git :** pas de tag pour 29 ; à 30 commandes validées, création du
   tag `dev-0.0.30` directement sur la tête de `dev` sans toucher à `main`,
   puis tous les dix ajouts. Le flux de release `v*` est distinct.

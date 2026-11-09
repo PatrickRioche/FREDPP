@@ -1,0 +1,4 @@
+N(beta):10
+N(alpha):5
+FN
+QQ

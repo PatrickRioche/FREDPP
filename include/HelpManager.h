@@ -67,6 +67,7 @@ public:
      * - lowercase bytes using std::tolower;
      * - empty, `h` and `help` become `index`.
      * - the literal historical `f?` spelling becomes the `fq` page key.
+     * - the historical `n:` spelling becomes the `ncolon` page key.
      *
      * @return Canonical lookup key.
      */

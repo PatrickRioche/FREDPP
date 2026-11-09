@@ -22,6 +22,7 @@
 #include <fstream>
 #include <sstream>
 #include <iterator>
+#include <limits>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -880,6 +881,40 @@ void execute_facts(const FactsCommandNode& command,
 }
 
 /**
+ * @brief Resolves and applies one historical N: register assignment.
+ *
+ * Matching the procedure numeric behavior, an assignment updates the shared
+ * counter to the stored register value while leaving condition and Buffer
+ * state unchanged. Only the parsed N: operation reaches this function.
+ */
+void execute_numeric_assignment(const NumericAssignmentCommandNode& command,
+                                ExecutionContext& context) {
+    std::int64_t value = command.literal_value();
+    switch (command.value_kind()) {
+    case NumericValueKind::Literal:
+        break;
+    case NumericValueKind::Counter:
+        value = context.counter();
+        break;
+    case NumericValueKind::CurrentLine:
+    case NumericValueKind::LastLine: {
+        const auto line = command.value_kind() == NumericValueKind::CurrentLine
+            ? context.current_buffer().current_line()
+            : context.current_buffer().line_count();
+        if (line > static_cast<std::size_t>(
+                std::numeric_limits<std::int64_t>::max())) {
+            throw CommandExecutionError("numeric line value exceeds signed 64-bit range");
+        }
+        value = static_cast<std::int64_t>(line);
+        break;
+    }
+    }
+
+    context.set_numeric_register(command.name(), value);
+    context.set_counter(value);
+}
+
+/**
  * @brief Reassociates the current Buffer with a filename without file I/O.
  *
  * Historical `F filename` changes only the association. Existing encoding,
@@ -1267,6 +1302,10 @@ void CommandExecutor::execute(const CommandNode& command,
         return;
     case AstNodeKind::FactsCommand:
         execute_facts(static_cast<const FactsCommandNode&>(command), context);
+        return;
+    case AstNodeKind::NumericAssignmentCommand:
+        execute_numeric_assignment(
+            static_cast<const NumericAssignmentCommandNode&>(command), context);
         return;
     case AstNodeKind::FileAssociationCommand:
         execute_file_association(

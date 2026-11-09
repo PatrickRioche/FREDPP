@@ -3,6 +3,7 @@
 #include "fred/ast/AddressNode.hpp"
 #include "fred/ast/PatternNodes.hpp"
 
+#include <cstdint>
 #include <memory>
 #include <optional>
 #include <string>
@@ -636,6 +637,55 @@ public:
 
 private:
     FactsKind facts_;
+};
+
+/** @brief Operand variants accepted by the historical N: assignment. */
+enum class NumericValueKind {
+    /** A signed 64-bit decimal literal. */
+    Literal,
+    /** # refers to the shared procedure counter. */
+    Counter,
+    /** . refers to the selected Buffer's current line number. */
+    CurrentLine,
+    /** $ refers to the selected Buffer's final line number. */
+    LastLine
+};
+
+/**
+ * @brief Historical `N(register):value` numeric-register assignment AST.
+ *
+ * This node contains a validated register name and a parsed operand; Runtime
+ * resolves symbolic operands against the shared state at execution time.
+ * Other historical N operations are intentionally represented separately in
+ * the reference command count and are not accepted by this assignment form.
+ */
+class NumericAssignmentCommandNode final : public CommandNode {
+public:
+    NumericAssignmentCommandNode(std::string name,
+                                 NumericValueKind value_kind,
+                                 std::int64_t literal_value,
+                                 SourceLocation location) noexcept
+        : CommandNode(nullptr, location),
+          name_(std::move(name)),
+          value_kind_(value_kind),
+          literal_value_(literal_value) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::NumericAssignmentCommand;
+    }
+
+    [[nodiscard]] const std::string& name() const noexcept { return name_; }
+    [[nodiscard]] NumericValueKind value_kind() const noexcept {
+        return value_kind_;
+    }
+    [[nodiscard]] std::int64_t literal_value() const noexcept {
+        return literal_value_;
+    }
+
+private:
+    std::string name_;
+    NumericValueKind value_kind_;
+    std::int64_t literal_value_{};
 };
 
 /**

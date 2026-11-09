@@ -177,6 +177,7 @@ void print_command(std::string_view source) {
     case fred::AstNodeKind::CommentCommand: name = "Comment"; break;
     case fred::AstNodeKind::MessageCommand: name = "Message"; break;
     case fred::AstNodeKind::FactsCommand: name = "Facts"; break;
+    case fred::AstNodeKind::NumericAssignmentCommand: name = "NumericAssignment"; break;
     case fred::AstNodeKind::FileAssociationCommand: name = "FileAssociation"; break;
     case fred::AstNodeKind::OptionCommand: name = "Option"; break;
     case fred::AstNodeKind::QuitCommand: name = "Quit"; break;

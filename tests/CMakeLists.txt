@@ -177,6 +177,13 @@ add_test(NAME cli_line_number
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_line_number.cmake"
 )
 
+add_test(NAME cli_numeric_assignment
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_numeric_assignment.cmake"
+)
+
 add_test(NAME cli_test_condition_t
     COMMAND ${CMAKE_COMMAND}
         "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"

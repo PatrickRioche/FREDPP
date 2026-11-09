@@ -215,6 +215,18 @@ CommandRegistry make_core_command_registry() {
         }});
 
     registry.register_command(CommandDescriptor{
+        'N', "Numeric register assignment",
+        [](std::unique_ptr<AddressNode> address, SourceLocation location) {
+            if (address) {
+                throw std::invalid_argument(
+                    "N: does not accept a line address in this version");
+            }
+            // Placeholder only; CommandParser requires N(name):value.
+            return std::make_unique<NumericAssignmentCommandNode>(
+                "", NumericValueKind::Literal, 0, location);
+        }});
+
+    registry.register_command(CommandDescriptor{
         'O', "Option",
         [](std::unique_ptr<AddressNode> address, SourceLocation location) {
             if (address) {

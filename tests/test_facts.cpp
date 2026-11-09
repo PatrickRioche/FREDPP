@@ -277,5 +277,50 @@ int main() {
     assert(!modified_buffers.current().modified());
     execute("F", executor, modified_context);
     assert(modified_output.content() == "b(0) 0,0 next file.txt\n");
+
+    // N: assigns numeric registers from interactive commands, and FN makes
+    // those assignments observable without an enclosing procedure.
+    fred::BufferManager numeric_buffers;
+    fred::StringOutput numeric_output;
+    fred::ExecutionContext numeric_context(numeric_buffers, numeric_output);
+    auto& numeric_buffer = numeric_buffers.current();
+    numeric_buffer.append("first");
+    numeric_buffer.append("second");
+    numeric_buffer.set_current_line(1);
+    const auto selected_numeric_buffer = numeric_buffer.name();
+    const auto numeric_modified = numeric_buffer.modified();
+    numeric_context.set_condition(true);
+
+    execute("N(alpha):5", executor, numeric_context);
+    assert(numeric_context.has_numeric_register("alpha"));
+    assert(numeric_context.numeric_register("alpha") == 5);
+    assert(numeric_context.counter() == 5);
+    execute("n(beta):10", executor, numeric_context);
+    execute("N(gamma):-3", executor, numeric_context);
+    execute("N(copy):#", executor, numeric_context);
+    assert(numeric_context.numeric_register("copy") == -3);
+    execute("N(lines):$", executor, numeric_context);
+    assert(numeric_context.numeric_register("lines") == 2);
+    execute("N(cursor):.", executor, numeric_context);
+    assert(numeric_context.numeric_register("cursor") == 1);
+    execute("N(alpha):0", executor, numeric_context);
+    assert(numeric_context.counter() == 0);
+
+    execute("FN", executor, numeric_context);
+    assert(numeric_output.content() ==
+           "n(alpha):0\n"
+           "n(beta):10\n"
+           "n(copy):-3\n"
+           "n(cursor):1\n"
+           "n(gamma):-3\n"
+           "n(lines):2\n");
+    assert(numeric_buffers.current().name() == selected_numeric_buffer);
+    assert(numeric_buffer.current_line() == 1);
+    assert(numeric_buffer.line_count() == 2);
+    assert(numeric_buffer.line(1) == "first");
+    assert(numeric_buffer.line(2) == "second");
+    assert(numeric_buffer.modified() == numeric_modified);
+    assert(numeric_context.condition());
+    assert(numeric_context.counter() == 0);
     return 0;
 }

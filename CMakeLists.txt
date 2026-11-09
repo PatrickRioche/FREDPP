@@ -9,7 +9,7 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.29 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.30 LANGUAGES CXX)
 
 # Development version contract: the patch number equals the number of
 # historical reference commands recorded as available in COMMAND_STATUS.md.
@@ -122,6 +122,7 @@ set(FREDPP_IMPLEMENTED_HELP_TOPICS
     k
     l
     m
+    ncolon
     p
     q
     r
@@ -162,6 +163,10 @@ foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
         # The historical filename fq.md corresponds to the literal F? command.
         set(help_topic_upper "F?")
         set(help_command "?f?")
+    elseif(help_topic STREQUAL "ncolon")
+        # ncolon.md documents the historical N: assignment spelling.
+        set(help_topic_upper "N:")
+        set(help_command "?n:")
     endif()
     string(LENGTH "${help_command}" help_command_length)
     math(EXPR help_padding_length "12 - ${help_command_length}")

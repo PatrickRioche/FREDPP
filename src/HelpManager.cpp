@@ -299,6 +299,10 @@ std::string HelpManager::normalize_topic(std::string_view topic) {
     if (normalized == "f?") {
         return "fq";
     }
+    // ncolon.md carries the historical N: assignment help page.
+    if (normalized == "n:") {
+        return "ncolon";
+    }
     return normalized;
 }
 

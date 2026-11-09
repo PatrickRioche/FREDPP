@@ -15,10 +15,13 @@
 #include "fred/parser/ParseError.hpp"
 #include "fred/parser/PatternParser.hpp"
 
+#include <charconv>
 #include <cctype>
+#include <cstdint>
 #include <optional>
 #include <sstream>
 #include <string>
+#include <system_error>
 #include <utility>
 #include <vector>
 
@@ -405,6 +408,76 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             require_command_end();
             return std::make_unique<MessageCommandNode>(
                 std::move(message), *message_newline, command.location);
+        }
+
+        if (mnemonic == 'N') {
+            if (address) {
+                throw ParseError(
+                    "N: does not accept a line address in this version",
+                    address->location());
+            }
+            // N: is an assignment; other historical N operators are separate
+            // reference commands and are not claimed by this implementation.
+            const auto opening = tokens_->peek();
+            if (opening.type != TokenType::LeftParenthesis) {
+                throw ParseError("N: requires N(name):value", opening.location);
+            }
+            std::string name = parse_parenthesized_buffer_name();
+            if (name.size() > 14 || name.find('(') != std::string::npos) {
+                throw ParseError("invalid numeric register name (maximum 14 characters)",
+                                 opening.location);
+            }
+
+            const auto colon = tokens_->consume();
+            if (colon.type != TokenType::Symbol || colon.lexeme != ":") {
+                throw ParseError("N: requires ':'", colon.location);
+            }
+
+            NumericValueKind kind = NumericValueKind::Literal;
+            std::int64_t literal = 0;
+            auto operand = tokens_->consume();
+            if (operand.type == TokenType::Symbol &&
+                (operand.lexeme == "+" || operand.lexeme == "-")) {
+                const bool negative = operand.lexeme == "-";
+                const auto number = tokens_->consume();
+                if (number.type != TokenType::Number) {
+                    throw ParseError("N: requires a signed integer after +/-",
+                                     number.location);
+                }
+                const std::string signed_digits =
+                    (negative ? "-" : "") + number.lexeme;
+                const auto* first = signed_digits.data();
+                const auto* last = first + signed_digits.size();
+                const auto result = std::from_chars(first, last, literal);
+                if (result.ec != std::errc{} || result.ptr != last) {
+                    throw ParseError("numeric value is outside supported integer range",
+                                     number.location);
+                }
+            } else if (operand.type == TokenType::Number) {
+                const auto* first = operand.lexeme.data();
+                const auto* last = first + operand.lexeme.size();
+                const auto result = std::from_chars(first, last, literal);
+                if (result.ec != std::errc{} || result.ptr != last) {
+                    throw ParseError("numeric value is outside supported integer range",
+                                     operand.location);
+                }
+            } else if (operand.type == TokenType::Symbol &&
+                       operand.lexeme == "#") {
+                kind = NumericValueKind::Counter;
+            } else if (operand.type == TokenType::Symbol &&
+                       operand.lexeme == ".") {
+                kind = NumericValueKind::CurrentLine;
+            } else if (operand.type == TokenType::Symbol &&
+                       operand.lexeme == "$") {
+                kind = NumericValueKind::LastLine;
+            } else {
+                throw ParseError("N: requires an integer or one of $, . and #",
+                                 operand.location);
+            }
+
+            require_command_end();
+            return std::make_unique<NumericAssignmentCommandNode>(
+                std::move(name), kind, literal, command.location);
         }
 
         if (mnemonic == 'F') {

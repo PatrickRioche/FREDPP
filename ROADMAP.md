@@ -195,19 +195,21 @@ Cette version est un jalon intermédiaire. La prochaine publication binaire est 
 Commandes FRED disponibles :
 
 ```text
-P, L, D, A, B, I, C, F, M, T, G, Z, S, Q, R, W, WA, WU, FB, FF, FN, FO, F?, JM, JP, K, ZK, =
+P, L, D, A, B, I, C, F, M, N:, T, G, Z, S, Q, R, W, WA, WU, FB, FF, FN, FO, F?, JM, JP, K, ZK, =
 ```
 
 Les limites détaillées sont suivies dans `docs/project/COMMAND_STATUS.md`.
 
-**Suivi de `dev` au 9 novembre 2026 :** version `0.0.29` pour **29 commandes
-référencées prises en charge sur 103** (28,2 % de couverture fonctionnelle
-provisoire), incluant `FN` (liste des registres numériques créés),
+**Suivi de `dev` au 9 novembre 2026 :** version `0.0.30` pour **30 commandes
+référencées prises en charge sur 103** (29,1 % de couverture fonctionnelle
+provisoire), incluant `N:` (affectation interactive d'un registre numérique),
+`FN` (liste des registres numériques créés),
 `F` (état et association du fichier du buffer courant),
 `F?` (buffers modifiés), `=` (numéro de ligne), `FF` (buffers associés à des
 fichiers) et les candidats `K` et `ZK` déjà validés sur Windows 11.
-La version `0.0.28` a passé **57/57 tests locaux Windows** le 9 novembre
-(51,17 s). Les tests Windows de la version `0.0.29` restent à confirmer.
+Les versions `0.0.28` et `0.0.29` ont passé **57/57 tests locaux Windows**
+le 9 novembre (respectivement 51,17 s et 108,55 s). Les tests Windows
+de la version `0.0.30` restent à confirmer.
 Chaque nouvelle commande comptabilisée incrémente le dernier nombre de
 la version de développement ; les correctifs internes n'y touchent pas.
 `main` et les releases restent indépendants de ce suivi. À chaque dizaine

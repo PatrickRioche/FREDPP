@@ -10,6 +10,7 @@
 
 #include <cassert>
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <string_view>
 
@@ -71,6 +72,58 @@ int main() {
         const auto& facts = static_cast<const fred::FactsCommandNode&>(*node);
         assert(facts.facts() == fred::FactsKind::Registers);
     }
+    {
+        const auto node = parse("N(alpha):5");
+        assert(node->kind() == fred::AstNodeKind::NumericAssignmentCommand);
+        assert(!node->has_address());
+        const auto& n =
+            static_cast<const fred::NumericAssignmentCommandNode&>(*node);
+        assert(n.name() == "alpha");
+        assert(n.value_kind() == fred::NumericValueKind::Literal);
+        assert(n.literal_value() == 5);
+    }
+    {
+        const auto node = parse("n(min):-9223372036854775808");
+        const auto& n =
+            static_cast<const fred::NumericAssignmentCommandNode&>(*node);
+        assert(n.literal_value() == std::numeric_limits<std::int64_t>::min());
+    }
+    {
+        const auto node = parse("N(max):+9223372036854775807");
+        const auto& n =
+            static_cast<const fred::NumericAssignmentCommandNode&>(*node);
+        assert(n.literal_value() == std::numeric_limits<std::int64_t>::max());
+    }
+    {
+        const auto node = parse("N(last):$");
+        const auto& n =
+            static_cast<const fred::NumericAssignmentCommandNode&>(*node);
+        assert(n.value_kind() == fred::NumericValueKind::LastLine);
+    }
+    {
+        const auto node = parse("N(cur):.");
+        const auto& n =
+            static_cast<const fred::NumericAssignmentCommandNode&>(*node);
+        assert(n.value_kind() == fred::NumericValueKind::CurrentLine);
+    }
+    {
+        const auto node = parse("N(copy):#");
+        const auto& n =
+            static_cast<const fred::NumericAssignmentCommandNode&>(*node);
+        assert(n.value_kind() == fred::NumericValueKind::Counter);
+    }
+    expect_error("N", "N: requires N(name):value");
+    expect_error("N(alpha)=5", "N: requires ':'");
+    expect_error("N(alpha):", "N: requires an integer or one of $, . and #");
+    expect_error("N(alpha):+", "N: requires a signed integer after +/-");
+    expect_error("N(123456789012345):1",
+                 "invalid numeric register name (maximum 14 characters)");
+    expect_error("N(alpha):9223372036854775808",
+                 "numeric value is outside supported integer range");
+    expect_error("N(alpha):-9223372036854775809",
+                 "numeric value is outside supported integer range");
+    expect_error("1N(alpha):5",
+                 "N: does not accept a line address in this version");
     expect_error("1FN", "F does not accept a line address");
     {
         const auto node = parse("*");
@@ -341,7 +394,7 @@ int main() {
     }
     {
         const auto registry = fred::make_core_command_registry();
-        assert(registry.size() == 19);
+        assert(registry.size() == 20);
         assert(registry.contains('P'));
         assert(registry.contains('J'));
         assert(registry.contains('L'));
@@ -354,6 +407,7 @@ int main() {
         assert(registry.contains('K'));
         assert(registry.contains('T'));
         assert(registry.contains('F'));
+        assert(registry.contains('N'));
         assert(registry.contains('G'));
         assert(registry.contains('Z'));
         assert(registry.contains('S'));

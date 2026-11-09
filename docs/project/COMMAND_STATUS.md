@@ -2,9 +2,9 @@
 
 Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/reference/commandes/` restent inchangées et seules celles des commandes disponibles sont embarquées.
 
-Pour un emploi pratique des **29 commandes effectivement disponibles en
-v0.0.29** (syntaxe, effet, exemple, limites), consulter le
-[guide des commandes de FREDPP 0.0.29](../fr/fredpp/guide-commandes-0.0.29.md).
+Pour un emploi pratique des **30 commandes effectivement disponibles en
+v0.0.30** (syntaxe, effet, exemple, limites), consulter le
+[guide des commandes de FREDPP 0.0.30](../fr/fredpp/guide-commandes-0.0.30.md).
 Il complète les fiches historiques embarquées dans l'aide sans les altérer.
 
 ## Couverture de la référence historique
@@ -15,14 +15,14 @@ Il complète les fiches historiques embarquées dans l'aide sans les altérer.
 | Commandes spéciales | 7 | 2 (`\"`, `=`) | 5 |
 | Famille F | 7 | 5 (`FB`, `FF`, `FN`, `FO`, `F?`) | 2 |
 | Famille J | 5 | 2 (`JM`, `JP`) | 3 |
-| Famille N | 21 | 0 | 21 |
+| Famille N | 21 | 1 (`N:`) | 20 |
 | Famille O | 24 | 2 (`OI(`, `OM`) | 22 |
 | Famille Z | 17 | 1 (`ZK`, candidat Windows) | 16 |
-| **Total** | **103** | **29** | **74** |
+| **Total** | **103** | **30** | **73** |
 
-La couverture fonctionnelle provisoire de la référence est de **29 / 103**, soit environ **28,2 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
+La couverture fonctionnelle provisoire de la référence est de **30 / 103**, soit environ **29,1 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
 
-**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **29 commandes = `0.0.29`**. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. La publication stable reste une décision distincte. Un tag de jalon `dev-0.0.30` sera créé sur le commit de `dev` après validation de la 30e commande, sans modifier `main` ; le même principe s'appliquera à chaque dizaine de commandes.
+**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **30 commandes = `0.0.30`**. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. La publication stable reste une décision distincte. Un tag de jalon `dev-0.0.30` sera créé sur le commit de `dev` **après validation Windows par l'utilisateur**, sans modifier `main` ; le même principe s'appliquera à chaque dizaine de commandes.
 
 | Commande | État dans FREDPP | Aide embarquée |
 |---|---|:---:|
@@ -45,6 +45,7 @@ La couverture fonctionnelle provisoire de la référence est de **29 / 103**, so
 | JP | Disponible : message sans retour à la ligne, formes `JP texte` et `JP/texte/` | Oui (`?jp`) |
 | L | Disponible avec un nom de fichier | Oui |
 | M | Disponible sous forme provisoire, réalignement historique requis | Oui |
+| `N:` | Disponible en mode interactif : `N(nom):valeur` affecte un registre numérique (entier signé ou `#`, `.` et `$`) et met à jour le compteur ; les autres opérateurs `N` restent distincts | Oui (`?n:`) |
 | P | Disponible | Oui |
 | Q | Disponible pour `Q` et `QQ`; Q protège désormais les buffers modifiés; `Q!` reporté | Oui |
 | R | Lecture ASCII/UTF-8, insertion adressée et liste ordonnée de fichiers, y compris les noms individuels entre guillemets avec espaces (formes avancées restantes) | Oui |

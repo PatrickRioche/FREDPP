@@ -1,11 +1,23 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- **v0.0.30 — 30/103 commandes (29,1 %) :** commande historique `N:`
+  disponible dans le terminal : `N(nom):valeur` affecte un registre numérique,
+  avec entier signé sur 64 bits ou valeurs dynamiques `#`, `.` et `$` ;
+  mise à jour du compteur et lecture immédiate avec `FN`, sans modifier
+  le buffer ou le registre de condition ; aide historique `?n:` et guide
+  français des 30 commandes, tests de parsing, d'exécution et de session
+  interactive `N:` puis `FN` (suite portée à 58 tests) ;
+  **v0.0.29 validée sous Windows : 57/57 tests réussis en 108,55 s** ;
+  `main` reste inchangée ; tag `dev-0.0.30` seulement après validation
+  de la nouvelle version sur Windows, sans publication automatique ;
+
 - **v0.0.29 — 29/103 commandes (28,2 %) :** commande historique `FN`
   disponible : impression des registres numériques déjà créés, triés par nom,
   au format `n(nom):valeur` (zéro et valeurs négatives inclus) ; aucune mutation
   des registres, du buffer, du compteur ou de la condition ; tests du parseur,
   de l'exécution et des procédures, aide `?fn`, guide français des 29 commandes ;
-  **v0.0.28 validée sous Windows : 57/57 tests réussis en 51,17 s** ;
+  **v0.0.28 et v0.0.29 validées sous Windows : 57/57 tests réussis
+  (51,17 s et 108,55 s)** ;
   aucune modification de `main` ; prochain tag de jalon à 30 commandes,
   directement sur `dev` et sans release automatique ;
 
