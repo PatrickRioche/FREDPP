@@ -124,6 +124,25 @@ int main() {
                "n(zeta):10\n");
     }
 
+    // Procedure-only chained syntax must match interactive N operations.
+    {
+        const auto result = run_case(2, {
+            "N(np):5^2~P",
+            "N(np):7{2}1P",
+            "N(np):7D4F.B2P",
+            "N(np)A P",
+            "N(np)L P",
+            "1,$N(np)L",
+            "N(np)P",
+        });
+        assert(result.output == "-8\n14\n.111\n..10\n..11\n.110\n");
+        assert(result.np == 6 && result.counter == 6);
+    }
+    {
+        const auto result = run_case(0, {"N(np):7D3FxP"});
+        assert(result.output == "xx7\n" && result.np == 7);
+    }
+
     {
         const auto result = run_case(1, {
             "N(np):$>0 J(param)T",

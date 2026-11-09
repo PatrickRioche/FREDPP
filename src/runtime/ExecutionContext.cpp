@@ -1,6 +1,7 @@
 #include "fred/runtime/ExecutionContext.hpp"
 
 #include <algorithm>
+#include <cstdint>
 #include <utility>
 
 namespace fred {
@@ -76,6 +77,58 @@ std::vector<std::string> ExecutionContext::numeric_register_names() const {
     }
     std::sort(names.begin(), names.end());
     return names;
+}
+
+void ExecutionContext::set_numeric_base(
+    std::string_view name, unsigned base) {
+    const std::string key(name);
+    numeric_registers_.try_emplace(key, 0);
+    numeric_formats_[key].base = base;
+}
+
+void ExecutionContext::set_numeric_minimum_digits(
+    std::string_view name, std::size_t digits) {
+    const std::string key(name);
+    numeric_registers_.try_emplace(key, 0);
+    numeric_formats_[key].minimum_digits = digits;
+}
+
+void ExecutionContext::set_numeric_fill_character(
+    std::string_view name, char character) {
+    const std::string key(name);
+    numeric_registers_.try_emplace(key, 0);
+    numeric_formats_[key].fill_character = character;
+}
+
+std::string ExecutionContext::format_numeric_register(
+    std::string_view name) const {
+    const auto value = numeric_register(name);
+    const auto options = numeric_formats_.find(std::string(name));
+    const NumericDisplayOptions defaults;
+    const auto& display = options == numeric_formats_.end()
+        ? defaults : options->second;
+
+    // Convert through unsigned magnitude so INT64_MIN remains representable.
+    std::uint64_t magnitude = value < 0
+        ? static_cast<std::uint64_t>(-(value + 1)) + 1
+        : static_cast<std::uint64_t>(value);
+    std::string digits;
+    constexpr std::string_view alphabet = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    do {
+        digits.push_back(alphabet[magnitude % display.base]);
+        magnitude /= display.base;
+    } while (magnitude != 0);
+    std::reverse(digits.begin(), digits.end());
+
+    if (digits.size() < display.minimum_digits) {
+        digits.insert(digits.begin(),
+                      display.minimum_digits - digits.size(),
+                      display.fill_character);
+    }
+    if (value < 0) {
+        digits.insert(digits.begin(), '-');
+    }
+    return digits;
 }
 
 void ExecutionContext::set_condition(bool value) noexcept {

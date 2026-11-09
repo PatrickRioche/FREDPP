@@ -15,20 +15,21 @@ conservent leurs horodatages originaux en UTC.
 
 | Élément | État vérifié |
 |---|---|
-| Version du projet | `0.0.40` (développement ; 40/103 commandes, dix opérateurs N ajoutés) |
+| Version du projet | `0.0.50` (développement ; 50/103 commandes, famille N complète) |
 | Branche active | `dev` |
-| Dernier lot fonctionnel | `N+`, `N-`, `N*`, `N/`, `N%`, `N=`, `N<`, `N>`, `N&`, `N|` en interactif et procédure ; recette Windows utilisateur attendue |
-| État des tests | `0.0.28` : **57/57 tests Windows 11 réussis** (51,17 s) ; `0.0.29` : **57/57 tests Windows 11 réussis** (108,55 s) ; `0.0.30` : CI Windows réussie (58 tests) ; `0.0.40` : tests C++20 Linux et **60/60 tests CI Windows/MSVC réussis en Release et Debug** ; recette utilisateur à confirmer |
+| Dernier lot fonctionnel | `N~`, `N^`, `N{`, `N}`, `NA`, `NB`, `ND`, `NF`, `NL`, `NP` en interactif et procédures ; recette Windows du lot 41–50 attendue |
+| État des tests | `0.0.28` : **57/57 Windows** ; `0.0.29` : **57/57 Windows** ; `0.0.30` : **58 tests CI Windows** ; `0.0.40` : **60/60 CI Windows/MSVC Release et Debug**, puis **60/60 Windows utilisateur (92,51 s)** ; `0.0.50` : **62/62 Linux C++20**, Windows/MSVC en attente |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
-| Dernière CI Windows/MSVC ciblée | [Exécution 42629499268 réussie pour `0.0.40` : 60 tests Release et 60 tests Debug](https://github.com/PatrickRioche/FREDPP/actions/runs/42629499268), plus scripts PowerShell/batch et régressions ciblées |
+| Dernière CI Windows/MSVC ciblée | [Exécution 42629499268 réussie pour `0.0.40` : 60 tests Release et 60 tests Debug](https://github.com/PatrickRioche/FREDPP/actions/runs/42629499268) ; `0.0.50` à exécuter |
+| Validation locale Windows 11 — lot 31–40 | **60/60 tests réussis en 92,51 s**, puis scénario numérique manuel confirmé et tag `dev-0.0.40` publié |
 | Validation locale Windows 11 — T | Confirmée par l'utilisateur (scénario et CTest 1/1) |
 | Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |
 | Validation locale Windows 11 — ZK | Confirmée (scénario Debug, CTest 2/2 et relance via `test.ps1` 2/2 en 0,55 s) |
 | Validation locale Windows 11 — R (liste de fichiers) | Confirmée par l'utilisateur : `test_file_io` 1/1, CTest total 1,53 s |
 | Validation locale Windows 11 — FF | Confirmée par l'utilisateur : `test_facts` et `test_help_manager`, 2/2, CTest total 0,04 s ; commit `afe0d0f` |
 | Homologation historique complète | Reportée |
-| Nouvelle release officielle | Aucune ; pas de fusion dans `main` ; `dev-0.0.30` publié après validation ; tag `dev-0.0.40` **interdit avant la recette Windows de l'utilisateur** |
+| Nouvelle release officielle | Aucune ; `main` inchangée ; tags `dev-0.0.30` et `dev-0.0.40` publiés ; `dev-0.0.50` seulement après la recette Windows de l'utilisateur |
 
 ## Chronologie des commits (ordre chronologique)
 
@@ -60,8 +61,25 @@ conservent leurs horodatages originaux en UTC.
 | 09/11/2026 | Lot `FN` sur [`dev`](https://github.com/PatrickRioche/FREDPP/commits/dev/) | Liste des registres numériques créés, aide `?fn`, tests et passage à `0.0.29` |
 | 09/11/2026 | Lot `N:` sur [`dev`](https://github.com/PatrickRioche/FREDPP/commits/dev/) | Affectation interactive des registres numériques, aide `?n:`, tests et passage à `0.0.30` ; tag conditionné à la validation Windows |
 | 09/11/2026 | Lot numérique 31–40 préparé pour [`dev`](https://github.com/PatrickRioche/FREDPP/commits/dev/) | Dix opérations supplémentaires de la famille N ; tests C++ et scénario CLI ; version `0.0.40`, sans tag avant la recette Windows |
+| 09/11/2026 | Lot numérique 41–50 préparé pour [`dev`](https://github.com/PatrickRioche/FREDPP/commits/dev/) | Dix dernières opérations N ; présentation personnalisée, comptage UTF-8, tests C++20 et CLI ; version `0.0.50`, tag suspendu à la recette Windows |
 
 ## Détails des lots et des validations
+
+### Lot 41–50 — fin de la famille des registres numériques (9 novembre 2026)
+
+- **Fonctionnalités :** `N~` (complément), `N^` (XOR), `N{` et `N}`
+  (décalages), `NA` (numéro de ligne), `NB` (base 2–36), `ND` (largeur),
+  `NF` (remplissage), `NL` (nombre de points de code UTF-8) et `NP`
+  (impression formatée). `FN` suit également les formats par registre.
+- **Limites explicites :** décalages 0–63, largeur 0–1024, un octet ASCII
+  imprimable pour `NF` ; `NL` exclut les séparateurs de ligne et conserve
+  le curseur. Une valeur/option invalide est refusée sans mutation partielle.
+- **Tests :** compilation C++20 sous Linux et **62/62 CTest réussis** ;
+  couverture spécifique des commandes et des procédures, scénario CLI et
+  vérification de l'aide historique embarquée. Tests Windows/MSVC et recette
+  utilisateur à effectuer après la mise à jour de `dev`.
+- **Gouvernance :** `main` et les tags stables `v*` inchangés ; le tag
+  `dev-0.0.50` attend la confirmation de l'utilisateur.
 
 ### Lot 31–40 — opérations de registres numériques (9 novembre 2026)
 

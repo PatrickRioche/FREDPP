@@ -138,7 +138,12 @@ int main() {
         const auto& n = static_cast<const fred::NumericOperationCommandNode&>(*node);
         assert(n.operation() == fred::NumericOperationKind::BitOr);
     }
-    expect_error("N(alpha)^5", "unsupported N operator");
+    {
+        const auto node = parse("N(alpha)^5");
+        const auto& n = static_cast<const fred::NumericOperationCommandNode&>(*node);
+        assert(n.operation() == fred::NumericOperationKind::BitXor);
+    }
+    expect_error("N(alpha)?5", "unsupported N operator");
     expect_error("N(alpha):", "N: requires an integer or one of $, . and #");
     expect_error("N(alpha):+", "N: requires a signed integer after +/-");
     expect_error("N(123456789012345):1",
@@ -148,7 +153,14 @@ int main() {
     expect_error("N(alpha):-9223372036854775809",
                  "numeric value is outside supported integer range");
     expect_error("1N(alpha):5",
-                 "N: does not accept a line address in this version");
+                 "only NL accepts a line address");
+    {
+        const auto node = parse("1,$N(alpha)L");
+        const auto& n = static_cast<const fred::NumericOperationCommandNode&>(*node);
+        assert(n.operation() == fred::NumericOperationKind::CountCharacters);
+        assert(n.has_address());
+        assert(n.address()->kind() == fred::AstNodeKind::RangeAddress);
+    }
     expect_error("1FN", "F does not accept a line address");
     {
         const auto node = parse("*");

@@ -309,7 +309,8 @@ std::string HelpManager::normalize_topic(std::string_view topic) {
         {"n+", "nplus"}, {"n-", "nminus"}, {"n*", "nmultiply"},
         {"n/", "ndivide"}, {"n%", "nmodulo"}, {"n=", "nequals"},
         {"n<", "nless"}, {"n>", "ngreater"}, {"n&", "nand"},
-        {"n|", "npipe"}
+        {"n|", "npipe"}, {"n~", "ncomplement"},
+        {"n^", "nxor"}, {"n{", "nshiftleft"}, {"n}", "nshiftright"}
     };
     for (const auto& [symbol, file_topic] : numeric_aliases) {
         if (normalized == symbol) {

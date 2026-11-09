@@ -389,8 +389,8 @@ std::int64_t parse_numeric_operand(
 /**
  * @brief Executes the currently implemented `N(register)` operation sequence.
  *
- * Supported operators are `:`, `+`, `-`, `*`, `/`, `%`, `=`, `<`, `>`,
- * `&` and `|`. The returned tail is reserved
+ * Supported operators include arithmetic, bitwise, N(A/B/D/F/L/P) and
+ * formatting queries. The returned tail is reserved
  * for the currently supported same-line J(label)[T|F] continuation.
  */
 std::optional<std::string_view> execute_numeric_sequence(
@@ -428,12 +428,16 @@ std::optional<std::string_view> execute_numeric_sequence(
             break;
         }
 
-        const char operation = value[position];
+        const char operation = static_cast<char>(std::toupper(
+            static_cast<unsigned char>(value[position])));
 
         if (operation != ':' && operation != '+' && operation != '-' &&
             operation != '*' && operation != '/' && operation != '%' &&
             operation != '=' && operation != '<' && operation != '>' &&
-            operation != '&' && operation != '|') {
+            operation != '&' && operation != '|' && operation != '~' &&
+            operation != '^' && operation != '{' && operation != '}' &&
+            operation != 'A' && operation != 'B' && operation != 'D' &&
+            operation != 'F' && operation != 'L' && operation != 'P') {
             break;
         }
 
@@ -442,6 +446,43 @@ std::optional<std::string_view> execute_numeric_sequence(
         while (position < value.size() &&
                std::isspace(static_cast<unsigned char>(value[position])) != 0) {
             ++position;
+        }
+
+        // Route the context-sensitive N commands through the same executor
+        // used by interactive input; procedure syntax may chain them.
+        const auto execute_context_command =
+            [&](NumericOperationKind kind, std::int64_t operand = 0,
+                char fill = '\0') {
+                NumericOperationCommandNode node(
+                    register_name, kind, NumericValueKind::Literal,
+                    operand, {}, SourceLocation{}, nullptr, fill);
+                CommandExecutor{}.execute(node, context);
+            };
+
+        if (operation == '~' || operation == 'A' ||
+            operation == 'L' || operation == 'P') {
+            NumericOperationKind kind = NumericOperationKind::Complement;
+            switch (operation) {
+            case 'A': kind = NumericOperationKind::CurrentLine; break;
+            case 'L': kind = NumericOperationKind::CountCharacters; break;
+            case 'P': kind = NumericOperationKind::Print; break;
+            default: break;
+            }
+            execute_context_command(kind);
+            executed = true;
+            continue;
+        }
+
+        if (operation == 'F') {
+            if (position >= value.size() ||
+                static_cast<unsigned char>(value[position]) < 33 ||
+                static_cast<unsigned char>(value[position]) > 126) {
+                throw CommandExecutionError("NF requires one printable character");
+            }
+            execute_context_command(
+                NumericOperationKind::FillCharacter, 0, value[position++]);
+            executed = true;
+            continue;
         }
 
         if (operation == '|' && position >= value.size()) {
@@ -470,9 +511,19 @@ std::optional<std::string_view> execute_numeric_sequence(
             case '>': kind = NumericOperationKind::Greater; break;
             case '&': kind = NumericOperationKind::BitAnd; break;
             case '|': kind = NumericOperationKind::BitOr; break;
+            case '^': kind = NumericOperationKind::BitXor; break;
+            case '{': kind = NumericOperationKind::ShiftLeft; break;
+            case '}': kind = NumericOperationKind::ShiftRight; break;
+            case 'B': kind = NumericOperationKind::ChangeBase; break;
+            case 'D': kind = NumericOperationKind::MinimumDigits; break;
             default: break;
             }
-            apply_numeric_operation(context, register_name, kind, operand);
+            if (kind == NumericOperationKind::ChangeBase ||
+                kind == NumericOperationKind::MinimumDigits) {
+                execute_context_command(kind, operand);
+            } else {
+                apply_numeric_operation(context, register_name, kind, operand);
+            }
         }
 
         executed = true;

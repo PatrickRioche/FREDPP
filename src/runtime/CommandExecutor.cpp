@@ -862,7 +862,7 @@ void execute_facts(const FactsCommandNode& command,
         for (const auto& name : context.numeric_register_names()) {
             context.output().write_line(
                 "n(" + name + "):" +
-                std::to_string(context.numeric_register(name)));
+                context.format_numeric_register(name));
         }
         return;
 
@@ -927,13 +927,71 @@ void execute_numeric_assignment(const NumericAssignmentCommandNode& command,
     context.set_counter(value);
 }
 
-/** Execute N+, N-, N*, N/, N%, N=, N<, N>, N&, or N|. */
+/** Execute numeric arithmetic, formatting, line queries or printing. */
 void execute_numeric_operation(const NumericOperationCommandNode& command,
                                ExecutionContext& context) {
+    const auto operation = command.operation();
+    if (operation == NumericOperationKind::Print) {
+        context.output().write_line(
+            context.format_numeric_register(command.name()));
+        return;
+    }
+    if (operation == NumericOperationKind::CurrentLine) {
+        const auto current = resolve_numeric_value(
+            NumericValueKind::CurrentLine, 0, {}, context);
+        context.set_numeric_register(command.name(), current);
+        context.set_counter(current);
+        return;
+    }
+    if (operation == NumericOperationKind::CountCharacters) {
+        // Count UTF-8 code points within the addressed lines; line separators
+        // are not stored in Buffer and are not counted. A continuation byte
+        // belongs to the code point that starts at a previous byte.
+        const auto& buffer = context.current_buffer();
+        const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
+        std::uint64_t count = 0;
+        for (auto line = range.first; line <= range.last; ++line) {
+            for (const unsigned char byte : buffer.line(line)) {
+                if ((byte & 0xC0) != 0x80) {
+                    ++count;
+                }
+                if (count > static_cast<std::uint64_t>(
+                        std::numeric_limits<std::int64_t>::max())) {
+                    throw CommandExecutionError("numeric character count overflow");
+                }
+            }
+        }
+        const auto result = static_cast<std::int64_t>(count);
+        context.set_numeric_register(command.name(), result);
+        context.set_counter(result);
+        return;
+    }
+    if (operation == NumericOperationKind::FillCharacter) {
+        context.set_numeric_fill_character(
+            command.name(), command.fill_character());
+        return;
+    }
     const auto operand = resolve_numeric_value(
         command.value_kind(), command.literal_value(),
         command.operand_register(), context);
-    apply_numeric_operation(context, command.name(), command.operation(), operand);
+    if (operation == NumericOperationKind::ChangeBase) {
+        if (operand < 2 || operand > 36) {
+            throw CommandExecutionError("numeric base must be between 2 and 36");
+        }
+        context.set_numeric_base(command.name(),
+                                 static_cast<unsigned>(operand));
+        return;
+    }
+    if (operation == NumericOperationKind::MinimumDigits) {
+        // Keep malformed input from requesting unbounded output allocation.
+        if (operand < 0 || operand > 1024) {
+            throw CommandExecutionError("numeric minimum digits must be between 0 and 1024");
+        }
+        context.set_numeric_minimum_digits(
+            command.name(), static_cast<std::size_t>(operand));
+        return;
+    }
+    apply_numeric_operation(context, command.name(), operation, operand);
 }
 
 /**

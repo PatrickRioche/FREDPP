@@ -87,12 +87,40 @@ inline void apply_numeric_operation(ExecutionContext& context,
             std::bit_cast<std::uint64_t>(current) |
             std::bit_cast<std::uint64_t>(operand));
         break;
+    case NumericOperationKind::Complement:
+        result = std::bit_cast<std::int64_t>(
+            ~std::bit_cast<std::uint64_t>(current));
+        break;
+    case NumericOperationKind::BitXor:
+        result = std::bit_cast<std::int64_t>(
+            std::bit_cast<std::uint64_t>(current) ^
+            std::bit_cast<std::uint64_t>(operand));
+        break;
+    case NumericOperationKind::ShiftLeft:
+    case NumericOperationKind::ShiftRight:
+        if (operand < 0 || operand >= 64) {
+            throw CommandExecutionError("numeric shift count must be between 0 and 63");
+        }
+        // Left shift is a 64-bit bit-pattern operation (high bits discarded).
+        // C++20 defines signed right shift of negatives as sign-extending.
+        result = operation == NumericOperationKind::ShiftLeft
+            ? std::bit_cast<std::int64_t>(
+                std::bit_cast<std::uint64_t>(current) << operand)
+            : current >> operand;
+        break;
     case NumericOperationKind::Absolute:
         if (current == Limit::min()) {
             throw CommandExecutionError("numeric absolute value overflow");
         }
         result = current < 0 ? -current : current;
         break;
+    case NumericOperationKind::CurrentLine:
+    case NumericOperationKind::ChangeBase:
+    case NumericOperationKind::MinimumDigits:
+    case NumericOperationKind::FillCharacter:
+    case NumericOperationKind::CountCharacters:
+    case NumericOperationKind::Print:
+        throw CommandExecutionError("numeric operation requires runtime context");
     }
 
     context.set_numeric_register(std::string(name), result);

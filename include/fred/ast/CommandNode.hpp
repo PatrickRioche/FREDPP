@@ -653,10 +653,13 @@ enum class NumericValueKind {
     Register
 };
 
-/** Operations 31-40: numeric arithmetic, comparisons, and bitwise operations. */
+/** Historical numeric arithmetic, comparison, bit, format and query operations. */
 enum class NumericOperationKind {
     Add, Subtract, Multiply, Divide, Modulo,
-    Equal, Less, Greater, BitAnd, BitOr, Absolute
+    Equal, Less, Greater, BitAnd, BitOr, Absolute,
+    Complement, BitXor, ShiftLeft, ShiftRight,
+    CurrentLine, ChangeBase, MinimumDigits, FillCharacter,
+    CountCharacters, Print
 };
 
 /**
@@ -704,11 +707,14 @@ public:
                                 NumericValueKind value_kind,
                                 std::int64_t literal_value,
                                 std::string operand_register,
-                                SourceLocation location) noexcept
-        : CommandNode(nullptr, location), name_(std::move(name)),
+                                SourceLocation location,
+                                std::unique_ptr<AddressNode> address = nullptr,
+                                char fill_character = '\0') noexcept
+        : CommandNode(std::move(address), location), name_(std::move(name)),
           operation_(operation), value_kind_(value_kind),
           literal_value_(literal_value),
-          operand_register_(std::move(operand_register)) {}
+          operand_register_(std::move(operand_register)),
+          fill_character_(fill_character) {}
 
     [[nodiscard]] AstNodeKind kind() const noexcept override {
         return AstNodeKind::NumericOperationCommand;
@@ -726,6 +732,10 @@ public:
     [[nodiscard]] const std::string& operand_register() const noexcept {
         return operand_register_;
     }
+    /** Literal single-byte padding character for NF, otherwise NUL. */
+    [[nodiscard]] char fill_character() const noexcept {
+        return fill_character_;
+    }
 
 private:
     std::string name_;
@@ -733,6 +743,7 @@ private:
     NumericValueKind value_kind_;
     std::int64_t literal_value_{};
     std::string operand_register_;
+    char fill_character_{};
 };
 
 /**

@@ -107,6 +107,22 @@ public:
      */
     [[nodiscard]] std::vector<std::string> numeric_register_names() const;
 
+    /**
+     * @brief Changes how a numeric register is displayed, not its value.
+     *
+     * Formatting is attached to the named register and survives subsequent
+     * numeric assignments. The caller validates the historical NB/ND bounds.
+     * Changing a format creates a zero-valued register if needed, but does not
+     * change the shared counter or condition.
+     */
+    void set_numeric_base(std::string_view name, unsigned base);
+    void set_numeric_minimum_digits(std::string_view name, std::size_t digits);
+    void set_numeric_fill_character(std::string_view name, char character);
+
+    /** @return Signed register value rendered using its NB/ND/NF settings. */
+    [[nodiscard]] std::string format_numeric_register(
+        std::string_view name) const;
+
     /** Sets the shared true/false condition used by conditional procedure jumps. */
     void set_condition(bool value) noexcept;
 
@@ -148,6 +164,12 @@ private:
 
     std::int64_t counter_{};
     std::unordered_map<std::string, std::int64_t> numeric_registers_;
+    struct NumericDisplayOptions {
+        unsigned base{10};
+        std::size_t minimum_digits{1};
+        char fill_character{'0'};
+    };
+    std::unordered_map<std::string, NumericDisplayOptions> numeric_formats_;
     bool condition_{};
     bool input_parentheses_required_{true};
     bool monitor_commands_{};

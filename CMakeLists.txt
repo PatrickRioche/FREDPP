@@ -9,7 +9,7 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.40 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.50 LANGUAGES CXX)
 
 # Development version contract: the patch number equals the number of
 # historical reference commands recorded as available in COMMAND_STATUS.md.
@@ -133,6 +133,16 @@ set(FREDPP_IMPLEMENTED_HELP_TOPICS
     ngreater
     nand
     npipe
+    ncomplement
+    nxor
+    nshiftleft
+    nshiftright
+    na
+    nb
+    nd
+    nf
+    nl
+    np
     p
     q
     r
@@ -207,6 +217,18 @@ foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
     elseif(help_topic STREQUAL "npipe")
         set(help_topic_upper "N|")
         set(help_command "?n|")
+    elseif(help_topic STREQUAL "ncomplement")
+        set(help_topic_upper "N~")
+        set(help_command "?n~")
+    elseif(help_topic STREQUAL "nxor")
+        set(help_topic_upper "N^")
+        set(help_command "?n^")
+    elseif(help_topic STREQUAL "nshiftleft")
+        set(help_topic_upper "N{")
+        set(help_command "?n{")
+    elseif(help_topic STREQUAL "nshiftright")
+        set(help_topic_upper "N}")
+        set(help_command "?n}")
     endif()
     string(LENGTH "${help_command}" help_command_length)
     math(EXPR help_padding_length "12 - ${help_command_length}")

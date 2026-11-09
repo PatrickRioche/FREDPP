@@ -39,6 +39,8 @@ Inside FREDPP:
 ?s      historical S command documentation
 ?n:     historical N: numeric-register assignment documentation
 ?n+     numeric addition (also ?n-, ?n*, ?n/, ?n%, ?n=, ?n<, ?n>, ?n&, ?n|)
+?n~     numeric bitwise complement (also ?n^, ?n{, ?n})
+?na     current line into register (also ?nb, ?nd, ?nf, ?nl, ?np)
 ?w      historical W and WA documentation
 ?wu     FREDPP UTF-8 write extension
 :help   same FREDPP-specific help as ?:
@@ -47,7 +49,7 @@ Inside FREDPP:
 Only the French documentation of implemented FRED commands is embedded. The source files under `docs/fr/reference/commandes/` are not modified by the build.
 
 For the actual syntax, supported behavior, examples and limitations of all
-**40 commands in v0.0.40**, use the [French practical command guide](docs/fr/fredpp/guide-commandes-0.0.40.md).
+**50 commands in development v0.0.50**, use the [French practical command guide](docs/fr/fredpp/guide-commandes-0.0.50.md).
 The embedded `?commande` pages preserve the historical reference and may
 describe forms that FREDPP has not implemented yet.
 
@@ -67,7 +69,7 @@ The repository currently contains:
 - AddressParser, PatternParser and CommandParser;
 - AST nodes and address evaluation;
 - ExecutionContext and CommandExecutor;
-- executable `P`, `L`, `D`, `A`, `B`, `I`, `C`, `K`, `M`, `T`, `G`, `Z`, `S`, `Q`, `R` and `W` commands, plus `N:`, `N+`, `N-`, `N*`, `N/`, `N%`, `N=`, `N<`, `N>`, `N&` and `N|` numeric-register operations;
+- executable `P`, `L`, `D`, `A`, `B`, `I`, `C`, `K`, `M`, `T`, `G`, `Z`, `S`, `Q`, `R` and `W` commands, plus all 21 historical `N`-family commands (arithmetic, bitwise, shifts, line counters, formatting and printing);
 - file reading with automatic ASCII or UTF-8 detection;
 - file writing with `W`, forced ASCII with `WA`, and UTF-8 without BOM with the FREDPP extension `WU`;
 - recognition of historical `WB` with an explicit unsupported GCOS/BCD diagnostic;

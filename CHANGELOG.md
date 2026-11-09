@@ -283,6 +283,17 @@
 
 # Changelog
 
+- **v0.0.50 — 50/103 commandes (48,5 %) :** extension de la famille numérique
+  historique avec `N~`, `N^`, `N{`, `N}`, `NA`, `NB`, `ND`, `NF`, `NL`, `NP`.
+  Complément, XOR, décalages signés contrôlés, numéro de ligne, comptage des
+  caractères UTF-8, configuration par registre de la base, de la largeur et du
+  caractère de remplissage ; `NP` et `FN` respectent ces paramètres.
+  Compatibilité des enchaînements de procédures, aide historique embarquée et
+  tests unitaires, de procédures et CLI. **Compilation C++20 et 62/62 tests
+  CTest sous Linux réussis** ; validation Windows/MSVC puis recette utilisateur
+  encore attendues. Aucun tag `dev-0.0.50` avant accord, aucun changement de
+  `main` ni release officielle.
+
 - **v0.0.40 — 40/103 commandes (38,8 %) :** implémentation sur `dev` des dix
   opérateurs historiques `N+`, `N-`, `N*`, `N/`, `N%`, `N=`, `N<`, `N>`, `N&`,
   `N|` (valeur absolue sans opérande et OU avec opérande). Utilisation dans le
@@ -290,8 +301,10 @@
   gestion contrôlée des dépassements entiers et de la division par zéro ;
   tests unitaires, tests de procédures, scénario CLI et aide historique
   `?n+` à `?n|` ; **CI Windows/MSVC réussie 60/60 en Release et Debug**.
-  **En attente de la validation Windows de l'utilisateur :
-  aucun tag `dev-0.0.40`, aucune fusion dans `main` ni release officielle.**
+  **Validation Windows utilisateur obtenue : 60/60 tests réussis en 92,51 s,
+  scénario d'exécution inspecté ; tag `dev-0.0.40` créé sur le commit
+  `a1f13115e5bf08b7dcb619c1b21102b85f99c986` et poussé sur GitHub.**
+  Aucune fusion dans `main` ni release officielle.
 
 
 ## v0.0.16 — Bootstrap historique des procédures

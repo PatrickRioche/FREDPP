@@ -22,7 +22,8 @@ int main() {
     assert(help.exists("n:"));
     assert(help.exists("ncolon"));
     for (const auto* topic : {
-             "n+", "n-", "n*", "n/", "n%", "n=", "n<", "n>", "n&", "n|"}) {
+             "n+", "n-", "n*", "n/", "n%", "n=", "n<", "n>", "n&", "n|",
+             "n~", "n^", "n{", "n}", "na", "nb", "nd", "nf", "nl", "np"}) {
         assert(help.exists(topic));
         assert(!help.load(topic).empty());
     }
@@ -59,6 +60,11 @@ int main() {
     assert(index.find("    ?ncolon") == std::string::npos);
     assert(index.find("    ?n+") != std::string::npos);
     assert(index.find("    ?n|") != std::string::npos);
+    for (const auto* topic : {
+             "    ?n~", "    ?n^", "    ?n{", "    ?n}", "    ?na",
+             "    ?nb", "    ?nd", "    ?nf", "    ?nl", "    ?np"}) {
+        assert(index.find(topic) != std::string::npos);
+    }
     assert(index.find("    ?f?") != std::string::npos);
     assert(index.find("    ?fq") == std::string::npos);
     assert(index.find("    ?=") != std::string::npos);

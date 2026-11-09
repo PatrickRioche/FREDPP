@@ -412,11 +412,6 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         }
 
         if (mnemonic == 'N') {
-            if (address) {
-                throw ParseError(
-                    "N: does not accept a line address in this version",
-                    address->location());
-            }
             const auto opening = tokens_->peek();
             if (opening.type != TokenType::LeftParenthesis) {
                 throw ParseError("N: requires N(name):value", opening.location);
@@ -428,12 +423,22 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             }
 
             const auto operator_token = tokens_->consume();
-            if (operator_token.type != TokenType::Symbol ||
-                operator_token.lexeme.size() != 1) {
-                throw ParseError("N: requires ':'", operator_token.location);
+            // The lexer intentionally groups ordinary letters in identifiers.
+            // Thus NFx may arrive as one "Fx" token, while NF. arrives as
+            // separate F and . tokens. Accept exactly one inline fill byte.
+            char inline_fill = '\0';
+            if (operator_token.lexeme.size() == 2 &&
+                std::toupper(static_cast<unsigned char>(
+                    operator_token.lexeme.front())) == 'F') {
+                inline_fill = operator_token.lexeme[1];
+            } else if ((operator_token.type != TokenType::Symbol &&
+                        operator_token.type != TokenType::Command) ||
+                       operator_token.lexeme.size() != 1) {
+                throw ParseError("N requires an operator", operator_token.location);
             }
 
-            const char operator_char = operator_token.lexeme.front();
+            const char operator_char = static_cast<char>(std::toupper(
+                static_cast<unsigned char>(operator_token.lexeme.front())));
             std::optional<NumericOperationKind> operation;
             switch (operator_char) {
             case '+': operation = NumericOperationKind::Add; break;
@@ -446,14 +451,56 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             case '>': operation = NumericOperationKind::Greater; break;
             case '&': operation = NumericOperationKind::BitAnd; break;
             case '|': operation = NumericOperationKind::BitOr; break;
+            case '~': operation = NumericOperationKind::Complement; break;
+            case '^': operation = NumericOperationKind::BitXor; break;
+            case '{': operation = NumericOperationKind::ShiftLeft; break;
+            case '}': operation = NumericOperationKind::ShiftRight; break;
+            case 'A': operation = NumericOperationKind::CurrentLine; break;
+            case 'B': operation = NumericOperationKind::ChangeBase; break;
+            case 'D': operation = NumericOperationKind::MinimumDigits; break;
+            case 'F': operation = NumericOperationKind::FillCharacter; break;
+            case 'L': operation = NumericOperationKind::CountCharacters; break;
+            case 'P': operation = NumericOperationKind::Print; break;
             case ':': break;
             default:
                 throw ParseError("unsupported N operator", operator_token.location);
             }
 
+            if (address && operation != NumericOperationKind::CountCharacters) {
+                throw ParseError("only NL accepts a line address",
+                                 address->location());
+            }
+
             NumericValueKind kind = NumericValueKind::Literal;
             std::int64_t literal = 0;
             std::string referenced_register;
+            if (operation == NumericOperationKind::Complement ||
+                operation == NumericOperationKind::CurrentLine ||
+                operation == NumericOperationKind::CountCharacters ||
+                operation == NumericOperationKind::Print) {
+                require_command_end();
+                return std::make_unique<NumericOperationCommandNode>(
+                    std::move(name), *operation, kind, literal,
+                    std::string{}, command.location, std::move(address));
+            }
+            if (operation == NumericOperationKind::FillCharacter) {
+                const auto character = inline_fill == '\0'
+                    ? tokens_->consume() : operator_token;
+                const char fill = inline_fill != '\0'
+                    ? inline_fill : character.lexeme.empty()
+                        ? '\0' : character.lexeme.front();
+                if ((inline_fill == '\0' && character.lexeme.size() != 1) ||
+                    static_cast<unsigned char>(fill) < 33 ||
+                    static_cast<unsigned char>(fill) > 126) {
+                    throw ParseError("NF requires one printable character",
+                                     character.location);
+                }
+                require_command_end();
+                return std::make_unique<NumericOperationCommandNode>(
+                    std::move(name), *operation, kind, literal,
+                    std::string{}, command.location, nullptr,
+                    fill);
+            }
             if (operator_char == '|' &&
                 (tokens_->peek().type == TokenType::End ||
                  tokens_->peek().type == TokenType::NewLine)) {
