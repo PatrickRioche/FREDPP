@@ -48,6 +48,7 @@ enum class AstNodeKind {
     CommentCommand,
     MessageCommand,
     FactsCommand,
+    FileAssociationCommand,
     OptionCommand,
     QuitCommand
 };

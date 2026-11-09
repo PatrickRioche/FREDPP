@@ -34,6 +34,12 @@ void execute(std::string_view source,
 
 int main() {
     {
+        const auto node = parse("f");
+        assert(node->kind() == fred::AstNodeKind::FactsCommand);
+        const auto& facts = static_cast<const fred::FactsCommandNode&>(*node);
+        assert(facts.facts() == fred::FactsKind::Current);
+    }
+    {
         const auto node = parse("fb");
         assert(node->kind() == fred::AstNodeKind::FactsCommand);
         const auto& facts =
@@ -68,6 +74,10 @@ int main() {
     fred::StringOutput output;
     fred::ExecutionContext context(buffers, output);
     fred::CommandExecutor executor;
+
+    execute("F", executor, context);
+    assert(output.content() == "b(0) 0,0\n");
+    output.clear();
 
     // With no associated files, FF must be silent and leave state untouched.
     execute("FF", executor, context);
@@ -183,5 +193,47 @@ int main() {
            "b(alpha) alpha file.txt ?\n"
            "b(aardvark) path with spaces.txt ?\n"
            "b(zeta) ?\n");
+
+    // Bare F shows the current Buffer's FB-style status but does not alter it.
+    modified_output.clear();
+    execute("f", executor, modified_context);
+    assert(modified_output.content() == "b(alpha) 1,1 alpha file.txt ?\n");
+    assert(modified_buffers.current().name() == "alpha");
+    assert(edited_alpha.current_line() == 1);
+    assert(edited_alpha.modified());
+
+    // F filename changes metadata only: no content, cursor or dirty-flag reset.
+    modified_output.clear();
+    const auto previous_encoding = edited_alpha.encoding();
+    const auto previous_line_ending = edited_alpha.line_ending();
+    const auto previous_final_newline = edited_alpha.final_newline();
+    execute("F \"new associated file.txt\"", executor, modified_context);
+    assert(modified_output.content().empty());
+    assert(edited_alpha.associated_file() &&
+           *edited_alpha.associated_file() == "new associated file.txt");
+    assert(edited_alpha.encoding() == previous_encoding);
+    assert(edited_alpha.line_ending() == previous_line_ending);
+    assert(edited_alpha.final_newline() == previous_final_newline);
+    assert(edited_alpha.line_count() == 1);
+    assert(edited_alpha.line(1) == "A");
+    assert(edited_alpha.current_line() == 1);
+    assert(edited_alpha.modified());
+    assert(modified_context.counter() == 73);
+    assert(modified_context.condition());
+
+    execute("F", executor, modified_context);
+    assert(modified_output.content() ==
+           "b(alpha) 1,1 new associated file.txt ?\n");
+
+    // Reassociation must work on an initially clean, fileless Buffer as well.
+    modified_buffers.select("0");
+    modified_output.clear();
+    execute("f next file.txt", executor, modified_context);
+    assert(modified_output.content().empty());
+    assert(modified_buffers.current().associated_file() &&
+           *modified_buffers.current().associated_file() == "next file.txt");
+    assert(!modified_buffers.current().modified());
+    execute("F", executor, modified_context);
+    assert(modified_output.content() == "b(0) 0,0 next file.txt\n");
     return 0;
 }

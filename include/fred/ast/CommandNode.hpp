@@ -597,6 +597,9 @@ private:
 
 /** @brief Selects one of the implemented read-only F information queries. */
 enum class FactsKind {
+    /** F: current Buffer, with cursor, line count, file and modified flag. */
+    Current,
+
     /** FB: recently selected Buffers in MRU order, including cursor/count. */
     Buffers,
 
@@ -611,7 +614,7 @@ enum class FactsKind {
 };
 
 /**
- * @brief `FB`, `FF`, `FO` or `F?` query without an address or Buffer mutation.
+ * @brief `F`, `FB`, `FF`, `FO` or `F?` read-only query without an address.
  *
  * The selected query determines the output format and ordering; the AST only
  * records the query kind, not a snapshot of Runtime state.
@@ -630,6 +633,30 @@ public:
 
 private:
     FactsKind facts_;
+};
+
+/**
+ * @brief Historical `F filename` command AST: change the current file association.
+ *
+ * The filename is required; the command never owns a line address. Actual
+ * file I/O is deliberately outside this command's contract.
+ */
+class FileAssociationCommandNode final : public CommandNode {
+public:
+    FileAssociationCommandNode(std::string filename,
+                               SourceLocation location) noexcept
+        : CommandNode(nullptr, location), filename_(std::move(filename)) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::FileAssociationCommand;
+    }
+
+    [[nodiscard]] const std::string& filename() const noexcept {
+        return filename_;
+    }
+
+private:
+    std::string filename_;
 };
 
 /** @brief Option selector currently recognized by CommandParser. */

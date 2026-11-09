@@ -15,10 +15,10 @@ conservent leurs horodatages originaux en UTC.
 
 | Élément | État vérifié |
 |---|---|
-| Version du projet | `0.0.27` (développement ; 27/103 commandes, `F?` ajouté) |
+| Version du projet | `0.0.28` (développement ; 28/103 commandes, `F` ajouté) |
 | Branche active | `dev` |
-| Dernier lot fonctionnel | `F?` : buffer courant et autres buffers modifiés, prêt pour validation Windows |
-| État des tests | `0.0.26` : suite locale Windows 11 **57/57 réussie** le 9 novembre 2026 (57,73 s) ; `0.0.27` : contrôles ciblés Linux réussis, suite Windows complète attendue |
+| Dernier lot fonctionnel | `F` : informations sur le buffer courant et association à un fichier, prêt pour validation Windows |
+| État des tests | `0.0.27` : **57/57 tests Windows 11 réussis** le 9 novembre 2026 (82,70 s) après compilation MSVC Debug ; `0.0.28` : tests ciblés Linux réussis, suite Windows attendue |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
 | Dernière CI Windows/MSVC ciblée | [Exécution 42533608679 réussie : 20/20 Release, 3/3 Debug `=`, régressions et scripts verts](https://github.com/PatrickRioche/FREDPP/actions/runs/42533608679) |
@@ -56,8 +56,27 @@ conservent leurs horodatages originaux en UTC.
 | 08/11/2026 23:50 | [`51e6d1f`](https://github.com/PatrickRioche/FREDPP/commit/51e6d1f7c2332fb25d6c818252c8b86297744680) | `FF` implémentée, aide `?ff`, tests, passage à `0.0.25` |
 | 09/11/2026 00:07 | [`78ddd8d`](https://github.com/PatrickRioche/FREDPP/commit/78ddd8df8848b05b5a55569c4910e8cf3135f2da) | `=` implémentée, aide `?=`, tests, passage à `0.0.26` |
 | 09/11/2026 | Lot `F?` sur [`dev`](https://github.com/PatrickRioche/FREDPP/commits/dev/) | Buffer courant et autres buffers modifiés ; aide `?f?`, tests ciblés et passage à `0.0.27` |
+| 09/11/2026 | Lot `F` sur [`dev`](https://github.com/PatrickRioche/FREDPP/commits/dev/) | Consultation du buffer courant, association du fichier, aide `?f`, tests ciblés et passage à `0.0.28` |
 
 ## Détails des lots et des validations
+
+### Lot F — consultation et association de fichier (9 novembre 2026)
+
+- **Référence :** `docs/fr/reference/commandes/f.md`, conservée intacte.
+- **Analyse syntaxique :** `F` sans argument, ou `F fichier` avec chemin
+  pouvant contenir des espaces ou être entre guillemets. Pas d'adresse de
+  ligne. Les formes `FB`, `FF`, `FO`, `F?` restent indépendantes.
+- **Exécution :** `F` affiche les attributs du buffer courant sous la forme
+  `b(nom) ligne,total [fichier] [?]`. `F fichier` remplace uniquement
+  l'association du buffer courant ; il n'ouvre, ne crée et n'écrit aucun
+  fichier, ne modifie pas le contenu ni le curseur, et conserve l'état modifié
+  ainsi que les métadonnées d'encodage et de retours de ligne.
+- **Aide :** `?f` affiche la fiche française historique ; le nouveau guide
+  des 28 commandes complète la fiche sans la modifier.
+- **Couverture :** 28/103 commandes (27,2 %), version `0.0.28` ; `main`
+  et les releases demeurent indépendants.
+- **Vérification :** tests C++20 ciblés du parseur et de l'exécution passés ;
+  tests d'aide ajoutés ; validation Windows/MSVC complète attendue.
 
 ### Lot F? — liste des buffers modifiés (9 novembre 2026)
 

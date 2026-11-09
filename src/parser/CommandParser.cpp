@@ -419,8 +419,21 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 facts_kind = FactsKind::Modified;
             }
             if (!facts_kind) {
-                throw ParseError("only FB, FF, FO and F? are implemented",
-                                 command.location);
+                // Standalone F is a query; F with a filename changes metadata.
+                if (tokens_->peek().type == TokenType::End ||
+                    tokens_->peek().type == TokenType::NewLine) {
+                    facts_kind = FactsKind::Current;
+                } else {
+                    if (tokens_->peek().type == TokenType::Symbol &&
+                        tokens_->peek().lexeme == "?") {
+                        throw ParseError("F? must not contain whitespace",
+                                         tokens_->peek().location);
+                    }
+                    auto filename = parse_optional_filename();
+                    require_command_end();
+                    return std::make_unique<FileAssociationCommandNode>(
+                        std::move(*filename), command.location);
+                }
             }
             require_command_end();
             return std::make_unique<FactsCommandNode>(

@@ -203,15 +203,15 @@ CommandRegistry make_core_command_registry() {
         }});
 
     registry.register_command(CommandDescriptor{
-        'F', "Facts",
+        'F', "File / Facts",
         [](std::unique_ptr<AddressNode> address, SourceLocation location) {
             if (address) {
                 throw std::invalid_argument("F does not accept a line address");
             }
-            // Default placeholder; CommandParser requires and distinguishes
-            // the implemented FB, FF, FO and F? source forms.
+            // Default placeholder; CommandParser distinguishes F's file
+            // association form from F, FB, FF, FO and F? information queries.
             return std::make_unique<FactsCommandNode>(
-                FactsKind::Buffers, location);
+                FactsKind::Current, location);
         }});
 
     registry.register_command(CommandDescriptor{

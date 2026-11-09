@@ -2,27 +2,27 @@
 
 Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/reference/commandes/` restent inchangées et seules celles des commandes disponibles sont embarquées.
 
-Pour un emploi pratique des **27 commandes effectivement disponibles en
-v0.0.27** (syntaxe, effet, exemple, limites), consulter le
-[guide des commandes de FREDPP 0.0.27](../fr/fredpp/guide-commandes-0.0.27.md).
+Pour un emploi pratique des **28 commandes effectivement disponibles en
+v0.0.28** (syntaxe, effet, exemple, limites), consulter le
+[guide des commandes de FREDPP 0.0.28](../fr/fredpp/guide-commandes-0.0.28.md).
 Il complète les fiches historiques embarquées dans l'aide sans les altérer.
 
 ## Couverture de la référence historique
 
 | Famille | Total référence | Implémenté / homologué | Reste |
 |---|---:|---:|---:|
-| Commandes principales | 22 | 16 | 6 |
+| Commandes principales | 22 | 17 | 5 |
 | Commandes spéciales | 7 | 2 (`\"`, `=`) | 5 |
 | Famille F | 7 | 4 (`FB`, `FF`, `FO`, `F?`) | 3 |
 | Famille J | 5 | 2 (`JM`, `JP`) | 3 |
 | Famille N | 21 | 0 | 21 |
 | Famille O | 24 | 2 (`OI(`, `OM`) | 22 |
 | Famille Z | 17 | 1 (`ZK`, candidat Windows) | 16 |
-| **Total** | **103** | **27** | **76** |
+| **Total** | **103** | **28** | **75** |
 
-La couverture fonctionnelle provisoire de la référence est de **27 / 103**, soit environ **26,2 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
+La couverture fonctionnelle provisoire de la référence est de **28 / 103**, soit environ **27,2 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
 
-**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **27 commandes = `0.0.27`**. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. La publication stable reste une décision distincte.
+**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **28 commandes = `0.0.28`**. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. La publication stable reste une décision distincte.
 
 | Commande | État dans FREDPP | Aide embarquée |
 |---|---|:---:|
@@ -30,6 +30,7 @@ La couverture fonctionnelle provisoire de la référence est de **27 / 103**, so
 | B | Disponible, fonctions avancées encore à compléter | Oui |
 | C | Disponible | Oui |
 | D | Disponible | Oui |
+| F | Disponible : sans argument, affiche nom, curseur, nombre de lignes, fichier associé et état modifié du buffer courant ; avec un nom de fichier, modifie uniquement son association, sans lecture/écriture ni effacement de l'indicateur modifié | Oui (`?f`) |
 | FB | Disponible; ordre décroissant de dernière utilisation, ligne courante, nombre de lignes, fichier associé et état modifié | Oui (`?fb`) |
 | FF | Disponible; liste de tous les buffers associés à un fichier, triée par nom de buffer, avec indication de modification (`?`) | Oui (`?ff`) |
 | `F?` | Disponible : affiche toujours le buffer courant, puis les autres buffers modifiés triés par nom, avec chemin associé éventuel et marque `?` pour les buffers modifiés ; lecture seule | Oui (`?f?`, alias `?fq`) |

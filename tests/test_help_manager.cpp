@@ -14,6 +14,7 @@ int main() {
     assert(help.exists("*"));
     assert(help.exists("a"));
     assert(help.exists("b"));
+    assert(help.exists("f"));
     assert(help.exists("fb"));
     assert(help.exists("ff"));
     assert(help.exists("fq"));
@@ -42,6 +43,7 @@ int main() {
     const auto index = help.load_for_terminal("");
     assert(index.find("AIDE FRED — COMMANDES DISPONIBLES") != std::string::npos);
     assert(index.find("    ?fb") != std::string::npos);
+    assert(index.find("    ?f ") != std::string::npos);
     assert(index.find("    ?ff") != std::string::npos);
     assert(index.find("    ?f?") != std::string::npos);
     assert(index.find("    ?fq") == std::string::npos);
@@ -100,6 +102,12 @@ int main() {
     assert(changed_buffers.find("LISTE DES BUFFERS MODIFIÉS") !=
            std::string::npos);
     assert(help.load_for_terminal("fq") == changed_buffers);
+
+    const auto current_buffer_help = help.load_for_terminal("f");
+    assert(current_buffer_help.find("INFORMATIONS SUR LE BUFFER") !=
+           std::string::npos);
+    assert(help.load("f").find("F <nom de fichier>") !=
+           std::string::npos);
 
     const auto star = help.load_for_terminal("*");
     assert(star.find("ALIAS DE LA TOTALITÉ DU BUFFER") != std::string::npos);

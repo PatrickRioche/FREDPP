@@ -9,7 +9,7 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.27 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.28 LANGUAGES CXX)
 
 # Development version contract: the patch number equals the number of
 # historical reference commands recorded as available in COMMAND_STATUS.md.
@@ -109,6 +109,7 @@ set(FREDPP_IMPLEMENTED_HELP_TOPICS
     b
     c
     d
+    f
     fb
     ff
     fq

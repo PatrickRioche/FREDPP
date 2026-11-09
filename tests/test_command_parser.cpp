@@ -36,6 +36,28 @@ void expect_error(std::string_view source, std::string_view message) {
 
 int main() {
     {
+        const auto node = parse("F");
+        assert(node->kind() == fred::AstNodeKind::FactsCommand);
+        assert(!node->has_address());
+        const auto& facts = static_cast<const fred::FactsCommandNode&>(*node);
+        assert(facts.facts() == fred::FactsKind::Current);
+    }
+    {
+        const auto node = parse("f new name with spaces.txt");
+        assert(node->kind() == fred::AstNodeKind::FileAssociationCommand);
+        assert(!node->has_address());
+        const auto& file =
+            static_cast<const fred::FileAssociationCommandNode&>(*node);
+        assert(file.filename() == "new name with spaces.txt");
+    }
+    {
+        const auto node = parse("F \"new quoted name.txt\"");
+        assert(node->kind() == fred::AstNodeKind::FileAssociationCommand);
+        const auto& file =
+            static_cast<const fred::FileAssociationCommandNode&>(*node);
+        assert(file.filename() == "new quoted name.txt");
+    }
+    {
         const auto node = parse("F?");
         assert(node->kind() == fred::AstNodeKind::FactsCommand);
         assert(!node->has_address());
@@ -368,7 +390,10 @@ int main() {
     expect_error("1T2,3", "T requires a pattern delimited by '/' or '?'");
     expect_error("1L", "L does not accept a line address");
     expect_error("1F?", "F does not accept a line address");
-    expect_error("F ?", "only FB, FF, FO and F? are implemented");
+    expect_error("1F", "F does not accept a line address");
+    expect_error("1F filename.txt", "F does not accept a line address");
+    expect_error("F ?", "F? must not contain whitespace");
+    expect_error("F \"\"", "filename must not be empty");
     expect_error("F? junk", "unexpected token after command: 'junk'");
     expect_error("1,2R file.txt",
                  "R insertion address must be a single line");

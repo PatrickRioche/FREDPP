@@ -1,5 +1,12 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- **v0.0.28 — 28/103 commandes (27,2 %) :** commande historique `F`
+  disponible : consultation des attributs du buffer courant ou changement de
+  l'association à un fichier, sans lecture/écriture ni remise à zéro du marqueur
+  de modification ; chemins avec espaces, tests de parseur/exécution/aide,
+  référence `?f` embarquée, guide français des 28 commandes ; validation
+  Windows de cette version attendue, sans release ni modification de `main` ;
+
 - **v0.0.27 — 27/103 commandes (26,2 %) :** ajout de la commande historique
   `F?` (buffer courant et autres buffers modifiés, association de fichier
   éventuelle, marque `?`) ; sortie ordonnée, consultation sans mutation,

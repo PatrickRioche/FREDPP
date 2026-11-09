@@ -811,7 +811,7 @@ std::string describe_modified_buffer(const Buffer& buffer) {
 }
 
 /**
- * @brief Executes the read-only FB, FF, FO and F? information queries.
+ * @brief Executes the read-only F, FB, FF, FO and F? information queries.
  *
  * FB uses most-recently-selected Buffer order; FF examines every owned Buffer
  * but prints only file-associated entries in name order. F? prints the current
@@ -822,6 +822,11 @@ std::string describe_modified_buffer(const Buffer& buffer) {
 void execute_facts(const FactsCommandNode& command,
                    ExecutionContext& context) {
     switch (command.facts()) {
+    case FactsKind::Current:
+        context.output().write_line(
+            describe_buffer(context.buffers().current()));
+        return;
+
     case FactsKind::Options:
         context.output().write_line(
             context.input_parentheses_required() ? "o+i(" : "o-i(");
@@ -861,6 +866,20 @@ void execute_facts(const FactsCommandNode& command,
         return;
     }
     }
+}
+
+/**
+ * @brief Reassociates the current Buffer with a filename without file I/O.
+ *
+ * Historical `F filename` changes only the association. Existing encoding,
+ * newline metadata, cursor and modified flag are retained. No file is read,
+ * written or created by this command.
+ */
+void execute_file_association(const FileAssociationCommandNode& command,
+                              ExecutionContext& context) {
+    auto& buffer = context.current_buffer();
+    buffer.associate_file(command.filename(), buffer.encoding(),
+                          buffer.line_ending(), buffer.final_newline());
 }
 
 /**
@@ -1237,6 +1256,10 @@ void CommandExecutor::execute(const CommandNode& command,
         return;
     case AstNodeKind::FactsCommand:
         execute_facts(static_cast<const FactsCommandNode&>(command), context);
+        return;
+    case AstNodeKind::FileAssociationCommand:
+        execute_file_association(
+            static_cast<const FileAssociationCommandNode&>(command), context);
         return;
     case AstNodeKind::OptionCommand:
         execute_option(static_cast<const OptionCommandNode&>(command), context);
