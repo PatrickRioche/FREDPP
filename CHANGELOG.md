@@ -1,5 +1,10 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- correction des assertions obsolètes de `test_command_parser` pour les noms de
+  fichiers entre guillemets de `R` (conservés dans l'AST puis normalisés lors
+  de la lecture) et pour les 19 commandes enregistrées, dont `K` ; tests
+  seulement, sans modification du comportement ni de la version **0.0.26** ;
+
 - audit documentaire des **26 commandes** prises en charge : correction des
   contrats de commentaires de `P`, `=`, `K`, précisions sur `B`, `FB`/`FF`/`FO`,
   `S`, `Z`, `OI(`, `OM` et harmonisation des commentaires du parseur, du moteur

@@ -254,7 +254,9 @@ int main() {
         assert(node->kind() == fred::AstNodeKind::ReadCommand);
         const auto& read = static_cast<const fred::ReadCommandNode&>(*node);
         assert(read.address() == nullptr);
-        assert(read.filename() && *read.filename() == "sample file.txt");
+        // R retains source quotes so Runtime can distinguish quoted filenames
+        // from multiple space-separated candidate paths.
+        assert(read.filename() && *read.filename() == "\"sample file.txt\"");
     }
     {
         const auto node = parse("R");
@@ -267,7 +269,7 @@ int main() {
         const auto& read = static_cast<const fred::ReadCommandNode&>(*node);
         assert(read.address() != nullptr);
         assert(read.address()->kind() == fred::AstNodeKind::LastAddress);
-        assert(read.filename() && *read.filename() == "append file.txt");
+        assert(read.filename() && *read.filename() == "\"append file.txt\"");
     }
     {
         const auto node = parse("1R");
@@ -302,7 +304,7 @@ int main() {
     }
     {
         const auto registry = fred::make_core_command_registry();
-        assert(registry.size() == 18);
+        assert(registry.size() == 19);
         assert(registry.contains('P'));
         assert(registry.contains('J'));
         assert(registry.contains('L'));
@@ -312,6 +314,7 @@ int main() {
         assert(registry.contains('C'));
         assert(registry.contains('B'));
         assert(registry.contains('M'));
+        assert(registry.contains('K'));
         assert(registry.contains('T'));
         assert(registry.contains('F'));
         assert(registry.contains('G'));
