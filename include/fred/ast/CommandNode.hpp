@@ -415,6 +415,39 @@ private:
     std::unique_ptr<CommandNode> nested_command_;
 };
 
+enum class ZapExtendedKind {
+    AppendBuffer, SortDescending, ClearModified, DeleteBuffer,
+    Lowercase, MoveLines, PrintBuffer, SortAscending, Translate, Uppercase
+};
+
+/** Operands for ZA/ZB/ZC/ZD/ZL/ZM/ZP/ZS/ZT/ZU. */
+class ZapExtendedCommandNode final : public CommandNode {
+public:
+    ZapExtendedCommandNode(ZapExtendedKind operation,
+                           std::unique_ptr<AddressNode> address,
+                           std::string buffer_name,
+                           std::unique_ptr<PatternNode> pattern,
+                           std::string from, std::string to,
+                           SourceLocation location) noexcept
+        : CommandNode(std::move(address), location), operation_(operation),
+          buffer_name_(std::move(buffer_name)), pattern_(std::move(pattern)),
+          from_(std::move(from)), to_(std::move(to)) {}
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::ZapExtendedCommand;
+    }
+    [[nodiscard]] ZapExtendedKind operation() const noexcept { return operation_; }
+    [[nodiscard]] const std::string& buffer_name() const noexcept { return buffer_name_; }
+    [[nodiscard]] const PatternNode* pattern() const noexcept { return pattern_.get(); }
+    [[nodiscard]] const std::string& from() const noexcept { return from_; }
+    [[nodiscard]] const std::string& to() const noexcept { return to_; }
+private:
+    ZapExtendedKind operation_;
+    std::string buffer_name_;
+    std::unique_ptr<PatternNode> pattern_;
+    std::string from_;
+    std::string to_;
+};
+
 /** @brief `!` system-command AST containing reconstructed command text. */
 class SystemCommandNode final : public CommandNode {
 public:

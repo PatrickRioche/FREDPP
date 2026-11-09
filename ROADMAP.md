@@ -200,8 +200,8 @@ P, L, D, A, B, I, C, F, M, N:, T, G, Z, S, Q, R, W, WA, WU, FB, FF, FN, FO, F?, 
 
 Les limites détaillées sont suivies dans `docs/project/COMMAND_STATUS.md`.
 
-**Suivi de `dev` au 9 novembre 2026 :** version `0.0.50` pour **50 commandes
-référencées prises en charge sur 103** (48,5 % de couverture fonctionnelle
+**Suivi de `dev` au 9 novembre 2026 :** version `0.0.60` en préparation pour **60 commandes
+référencées prises en charge sur 103** (58,3 % de couverture fonctionnelle
 provisoire), incluant les dix opérations `N+`, `N-`, `N*`, `N/`, `N%`, `N=`,
 `N<`, `N>`, `N&`, `N|`, les dix suivantes `N~`, `N^`, `N{`, `N}`, `NA`, `NB`,
 `ND`, `NF`, `NL`, `NP`, ainsi que `N:` (affectation d'un registre numérique),
@@ -214,15 +214,17 @@ le 9 novembre (respectivement 51,17 s et 108,55 s). Les tests Windows
 de la version `0.0.40` ont passé la CI Windows/MSVC **60/60 en Release et
 60/60 en Debug** ; l'utilisateur a ensuite validé **60/60 tests sous Windows
 en 92,51 s** et le scénario interactif, puis publié le tag `dev-0.0.40`.
-La version `0.0.50` compile sous Linux C++20 et passe **62/62 tests CTest** ;
-la CI Windows/MSVC et la recette manuelle restent à confirmer.
+La version `0.0.50` a passé les **62/62 tests CTest** sous Linux et Windows ;
+sa CI Windows/MSVC et la recette manuelle ont été confirmées. Le lot
+`0.0.60` prépare `ZA`, `ZB`, `ZC`, `ZD`, `ZL`, `ZM`, `ZP`, `ZS`, `ZT` et `ZU` ;
+sa recette Windows et son tag restent à valider.
 Chaque nouvelle commande comptabilisée incrémente le dernier nombre de
 la version de développement ; les correctifs internes n'y touchent pas.
 `main` et les releases restent indépendants de ce suivi. À chaque dizaine
 de commandes, le commit `dev` validé reçoit un tag de jalon indépendant de
-`main` : les tags `dev-0.0.30` et `dev-0.0.40` sont publiés ; prochain tag
-**`dev-0.0.50`** uniquement après la validation des commandes 41 à 50 par
-l'utilisateur.
+`main` : les tags `dev-0.0.30`, `dev-0.0.40` et `dev-0.0.50` sont publiés ;
+**`dev-0.0.60`** attendra
+la validation des commandes 51 à 60 par l'utilisateur.
 Le préfixe `dev-` évite de déclencher le flux de publication officielle,
 qui surveille les tags `v*` et exige un commit identique à `main`.
 

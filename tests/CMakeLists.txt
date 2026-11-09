@@ -42,6 +42,15 @@ fredpp_add_test(test_help_manager test_help_manager.cpp)
 fredpp_add_test(test_global test_global.cpp)
 fredpp_add_test(test_zap test_zap.cpp)
 fredpp_add_test(test_zap_copy test_zap_copy.cpp)
+fredpp_add_test(test_zap_extended test_zap_extended.cpp)
+
+add_test(NAME cli_zap_extended
+    COMMAND fredpp "${CMAKE_CURRENT_SOURCE_DIR}/fixtures/cli_zap_extended.fredpp"
+)
+set_tests_properties(cli_zap_extended PROPERTIES
+    WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+    PASS_REGULAR_EXPRESSION "FREDPP-Z-EXTENDED-OK"
+)
 fredpp_add_test(test_star_alias test_star_alias.cpp)
 fredpp_add_test(test_substitute test_substitute.cpp)
 fredpp_add_test(test_quit test_quit.cpp)

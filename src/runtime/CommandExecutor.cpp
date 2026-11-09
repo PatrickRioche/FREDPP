@@ -21,6 +21,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <fstream>
+#include <functional>
 #include <sstream>
 #include <iterator>
 #include <limits>
@@ -1084,6 +1085,143 @@ void execute_zap_copy(const ZapCopyCommandNode& command,
     }
 }
 
+void execute_zap_extended(const ZapExtendedCommandNode& command,
+                          ExecutionContext& context) {
+    auto& source = context.current_buffer();
+    auto& buffers = context.buffers();
+    const auto kind = command.operation();
+    if (kind == ZapExtendedKind::ClearModified) {
+        context.set_condition(source.modified());
+        source.mark_clean();
+        return;
+    }
+    if (kind == ZapExtendedKind::DeleteBuffer) {
+        if (!buffers.contains(command.buffer_name())) {
+            throw CommandExecutionError("ZD unknown buffer: " + command.buffer_name());
+        }
+        buffers.erase(command.buffer_name());
+        return;
+    }
+    if (kind == ZapExtendedKind::PrintBuffer || kind == ZapExtendedKind::AppendBuffer) {
+        if (!buffers.contains(command.buffer_name())) {
+            throw CommandExecutionError("Z unknown buffer: " + command.buffer_name());
+        }
+        const auto& other = buffers.get(command.buffer_name());
+        if (kind == ZapExtendedKind::PrintBuffer) {
+            for (const auto& line : other.lines()) context.output().write_line(line);
+        } else {
+            auto after = source.current_line();
+            if (const auto* address = command.address()) {
+                if (address->kind() == AstNodeKind::AbsoluteAddress &&
+                    static_cast<const AbsoluteAddressNode&>(*address).line() == 0) {
+                    after = 0;
+                } else {
+                    const auto range = AddressEvaluator{}.evaluate(address, source);
+                    if (range.first != range.last) {
+                        throw CommandExecutionError("ZA accepts one line address");
+                    }
+                    after = range.first;
+                }
+            }
+            // Copy before mutation, including when the source is the target.
+            const std::vector<std::string> snapshot(other.lines());
+            source.insert_after(after, snapshot);
+        }
+        return;
+    }
+    const auto range = AddressEvaluator{}.evaluate(command.address(), source);
+    if (kind == ZapExtendedKind::MoveLines) {
+        const bool same = command.buffer_name() == source.name();
+        const auto insertion_cursor = source.current_line();
+        if (same && insertion_cursor >= range.first && insertion_cursor <= range.last) {
+            throw CommandExecutionError("ZM cannot move its current line into itself");
+        }
+        std::vector<std::string> lines;
+        for (auto n = range.first; n <= range.last; ++n) lines.push_back(source.line(n));
+        auto& target = buffers.get_or_create(command.buffer_name());
+        if (same) {
+            const auto after = insertion_cursor > range.last
+                ? insertion_cursor - lines.size() : insertion_cursor;
+            source.erase(range.first, range.last);
+            source.insert_after(after, std::move(lines));
+        } else {
+            target.insert_after(target.current_line(), std::move(lines));
+            source.erase(range.first, range.last);
+        }
+        return;
+    }
+    if (kind == ZapExtendedKind::SortAscending || kind == ZapExtendedKind::SortDescending) {
+        std::vector<std::string> lines;
+        for (auto n = range.first; n <= range.last; ++n) lines.push_back(source.line(n));
+        const bool identical = std::adjacent_find(
+            lines.begin(), lines.end(), std::not_equal_to<std::string>{}) == lines.end();
+        if (kind == ZapExtendedKind::SortAscending) {
+            std::sort(lines.begin(), lines.end());
+        } else {
+            std::sort(lines.begin(), lines.end(), std::greater<std::string>{});
+        }
+        const auto original_cursor = source.current_line();
+        for (std::size_t i = 0; i < lines.size(); ++i) {
+            if (source.line(range.first + i) != lines[i]) {
+                source.replace(range.first + i, std::move(lines[i]));
+            }
+        }
+        source.set_current_line(original_cursor);
+        context.set_condition(identical);
+        return;
+    }
+
+    std::vector<std::pair<std::size_t, std::string>> changed_lines;
+    std::int64_t count = 0;
+    PatternMatcher matcher;
+    for (auto n = range.first; n <= range.last; ++n) {
+        const std::string original = source.line(n);
+        std::string next = original;
+        if (kind == ZapExtendedKind::Translate) {
+            for (auto& ch : next) {
+                const auto index = command.from().find(ch);
+                if (index != std::string::npos && ch != command.to()[index]) {
+                    ch = command.to()[index];
+                    ++count;
+                }
+            }
+        } else {
+            const bool lower = kind == ZapExtendedKind::Lowercase;
+            const auto transform = [&](std::size_t begin, std::size_t end) {
+                bool changed = false;
+                for (auto i = begin; i < end; ++i) {
+                    const auto byte = static_cast<unsigned char>(next[i]);
+                    if (byte < 128) {
+                        const char replacement = static_cast<char>(lower
+                            ? std::tolower(byte) : std::toupper(byte));
+                        changed |= replacement != next[i];
+                        next[i] = replacement;
+                    }
+                }
+                return changed;
+            };
+            if (command.pattern()) {
+                std::size_t offset = 0;
+                while (offset <= original.size()) {
+                    const auto match = matcher.find(*command.pattern(), original, offset);
+                    if (!match) break;
+                    if (transform(match->start, match->end)) ++count;
+                    offset = match->end > match->start ? match->end : match->end + 1;
+                }
+            } else if (transform(0, next.size())) {
+                ++count;
+            }
+        }
+        if (next != original) changed_lines.emplace_back(n, std::move(next));
+    }
+    context.set_counter(count);
+    if (changed_lines.empty() &&
+        (kind == ZapExtendedKind::Lowercase || kind == ZapExtendedKind::Uppercase)) {
+        throw CommandExecutionError("no text changed");
+    }
+    for (auto& [number, line] : changed_lines) source.replace(number, std::move(line));
+}
+
 /**
  * @brief Moves the current-line cursor to Z's single resolved line.
  *
@@ -1366,6 +1504,9 @@ void CommandExecutor::execute(const CommandNode& command,
     case AstNodeKind::ZapGatherCommand:
         execute_zap_gather(
             static_cast<const ZapGatherCommandNode&>(command), context);
+        return;
+    case AstNodeKind::ZapExtendedCommand:
+        execute_zap_extended(static_cast<const ZapExtendedCommandNode&>(command), context);
         return;
     case AstNodeKind::SystemCommand:
         execute_system(static_cast<const SystemCommandNode&>(command), context);

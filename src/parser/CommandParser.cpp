@@ -204,6 +204,7 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         bool immediate_quit = false;
         bool zap_gather = false;
         bool zap_copy = false;
+        std::optional<ZapExtendedKind> zap_extended;
         FileWriteMode write_mode = FileWriteMode::Preserve;
         std::optional<std::string> compact_buffer_name;
         std::optional<FactsKind> facts_kind;
@@ -253,6 +254,24 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 zap_copy = true;
                 command.type = TokenType::Command;
                 command.lexeme = "Z";
+            } else if (first == 'Z') {
+                switch (second) {
+                case 'A': zap_extended = ZapExtendedKind::AppendBuffer; break;
+                case 'B': zap_extended = ZapExtendedKind::SortDescending; break;
+                case 'C': zap_extended = ZapExtendedKind::ClearModified; break;
+                case 'D': zap_extended = ZapExtendedKind::DeleteBuffer; break;
+                case 'L': zap_extended = ZapExtendedKind::Lowercase; break;
+                case 'M': zap_extended = ZapExtendedKind::MoveLines; break;
+                case 'P': zap_extended = ZapExtendedKind::PrintBuffer; break;
+                case 'S': zap_extended = ZapExtendedKind::SortAscending; break;
+                case 'T': zap_extended = ZapExtendedKind::Translate; break;
+                case 'U': zap_extended = ZapExtendedKind::Uppercase; break;
+                default: break;
+                }
+                if (zap_extended) {
+                    command.type = TokenType::Command;
+                    command.lexeme = "Z";
+                }
             }
         }
         if (command.type == TokenType::Symbol && command.lexeme == "=") {
@@ -689,6 +708,67 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         }
 
         if (mnemonic == 'Z') {
+            if (zap_extended) {
+                const auto operation = *zap_extended;
+                const bool takes_buffer = operation == ZapExtendedKind::AppendBuffer ||
+                    operation == ZapExtendedKind::DeleteBuffer ||
+                    operation == ZapExtendedKind::MoveLines ||
+                    operation == ZapExtendedKind::PrintBuffer;
+                const bool no_address = operation == ZapExtendedKind::ClearModified ||
+                    operation == ZapExtendedKind::DeleteBuffer ||
+                    operation == ZapExtendedKind::PrintBuffer;
+                if (no_address && address) {
+                    throw ParseError("this Z command does not accept an address",
+                                     address->location());
+                }
+                if (operation == ZapExtendedKind::AppendBuffer && address &&
+                    address->kind() == AstNodeKind::RangeAddress) {
+                    throw ParseError("ZA accepts at most one line address", address->location());
+                }
+                std::string buffer_name;
+                std::unique_ptr<PatternNode> pattern;
+                std::string from, to;
+                if (takes_buffer) {
+                    if (tokens_->peek().type != TokenType::LeftParenthesis) {
+                        throw ParseError("Z command requires a buffer in parentheses",
+                                         tokens_->peek().location);
+                    }
+                    buffer_name = parse_parenthesized_buffer_name();
+                } else if (operation == ZapExtendedKind::Lowercase ||
+                           operation == ZapExtendedKind::Uppercase) {
+                    if (tokens_->peek().type == TokenType::Symbol &&
+                        (tokens_->peek().lexeme == "/" || tokens_->peek().lexeme == "?")) {
+                        pattern = parse_delimited_pattern('Z');
+                    }
+                } else if (operation == ZapExtendedKind::Translate) {
+                    const auto location = tokens_->peek().location;
+                    const std::string parts = consume_plain_text(*tokens_);
+                    if (parts.size() < 3 || parts.front() != '/' || parts.back() != '/') {
+                        throw ParseError("ZT requires /source/target/", location);
+                    }
+                    const auto separator = parts.find('/', 1);
+                    if (separator == std::string::npos ||
+                        parts.find('/', separator + 1) != parts.size() - 1) {
+                        throw ParseError("ZT requires exactly two character sets", location);
+                    }
+                    from = parts.substr(1, separator - 1);
+                    to = parts.substr(separator + 1, parts.size() - separator - 2);
+                    if (from.empty() || from.size() != to.size()) {
+                        throw ParseError("ZT sets must be nonempty and equal length", location);
+                    }
+                    for (std::size_t i = 0; i < from.size(); ++i) {
+                        if (static_cast<unsigned char>(from[i]) >= 128 ||
+                            static_cast<unsigned char>(to[i]) >= 128 ||
+                            from.find(from[i], i + 1) != std::string::npos) {
+                            throw ParseError("ZT requires unique ASCII source characters and ASCII target characters", location);
+                        }
+                    }
+                }
+                require_command_end();
+                return std::make_unique<ZapExtendedCommandNode>(
+                    operation, std::move(address), std::move(buffer_name),
+                    std::move(pattern), std::move(from), std::move(to), command.location);
+            }
             if (zap_copy) {
                 // ZK is an insert-after-target-copy, distinct from K's
                 // replace-destination behavior and ZG's output capture.

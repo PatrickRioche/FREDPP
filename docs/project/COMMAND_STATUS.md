@@ -2,9 +2,9 @@
 
 Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/reference/commandes/` restent inchangées et seules celles des commandes disponibles sont embarquées.
 
-Pour un emploi pratique des **50 commandes prises en charge en développement
-v0.0.50** (syntaxe, effet, exemple, limites), consulter le
-[guide des commandes de FREDPP 0.0.50](../fr/fredpp/guide-commandes-0.0.50.md).
+Pour un emploi pratique des **60 commandes prises en charge en développement
+v0.0.60** (syntaxe, effet, exemple, limites), consulter le
+[guide des commandes de FREDPP 0.0.60](../fr/fredpp/guide-commandes-0.0.60.md).
 Il complète les fiches historiques embarquées dans l'aide sans les altérer.
 
 ## Couverture de la référence historique
@@ -17,12 +17,12 @@ Il complète les fiches historiques embarquées dans l'aide sans les altérer.
 | Famille J | 5 | 2 (`JM`, `JP`) | 3 |
 | Famille N | 21 | 21 (famille complète en développement) | 0 |
 | Famille O | 24 | 2 (`OI(`, `OM`) | 22 |
-| Famille Z | 17 | 1 (`ZK`, candidat Windows) | 16 |
-| **Total** | **103** | **50** | **53** |
+| Famille Z | 17 | 11 (`ZA`, `ZB`, `ZC`, `ZD`, `ZK`, `ZL`, `ZM`, `ZP`, `ZS`, `ZT`, `ZU`) | 6 |
+| **Total** | **103** | **60** | **43** |
 
-La couverture fonctionnelle provisoire de la référence est de **50 / 103**, soit environ **48,5 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
+La couverture fonctionnelle provisoire de la référence est de **60 / 103**, soit environ **58,3 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
 
-**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **50 commandes = `0.0.50`**. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. La publication stable reste une décision distincte. Les tags `dev-0.0.30` et `dev-0.0.40` existent ; le prochain, **`dev-0.0.50`, ne sera créé qu'après validation Windows par l'utilisateur**, directement sur `dev` et sans modifier `main`.
+**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **60 commandes = `0.0.60`**. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. Le tag `dev-0.0.50` a été publié après validation ; **`dev-0.0.60` sera créé seulement après validation Windows par l'utilisateur**, directement sur `dev` et sans modifier `main`.
 
 | Commande | État dans FREDPP | Aide embarquée |
 |---|---|:---:|
@@ -63,7 +63,17 @@ La couverture fonctionnelle provisoire de la référence est de **50 / 103**, so
 | T | Test de modèle `T`/`T~` et registre de condition ; homologation historique restante | Oui |
 | W | Disponible avec W, WA et l'extension WU; WB reconnu mais GCOS/BCD non pris en charge | Oui (`?w`, `?wu`) |
 | Z | Disponible | Oui |
+| ZA | Copie tout un buffer après l'adresse courante, avec protection de l'auto-copie | Oui (`?za`) |
+| ZB | Tri décroissant de la plage ; condition vraie si lignes identiques | Oui (`?zb`) |
+| ZC | Efface le drapeau de modification ; condition = état antérieur | Oui (`?zc`) |
+| ZD | Supprime définitivement le buffer nommé et son contenu non sauvegardé | Oui (`?zd`) |
 | ZK | Copie avec insertion après la ligne courante du destinataire ; tests Windows locaux et CI réussis, homologation historique restante | Oui (`?zk`) |
+| ZL | Passage en minuscules ASCII sur plage ou modèle, mise à jour du compteur et du curseur | Oui (`?zl`) |
+| ZM | Déplace des lignes entre buffers ou dans le même buffer hors ligne courante | Oui (`?zm`) |
+| ZP | Affiche un buffer entier sans le sélectionner | Oui (`?zp`) |
+| ZS | Tri croissant de la plage ; condition vraie si lignes identiques | Oui (`?zs`) |
+| ZT | Traduction de caractères ASCII avec jeux de taille égale, sans doublon source | Oui (`?zt`) |
+| ZU | Passage en majuscules ASCII sur plage ou modèle, mise à jour du compteur et du curseur | Oui (`?zu`) |
 
 ## Limite actuelle de JM / JP
 

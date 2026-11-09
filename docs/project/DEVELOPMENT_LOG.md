@@ -13,11 +13,16 @@ conservent leurs horodatages originaux en UTC.
 
 ## État mis à jour le 9 novembre 2026
 
+**Lot 51–60 en préparation :** dix commandes historiques de la famille Z
+(`ZA`, `ZB`, `ZC`, `ZD`, `ZL`, `ZM`, `ZP`, `ZS`, `ZT`, `ZU`), tests de
+comportement C++20 et aides historiques intégrées. Le tag `dev-0.0.50`
+est publié ; `dev-0.0.60` reste suspendu aux tests et à la recette Windows.
+
 | Élément | État vérifié |
 |---|---|
-| Version du projet | `0.0.50` (développement ; 50/103 commandes, famille N complète) |
+| Version du projet | `0.0.60` en préparation (60/103 commandes, famille N complète et dix commandes Z supplémentaires) |
 | Branche active | `dev` |
-| Dernier lot fonctionnel | `N~`, `N^`, `N{`, `N}`, `NA`, `NB`, `ND`, `NF`, `NL`, `NP` en interactif et procédures ; recette Windows du lot 41–50 attendue |
+| Dernier lot fonctionnel | `ZA`, `ZB`, `ZC`, `ZD`, `ZL`, `ZM`, `ZP`, `ZS`, `ZT`, `ZU` (travaux sur branche de lot) ; recette Windows du lot 51–60 attendue |
 | État des tests | `0.0.28` : **57/57 Windows** ; `0.0.29` : **57/57 Windows** ; `0.0.30` : **58 tests CI Windows** ; `0.0.40` : **60/60 CI Windows/MSVC Release et Debug**, puis **60/60 Windows utilisateur (92,51 s)** ; `0.0.50` : **62/62 Linux C++20**, Windows/MSVC en attente |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |

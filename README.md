@@ -49,7 +49,7 @@ Inside FREDPP:
 Only the French documentation of implemented FRED commands is embedded. The source files under `docs/fr/reference/commandes/` are not modified by the build.
 
 For the actual syntax, supported behavior, examples and limitations of all
-**50 commands in development v0.0.50**, use the [French practical command guide](docs/fr/fredpp/guide-commandes-0.0.50.md).
+**60 commands in development v0.0.60**, use the [French practical command guide](docs/fr/fredpp/guide-commandes-0.0.60.md) and the [previous v0.0.50 guide](docs/fr/fredpp/guide-commandes-0.0.50.md).
 The embedded `?commande` pages preserve the historical reference and may
 describe forms that FREDPP has not implemented yet.
 

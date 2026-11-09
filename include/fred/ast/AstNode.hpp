@@ -41,6 +41,7 @@ enum class AstNodeKind {
     ZapCommand,
     ZapCopyCommand,
     ZapGatherCommand,
+    ZapExtendedCommand,
     SystemCommand,
     SubstituteCommand,
     ReadCommand,

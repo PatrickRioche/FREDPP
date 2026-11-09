@@ -283,6 +283,12 @@
 
 # Changelog
 
+- **v0.0.60 — 60/103 commandes (58,3 %) :** dix nouvelles commandes
+  historiques de la famille `Z` (`ZA`, `ZB`, `ZC`, `ZD`, `ZL`, `ZM`, `ZP`,
+  `ZS`, `ZT`, `ZU`) : transferts et impression de buffers, tri, conversions
+  ASCII, traduction et indicateur de modification. Tests unitaires dédiés,
+  aide embarquée et documentation. Recette Windows et tag à confirmer.
+
 - **v0.0.50 — 50/103 commandes (48,5 %) :** extension de la famille numérique
   historique avec `N~`, `N^`, `N{`, `N}`, `NA`, `NB`, `ND`, `NF`, `NL`, `NP`.
   Complément, XOR, décalages signés contrôlés, numéro de ligne, comptage des
@@ -290,8 +296,8 @@
   caractère de remplissage ; `NP` et `FN` respectent ces paramètres.
   Compatibilité des enchaînements de procédures, aide historique embarquée et
   tests unitaires, de procédures et CLI. **Compilation C++20 et 62/62 tests
-  CTest sous Linux réussis** ; validation Windows/MSVC puis recette utilisateur
-  encore attendues. Aucun tag `dev-0.0.50` avant accord, aucun changement de
+  CTest sous Linux réussis** ; validation Windows/MSVC et recette utilisateur
+  également confirmées, puis tag `dev-0.0.50` publié. Aucun changement de
   `main` ni release officielle.
 
 - **v0.0.40 — 40/103 commandes (38,8 %) :** implémentation sur `dev` des dix
