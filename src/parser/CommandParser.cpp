@@ -175,7 +175,8 @@ CommandParser::CommandParser(TokenStream& tokens,
  *
  * The method first parses an optional address/`*` alias, normalizes supported
  * compact spellings (QQ, WA/WU/WB, FB/FF/FN/FO/F?, JM/JP, Bx, ZG, ZK), then
- * constructs the appropriate AST. Special symbols `=` and `"` are parsed
+ * constructs the appropriate AST, including the separate historical N
+ * register operators. Special symbols `=` and `"` are parsed
  * without registry lookup. Any exception rewinds the TokenStream to the entry
  * mark.
  */
@@ -416,8 +417,6 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                     "N: does not accept a line address in this version",
                     address->location());
             }
-            // N: is an assignment; other historical N operators are separate
-            // reference commands and are not claimed by this implementation.
             const auto opening = tokens_->peek();
             if (opening.type != TokenType::LeftParenthesis) {
                 throw ParseError("N: requires N(name):value", opening.location);
@@ -428,14 +427,44 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                                  opening.location);
             }
 
-            const auto colon = tokens_->consume();
-            if (colon.type != TokenType::Symbol || colon.lexeme != ":") {
-                throw ParseError("N: requires ':'", colon.location);
+            const auto operator_token = tokens_->consume();
+            if (operator_token.type != TokenType::Symbol ||
+                operator_token.lexeme.size() != 1) {
+                throw ParseError("N: requires ':'", operator_token.location);
+            }
+
+            const char operator_char = operator_token.lexeme.front();
+            std::optional<NumericOperationKind> operation;
+            switch (operator_char) {
+            case '+': operation = NumericOperationKind::Add; break;
+            case '-': operation = NumericOperationKind::Subtract; break;
+            case '*': operation = NumericOperationKind::Multiply; break;
+            case '/': operation = NumericOperationKind::Divide; break;
+            case '%': operation = NumericOperationKind::Modulo; break;
+            case '=': operation = NumericOperationKind::Equal; break;
+            case '<': operation = NumericOperationKind::Less; break;
+            case '>': operation = NumericOperationKind::Greater; break;
+            case '&': operation = NumericOperationKind::BitAnd; break;
+            case '|': operation = NumericOperationKind::BitOr; break;
+            case ':': break;
+            default:
+                throw ParseError("unsupported N operator", operator_token.location);
             }
 
             NumericValueKind kind = NumericValueKind::Literal;
             std::int64_t literal = 0;
-            auto operand = tokens_->consume();
+            std::string referenced_register;
+            if (operator_char == '|' &&
+                (tokens_->peek().type == TokenType::End ||
+                 tokens_->peek().type == TokenType::NewLine)) {
+                operation = NumericOperationKind::Absolute;
+                require_command_end();
+                return std::make_unique<NumericOperationCommandNode>(
+                    std::move(name), *operation, kind, literal,
+                    std::string{}, command.location);
+            }
+
+            const auto operand = tokens_->consume();
             if (operand.type == TokenType::Symbol &&
                 (operand.lexeme == "+" || operand.lexeme == "-")) {
                 const bool negative = operand.lexeme == "-";
@@ -470,14 +499,35 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             } else if (operand.type == TokenType::Symbol &&
                        operand.lexeme == "$") {
                 kind = NumericValueKind::LastLine;
+            } else if (operation && operand.type == TokenType::Backslash) {
+                const auto source = tokens_->consume();
+                if (source.type != TokenType::Command ||
+                    (source.lexeme != "N" && source.lexeme != "n") ||
+                    tokens_->peek().type != TokenType::LeftParenthesis) {
+                    throw ParseError("N register operand requires \\N(name)",
+                                     source.location);
+                }
+                referenced_register = parse_parenthesized_buffer_name();
+                if (referenced_register.empty() ||
+                    referenced_register.size() > 14 ||
+                    referenced_register.find('(') != std::string::npos) {
+                    throw ParseError("invalid numeric operand register name",
+                                     source.location);
+                }
+                kind = NumericValueKind::Register;
             } else {
                 throw ParseError("N: requires an integer or one of $, . and #",
                                  operand.location);
             }
 
             require_command_end();
-            return std::make_unique<NumericAssignmentCommandNode>(
-                std::move(name), kind, literal, command.location);
+            if (!operation) {
+                return std::make_unique<NumericAssignmentCommandNode>(
+                    std::move(name), kind, literal, command.location);
+            }
+            return std::make_unique<NumericOperationCommandNode>(
+                std::move(name), *operation, kind, literal,
+                std::move(referenced_register), command.location);
         }
 
         if (mnemonic == 'F') {

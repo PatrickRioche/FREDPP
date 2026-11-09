@@ -49,6 +49,7 @@ enum class AstNodeKind {
     MessageCommand,
     FactsCommand,
     NumericAssignmentCommand,
+    NumericOperationCommand,
     FileAssociationCommand,
     OptionCommand,
     QuitCommand

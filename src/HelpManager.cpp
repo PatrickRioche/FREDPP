@@ -14,6 +14,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace fredpp {
@@ -302,6 +303,18 @@ std::string HelpManager::normalize_topic(std::string_view topic) {
     // ncolon.md carries the historical N: assignment help page.
     if (normalized == "n:") {
         return "ncolon";
+    }
+    // Literal historical numeric operators have descriptive source filenames.
+    constexpr std::pair<std::string_view, std::string_view> numeric_aliases[] = {
+        {"n+", "nplus"}, {"n-", "nminus"}, {"n*", "nmultiply"},
+        {"n/", "ndivide"}, {"n%", "nmodulo"}, {"n=", "nequals"},
+        {"n<", "nless"}, {"n>", "ngreater"}, {"n&", "nand"},
+        {"n|", "npipe"}
+    };
+    for (const auto& [symbol, file_topic] : numeric_aliases) {
+        if (normalized == symbol) {
+            return std::string(file_topic);
+        }
     }
     return normalized;
 }

@@ -15,20 +15,20 @@ conservent leurs horodatages originaux en UTC.
 
 | Élément | État vérifié |
 |---|---|
-| Version du projet | `0.0.30` (développement ; 30/103 commandes, `N:` ajouté) |
+| Version du projet | `0.0.40` (développement ; 40/103 commandes, dix opérateurs N ajoutés) |
 | Branche active | `dev` |
-| Dernier lot fonctionnel | `N:` : affectation d'un registre numérique en mode interactif, lisible avec `FN`, prêt pour validation Windows |
-| État des tests | `0.0.28` : **57/57 tests Windows 11 réussis** (51,17 s) ; `0.0.29` : **57/57 tests Windows 11 réussis** (108,55 s) le 9 novembre 2026 ; `0.0.30` : tests C++20 ciblés Linux, suite Windows attendue |
+| Dernier lot fonctionnel | `N+`, `N-`, `N*`, `N/`, `N%`, `N=`, `N<`, `N>`, `N&`, `N|` en interactif et procédure ; recette Windows utilisateur attendue |
+| État des tests | `0.0.28` : **57/57 tests Windows 11 réussis** (51,17 s) ; `0.0.29` : **57/57 tests Windows 11 réussis** (108,55 s) ; `0.0.30` : CI Windows réussie (58 tests) ; `0.0.40` : tests C++20 Linux, CI Windows et recette utilisateur à confirmer |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
-| Dernière CI Windows/MSVC ciblée | [Exécution 42533608679 réussie : 20/20 Release, 3/3 Debug `=`, régressions et scripts verts](https://github.com/PatrickRioche/FREDPP/actions/runs/42533608679) |
+| Dernière CI Windows/MSVC ciblée | [Exécution 42618912397 réussie pour `0.0.30` : 58 tests](https://github.com/PatrickRioche/FREDPP/actions/runs/42618912397) ; attente de CI `0.0.40` |
 | Validation locale Windows 11 — T | Confirmée par l'utilisateur (scénario et CTest 1/1) |
 | Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |
 | Validation locale Windows 11 — ZK | Confirmée (scénario Debug, CTest 2/2 et relance via `test.ps1` 2/2 en 0,55 s) |
 | Validation locale Windows 11 — R (liste de fichiers) | Confirmée par l'utilisateur : `test_file_io` 1/1, CTest total 1,53 s |
 | Validation locale Windows 11 — FF | Confirmée par l'utilisateur : `test_facts` et `test_help_manager`, 2/2, CTest total 0,04 s ; commit `afe0d0f` |
 | Homologation historique complète | Reportée |
-| Nouvelle release officielle | Aucune ; pas de fusion dans `main` ; tag de jalon `dev-0.0.30` prévu sur `dev` **après validation Windows de la v0.0.30 par l'utilisateur**, puis tous les 10 ajouts |
+| Nouvelle release officielle | Aucune ; pas de fusion dans `main` ; `dev-0.0.30` publié après validation ; tag `dev-0.0.40` **interdit avant la recette Windows de l'utilisateur** |
 
 ## Chronologie des commits (ordre chronologique)
 
@@ -59,8 +59,28 @@ conservent leurs horodatages originaux en UTC.
 | 09/11/2026 | Lot `F` sur [`dev`](https://github.com/PatrickRioche/FREDPP/commits/dev/) | Consultation du buffer courant, association du fichier, aide `?f`, tests ciblés et passage à `0.0.28` |
 | 09/11/2026 | Lot `FN` sur [`dev`](https://github.com/PatrickRioche/FREDPP/commits/dev/) | Liste des registres numériques créés, aide `?fn`, tests et passage à `0.0.29` |
 | 09/11/2026 | Lot `N:` sur [`dev`](https://github.com/PatrickRioche/FREDPP/commits/dev/) | Affectation interactive des registres numériques, aide `?n:`, tests et passage à `0.0.30` ; tag conditionné à la validation Windows |
+| 09/11/2026 | Lot numérique 31–40 préparé pour [`dev`](https://github.com/PatrickRioche/FREDPP/commits/dev/) | Dix opérations supplémentaires de la famille N ; tests C++ et scénario CLI ; version `0.0.40`, sans tag avant la recette Windows |
 
 ## Détails des lots et des validations
+
+### Lot 31–40 — opérations de registres numériques (9 novembre 2026)
+
+- **Références :** les dix fiches `nplus`, `nminus`, `nmultiply`, `ndivide`,
+  `nmodulo`, `nequals`, `nless`, `ngreater`, `nand`, `npipe` sont embarquées
+  sans modification des fichiers historiques.
+- **Implémentation :** nouvelles formes AST `NumericOperationCommandNode`,
+  analyse des opérandes `#`, `.`, `$`, littéraux signés et `\N(nom)` ; logique
+  arithmétique partagée par le terminal et le moteur de procédures. Les
+  comparaisons écrivent l'indicateur de condition ; le registre reste stable.
+- **Sécurité :** gestion explicite des débordements signés 64 bits, des
+  divisions par zéro et de la valeur absolue non représentable. Aucune
+  mutation partielle du registre ni du compteur sur erreur.
+- **Validation :** `test_numeric_operations`, tests du parseur/procédures,
+  test CLI `cli_numeric_operations`, extension du test de l'aide embarquée ;
+  résultat Windows/MSVC à compléter après CI. Vérification Windows manuelle
+  réservée à l'utilisateur avant création de `dev-0.0.40`.
+- **Politique Git :** branche `dev` seulement ; `main` et les releases `v*`
+  restent inchangées.
 
 ### Lot N: — affectation d'un registre numérique (9 novembre 2026)
 

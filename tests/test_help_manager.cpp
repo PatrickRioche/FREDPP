@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <initializer_list>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -20,6 +21,11 @@ int main() {
     assert(help.exists("fn"));
     assert(help.exists("n:"));
     assert(help.exists("ncolon"));
+    for (const auto* topic : {
+             "n+", "n-", "n*", "n/", "n%", "n=", "n<", "n>", "n&", "n|"}) {
+        assert(help.exists(topic));
+        assert(!help.load(topic).empty());
+    }
     assert(help.exists("fq"));
     assert(help.exists("f?"));
     assert(help.exists("="));
@@ -51,6 +57,8 @@ int main() {
     assert(index.find("    ?fn") != std::string::npos);
     assert(index.find("    ?n:") != std::string::npos);
     assert(index.find("    ?ncolon") == std::string::npos);
+    assert(index.find("    ?n+") != std::string::npos);
+    assert(index.find("    ?n|") != std::string::npos);
     assert(index.find("    ?f?") != std::string::npos);
     assert(index.find("    ?fq") == std::string::npos);
     assert(index.find("    ?=") != std::string::npos);

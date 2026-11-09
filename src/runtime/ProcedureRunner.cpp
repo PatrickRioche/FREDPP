@@ -2,7 +2,7 @@
  * @file ProcedureRunner.cpp
  * @brief Procedure-control orchestration around the shared Flow/Parser/Runtime pipeline.
  *
- * ProcedureRunner handles procedure-only control syntax (buffer calls, labels, jumps, minimal N operations and A/I/C text blocks). Ordinary FRED command lines still follow central Flow expansion -> Lexer -> CommandParser -> CommandExecutor.
+ * ProcedureRunner handles procedure-only control syntax (buffer calls, labels, jumps, chained N operations and A/I/C text blocks). Ordinary FRED command lines still follow central Flow expansion -> Lexer -> CommandParser -> CommandExecutor.
  *
  * @note FREDPP_LOT8_CPP_DOCUMENTATION
  */
@@ -20,6 +20,7 @@
 #include "fred/runtime/CommandExecutionError.hpp"
 #include "fred/runtime/CommandExecutor.hpp"
 #include "fred/runtime/ExecutionContext.hpp"
+#include "fred/runtime/NumericOperations.hpp"
 #include <charconv>
 #include <cstdint>
 #include <system_error>
@@ -369,13 +370,27 @@ std::int64_t parse_numeric_operand(
         return context.counter();
     }
 
+    if (operand == '\\' && position + 2 < source.size() &&
+        (source[position + 1] == 'N' || source[position + 1] == 'n') &&
+        source[position + 2] == '(') {
+        const auto closing = source.find(')', position + 3);
+        if (closing == std::string_view::npos) {
+            throw CommandExecutionError("N register operand requires \\N(name)");
+        }
+        const auto name = validate_numeric_register_name(
+            source.substr(position + 3, closing - position - 3));
+        position = closing + 1;
+        return context.numeric_register(name);
+    }
+
     return parse_decimal_integer(source, position);
 }
 
 /**
  * @brief Executes the currently implemented `N(register)` operation sequence.
  *
- * Supported operators are `:`, `=`, `<` and `>`. The returned tail is reserved
+ * Supported operators are `:`, `+`, `-`, `*`, `/`, `%`, `=`, `<`, `>`,
+ * `&` and `|`. The returned tail is reserved
  * for the currently supported same-line J(label)[T|F] continuation.
  */
 std::optional<std::string_view> execute_numeric_sequence(
@@ -415,42 +430,57 @@ std::optional<std::string_view> execute_numeric_sequence(
 
         const char operation = value[position];
 
-        if (operation != ':' &&
-            operation != '=' &&
-            operation != '<' &&
-            operation != '>') {
+        if (operation != ':' && operation != '+' && operation != '-' &&
+            operation != '*' && operation != '/' && operation != '%' &&
+            operation != '=' && operation != '<' && operation != '>' &&
+            operation != '&' && operation != '|') {
             break;
         }
 
         ++position;
+
+        while (position < value.size() &&
+               std::isspace(static_cast<unsigned char>(value[position])) != 0) {
+            ++position;
+        }
+
+        if (operation == '|' && position >= value.size()) {
+            apply_numeric_operation(
+                context, register_name, NumericOperationKind::Absolute);
+            executed = true;
+            break;
+        }
 
         const std::int64_t operand =
             parse_numeric_operand(value, position, context);
 
         if (operation == ':') {
             context.set_numeric_register(register_name, operand);
+            context.set_counter(operand);
         } else {
-            const std::int64_t current =
-                context.numeric_register(register_name);
-
-            if (operation == '=') {
-                context.set_condition(current == operand);
-            } else if (operation == '<') {
-                context.set_condition(current < operand);
-            } else {
-                context.set_condition(current > operand);
+            NumericOperationKind kind = NumericOperationKind::Equal;
+            switch (operation) {
+            case '+': kind = NumericOperationKind::Add; break;
+            case '-': kind = NumericOperationKind::Subtract; break;
+            case '*': kind = NumericOperationKind::Multiply; break;
+            case '/': kind = NumericOperationKind::Divide; break;
+            case '%': kind = NumericOperationKind::Modulo; break;
+            case '=': kind = NumericOperationKind::Equal; break;
+            case '<': kind = NumericOperationKind::Less; break;
+            case '>': kind = NumericOperationKind::Greater; break;
+            case '&': kind = NumericOperationKind::BitAnd; break;
+            case '|': kind = NumericOperationKind::BitOr; break;
+            default: break;
             }
+            apply_numeric_operation(context, register_name, kind, operand);
         }
-
-        context.set_counter(
-            context.numeric_register(register_name));
 
         executed = true;
     }
 
     if (!executed) {
         throw CommandExecutionError(
-            "N minimal supports :, =, < and >");
+            "N requires a supported numeric operator");
     }
 
     return trim(value.substr(position));

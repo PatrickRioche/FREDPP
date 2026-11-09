@@ -12,6 +12,7 @@
 
 #include "fred/runtime/AddressEvaluator.hpp"
 #include "fred/runtime/CommandExecutionError.hpp"
+#include "fred/runtime/NumericOperations.hpp"
 #include "fred/runtime/PatternMatcher.hpp"
 
 #include <algorithm>
@@ -887,10 +888,12 @@ void execute_facts(const FactsCommandNode& command,
  * counter to the stored register value while leaving condition and Buffer
  * state unchanged. Only the parsed N: operation reaches this function.
  */
-void execute_numeric_assignment(const NumericAssignmentCommandNode& command,
-                                ExecutionContext& context) {
-    std::int64_t value = command.literal_value();
-    switch (command.value_kind()) {
+std::int64_t resolve_numeric_value(NumericValueKind kind,
+                                   std::int64_t literal,
+                                   std::string_view reference,
+                                   ExecutionContext& context) {
+    std::int64_t value = literal;
+    switch (kind) {
     case NumericValueKind::Literal:
         break;
     case NumericValueKind::Counter:
@@ -898,7 +901,7 @@ void execute_numeric_assignment(const NumericAssignmentCommandNode& command,
         break;
     case NumericValueKind::CurrentLine:
     case NumericValueKind::LastLine: {
-        const auto line = command.value_kind() == NumericValueKind::CurrentLine
+        const auto line = kind == NumericValueKind::CurrentLine
             ? context.current_buffer().current_line()
             : context.current_buffer().line_count();
         if (line > static_cast<std::size_t>(
@@ -908,10 +911,29 @@ void execute_numeric_assignment(const NumericAssignmentCommandNode& command,
         value = static_cast<std::int64_t>(line);
         break;
     }
+    case NumericValueKind::Register:
+        value = context.numeric_register(reference);
+        break;
     }
+    return value;
+}
+
+void execute_numeric_assignment(const NumericAssignmentCommandNode& command,
+                                ExecutionContext& context) {
+    const auto value = resolve_numeric_value(
+        command.value_kind(), command.literal_value(), {}, context);
 
     context.set_numeric_register(command.name(), value);
     context.set_counter(value);
+}
+
+/** Execute N+, N-, N*, N/, N%, N=, N<, N>, N&, or N|. */
+void execute_numeric_operation(const NumericOperationCommandNode& command,
+                               ExecutionContext& context) {
+    const auto operand = resolve_numeric_value(
+        command.value_kind(), command.literal_value(),
+        command.operand_register(), context);
+    apply_numeric_operation(context, command.name(), command.operation(), operand);
 }
 
 /**
@@ -1306,6 +1328,10 @@ void CommandExecutor::execute(const CommandNode& command,
     case AstNodeKind::NumericAssignmentCommand:
         execute_numeric_assignment(
             static_cast<const NumericAssignmentCommandNode&>(command), context);
+        return;
+    case AstNodeKind::NumericOperationCommand:
+        execute_numeric_operation(
+            static_cast<const NumericOperationCommandNode&>(command), context);
         return;
     case AstNodeKind::FileAssociationCommand:
         execute_file_association(

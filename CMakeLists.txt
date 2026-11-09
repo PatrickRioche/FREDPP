@@ -9,7 +9,7 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.30 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.40 LANGUAGES CXX)
 
 # Development version contract: the patch number equals the number of
 # historical reference commands recorded as available in COMMAND_STATUS.md.
@@ -123,6 +123,16 @@ set(FREDPP_IMPLEMENTED_HELP_TOPICS
     l
     m
     ncolon
+    nplus
+    nminus
+    nmultiply
+    ndivide
+    nmodulo
+    nequals
+    nless
+    ngreater
+    nand
+    npipe
     p
     q
     r
@@ -167,6 +177,36 @@ foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
         # ncolon.md documents the historical N: assignment spelling.
         set(help_topic_upper "N:")
         set(help_command "?n:")
+    elseif(help_topic STREQUAL "nplus")
+        set(help_topic_upper "N+")
+        set(help_command "?n+")
+    elseif(help_topic STREQUAL "nminus")
+        set(help_topic_upper "N-")
+        set(help_command "?n-")
+    elseif(help_topic STREQUAL "nmultiply")
+        set(help_topic_upper "N*")
+        set(help_command "?n*")
+    elseif(help_topic STREQUAL "ndivide")
+        set(help_topic_upper "N/")
+        set(help_command "?n/")
+    elseif(help_topic STREQUAL "nmodulo")
+        set(help_topic_upper "N%")
+        set(help_command "?n%")
+    elseif(help_topic STREQUAL "nequals")
+        set(help_topic_upper "N=")
+        set(help_command "?n=")
+    elseif(help_topic STREQUAL "nless")
+        set(help_topic_upper "N<")
+        set(help_command "?n<")
+    elseif(help_topic STREQUAL "ngreater")
+        set(help_topic_upper "N>")
+        set(help_command "?n>")
+    elseif(help_topic STREQUAL "nand")
+        set(help_topic_upper "N&")
+        set(help_command "?n&")
+    elseif(help_topic STREQUAL "npipe")
+        set(help_topic_upper "N|")
+        set(help_command "?n|")
     endif()
     string(LENGTH "${help_command}" help_command_length)
     math(EXPR help_padding_length "12 - ${help_command_length}")

@@ -2,9 +2,9 @@
 
 Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/reference/commandes/` restent inchangées et seules celles des commandes disponibles sont embarquées.
 
-Pour un emploi pratique des **30 commandes effectivement disponibles en
-v0.0.30** (syntaxe, effet, exemple, limites), consulter le
-[guide des commandes de FREDPP 0.0.30](../fr/fredpp/guide-commandes-0.0.30.md).
+Pour un emploi pratique des **40 commandes prises en charge en développement
+v0.0.40** (syntaxe, effet, exemple, limites), consulter le
+[guide des commandes de FREDPP 0.0.40](../fr/fredpp/guide-commandes-0.0.40.md).
 Il complète les fiches historiques embarquées dans l'aide sans les altérer.
 
 ## Couverture de la référence historique
@@ -15,14 +15,14 @@ Il complète les fiches historiques embarquées dans l'aide sans les altérer.
 | Commandes spéciales | 7 | 2 (`\"`, `=`) | 5 |
 | Famille F | 7 | 5 (`FB`, `FF`, `FN`, `FO`, `F?`) | 2 |
 | Famille J | 5 | 2 (`JM`, `JP`) | 3 |
-| Famille N | 21 | 1 (`N:`) | 20 |
+| Famille N | 21 | 11 (`N:`, `N+`, `N-`, `N*`, `N/`, `N%`, `N=`, `N<`, `N>`, `N&`, `N|`) | 10 |
 | Famille O | 24 | 2 (`OI(`, `OM`) | 22 |
 | Famille Z | 17 | 1 (`ZK`, candidat Windows) | 16 |
-| **Total** | **103** | **30** | **73** |
+| **Total** | **103** | **40** | **63** |
 
-La couverture fonctionnelle provisoire de la référence est de **30 / 103**, soit environ **29,1 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
+La couverture fonctionnelle provisoire de la référence est de **40 / 103**, soit environ **38,8 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
 
-**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **30 commandes = `0.0.30`**. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. La publication stable reste une décision distincte. Un tag de jalon `dev-0.0.30` sera créé sur le commit de `dev` **après validation Windows par l'utilisateur**, sans modifier `main` ; le même principe s'appliquera à chaque dizaine de commandes.
+**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **40 commandes = `0.0.40`**. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. La publication stable reste une décision distincte. Le tag de jalon `dev-0.0.30` existe ; le prochain, **`dev-0.0.40`, n'est créé qu'après validation Windows par l'utilisateur**, directement sur `dev` et sans modifier `main`.
 
 | Commande | État dans FREDPP | Aide embarquée |
 |---|---|:---:|
@@ -45,7 +45,11 @@ La couverture fonctionnelle provisoire de la référence est de **30 / 103**, so
 | JP | Disponible : message sans retour à la ligne, formes `JP texte` et `JP/texte/` | Oui (`?jp`) |
 | L | Disponible avec un nom de fichier | Oui |
 | M | Disponible sous forme provisoire, réalignement historique requis | Oui |
-| `N:` | Disponible en mode interactif : `N(nom):valeur` affecte un registre numérique (entier signé ou `#`, `.` et `$`) et met à jour le compteur ; les autres opérateurs `N` restent distincts | Oui (`?n:`) |
+| `N:` | Disponible en mode interactif et en procédure : affectation d'un registre numérique (entier signé ou `#`, `.` et `$`) et mise à jour du compteur | Oui (`?n:`) |
+| `N+`, `N-`, `N*` | Addition, soustraction et multiplication d'un registre, avec vérification des dépassements d'entiers signés ; opérandes littéraux, `#`, `.`, `$` ou `\N(nom)` | Oui (`?n+`, `?n-`, `?n*`) |
+| `N/`, `N%` | Division entière vers zéro et reste signé, avec refus du diviseur nul et du cas `INT64_MIN / -1` | Oui (`?n/`, `?n%`) |
+| `N=`, `N<`, `N>` | Comparaison avec la valeur du registre ; modifie la condition sans changer la valeur du registre | Oui (`?n=`, `?n<`, `?n>`) |
+| `N&`, `N|` | ET bit à bit ; `N|` sans opérande calcule la valeur absolue, avec opérande calcule le OU bit à bit | Oui (`?n&`, `?n|`) |
 | P | Disponible | Oui |
 | Q | Disponible pour `Q` et `QQ`; Q protège désormais les buffers modifiés; `Q!` reporté | Oui |
 | R | Lecture ASCII/UTF-8, insertion adressée et liste ordonnée de fichiers, y compris les noms individuels entre guillemets avec espaces (formes avancées restantes) | Oui |

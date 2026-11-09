@@ -68,6 +68,8 @@ public:
      * - empty, `h` and `help` become `index`.
      * - the literal historical `f?` spelling becomes the `fq` page key.
      * - the historical `n:` spelling becomes the `ncolon` page key.
+     * - the ten supported historic numeric operator spellings `n+` through
+     *   `n|` map to descriptive embedded page keys.
      *
      * @return Canonical lookup key.
      */

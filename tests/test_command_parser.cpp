@@ -113,7 +113,32 @@ int main() {
         assert(n.value_kind() == fred::NumericValueKind::Counter);
     }
     expect_error("N", "N: requires N(name):value");
-    expect_error("N(alpha)=5", "N: requires ':'");
+    {
+        const auto node = parse("N(alpha)=5");
+        assert(node->kind() == fred::AstNodeKind::NumericOperationCommand);
+        const auto& n = static_cast<const fred::NumericOperationCommandNode&>(*node);
+        assert(n.operation() == fred::NumericOperationKind::Equal);
+        assert(n.name() == "alpha");
+        assert(n.literal_value() == 5);
+    }
+    {
+        const auto node = parse("N(total)+\\N(other)");
+        const auto& n = static_cast<const fred::NumericOperationCommandNode&>(*node);
+        assert(n.operation() == fred::NumericOperationKind::Add);
+        assert(n.value_kind() == fred::NumericValueKind::Register);
+        assert(n.operand_register() == "other");
+    }
+    {
+        const auto node = parse("n(total)|");
+        const auto& n = static_cast<const fred::NumericOperationCommandNode&>(*node);
+        assert(n.operation() == fred::NumericOperationKind::Absolute);
+    }
+    {
+        const auto node = parse("N(total)|4");
+        const auto& n = static_cast<const fred::NumericOperationCommandNode&>(*node);
+        assert(n.operation() == fred::NumericOperationKind::BitOr);
+    }
+    expect_error("N(alpha)^5", "unsupported N operator");
     expect_error("N(alpha):", "N: requires an integer or one of $, . and #");
     expect_error("N(alpha):+", "N: requires a signed integer after +/-");
     expect_error("N(123456789012345):1",

@@ -283,6 +283,16 @@
 
 # Changelog
 
+- **v0.0.40 — 40/103 commandes (38,8 %) :** implémentation sur `dev` des dix
+  opérateurs historiques `N+`, `N-`, `N*`, `N/`, `N%`, `N=`, `N<`, `N>`, `N&`,
+  `N|` (valeur absolue sans opérande et OU avec opérande). Utilisation dans le
+  terminal et les procédures ; opérandes signés, `#`, `.`, `$`, `\N(nom)` ;
+  gestion contrôlée des dépassements entiers et de la division par zéro ;
+  tests unitaires, tests de procédures, scénario CLI et aide historique
+  `?n+` à `?n|`. **En attente de la validation Windows de l'utilisateur :
+  aucun tag `dev-0.0.40`, aucune fusion dans `main` ni release officielle.**
+
+
 ## v0.0.16 — Bootstrap historique des procédures
 
 ### Ajouté

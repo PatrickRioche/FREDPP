@@ -155,9 +155,24 @@ int main() {
         {"N(123456789012345):1"},
         "numeric register name exceeds historical limit of 14 characters");
 
-    expect_error(
-        {"N(np)+1"},
-        "N minimal supports :, =, < and >");
+    {
+        const auto result = run_case(0, {
+            "N(rhs):5", "N(np):8", "N(np)+\\N(rhs)",
+            "N(np)*2", "N(np)-6", "N(np)/4", "N(np)%3",
+            "N(np)&3", "N(np)|8", "N(np)=10", "N(np)>9", "N(np)<11"
+        });
+        assert(result.np == 10);
+        assert(result.counter == 10);
+        assert(result.condition);
+    }
+    {
+        const auto result = run_case(0, {"N(np):-12", "N(np)|"});
+        assert(result.np == 12);
+    }
+
+    expect_error({"N(np):5", "N(np)/0"}, "numeric division by zero");
+    expect_error({"N(np):9223372036854775807", "N(np)+1"},
+                 "numeric addition overflow");
 
     expect_error(
         {"N(np):1 JM/not-yet/"},

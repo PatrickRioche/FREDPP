@@ -648,7 +648,15 @@ enum class NumericValueKind {
     /** . refers to the selected Buffer's current line number. */
     CurrentLine,
     /** $ refers to the selected Buffer's final line number. */
-    LastLine
+    LastLine,
+    /** The current value of another named numeric register (\\N(name)). */
+    Register
+};
+
+/** Operations 31-40: numeric arithmetic, comparisons, and bitwise operations. */
+enum class NumericOperationKind {
+    Add, Subtract, Multiply, Divide, Modulo,
+    Equal, Less, Greater, BitAnd, BitOr, Absolute
 };
 
 /**
@@ -686,6 +694,45 @@ private:
     std::string name_;
     NumericValueKind value_kind_;
     std::int64_t literal_value_{};
+};
+
+/** One non-assignment numeric operation, with an optional register operand. */
+class NumericOperationCommandNode final : public CommandNode {
+public:
+    NumericOperationCommandNode(std::string name,
+                                NumericOperationKind operation,
+                                NumericValueKind value_kind,
+                                std::int64_t literal_value,
+                                std::string operand_register,
+                                SourceLocation location) noexcept
+        : CommandNode(nullptr, location), name_(std::move(name)),
+          operation_(operation), value_kind_(value_kind),
+          literal_value_(literal_value),
+          operand_register_(std::move(operand_register)) {}
+
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::NumericOperationCommand;
+    }
+    [[nodiscard]] const std::string& name() const noexcept { return name_; }
+    [[nodiscard]] NumericOperationKind operation() const noexcept {
+        return operation_;
+    }
+    [[nodiscard]] NumericValueKind value_kind() const noexcept {
+        return value_kind_;
+    }
+    [[nodiscard]] std::int64_t literal_value() const noexcept {
+        return literal_value_;
+    }
+    [[nodiscard]] const std::string& operand_register() const noexcept {
+        return operand_register_;
+    }
+
+private:
+    std::string name_;
+    NumericOperationKind operation_;
+    NumericValueKind value_kind_;
+    std::int64_t literal_value_{};
+    std::string operand_register_;
 };
 
 /**
