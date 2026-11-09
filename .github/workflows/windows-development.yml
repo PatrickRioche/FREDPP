@@ -23,7 +23,7 @@ permissions:
 
 jobs:
   windows_msvc:
-    name: Windows MSVC / focused regression
+    name: Windows MSVC / full regression
     runs-on: windows-latest
 
     steps:
@@ -37,6 +37,9 @@ jobs:
 
       - name: Compile all FREDPP C++ targets
         run: cmake --build out/build/windows-dev --config Release --parallel 1
+
+      - name: Run complete Windows Release test suite
+        run: ctest --test-dir out/build/windows-dev -C Release --output-on-failure
 
       # This development lane deliberately runs targeted engineering
       # regressions, not the deferred historical compatibility campaign.
@@ -55,7 +58,7 @@ jobs:
         shell: cmd
         env:
           FREDPP_BUILD_DIR: ${{ runner.workspace }}\fredpp-debug
-        run: call scripts\test.bat -R "^(test_zap_copy|cli_zap_copy)$"
+        run: call scripts\test.bat
 
       # PowerShell must invoke the native wrapper: cmd.exe otherwise
       # interprets the alternation pipe before the .bat script can quote it.
