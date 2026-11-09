@@ -289,7 +289,8 @@
   terminal et les procédures ; opérandes signés, `#`, `.`, `$`, `\N(nom)` ;
   gestion contrôlée des dépassements entiers et de la division par zéro ;
   tests unitaires, tests de procédures, scénario CLI et aide historique
-  `?n+` à `?n|`. **En attente de la validation Windows de l'utilisateur :
+  `?n+` à `?n|` ; **CI Windows/MSVC réussie 60/60 en Release et Debug**.
+  **En attente de la validation Windows de l'utilisateur :
   aucun tag `dev-0.0.40`, aucune fusion dans `main` ni release officielle.**
 
 

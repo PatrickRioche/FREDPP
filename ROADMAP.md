@@ -210,7 +210,8 @@ provisoire), incluant les dix opérations `N+`, `N-`, `N*`, `N/`, `N%`, `N=`,
 fichiers) et les candidats `K` et `ZK` déjà validés sur Windows 11.
 Les versions `0.0.28` et `0.0.29` ont passé **57/57 tests locaux Windows**
 le 9 novembre (respectivement 51,17 s et 108,55 s). Les tests Windows
-de la version `0.0.40` restent à confirmer par CI puis recette Windows utilisateur.
+de la version `0.0.40` ont passé la CI Windows/MSVC **60/60 en Release et
+60/60 en Debug** ; la recette Windows par l'utilisateur reste à effectuer.
 Chaque nouvelle commande comptabilisée incrémente le dernier nombre de
 la version de développement ; les correctifs internes n'y touchent pas.
 `main` et les releases restent indépendants de ce suivi. À chaque dizaine

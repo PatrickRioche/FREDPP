@@ -18,10 +18,10 @@ conservent leurs horodatages originaux en UTC.
 | Version du projet | `0.0.40` (développement ; 40/103 commandes, dix opérateurs N ajoutés) |
 | Branche active | `dev` |
 | Dernier lot fonctionnel | `N+`, `N-`, `N*`, `N/`, `N%`, `N=`, `N<`, `N>`, `N&`, `N|` en interactif et procédure ; recette Windows utilisateur attendue |
-| État des tests | `0.0.28` : **57/57 tests Windows 11 réussis** (51,17 s) ; `0.0.29` : **57/57 tests Windows 11 réussis** (108,55 s) ; `0.0.30` : CI Windows réussie (58 tests) ; `0.0.40` : tests C++20 Linux, CI Windows et recette utilisateur à confirmer |
+| État des tests | `0.0.28` : **57/57 tests Windows 11 réussis** (51,17 s) ; `0.0.29` : **57/57 tests Windows 11 réussis** (108,55 s) ; `0.0.30` : CI Windows réussie (58 tests) ; `0.0.40` : tests C++20 Linux et **60/60 tests CI Windows/MSVC réussis en Release et Debug** ; recette utilisateur à confirmer |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
-| Dernière CI Windows/MSVC ciblée | [Exécution 42618912397 réussie pour `0.0.30` : 58 tests](https://github.com/PatrickRioche/FREDPP/actions/runs/42618912397) ; attente de CI `0.0.40` |
+| Dernière CI Windows/MSVC ciblée | [Exécution 42629499268 réussie pour `0.0.40` : 60 tests Release et 60 tests Debug](https://github.com/PatrickRioche/FREDPP/actions/runs/42629499268), plus scripts PowerShell/batch et régressions ciblées |
 | Validation locale Windows 11 — T | Confirmée par l'utilisateur (scénario et CTest 1/1) |
 | Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |
 | Validation locale Windows 11 — ZK | Confirmée (scénario Debug, CTest 2/2 et relance via `test.ps1` 2/2 en 0,55 s) |
@@ -77,8 +77,9 @@ conservent leurs horodatages originaux en UTC.
   mutation partielle du registre ni du compteur sur erreur.
 - **Validation :** `test_numeric_operations`, tests du parseur/procédures,
   test CLI `cli_numeric_operations`, extension du test de l'aide embarquée ;
-  résultat Windows/MSVC à compléter après CI. Vérification Windows manuelle
-  réservée à l'utilisateur avant création de `dev-0.0.40`.
+  **CI Windows 60/60 tests Release et 60/60 Debug réussie** sur le commit
+  [`d2276e3`](https://github.com/PatrickRioche/FREDPP/commit/d2276e3cb10bc9ea40b358f43f668dcdc9611630).
+  La validation manuelle Windows demeure réservée à l'utilisateur avant le tag.
 - **Politique Git :** branche `dev` seulement ; `main` et les releases `v*`
   restent inchangées.
 
