@@ -16,6 +16,8 @@ int main() {
     assert(help.exists("b"));
     assert(help.exists("fb"));
     assert(help.exists("ff"));
+    assert(help.exists("fq"));
+    assert(help.exists("f?"));
     assert(help.exists("="));
     assert(help.exists("fo"));
     assert(help.exists("jm"));
@@ -41,6 +43,8 @@ int main() {
     assert(index.find("AIDE FRED — COMMANDES DISPONIBLES") != std::string::npos);
     assert(index.find("    ?fb") != std::string::npos);
     assert(index.find("    ?ff") != std::string::npos);
+    assert(index.find("    ?f?") != std::string::npos);
+    assert(index.find("    ?fq") == std::string::npos);
     assert(index.find("    ?=") != std::string::npos);
     assert(index.find("    ?fo") != std::string::npos);
     assert(index.find("    ?jm") != std::string::npos);
@@ -91,6 +95,11 @@ int main() {
 
     const auto equals = help.load_for_terminal("=");
     assert(equals.find("IMPRESSION DU NUMÉRO DE LIGNE") != std::string::npos);
+
+    const auto changed_buffers = help.load_for_terminal("F?");
+    assert(changed_buffers.find("LISTE DES BUFFERS MODIFIÉS") !=
+           std::string::npos);
+    assert(help.load_for_terminal("fq") == changed_buffers);
 
     const auto star = help.load_for_terminal("*");
     assert(star.find("ALIAS DE LA TOTALITÉ DU BUFFER") != std::string::npos);

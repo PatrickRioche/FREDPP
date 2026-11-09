@@ -171,7 +171,7 @@ CommandParser::CommandParser(TokenStream& tokens,
  * @brief Parses one complete command under the current trailing-command policy.
  *
  * The method first parses an optional address/`*` alias, normalizes supported
- * compact spellings (QQ, WA/WU/WB, FB/FF/FO, JM/JP, Bx, ZG, ZK), then
+ * compact spellings (QQ, WA/WU/WB, FB/FF/FO/F?, JM/JP, Bx, ZG, ZK), then
  * constructs the appropriate AST. Special symbols `=` and `"` are parsed
  * without registry lookup. Any exception rewinds the TokenStream to the entry
  * mark.
@@ -410,8 +410,16 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 throw ParseError("F does not accept a line address",
                                  address->location());
             }
+            // The historical F? form is two adjacent punctuation-aware tokens.
+            if (!facts_kind &&
+                tokens_->peek().type == TokenType::Symbol &&
+                tokens_->peek().lexeme == "?" &&
+                is_adjacent(command, tokens_->peek())) {
+                (void)tokens_->consume();
+                facts_kind = FactsKind::Modified;
+            }
             if (!facts_kind) {
-                throw ParseError("only FB, FF and FO are implemented",
+                throw ParseError("only FB, FF, FO and F? are implemented",
                                  command.location);
             }
             require_command_end();

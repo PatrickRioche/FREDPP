@@ -195,16 +195,16 @@ Cette version est un jalon intermédiaire. La prochaine publication binaire est 
 Commandes FRED disponibles :
 
 ```text
-P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, WA, WU, FB, FF, FO, JM, JP
+P, L, D, A, B, I, C, M, T, G, Z, S, Q, R, W, WA, WU, FB, FF, FO, F?, JM, JP
 ```
 
 Les limites détaillées sont suivies dans `docs/project/COMMAND_STATUS.md`.
 
-**Suivi de `dev` au 9 novembre 2026 :** version `0.0.26` pour **26 commandes
-référencées prises en charge sur 103** (25,2 % de couverture fonctionnelle
-provisoire), incluant la commande spéciale `=` (numéro de ligne), `FF` (buffers
-associés à des fichiers), et les candidats `K` et `ZK` précédemment validés
-sur Windows 11.
+**Suivi de `dev` au 9 novembre 2026 :** version `0.0.27` pour **27 commandes
+référencées prises en charge sur 103** (26,2 % de couverture fonctionnelle
+provisoire), incluant `F?` (buffers modifiés), `=` (numéro de ligne), `FF`
+(buffers associés à des fichiers) et les candidats `K` et `ZK` précédemment
+validés sur Windows 11. Les tests Windows de cette révision restent à confirmer.
 Chaque nouvelle commande comptabilisée incrémente le dernier nombre de
 la version de développement ; les correctifs internes n'y touchent pas.
 `main` et les releases restent indépendants de ce suivi.

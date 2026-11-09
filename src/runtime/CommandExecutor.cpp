@@ -794,12 +794,30 @@ std::string describe_file_association(const Buffer& buffer) {
 }
 
 /**
- * @brief Executes the read-only FB, FF and FO information queries.
+ * @brief Formats an F? entry with its optional file and modification marker.
+ *
+ * Unlike FB, F? omits cursor/count. Unlike FF, the current Buffer and any
+ * modified Buffer without a file association must also be shown.
+ */
+std::string describe_modified_buffer(const Buffer& buffer) {
+    std::string result = "b(" + buffer.name() + ")";
+    if (buffer.associated_file()) {
+        result += " " + *buffer.associated_file();
+    }
+    if (buffer.modified()) {
+        result += " ?";
+    }
+    return result;
+}
+
+/**
+ * @brief Executes the read-only FB, FF, FO and F? information queries.
  *
  * FB uses most-recently-selected Buffer order; FF examines every owned Buffer
- * but prints only file-associated entries in name order. FO prints the active
- * OI( and OM states. These queries do not select Buffers, move cursors, or
- * change editor contents.
+ * but prints only file-associated entries in name order. F? prints the current
+ * Buffer first and then every other modified Buffer in name order, including
+ * buffers without files. FO prints the active OI( and OM states. None of these
+ * queries select Buffers, move cursors, or change editor contents.
  */
 void execute_facts(const FactsCommandNode& command,
                    ExecutionContext& context) {
@@ -829,6 +847,19 @@ void execute_facts(const FactsCommandNode& command,
             }
         }
         return;
+
+    case FactsKind::Modified: {
+        const auto& current = context.buffers().current();
+        context.output().write_line(describe_modified_buffer(current));
+        // modified_names() is sorted; avoid listing the current Buffer twice.
+        for (const auto& name : context.buffers().modified_names()) {
+            if (name != current.name()) {
+                context.output().write_line(
+                    describe_modified_buffer(context.buffers().get(name)));
+            }
+        }
+        return;
+    }
     }
 }
 

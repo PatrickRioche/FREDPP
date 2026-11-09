@@ -66,6 +66,7 @@ public:
      * - trim spaces/tabs/CR/LF from both ends;
      * - lowercase bytes using std::tolower;
      * - empty, `h` and `help` become `index`.
+     * - the literal historical `f?` spelling becomes the `fq` page key.
      *
      * @return Canonical lookup key.
      */

@@ -603,12 +603,15 @@ enum class FactsKind {
     /** FF: only file-associated Buffers, sorted by Buffer name. */
     Files,
 
+    /** F?: current Buffer, followed by other modified Buffers in name order. */
+    Modified,
+
     /** FO: currently effective input-parenthesis and monitor options. */
     Options
 };
 
 /**
- * @brief `FB`, `FF` or `FO` query without a line address or Buffer mutation.
+ * @brief `FB`, `FF`, `FO` or `F?` query without an address or Buffer mutation.
  *
  * The selected query determines the output format and ordering; the AST only
  * records the query kind, not a snapshot of Runtime state.

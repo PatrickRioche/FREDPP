@@ -36,6 +36,13 @@ void expect_error(std::string_view source, std::string_view message) {
 
 int main() {
     {
+        const auto node = parse("F?");
+        assert(node->kind() == fred::AstNodeKind::FactsCommand);
+        assert(!node->has_address());
+        const auto& facts = static_cast<const fred::FactsCommandNode&>(*node);
+        assert(facts.facts() == fred::FactsKind::Modified);
+    }
+    {
         const auto node = parse("*");
         assert(node->kind() == fred::AstNodeKind::PrintCommand);
         assert(node->has_address());
@@ -360,6 +367,9 @@ int main() {
     expect_error("T", "T requires a pattern delimited by '/' or '?'");
     expect_error("1T2,3", "T requires a pattern delimited by '/' or '?'");
     expect_error("1L", "L does not accept a line address");
+    expect_error("1F?", "F does not accept a line address");
+    expect_error("F ?", "only FB, FF, FO and F? are implemented");
+    expect_error("F? junk", "unexpected token after command: 'junk'");
     expect_error("1,2R file.txt",
                  "R insertion address must be a single line");
     expect_error("print", "expected a command, got 'print'");

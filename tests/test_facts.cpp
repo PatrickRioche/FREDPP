@@ -57,6 +57,13 @@ int main() {
         assert(facts.facts() == fred::FactsKind::Files);
     }
 
+    {
+        const auto node = parse("f?");
+        assert(node->kind() == fred::AstNodeKind::FactsCommand);
+        const auto& facts = static_cast<const fred::FactsCommandNode&>(*node);
+        assert(facts.facts() == fred::FactsKind::Modified);
+    }
+
     fred::BufferManager buffers;
     fred::StringOutput output;
     fred::ExecutionContext context(buffers, output);
@@ -123,5 +130,58 @@ int main() {
     output.clear();
     execute("FF", executor, context);
     assert(output.content() == file_facts);
+
+    // F? always shows the selected Buffer first, then other modified Buffers
+    // in name order, including modified Buffers without an associated file.
+    fred::BufferManager modified_buffers;
+    fred::StringOutput modified_output;
+    fred::ExecutionContext modified_context(modified_buffers, modified_output);
+
+    execute("F?", executor, modified_context);
+    assert(modified_output.content() == "b(0)\n");
+    modified_output.clear();
+
+    auto& edited_alpha = modified_buffers.create_or_select("alpha");
+    edited_alpha.append("A");
+    edited_alpha.associate_file("alpha file.txt", fred::TextEncoding::Utf8,
+                                fred::LineEnding::Lf, true);
+
+    auto& clean_beta = modified_buffers.create_or_select("beta");
+    clean_beta.append("B");
+    clean_beta.associate_file("beta.txt", fred::TextEncoding::Utf8,
+                              fred::LineEnding::Lf, true);
+    clean_beta.mark_clean();
+
+    auto& edited_zeta = modified_buffers.get_or_create("zeta");
+    edited_zeta.append("Z");
+    auto& edited_aardvark = modified_buffers.get_or_create("aardvark");
+    edited_aardvark.append("a");
+    edited_aardvark.associate_file("path with spaces.txt",
+                                   fred::TextEncoding::Utf8,
+                                   fred::LineEnding::Lf, true);
+
+    modified_buffers.select("beta");
+    modified_context.set_counter(73);
+    modified_context.set_condition(true);
+    const auto before_cursor = modified_buffers.current().current_line();
+    execute("f?", executor, modified_context);
+    assert(modified_output.content() ==
+           "b(beta) beta.txt\n"
+           "b(aardvark) path with spaces.txt ?\n"
+           "b(alpha) alpha file.txt ?\n"
+           "b(zeta) ?\n");
+    assert(modified_buffers.current().name() == "beta");
+    assert(modified_buffers.current().current_line() == before_cursor);
+    assert(modified_context.counter() == 73);
+    assert(modified_context.condition());
+    assert(!clean_beta.modified());
+
+    modified_output.clear();
+    modified_buffers.select("alpha");
+    execute("F?", executor, modified_context);
+    assert(modified_output.content() ==
+           "b(alpha) alpha file.txt ?\n"
+           "b(aardvark) path with spaces.txt ?\n"
+           "b(zeta) ?\n");
     return 0;
 }

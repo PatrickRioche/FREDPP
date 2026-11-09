@@ -42,7 +42,7 @@ namespace fred {
  * @par Current notable limits
  * - addressed nested commands inside G and ZG are rejected;
  * - Q! external TSS command support is not implemented;
- * - only FB/FO facts forms are implemented;
+ * - the FB, FF, FO and F? information queries are implemented;
  * - only OI( and OM option forms are implemented;
  * - J messages are limited to the historical 2000-character maximum;
  * - WB is represented as FileWriteMode::BcdUnsupported.

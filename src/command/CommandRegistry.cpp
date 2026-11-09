@@ -209,7 +209,7 @@ CommandRegistry make_core_command_registry() {
                 throw std::invalid_argument("F does not accept a line address");
             }
             // Default placeholder; CommandParser requires and distinguishes
-            // the implemented FB, FF and FO source forms.
+            // the implemented FB, FF, FO and F? source forms.
             return std::make_unique<FactsCommandNode>(
                 FactsKind::Buffers, location);
         }});

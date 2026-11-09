@@ -295,6 +295,10 @@ std::string HelpManager::normalize_topic(std::string_view topic) {
     if (normalized == "h" || normalized == "help") {
         return "index";
     }
+    // The embedded historical page is named fq.md; accept its literal F? form.
+    if (normalized == "f?") {
+        return "fq";
+    }
     return normalized;
 }
 

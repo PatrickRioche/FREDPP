@@ -9,7 +9,7 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.26 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.27 LANGUAGES CXX)
 
 # Development version contract: the patch number equals the number of
 # historical reference commands recorded as available in COMMAND_STATUS.md.
@@ -111,6 +111,7 @@ set(FREDPP_IMPLEMENTED_HELP_TOPICS
     d
     fb
     ff
+    fq
     fo
     g
     i
@@ -155,6 +156,11 @@ string(CONCAT FREDPP_HELP_INDEX
 foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
     string(TOUPPER "${help_topic}" help_topic_upper)
     set(help_command "?${help_topic}")
+    if(help_topic STREQUAL "fq")
+        # The historical filename fq.md corresponds to the literal F? command.
+        set(help_topic_upper "F?")
+        set(help_command "?f?")
+    endif()
     string(LENGTH "${help_command}" help_command_length)
     math(EXPR help_padding_length "12 - ${help_command_length}")
     string(REPEAT " " ${help_padding_length} help_padding)

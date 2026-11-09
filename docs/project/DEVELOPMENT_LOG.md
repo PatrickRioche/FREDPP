@@ -15,10 +15,10 @@ conservent leurs horodatages originaux en UTC.
 
 | Élément | État vérifié |
 |---|---|
-| Version du projet | `0.0.26` (développement ; 26/103 commandes, `=` ajouté) |
+| Version du projet | `0.0.27` (développement ; 27/103 commandes, `F?` ajouté) |
 | Branche active | `dev` |
-| Dernier lot fonctionnel | `=` : numéro de ligne ; [commit `78ddd8d`](https://github.com/PatrickRioche/FREDPP/commit/78ddd8df8848b05b5a55569c4910e8cf3135f2da) |
-| État des tests | `0.0.26` : CI Windows/MSVC verte, Release 20/20, Debug `=` et aide 3/3 ; confirmation locale Windows 11 attendue |
+| Dernier lot fonctionnel | `F?` : buffer courant et autres buffers modifiés, prêt pour validation Windows |
+| État des tests | `0.0.26` : suite locale Windows 11 **57/57 réussie** le 9 novembre 2026 (57,73 s) ; `0.0.27` : contrôles ciblés Linux réussis, suite Windows complète attendue |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
 | Dernière CI Windows/MSVC ciblée | [Exécution 42533608679 réussie : 20/20 Release, 3/3 Debug `=`, régressions et scripts verts](https://github.com/PatrickRioche/FREDPP/actions/runs/42533608679) |
@@ -55,8 +55,28 @@ conservent leurs horodatages originaux en UTC.
 | 08/11/2026 11:02 | [`af17a34`](https://github.com/PatrickRioche/FREDPP/commit/af17a349392109d9b9230432d3f284d8042c2b96) | `R` : alternatives citées avec espaces et tests |
 | 08/11/2026 23:50 | [`51e6d1f`](https://github.com/PatrickRioche/FREDPP/commit/51e6d1f7c2332fb25d6c818252c8b86297744680) | `FF` implémentée, aide `?ff`, tests, passage à `0.0.25` |
 | 09/11/2026 00:07 | [`78ddd8d`](https://github.com/PatrickRioche/FREDPP/commit/78ddd8df8848b05b5a55569c4910e8cf3135f2da) | `=` implémentée, aide `?=`, tests, passage à `0.0.26` |
+| 09/11/2026 | Lot `F?` sur [`dev`](https://github.com/PatrickRioche/FREDPP/commits/dev/) | Buffer courant et autres buffers modifiés ; aide `?f?`, tests ciblés et passage à `0.0.27` |
 
 ## Détails des lots et des validations
+
+### Lot F? — liste des buffers modifiés (9 novembre 2026)
+
+- **Référence :** `docs/fr/reference/commandes/fq.md`, laissée intacte.
+- **Analyse syntaxique :** `F?` / `f?` reconnu comme une interrogation F
+  sans adresse ni argument ; un espace entre `F` et `?` est refusé.
+- **Exécution :** une ligne pour le buffer courant, même propre, puis les
+  autres buffers modifiés triés par nom ; indication du fichier associé,
+  si présent, et marque finale `?` pour les buffers modifiés. Les buffers
+  modifiés sans fichier associé ne sont pas oubliés.
+- **Non-mutation :** aucune sélection, déplacement du curseur, altération
+  du contenu, du compteur ou du registre de condition.
+- **Aide :** `?f?` et `?fq` mènent à la fiche historique embarquée. Un nouveau
+  guide français regroupe les 27 commandes ; l'édition 0.0.26 est conservée.
+- **Couverture :** 27/103 commandes (26,2 %), version `0.0.27` ; aucune
+  publication stable ni fusion prévue pour ce lot.
+- **Vérification :** tests du parseur et du moteur exécutés localement avec
+  g++ C++20 ; tests d'aide ajoutés, validation Windows/MSVC de toute la suite
+  à réaliser après une recompilation.
 
 ### Lot = — affichage du numéro de ligne (8–9 novembre 2026)
 

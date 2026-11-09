@@ -1,5 +1,12 @@
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
+- **v0.0.27 — 27/103 commandes (26,2 %) :** ajout de la commande historique
+  `F?` (buffer courant et autres buffers modifiés, association de fichier
+  éventuelle, marque `?`) ; sortie ordonnée, consultation sans mutation,
+  couverture de tests du parseur et du moteur ; aide historique accessible via
+  `?f?` et `?fq`, guide français actualisé ; validation Windows à effectuer ;
+  pas de fusion vers `main`, ni tag, ni release ;
+
 - ajout d'un guide pratique français des **26 commandes** de FREDPP 0.0.26
   (syntaxe prise en charge, exemples, effets et limites), relié au README
   et au suivi des commandes ; références historiques conservées sans changement
