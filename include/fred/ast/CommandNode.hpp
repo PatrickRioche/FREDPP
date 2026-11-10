@@ -8,6 +8,7 @@
 #include <optional>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace fred {
 
@@ -417,7 +418,8 @@ private:
 
 enum class ZapExtendedKind {
     AppendBuffer, SortDescending, ClearModified, DeleteBuffer,
-    Lowercase, MoveLines, PrintBuffer, SortAscending, Translate, Uppercase
+    Lowercase, MoveLines, PrintBuffer, SortAscending, Translate, Uppercase,
+    CompressTabs, ExpandTabs
 };
 
 /** Operands for ZA/ZB/ZC/ZD/ZL/ZM/ZP/ZS/ZT/ZU. */
@@ -537,9 +539,10 @@ class ReadCommandNode final : public CommandNode {
 public:
     ReadCommandNode(std::unique_ptr<AddressNode> address,
                     std::optional<std::string> filename,
-                    SourceLocation location) noexcept
+                    SourceLocation location,
+                    bool zap_read = false) noexcept
         : CommandNode(std::move(address), location),
-          filename_(std::move(filename)) {}
+          filename_(std::move(filename)), zap_read_(zap_read) {}
 
     [[nodiscard]] AstNodeKind kind() const noexcept override {
         return AstNodeKind::ReadCommand;
@@ -548,9 +551,11 @@ public:
     [[nodiscard]] const std::optional<std::string>& filename() const noexcept {
         return filename_;
     }
+    [[nodiscard]] bool zap_read() const noexcept { return zap_read_; }
 
 private:
     std::optional<std::string> filename_;
+    bool zap_read_{};
 };
 
 /** @brief `W`, `WA`, `WU` or syntactically recognized `WB` command AST. */
@@ -559,9 +564,10 @@ public:
     WriteCommandNode(std::unique_ptr<AddressNode> address,
                      std::optional<std::string> filename,
                      FileWriteMode mode,
-                     SourceLocation location) noexcept
+                     SourceLocation location,
+                     bool append_file = false) noexcept
         : CommandNode(std::move(address), location),
-          filename_(std::move(filename)), mode_(mode) {}
+          filename_(std::move(filename)), mode_(mode), append_file_(append_file) {}
 
     [[nodiscard]] AstNodeKind kind() const noexcept override {
         return AstNodeKind::WriteCommand;
@@ -572,10 +578,12 @@ public:
     }
 
     [[nodiscard]] FileWriteMode mode() const noexcept { return mode_; }
+    [[nodiscard]] bool append_file() const noexcept { return append_file_; }
 
 private:
     std::optional<std::string> filename_;
     FileWriteMode mode_{FileWriteMode::Preserve};
+    bool append_file_{};
 };
 
 /** @brief `"` comment-command AST containing the remaining command-line text. */
@@ -607,10 +615,11 @@ public:
      */
     MessageCommandNode(std::string message,
                        bool newline,
-                       SourceLocation location) noexcept
+                       SourceLocation location,
+                       bool user_error = false) noexcept
         : CommandNode(nullptr, location),
           message_(std::move(message)),
-          newline_(newline) {}
+          newline_(newline), user_error_(user_error) {}
 
     [[nodiscard]] AstNodeKind kind() const noexcept override {
         return AstNodeKind::MessageCommand;
@@ -623,10 +632,12 @@ public:
     [[nodiscard]] bool newline() const noexcept {
         return newline_;
     }
+    [[nodiscard]] bool user_error() const noexcept { return user_error_; }
 
 private:
     std::string message_;
     bool newline_{};
+    bool user_error_{};
 };
 
 /** @brief Selects one of the implemented read-only F information queries. */
@@ -647,7 +658,10 @@ enum class FactsKind {
     Modified,
 
     /** FO: currently effective input-parenthesis and monitor options. */
-    Options
+    Options,
+
+    /** FV: native build and source identity. */
+    Version
 };
 
 /**
@@ -809,7 +823,11 @@ enum class OptionKind {
     InputParenthesis,
 
     /** O+M traces procedure commands; O-M disables that monitoring. */
-    Monitor
+    Monitor,
+    QuitOnError,
+    SubstituteAmpersand,
+    CaseInsensitiveSearch,
+    TabStops
 };
 
 /**
@@ -823,8 +841,10 @@ class OptionCommandNode final : public CommandNode {
 public:
     OptionCommandNode(OptionKind option,
                       bool enabled,
-                      SourceLocation location) noexcept
-        : CommandNode(nullptr, location), option_(option), enabled_(enabled) {}
+                      SourceLocation location,
+                      std::vector<std::size_t> tab_stops = {}) noexcept
+        : CommandNode(nullptr, location), option_(option), enabled_(enabled),
+          tab_stops_(std::move(tab_stops)) {}
 
     [[nodiscard]] AstNodeKind kind() const noexcept override {
         return AstNodeKind::OptionCommand;
@@ -832,10 +852,14 @@ public:
 
     [[nodiscard]] OptionKind option() const noexcept { return option_; }
     [[nodiscard]] bool enabled() const noexcept { return enabled_; }
+    [[nodiscard]] const std::vector<std::size_t>& tab_stops() const noexcept {
+        return tab_stops_;
+    }
 
 private:
     OptionKind option_;
     bool enabled_{};
+    std::vector<std::size_t> tab_stops_;
 };
 
 /** @brief `Q` / `QQ` quit-command AST. */

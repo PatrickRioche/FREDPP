@@ -31,6 +31,11 @@ int main() {
     assert(help.exists("f?"));
     assert(help.exists("="));
     assert(help.exists("fo"));
+    for (const auto* topic : {"fv", "je", "zi", "zo", "zr", "zw",
+                              "oq", "os&", "osd", "ot"}) {
+        assert(help.exists(topic));
+        assert(!help.load(topic).empty());
+    }
     assert(help.exists("jm"));
     assert(help.exists("jp"));
     assert(help.exists("g"));
@@ -84,6 +89,11 @@ int main() {
     assert(index.find("    ?wu") == std::string::npos);
     assert(index.find("    ?oi(") != std::string::npos);
     assert(index.find("    ?om") != std::string::npos);
+    for (const auto* topic : {"    ?fv", "    ?je", "    ?zi", "    ?zo",
+                              "    ?zr", "    ?zw", "    ?oq", "    ?os&",
+                              "    ?osd", "    ?ot"}) {
+        assert(index.find(topic) != std::string::npos);
+    }
     assert(index.find("    ?procedure") == std::string::npos);
     assert(index.find("    ?z") != std::string::npos);
     assert(index.find("    ?\"") != std::string::npos);

@@ -57,14 +57,14 @@ int main() {
     assert(!context.monitor_commands());
 
     execute("FO", executor, context);
-    assert(output.content() == "o+i(\no-m\n");
+    assert(output.content() == "o+i(\no-m\no-q\no+s&\no-sd\no+t5,9\n");
     output.clear();
 
     execute("O+M", executor, context);
     assert(context.monitor_commands());
 
     execute("FO", executor, context);
-    assert(output.content() == "o+i(\no+m\n");
+    assert(output.content() == "o+i(\no+m\no-q\no+s&\no-sd\no+t5,9\n");
     output.clear();
 
     execute("O-M", executor, context);

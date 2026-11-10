@@ -710,6 +710,10 @@ int main(int argc, char** argv) {
             }
         } catch (const std::exception& error) {
             std::cerr << "error: " << error.what() << '\n';
+            if (execution_context.quit_on_error()) {
+                execution_context.request_exit(true);
+                break;
+            }
         }
     }
 }

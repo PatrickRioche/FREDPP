@@ -37,6 +37,8 @@ struct PatternMatch {
  */
 class PatternMatcher {
 public:
+    explicit PatternMatcher(bool case_insensitive = false) noexcept
+        : case_insensitive_(case_insensitive) {}
     /**
      * @param pattern Parsed pattern AST.
      * @param text Text to search; not owned.
@@ -55,6 +57,8 @@ public:
      */
     [[nodiscard]] bool search(const PatternNode& pattern,
                               std::string_view text) const;
+private:
+    bool case_insensitive_{};
 };
 
 } // namespace fred

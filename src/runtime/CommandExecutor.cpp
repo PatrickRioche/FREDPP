@@ -14,6 +14,7 @@
 #include "fred/runtime/CommandExecutionError.hpp"
 #include "fred/runtime/NumericOperations.hpp"
 #include "fred/runtime/PatternMatcher.hpp"
+#include "fredpp/version.hpp"
 
 #include <algorithm>
 #include <array>
@@ -21,6 +22,7 @@
 #include <cstdio>
 #include <cstdint>
 #include <fstream>
+#include <filesystem>
 #include <functional>
 #include <sstream>
 #include <iterator>
@@ -326,6 +328,55 @@ ResolvedReadFile read_first_available_file(const std::string& operand) {
  */
 void execute_read(const ReadCommandNode& command,
                   ExecutionContext& context) {
+    if (command.zap_read()) {
+        if (!command.filename()) {
+            throw CommandExecutionError("ZR requires a filename");
+        }
+        std::vector<std::string> possible_names{*command.filename()};
+        for (auto& candidate : read_filename_candidates(*command.filename())) {
+            possible_names.push_back(std::move(candidate));
+        }
+        // Re-select an associated buffer without reloading or discarding edits.
+        for (const auto& name : context.buffers().names()) {
+            const auto& existing = context.buffers().get(name);
+            if (existing.associated_file() &&
+                std::find(possible_names.begin(), possible_names.end(),
+                          *existing.associated_file()) != possible_names.end()) {
+                const auto& selected = context.buffers().select(name);
+                context.output().write_line(
+                    "b(" + name + ") " +
+                    std::to_string(selected.current_line()) + "," +
+                    std::to_string(selected.line_count()) + " " +
+                    *selected.associated_file());
+                return;
+            }
+        }
+        auto resolved = read_first_available_file(*command.filename());
+        std::string name;
+        for (char letter = 'a'; letter <= 'z'; ++letter) {
+            const std::string candidate(1, letter);
+            if (!context.buffers().contains(candidate)) {
+                name = candidate;
+                break;
+            }
+        }
+        if (name.empty()) {
+            throw CommandExecutionError("ZR has no available automatic buffer name");
+        }
+        const auto count = resolved.decoded.lines.size();
+        std::error_code ec;
+        const auto bytes = std::filesystem::file_size(resolved.filename, ec);
+        auto& selected = context.buffers().create_or_select(name);
+        selected.load_file(std::move(resolved.decoded.lines), resolved.filename,
+                           resolved.decoded.encoding, resolved.decoded.line_ending,
+                           resolved.decoded.final_newline);
+        context.set_counter(static_cast<std::int64_t>(count));
+        context.set_condition(true);
+        context.output().write_line(std::to_string(count) + "," +
+            (ec ? "?" : std::to_string(bytes)) + " b(" + name + ") " +
+            resolved.filename);
+        return;
+    }
     auto& buffer = context.current_buffer();
 
     std::string filename;
@@ -460,7 +511,20 @@ void execute_write(const WriteCommandNode& command, ExecutionContext& context) {
         }
     }
 
-    std::ofstream output(filename, std::ios::binary | std::ios::trunc);
+    // ZW appends without replacing the existing file. When the previous file
+    // has an unterminated final line, insert one separator first.
+    bool needs_separator = false;
+    if (command.append_file()) {
+        std::ifstream previous(filename, std::ios::binary | std::ios::ate);
+        if (previous && previous.tellg() > 0) {
+            previous.seekg(-1, std::ios::end);
+            char last = '\0';
+            previous.get(last);
+            needs_separator = last != '\n';
+        }
+    }
+    std::ofstream output(filename, std::ios::binary |
+        (command.append_file() ? std::ios::app : std::ios::trunc));
     if (!output) {
         throw CommandExecutionError("cannot create file: " + filename);
     }
@@ -468,6 +532,9 @@ void execute_write(const WriteCommandNode& command, ExecutionContext& context) {
     const std::string_view newline =
         buffer.line_ending() == LineEnding::CrLf ? "\r\n" : "\n";
     if (!empty_buffer) {
+        if (needs_separator) {
+            output.write(newline.data(), static_cast<std::streamsize>(newline.size()));
+        }
         for (auto line = range.first; line <= range.last; ++line) {
             output.write(buffer.line(line).data(),
                          static_cast<std::streamsize>(buffer.line(line).size()));
@@ -485,7 +552,7 @@ void execute_write(const WriteCommandNode& command, ExecutionContext& context) {
 
     context.set_counter(empty_buffer ? 0 : range.last - range.first + 1);
     context.set_condition(true);
-    if (full_buffer) {
+    if (full_buffer && !command.append_file()) {
         buffer.associate_file(filename, encoding, buffer.line_ending(),
                               buffer.final_newline());
         buffer.mark_clean();
@@ -633,7 +700,7 @@ void execute_move(const MoveCommandNode& command,
 void execute_test(const TestCommandNode& command, ExecutionContext& context) {
     const auto& buffer = context.current_buffer();
     const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
-    const PatternMatcher matcher;
+    const PatternMatcher matcher(context.case_insensitive_search());
     bool found = false;
     for (auto line = range.first; line <= range.last; ++line) {
         if (matcher.search(command.pattern(), buffer.line(line))) {
@@ -653,13 +720,14 @@ void execute_test(const TestCommandNode& command, ExecutionContext& context) {
  * replacement character, including `&` and a literal backslash.
  */
 std::string expand_substitution_replacement(std::string_view replacement,
-                                            std::string_view matched_text) {
+                                            std::string_view matched_text,
+                                            bool expand_ampersand) {
     std::string result;
     for (std::size_t index = 0; index < replacement.size(); ++index) {
         const char value = replacement[index];
         if (value == '\\' && index + 1 < replacement.size()) {
             result.push_back(replacement[++index]);
-        } else if (value == '&') {
+        } else if (value == '&' && expand_ampersand) {
             result.append(matched_text);
         } else {
             result.push_back(value);
@@ -677,8 +745,10 @@ std::string expand_substitution_replacement(std::string_view replacement,
  */
 std::optional<std::string> substitute_all(const PatternNode& pattern,
                                           std::string_view replacement,
-                                          std::string_view text) {
-    PatternMatcher matcher;
+                                          std::string_view text,
+                                          bool expand_ampersand,
+                                          bool case_insensitive) {
+    PatternMatcher matcher(case_insensitive);
     std::string result;
     std::size_t copied_until = 0;
     std::size_t search_from = 0;
@@ -693,7 +763,8 @@ std::optional<std::string> substitute_all(const PatternNode& pattern,
         matched = true;
         result.append(text.substr(copied_until, match->start - copied_until));
         result += expand_substitution_replacement(
-            replacement, text.substr(match->start, match->end - match->start));
+            replacement, text.substr(match->start, match->end - match->start),
+            expand_ampersand);
 
         if (match->end > match->start) {
             copied_until = match->end;
@@ -739,7 +810,8 @@ void execute_substitute(const SubstituteCommandNode& command,
     for (auto line = range.first; line <= range.last; ++line) {
         const std::string original = buffer.line(line);
         const auto replacement = substitute_all(
-            command.pattern(), command.replacement(), original);
+            command.pattern(), command.replacement(), original,
+            context.substitution_ampersand(), context.case_insensitive_search());
         if (!replacement) {
             continue;
         }
@@ -836,6 +908,29 @@ void execute_facts(const FactsCommandNode& command,
             context.input_parentheses_required() ? "o+i(" : "o-i(");
         context.output().write_line(
             context.monitor_commands() ? "o+m" : "o-m");
+        context.output().write_line(
+            context.quit_on_error() ? "o+q" : "o-q");
+        context.output().write_line(
+            context.substitution_ampersand() ? "o+s&" : "o-s&");
+        context.output().write_line(
+            context.case_insensitive_search() ? "o+sd" : "o-sd");
+        if (context.tabs_enabled()) {
+            std::string stops = "o+t";
+            for (const auto stop : context.tab_stops()) {
+                if (stops != "o+t") stops += ",";
+                stops += std::to_string(stop);
+            }
+            context.output().write_line(stops);
+        } else {
+            context.output().write_line("o-t");
+        }
+        return;
+
+    case FactsKind::Version:
+        context.output().write_line(
+            "FREDPP v" + std::string(fredpp::version()) +
+            " - compiled " + __DATE__ + " " + __TIME__ +
+            " - commit " + std::string(fredpp::git_commit()));
         return;
 
     case FactsKind::Buffers:
@@ -1024,6 +1119,19 @@ void execute_option(const OptionCommandNode& command,
     case OptionKind::Monitor:
         context.set_monitor_commands(command.enabled());
         return;
+    case OptionKind::QuitOnError:
+        context.set_quit_on_error(command.enabled());
+        return;
+    case OptionKind::SubstituteAmpersand:
+        context.set_substitution_ampersand(command.enabled());
+        return;
+    case OptionKind::CaseInsensitiveSearch:
+        context.set_case_insensitive_search(command.enabled());
+        return;
+    case OptionKind::TabStops:
+        if (command.enabled()) context.set_tab_stops(command.tab_stops());
+        context.set_tabs_enabled(command.enabled());
+        return;
     }
 }
 
@@ -1130,6 +1238,63 @@ void execute_zap_extended(const ZapExtendedCommandNode& command,
         return;
     }
     const auto range = AddressEvaluator{}.evaluate(command.address(), source);
+    if (kind == ZapExtendedKind::CompressTabs ||
+        kind == ZapExtendedKind::ExpandTabs) {
+        const auto next_stop = [&](std::size_t column) -> std::size_t {
+            for (const auto stop : context.tab_stops()) {
+                if (stop > column + 1) return stop - 1;
+            }
+            // After the configured explicit stops, continue on 8-column
+            // boundaries rather than producing an unbounded run of spaces.
+            return ((column / 8) + 1) * 8;
+        };
+        std::int64_t modified = 0;
+        for (auto line = range.first; line <= range.last; ++line) {
+            const std::string original = source.line(line);
+            std::string transformed;
+            std::size_t column = 0;
+            for (std::size_t pos = 0; pos < original.size();) {
+                const char character = original[pos];
+                if (kind == ZapExtendedKind::ExpandTabs && character == '\t') {
+                    const auto target = next_stop(column);
+                    const auto count = target > column ? target - column : 1;
+                    transformed.append(count, ' ');
+                    column += count;
+                    ++pos;
+                } else if (kind == ZapExtendedKind::CompressTabs &&
+                           character == ' ') {
+                    std::size_t until = pos;
+                    while (until < original.size() && original[until] == ' ') ++until;
+                    auto spaces = until - pos;
+                    while (spaces > 0) {
+                        const auto target = next_stop(column);
+                        const auto span = target > column ? target - column : 1;
+                        if (span >= 2 && spaces >= span) {
+                            transformed.push_back('\t');
+                            column += span;
+                            spaces -= span;
+                        } else {
+                            transformed.push_back(' ');
+                            ++column;
+                            --spaces;
+                        }
+                    }
+                    pos = until;
+                } else {
+                    transformed.push_back(character);
+                    if (character == '\t') column = next_stop(column);
+                    else column = character == '\r' ? 0 : column + 1;
+                    ++pos;
+                }
+            }
+            if (original != transformed) {
+                source.replace(line, std::move(transformed));
+                ++modified;
+            }
+        }
+        context.set_counter(modified);
+        return;
+    }
     if (kind == ZapExtendedKind::MoveLines) {
         const bool same = command.buffer_name() == source.name();
         const auto insertion_cursor = source.current_line();
@@ -1173,7 +1338,7 @@ void execute_zap_extended(const ZapExtendedCommandNode& command,
 
     std::vector<std::pair<std::size_t, std::string>> changed_lines;
     std::int64_t count = 0;
-    PatternMatcher matcher;
+    PatternMatcher matcher(context.case_insensitive_search());
     for (auto n = range.first; n <= range.last; ++n) {
         const std::string original = source.line(n);
         std::string next = original;
@@ -1272,7 +1437,7 @@ void execute_global(const GlobalCommandNode& command,
             "G currently supports nested P, D, Z and S commands");
     }
 
-    PatternMatcher matcher;
+    PatternMatcher matcher(context.case_insensitive_search());
     std::size_t selected_count = 0;
     auto line = range.first;
     auto last = range.last;
@@ -1423,6 +1588,9 @@ void execute_message(const MessageCommandNode& command,
         context.output().write_line(expanded);
     } else {
         context.output().write(expanded);
+    }
+    if (command.user_error() && context.quit_on_error()) {
+        context.request_exit(true);
     }
 }
 

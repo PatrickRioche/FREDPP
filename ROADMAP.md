@@ -218,13 +218,20 @@ La version `0.0.50` a passé les **62/62 tests CTest** sous Linux et Windows ;
 sa CI Windows/MSVC et la recette manuelle ont été confirmées. Le lot
 `0.0.60` prépare `ZA`, `ZB`, `ZC`, `ZD`, `ZL`, `ZM`, `ZP`, `ZS`, `ZT` et `ZU` ;
 sa recette Windows et son tag restent à valider.
+
+**Mise à jour du 10 novembre 2026 :** la version `0.0.60` a passé la recette
+manuelle Windows et **64/64 tests CTest** ; le tag annoté `dev-0.0.60` a été
+publié sur le commit `6bbc35d`. Le lot suivant, **0.0.70**, ajoute les dix
+commandes `FV`, `JE`, `ZR`, `ZW`, `OQ`, `OS&`, `OSD`, `OT`, `ZI` et `ZO`.
+Couverture provisoire : **70/103 (68,0 %)**, sous réserve de la validation
+Windows et de l'homologation historique. `main` reste inchangée.
 Chaque nouvelle commande comptabilisée incrémente le dernier nombre de
 la version de développement ; les correctifs internes n'y touchent pas.
 `main` et les releases restent indépendants de ce suivi. À chaque dizaine
 de commandes, le commit `dev` validé reçoit un tag de jalon indépendant de
 `main` : les tags `dev-0.0.30`, `dev-0.0.40` et `dev-0.0.50` sont publiés ;
-**`dev-0.0.60`** attendra
-la validation des commandes 51 à 60 par l'utilisateur.
+**`dev-0.0.60`** a été créé après validation. Le prochain jalon,
+**`dev-0.0.70`**, attend la validation Windows et la recette du lot 61–70.
 Le préfixe `dev-` évite de déclencher le flux de publication officielle,
 qui surveille les tags `v*` et exige un commit identique à `main`.
 

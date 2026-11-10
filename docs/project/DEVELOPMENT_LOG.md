@@ -11,22 +11,28 @@ Ce journal suit les **travaux sur la branche `dev`** avant leur intégration
 Les heures ci-dessous sont en **heure de Paris (CET)**. Les commits Git
 conservent leurs horodatages originaux en UTC.
 
-## État mis à jour le 9 novembre 2026
+## État mis à jour le 10 novembre 2026
 
-**Lot 51–60 en préparation :** dix commandes historiques de la famille Z
+**Lot 61–70 en préparation (10 novembre 2026) :** `FV`, `JE`, `ZR`, `ZW`,
+`OQ`, `OS&`, `OSD`, `OT`, `ZI`, `ZO` ; tests C++ ciblés, aide et documentation
+en cours de validation. Le tag `dev-0.0.60` est publié depuis le 9 novembre
+après les 64/64 tests Windows et la recette interactive. Le tag
+`dev-0.0.70` reste suspendu aux validations Windows ; `main` ne change pas.
+
+**Historique : lot 51–60 :** dix commandes historiques de la famille Z
 (`ZA`, `ZB`, `ZC`, `ZD`, `ZL`, `ZM`, `ZP`, `ZS`, `ZT`, `ZU`), tests de
 comportement C++20 et aides historiques intégrées. Le tag `dev-0.0.50`
-est publié ; `dev-0.0.60` reste suspendu aux tests et à la recette Windows.
+et `dev-0.0.60` sont publiés après validations Windows.
 
 | Élément | État vérifié |
 |---|---|
-| Version du projet | `0.0.60` en préparation (60/103 commandes, famille N complète et dix commandes Z supplémentaires) |
-| Branche active | `dev` |
-| Dernier lot fonctionnel | `ZA`, `ZB`, `ZC`, `ZD`, `ZL`, `ZM`, `ZP`, `ZS`, `ZT`, `ZU` (travaux sur branche de lot) ; recette Windows du lot 51–60 attendue |
-| État des tests | `0.0.28` : **57/57 Windows** ; `0.0.29` : **57/57 Windows** ; `0.0.30` : **58 tests CI Windows** ; `0.0.40` : **60/60 CI Windows/MSVC Release et Debug**, puis **60/60 Windows utilisateur (92,51 s)** ; `0.0.50` : **62/62 Linux C++20**, Windows/MSVC en attente |
+| Version du projet | `0.0.70` en préparation (70/103 commandes ; Windows à confirmer) |
+| Branche active | `feature-v061-v070` depuis `origin/dev` ; intégration dans `dev` après vérifications |
+| Dernier lot fonctionnel | `FV`, `JE`, `ZR`, `ZW`, `OQ`, `OS&`, `OSD`, `OT`, `ZI`, `ZO` ; tests C++ ciblés |
+| État des tests | `0.0.40` : **60/60 Windows** ; `0.0.50` : **62/62 Windows** ; `0.0.60` : **64/64 Windows** et recette interactive confirmée ; `0.0.70` : compilation C++ Linux ciblée, validation Windows en attente |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
-| Dernière CI Windows/MSVC ciblée | [Exécution 42629499268 réussie pour `0.0.40` : 60 tests Release et 60 tests Debug](https://github.com/PatrickRioche/FREDPP/actions/runs/42629499268) ; `0.0.50` à exécuter |
+| Dernière CI Windows/MSVC complète vérifiée | [Exécution 42704197355 réussie pour `0.0.60` : 64/64 Release et Debug](https://github.com/PatrickRioche/FREDPP/actions/runs/42704197355) ; `0.0.70` non testée à ce stade |
 | Validation locale Windows 11 — lot 31–40 | **60/60 tests réussis en 92,51 s**, puis scénario numérique manuel confirmé et tag `dev-0.0.40` publié |
 | Validation locale Windows 11 — T | Confirmée par l'utilisateur (scénario et CTest 1/1) |
 | Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |

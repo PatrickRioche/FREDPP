@@ -283,6 +283,15 @@
 
 # Changelog
 
+- **v0.0.70 — 70/103 commandes (68,0 %) en préparation :** dix commandes
+  supplémentaires `FV`, `JE`, `ZR`, `ZW`, `OQ`, `OS&`, `OSD`, `OT`, `ZI`,
+  `ZO`. Informations de compilation, messages d'erreur utilisateur, chargement
+  de fichiers dans des buffers automatiques, écriture en ajout, arrêt sur
+  erreur, options de substitution et de recherche, configuration/conversion
+  des tabulations. Tests C++ dédiés, documentation et aide complétées.
+  Recette Windows et tag `dev-0.0.70` en attente ; aucun changement de `main`.
+
+
 - **v0.0.60 — 60/103 commandes (58,3 %) :** dix nouvelles commandes
   historiques de la famille `Z` (`ZA`, `ZB`, `ZC`, `ZD`, `ZL`, `ZM`, `ZP`,
   `ZS`, `ZT`, `ZU`) : transferts et impression de buffers, tri, conversions

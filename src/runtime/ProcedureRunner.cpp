@@ -752,6 +752,9 @@ void ProcedureRunner::execute_procedure_line(
         throw;
     } catch (const std::exception& error) {
         report_procedure_error_context(*context_, lines, index);
+        if (context_->quit_on_error()) {
+            context_->request_exit(true);
+        }
         throw ReportedProcedureError(error.what());
     }
 }

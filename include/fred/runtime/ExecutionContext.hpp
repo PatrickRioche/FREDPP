@@ -141,6 +141,17 @@ public:
     /** @return Current O+M/O-M monitoring state. */
     [[nodiscard]] bool monitor_commands() const noexcept;
 
+    void set_quit_on_error(bool value) noexcept;
+    [[nodiscard]] bool quit_on_error() const noexcept;
+    void set_substitution_ampersand(bool value) noexcept;
+    [[nodiscard]] bool substitution_ampersand() const noexcept;
+    void set_case_insensitive_search(bool value) noexcept;
+    [[nodiscard]] bool case_insensitive_search() const noexcept;
+    void set_tab_stops(std::vector<std::size_t> stops);
+    [[nodiscard]] const std::vector<std::size_t>& tab_stops() const noexcept;
+    void set_tabs_enabled(bool value) noexcept;
+    [[nodiscard]] bool tabs_enabled() const noexcept;
+
     /**
      * @brief Records a Q/QQ exit request.
      *
@@ -173,6 +184,11 @@ private:
     bool condition_{};
     bool input_parentheses_required_{true};
     bool monitor_commands_{};
+    bool quit_on_error_{};
+    bool substitution_ampersand_{true};
+    bool case_insensitive_search_{};
+    std::vector<std::size_t> tab_stops_{5, 9};
+    bool tabs_enabled_{true};
     bool exit_requested_{};
     bool immediate_exit_requested_{};
 };

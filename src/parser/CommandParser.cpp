@@ -15,6 +15,7 @@
 #include "fred/parser/ParseError.hpp"
 #include "fred/parser/PatternParser.hpp"
 
+#include <algorithm>
 #include <charconv>
 #include <cctype>
 #include <cstdint>
@@ -204,6 +205,9 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         bool immediate_quit = false;
         bool zap_gather = false;
         bool zap_copy = false;
+        bool zap_read = false;
+        bool zap_append_write = false;
+        bool user_error_message = false;
         std::optional<ZapExtendedKind> zap_extended;
         FileWriteMode write_mode = FileWriteMode::Preserve;
         std::optional<std::string> compact_buffer_name;
@@ -227,10 +231,11 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                                            : FileWriteMode::BcdUnsupported;
             } else if (first == 'F' &&
                        (second == 'B' || second == 'F' ||
-                        second == 'N' || second == 'O')) {
+                        second == 'N' || second == 'O' || second == 'V')) {
                 facts_kind = second == 'B' ? FactsKind::Buffers
                            : second == 'F' ? FactsKind::Files
                            : second == 'N' ? FactsKind::Registers
+                           : second == 'V' ? FactsKind::Version
                                            : FactsKind::Options;
                 command.type = TokenType::Command;
                 command.lexeme = "F";
@@ -241,6 +246,9 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                     message_newline = true;
                 } else if (second == 'P') {
                     message_newline = false;
+                } else if (second == 'E') {
+                    message_newline = true;
+                    user_error_message = true;
                 }
             } else if (first == 'B') {
                 compact_buffer_name = std::string(1, command.lexeme[1]);
@@ -254,6 +262,14 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 zap_copy = true;
                 command.type = TokenType::Command;
                 command.lexeme = "Z";
+            } else if (first == 'Z' && second == 'R') {
+                zap_read = true;
+                command.type = TokenType::Command;
+                command.lexeme = "R";
+            } else if (first == 'Z' && second == 'W') {
+                zap_append_write = true;
+                command.type = TokenType::Command;
+                command.lexeme = "W";
             } else if (first == 'Z') {
                 switch (second) {
                 case 'A': zap_extended = ZapExtendedKind::AppendBuffer; break;
@@ -266,12 +282,29 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 case 'S': zap_extended = ZapExtendedKind::SortAscending; break;
                 case 'T': zap_extended = ZapExtendedKind::Translate; break;
                 case 'U': zap_extended = ZapExtendedKind::Uppercase; break;
+                case 'I': zap_extended = ZapExtendedKind::CompressTabs; break;
+                case 'O': zap_extended = ZapExtendedKind::ExpandTabs; break;
                 default: break;
                 }
                 if (zap_extended) {
                     command.type = TokenType::Command;
                     command.lexeme = "Z";
                 }
+            }
+        }
+        if (command.type == TokenType::Identifier &&
+            command.lexeme.size() == 3 &&
+            std::toupper(static_cast<unsigned char>(command.lexeme[0])) == 'Z' &&
+            std::toupper(static_cast<unsigned char>(command.lexeme[1])) == 'W') {
+            const char mode = static_cast<char>(std::toupper(
+                static_cast<unsigned char>(command.lexeme[2])));
+            if (mode == 'A' || mode == 'U' || mode == 'B') {
+                zap_append_write = true;
+                command.type = TokenType::Command;
+                command.lexeme = "W";
+                write_mode = mode == 'A' ? FileWriteMode::Ascii
+                           : mode == 'U' ? FileWriteMode::Utf8
+                                         : FileWriteMode::BcdUnsupported;
             }
         }
         if (command.type == TokenType::Symbol && command.lexeme == "=") {
@@ -329,6 +362,9 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         }
 
         if (mnemonic == 'R') {
+            if (zap_read && address) {
+                throw ParseError("ZR does not accept line addresses", address->location());
+            }
             if (address && address->kind() == AstNodeKind::RangeAddress) {
                 throw ParseError(
                     "R insertion address must be a single line",
@@ -356,8 +392,12 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 }
             }
             require_command_end();
+            if (zap_read && !filename) {
+                throw ParseError("ZR requires a filename", command.location);
+            }
             return std::make_unique<ReadCommandNode>(
-                std::move(address), std::move(filename), command.location);
+                std::move(address), std::move(filename), command.location,
+                zap_read);
         }
 
         if (mnemonic == 'W') {
@@ -365,7 +405,7 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             require_command_end();
             return std::make_unique<WriteCommandNode>(
                 std::move(address), std::move(filename), write_mode,
-                command.location);
+                command.location, zap_append_write);
         }
 
         if (mnemonic == 'S') {
@@ -406,7 +446,7 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                                  address->location());
             }
             if (!message_newline) {
-                throw ParseError("only JM and JP are implemented",
+                throw ParseError("only JM, JP and JE are implemented",
                                  command.location);
             }
 
@@ -427,7 +467,8 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
 
             require_command_end();
             return std::make_unique<MessageCommandNode>(
-                std::move(message), *message_newline, command.location);
+                std::move(message), *message_newline, command.location,
+                user_error_message);
         }
 
         if (mnemonic == 'N') {
@@ -637,8 +678,7 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                                  address->location());
             }
 
-            // Both implemented O options use an explicit +/- state. OI( also
-            // requires a literal '(' as part of the option name, not a value.
+            // Option names may be one or two letters, with suffix punctuation.
             const auto sign = tokens_->consume();
             if (sign.type != TokenType::Symbol ||
                 (sign.lexeme != "+" && sign.lexeme != "-")) {
@@ -646,26 +686,75 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             }
 
             const auto option = tokens_->consume();
-            if (option.lexeme.size() != 1 ||
+            if (option.lexeme.empty() ||
                 (option.type != TokenType::Command &&
                  option.type != TokenType::Identifier)) {
-                throw ParseError("only OI( and OM are implemented",
+                throw ParseError("invalid O option",
                                  option.location);
             }
+            std::string option_name = option.lexeme;
+            std::transform(option_name.begin(), option_name.end(),
+                           option_name.begin(), [](unsigned char ch) {
+                               return static_cast<char>(std::toupper(ch));
+                           });
+            const bool enabled = sign.lexeme == "+";
 
-            const char option_name = static_cast<char>(std::toupper(
-                static_cast<unsigned char>(option.lexeme.front())));
-
-            if (option_name == 'M') {
+            if (option_name == "M" || option_name == "Q" ||
+                option_name == "SD") {
+                const OptionKind kind = option_name == "M" ? OptionKind::Monitor
+                    : option_name == "Q" ? OptionKind::QuitOnError
+                    : OptionKind::CaseInsensitiveSearch;
                 require_command_end();
                 return std::make_unique<OptionCommandNode>(
-                    OptionKind::Monitor,
-                    sign.lexeme == "+",
-                    command.location);
+                    kind, enabled, command.location);
+            }
+            if (option_name == "S") {
+                const auto ampersand = tokens_->consume();
+                if (ampersand.lexeme != "&") {
+                    throw ParseError("OS& requires '&'", ampersand.location);
+                }
+                require_command_end();
+                return std::make_unique<OptionCommandNode>(
+                    OptionKind::SubstituteAmpersand, enabled, command.location);
+            }
+            if (option_name == "T") {
+                std::vector<std::size_t> stops;
+                const auto location = tokens_->peek().location;
+                const auto list = consume_plain_text(*tokens_);
+                if (enabled && list.empty()) {
+                    throw ParseError("O+T requires tab stops", location);
+                }
+                if (!enabled && !list.empty()) {
+                    throw ParseError("O-T takes no tab stops", location);
+                }
+                std::size_t begin = 0;
+                while (begin < list.size()) {
+                    const auto comma = list.find(',', begin);
+                    const auto end = comma == std::string::npos ? list.size() : comma;
+                    std::size_t value = 0;
+                    const auto* start = list.data() + begin;
+                    const auto* finish = list.data() + end;
+                    const auto result = std::from_chars(start, finish, value);
+                    if (result.ec != std::errc{} || result.ptr != finish ||
+                        value < 2 || value > 4096 ||
+                        (!stops.empty() && value <= stops.back()) || stops.size() >= 64) {
+                        throw ParseError("O+T requires increasing stops (2..4096)", location);
+                    }
+                    stops.push_back(value);
+                    if (comma == std::string::npos) break;
+                    begin = comma + 1;
+                    if (begin == list.size()) {
+                        throw ParseError("O+T has a trailing comma", location);
+                    }
+                }
+                require_command_end();
+                return std::make_unique<OptionCommandNode>(
+                    OptionKind::TabStops, enabled, command.location,
+                    std::move(stops));
             }
 
-            if (option_name != 'I') {
-                throw ParseError("only OI( and OM are implemented",
+            if (option_name != "I") {
+                throw ParseError("unsupported O option",
                                  option.location);
             }
 
@@ -676,7 +765,7 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             require_command_end();
             return std::make_unique<OptionCommandNode>(
                 OptionKind::InputParenthesis,
-                sign.lexeme == "+",
+                enabled,
                 command.location);
         }
         if (mnemonic == 'G') {

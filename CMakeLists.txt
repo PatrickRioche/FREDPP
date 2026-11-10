@@ -9,7 +9,7 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.60 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.70 LANGUAGES CXX)
 
 # Development version contract: the patch number equals the number of
 # historical reference commands recorded as available in COMMAND_STATUS.md.
@@ -115,10 +115,12 @@ set(FREDPP_IMPLEMENTED_HELP_TOPICS
     fq
     fn
     fo
+    fv
     g
     i
     jm
     jp
+    je
     k
     l
     m
@@ -155,13 +157,17 @@ set(FREDPP_IMPLEMENTED_HELP_TOPICS
     zc
     zd
     zg
+    zi
     zk
     zl
     zm
+    zo
     zp
+    zr
     zs
     zt
     zu
+    zw
 )
 
 set(FREDPP_HELP_FILES)
@@ -176,7 +182,7 @@ foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
 endforeach()
 
 list(LENGTH FREDPP_HELP_FILES FREDPP_HELP_FILES_LENGTH)
-math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 10")
+math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 14")
 
 string(CONCAT FREDPP_HELP_INDEX
 "============================================================\n"
@@ -253,6 +259,10 @@ string(APPEND FREDPP_HELP_INDEX
 "\nOPTION HISTORIQUE IMPLÉMENTÉE\n\n"
 "    ?oi(        Afficher l'aide de l'option OI(\n"
 "    ?om         Afficher l'aide de l'option OM (monitorage)\n"
+"    ?oq         Afficher l'aide de l'option OQ (arrêt sur erreur)\n"
+"    ?os&        Afficher l'aide de l'option OS& (substitution)\n"
+"    ?osd        Afficher l'aide de l'option OSD (recherche)\n"
+"    ?ot         Afficher l'aide de l'option OT (tabulations)\n"
 "\nCOMMANDES SPÉCIALES HISTORIQUES IMPLÉMENTÉES\n\n"
 "    ?\"          Afficher l'aide des commentaires FRED\n"
 "    ?=          Afficher l'aide du numéro de ligne\n"
@@ -326,6 +336,18 @@ set(FREDPP_OM_HELP_FILE
 if(NOT EXISTS "${FREDPP_OM_HELP_FILE}")
     message(FATAL_ERROR "Missing historical OM help: ${FREDPP_OM_HELP_FILE}")
 endif()
+
+foreach(option_help IN ITEMS oq os_ampersand osd ot)
+    string(TOUPPER "${option_help}" option_help_upper)
+    set(option_help_file
+        "${CMAKE_CURRENT_SOURCE_DIR}/docs/fr/reference/commandes/${option_help}.md")
+    file(READ "${option_help_file}" option_help_contents)
+    string(FIND "${option_help_contents}" ")FREDPP_HELP\"" option_collision)
+    if(NOT option_collision EQUAL -1)
+        message(FATAL_ERROR "Option help contains reserved delimiter: ${option_help_file}")
+    endif()
+    set("FREDPP_${option_help_upper}_HELP_CONTENT" "${option_help_contents}")
+endforeach()
 file(READ "${FREDPP_OM_HELP_FILE}" FREDPP_OM_HELP_CONTENT)
 string(FIND "${FREDPP_OM_HELP_CONTENT}" ")FREDPP_HELP\"" FREDPP_OM_HELP_COLLISION)
 if(NOT FREDPP_OM_HELP_COLLISION EQUAL -1)
@@ -384,6 +406,10 @@ file(WRITE "${FREDPP_EMBEDDED_HELP_CPP}"
 "    Entry{\"=\", R\"FREDPP_HELP(${FREDPP_EQUALS_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"oi(\", R\"FREDPP_HELP(${FREDPP_OI_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"om\", R\"FREDPP_HELP(${FREDPP_OM_HELP_CONTENT})FREDPP_HELP\"},\n"
+"    Entry{\"oq\", R\"FREDPP_HELP(${FREDPP_OQ_HELP_CONTENT})FREDPP_HELP\"},\n"
+"    Entry{\"os&\", R\"FREDPP_HELP(${FREDPP_OS_AMPERSAND_HELP_CONTENT})FREDPP_HELP\"},\n"
+"    Entry{\"osd\", R\"FREDPP_HELP(${FREDPP_OSD_HELP_CONTENT})FREDPP_HELP\"},\n"
+"    Entry{\"ot\", R\"FREDPP_HELP(${FREDPP_OT_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"procedure\", R\"FREDPP_HELP(${FREDPP_PROCEDURE_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"wu\", R\"FREDPP_HELP(${FREDPP_WU_HELP_CONTENT})FREDPP_HELP\"},\n"
 )

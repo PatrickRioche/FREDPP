@@ -126,12 +126,12 @@ int main() {
     output.clear();
 
     execute("FO", executor, context);
-    assert(output.content() == "o+i(\no-m\n");
+    assert(output.content() == "o+i(\no-m\no-q\no+s&\no-sd\no+t5,9\n");
     output.clear();
 
     execute("O-I(", executor, context);
     execute("fo", executor, context);
-    assert(output.content() == "o-i(\no-m\n");
+    assert(output.content() == "o-i(\no-m\no-q\no+s&\no-sd\no+t5,9\n");
     output.clear();
 
     auto& alpha = buffers.create_or_select("alpha");

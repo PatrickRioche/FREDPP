@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cstddef>
+#include <cctype>
 #include <vector>
 
 namespace fred {
@@ -29,12 +30,14 @@ void append_unique(Positions& target, const Positions& values) {
 
 Positions match_from(const PatternNode& node,
                      std::string_view text,
-                     std::size_t position);
+                     std::size_t position,
+                     bool ignore_case);
 
 Positions match_repetition(
     const RepetitionPatternNode& repetition,
     std::string_view text,
-    std::size_t position) {
+    std::size_t position,
+    bool ignore_case) {
     Positions result;
     Positions frontier;
 
@@ -44,7 +47,7 @@ Positions match_repetition(
         frontier.push_back(position);
     } else {
         frontier =
-            match_from(repetition.operand(), text, position);
+            match_from(repetition.operand(), text, position, ignore_case);
         append_unique(result, frontier);
     }
 
@@ -55,7 +58,7 @@ Positions match_repetition(
         Positions next_frontier;
         for (const auto current : frontier) {
             const auto ends =
-                match_from(repetition.operand(), text, current);
+                match_from(repetition.operand(), text, current, ignore_case);
             for (const auto end : ends) {
                 if (end == current) {
                     continue;
@@ -75,13 +78,17 @@ Positions match_repetition(
 
 Positions match_from(const PatternNode& node,
                      std::string_view text,
-                     std::size_t position) {
+                     std::size_t position,
+                     bool ignore_case) {
     switch (node.kind()) {
     case AstNodeKind::PatternLiteral: {
         const auto& literal =
             static_cast<const LiteralPatternNode&>(node);
         if (position < text.size() &&
-            text[position] == literal.value()) {
+            (text[position] == literal.value() ||
+             (ignore_case &&
+              std::tolower(static_cast<unsigned char>(text[position])) ==
+              std::tolower(static_cast<unsigned char>(literal.value()))))) {
             return {position + 1};
         }
         return {};
@@ -115,7 +122,7 @@ Positions match_from(const PatternNode& node,
             for (const auto current : positions) {
                 append_unique(
                     next,
-                    match_from(*element, text, current));
+                    match_from(*element, text, current, ignore_case));
             }
             positions = std::move(next);
             if (positions.empty()) {
@@ -133,7 +140,7 @@ Positions match_from(const PatternNode& node,
              alternation.alternatives()) {
             append_unique(
                 result,
-                match_from(*alternative, text, position));
+                match_from(*alternative, text, position, ignore_case));
         }
         return result;
     }
@@ -141,8 +148,7 @@ Positions match_from(const PatternNode& node,
     case AstNodeKind::PatternRepetition:
         return match_repetition(
             static_cast<const RepetitionPatternNode&>(node),
-            text,
-            position);
+            text, position, ignore_case);
 
     case AstNodeKind::PatternCharacterClass: {
         const auto& character_class =
@@ -158,6 +164,18 @@ Positions match_from(const PatternNode& node,
                 contained = true;
                 break;
             }
+            if (ignore_case &&
+                static_cast<unsigned char>(value) < 128 &&
+                static_cast<unsigned char>(range.first) < 128 &&
+                static_cast<unsigned char>(range.last) < 128) {
+                const auto lower = std::tolower(static_cast<unsigned char>(value));
+                const auto lo = std::tolower(static_cast<unsigned char>(range.first));
+                const auto hi = std::tolower(static_cast<unsigned char>(range.last));
+                if (lower >= lo && lower <= hi) {
+                    contained = true;
+                    break;
+                }
+            }
         }
 
         if (character_class.negated()) {
@@ -172,7 +190,7 @@ Positions match_from(const PatternNode& node,
         const auto& group =
             static_cast<const GroupPatternNode&>(node);
         return match_from(
-            group.expression(), text, position);
+            group.expression(), text, position, ignore_case);
     }
 
     default:
@@ -198,7 +216,7 @@ std::optional<PatternMatch> PatternMatcher::find(
     for (std::size_t start = start_offset;
          start <= text.size();
          ++start) {
-        const auto ends = match_from(pattern, text, start);
+        const auto ends = match_from(pattern, text, start, case_insensitive_);
         if (!ends.empty()) {
             return PatternMatch{
                 start,

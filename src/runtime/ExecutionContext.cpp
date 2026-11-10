@@ -156,6 +156,33 @@ bool ExecutionContext::monitor_commands() const noexcept {
     return monitor_commands_;
 }
 
+void ExecutionContext::set_quit_on_error(bool value) noexcept {
+    quit_on_error_ = value;
+}
+bool ExecutionContext::quit_on_error() const noexcept { return quit_on_error_; }
+void ExecutionContext::set_substitution_ampersand(bool value) noexcept {
+    substitution_ampersand_ = value;
+}
+bool ExecutionContext::substitution_ampersand() const noexcept {
+    return substitution_ampersand_;
+}
+void ExecutionContext::set_case_insensitive_search(bool value) noexcept {
+    case_insensitive_search_ = value;
+}
+bool ExecutionContext::case_insensitive_search() const noexcept {
+    return case_insensitive_search_;
+}
+void ExecutionContext::set_tab_stops(std::vector<std::size_t> stops) {
+    tab_stops_ = std::move(stops);
+}
+const std::vector<std::size_t>& ExecutionContext::tab_stops() const noexcept {
+    return tab_stops_;
+}
+void ExecutionContext::set_tabs_enabled(bool value) noexcept {
+    tabs_enabled_ = value;
+}
+bool ExecutionContext::tabs_enabled() const noexcept { return tabs_enabled_; }
+
 void ExecutionContext::request_exit(bool immediate) noexcept {
     // A later request overwrites the immediate flag while preserving the
     // monotonic "exit requested" state.

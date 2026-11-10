@@ -43,6 +43,7 @@ fredpp_add_test(test_global test_global.cpp)
 fredpp_add_test(test_zap test_zap.cpp)
 fredpp_add_test(test_zap_copy test_zap_copy.cpp)
 fredpp_add_test(test_zap_extended test_zap_extended.cpp)
+fredpp_add_test(test_lot_61_70 test_lot_61_70.cpp)
 
 add_test(NAME cli_zap_extended
     COMMAND fredpp "${CMAKE_CURRENT_SOURCE_DIR}/fixtures/cli_zap_extended.fredpp"

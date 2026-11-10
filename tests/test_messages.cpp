@@ -116,8 +116,15 @@ int main() {
         assert(tokens.eof());
     }
 
-    expect_error("J", "only JM and JP are implemented");
-    expect_error("JE test", "only JM and JP are implemented");
+    expect_error("J", "only JM, JP and JE are implemented");
+    {
+        const auto node = parse("JE/Erreur utilisateur/");
+        assert(node->kind() == fred::AstNodeKind::MessageCommand);
+        const auto& message =
+            static_cast<const fred::MessageCommandNode&>(*node);
+        assert(message.user_error());
+        assert(message.message() == "Erreur utilisateur");
+    }
     expect_error("1JM test", "J does not accept a line address");
     expect_error("JM/message", "unterminated J message");
 
