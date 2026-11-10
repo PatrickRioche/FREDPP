@@ -39,6 +39,14 @@ namespace fred {
  */
 class BufferManager {
 public:
+    /** Full in-memory editor image used by V/ZV; no disk files are copied. */
+    struct Snapshot {
+        std::vector<Buffer> buffers;
+        std::string current_name;
+        std::vector<std::string> usage_order;
+    };
+    [[nodiscard]] Snapshot snapshot() const;
+    void restore(const Snapshot& state);
     /**
      * @brief Constructs a manager containing selected buffer `"0"`.
      */

@@ -291,7 +291,23 @@ std::string ExecutionContext::format_output_line(std::string_view line) const {
     std::string result;
     result.reserve(line.size());
     for (const unsigned char value : line) {
-        if (output_octal_ && (value < 32 || value == 127)) {
+        char named_escape = '\0';
+        for (const auto& [letter, byte] : {
+                 std::pair{'B', '\b'}, std::pair{'C', '\x03'},
+                 std::pair{'F', '\f'}, std::pair{'L', '\n'},
+                 std::pair{'N', '\0'}, std::pair{'R', '\r'},
+                 std::pair{'E', '\x1b'}, std::pair{'O', '\x0e'},
+                 std::pair{'W', '\x17'}, std::pair{'S', '\x0f'}}) {
+            if (output_special_chars_.find(letter) != std::string::npos &&
+                value == static_cast<unsigned char>(byte)) {
+                named_escape = letter;
+                break;
+            }
+        }
+        if (named_escape != '\0') {
+            result += '\\';
+            result += named_escape;
+        } else if (output_octal_ && (value < 32 || value == 127)) {
             result += '\\';
             result += static_cast<char>('0' + ((value >> 6) & 7));
             result += static_cast<char>('0' + ((value >> 3) & 7));
@@ -308,6 +324,125 @@ std::string ExecutionContext::format_output_line(std::string_view line) const {
     }
     return result;
 }
+
+void ExecutionContext::define_pattern(std::string name, std::string source) {
+    named_patterns_[name] = std::move(source);
+    pattern_usage_.erase(std::remove(pattern_usage_.begin(), pattern_usage_.end(), name),
+                         pattern_usage_.end());
+    pattern_usage_.insert(pattern_usage_.begin(), std::move(name));
+}
+
+std::vector<std::pair<std::string, std::string>> ExecutionContext::patterns() const {
+    std::vector<std::pair<std::string, std::string>> result;
+    result.reserve(pattern_usage_.size());
+    for (const auto& name : pattern_usage_) {
+        result.emplace_back(name, named_patterns_.at(name));
+    }
+    return result;
+}
+
+std::string ExecutionContext::expand_named_patterns(std::string_view source) const {
+    std::string result(source);
+    for (unsigned depth = 0; depth < 16; ++depth) {
+        const auto mark = result.find("\\E(");
+        if (mark == std::string::npos) return result;
+        const auto closing = result.find(')', mark + 3);
+        if (closing == std::string::npos) throw std::runtime_error("unterminated \\E(name)");
+        const auto name = result.substr(mark + 3, closing - mark - 3);
+        const auto found = named_patterns_.find(name);
+        if (found == named_patterns_.end()) {
+            throw std::runtime_error("unknown named pattern: " + name);
+        }
+        const auto& wrapped = found->second;
+        const auto body = wrapped.substr(1, wrapped.size() - 2);
+        result.replace(mark, closing + 1 - mark, body);
+        if (result.size() > 1048576) throw std::runtime_error("E expansion too large");
+    }
+    if (result.find("\\E(") != std::string::npos) {
+        throw std::runtime_error("E expansion recursion limit reached");
+    }
+    return result;
+}
+
+void ExecutionContext::adjust_work_pages(std::int64_t delta) {
+    const auto changed = static_cast<std::int64_t>(work_pages_) + delta;
+    if (changed < 1 || changed > 65535) {
+        throw std::runtime_error("OB page budget must remain 1..65535");
+    }
+    work_pages_ = static_cast<std::size_t>(changed);
+}
+std::size_t ExecutionContext::work_pages() const noexcept { return work_pages_; }
+
+void ExecutionContext::set_output_special_characters(std::string_view letters, bool enabled) {
+    for (const char ch : letters) {
+        if (ch == '\\') continue;
+        const char upper = static_cast<char>(std::toupper(static_cast<unsigned char>(ch)));
+        if (std::string_view("BCFLNREOWS").find(upper) == std::string_view::npos) {
+            throw std::runtime_error("OO unsupported escape code");
+        }
+        const auto index = output_special_chars_.find(upper);
+        if (enabled && index == std::string::npos) output_special_chars_ += upper;
+        if (!enabled && index != std::string::npos) output_special_chars_.erase(index, 1);
+    }
+}
+const std::string& ExecutionContext::output_special_characters() const noexcept {
+    return output_special_chars_;
+}
+void ExecutionContext::set_public_read(bool enabled) noexcept { public_read_ = enabled; }
+bool ExecutionContext::public_read() const noexcept { return public_read_; }
+void ExecutionContext::set_pattern_special_characters(std::string_view letters, bool enabled) {
+    for (const char ch : letters) {
+        if (std::string_view(".^$*+|()[]\\").find(ch) == std::string_view::npos) {
+            throw std::runtime_error("OS unsupported pattern metacharacter");
+        }
+        const auto index = pattern_disabled_chars_.find(ch);
+        if (enabled && index != std::string::npos) pattern_disabled_chars_.erase(index, 1);
+        if (!enabled && index == std::string::npos) pattern_disabled_chars_ += ch;
+    }
+}
+bool ExecutionContext::pattern_character_special(char ch) const noexcept {
+    return pattern_disabled_chars_.find(ch) == std::string::npos;
+}
+const std::string& ExecutionContext::pattern_disabled_characters() const noexcept {
+    return pattern_disabled_chars_;
+}
+
+ExecutionContext::HistoryImage ExecutionContext::make_history_image() const {
+    return HistoryImage{buffers_->snapshot(), counter_, numeric_registers_,
+                        numeric_formats_, condition_, named_patterns_, pattern_usage_};
+}
+void ExecutionContext::restore_history_image(const HistoryImage& image) {
+    buffers_->restore(image.buffers);
+    counter_ = image.counter;
+    numeric_registers_ = image.numeric_registers;
+    numeric_formats_ = image.numeric_formats;
+    condition_ = image.condition;
+    named_patterns_ = image.patterns;
+    pattern_usage_ = image.pattern_usage;
+}
+void ExecutionContext::record_undo() {
+    undo_stack_.push_back(make_history_image());
+    if (undo_stack_.size() > 10) undo_stack_.erase(undo_stack_.begin());
+    redo_stack_.clear();
+}
+void ExecutionContext::undo() {
+    if (undo_stack_.empty()) throw std::runtime_error("V: no command to undo");
+    auto present = make_history_image();
+    auto previous = std::move(undo_stack_.back());
+    undo_stack_.pop_back();
+    restore_history_image(previous);
+    redo_stack_.push_back(std::move(present));
+}
+void ExecutionContext::redo() {
+    if (redo_stack_.empty()) throw std::runtime_error("ZV: no V to reverse");
+    auto present = make_history_image();
+    auto next = std::move(redo_stack_.back());
+    redo_stack_.pop_back();
+    restore_history_image(next);
+    undo_stack_.push_back(std::move(present));
+    if (undo_stack_.size() > 10) undo_stack_.erase(undo_stack_.begin());
+}
+std::size_t ExecutionContext::undo_depth() const noexcept { return undo_stack_.size(); }
 void ExecutionContext::set_last_error(std::string message) {
     last_error_ = std::move(message);
 }

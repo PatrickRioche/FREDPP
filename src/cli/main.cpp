@@ -610,7 +610,8 @@ int main(int argc, char** argv) {
                     const std::string source(1, operation);
                     fred::Lexer inline_lexer(source);
                     fred::TokenStream inline_tokens(inline_lexer);
-                    fred::CommandParser inline_parser(inline_tokens, command_registry);
+                    fred::CommandParser inline_parser(inline_tokens, command_registry,
+                                                      &execution_context);
                     auto inline_command = inline_parser.parse();
                     std::vector<std::string> lines{
                         execution_context.transform_input_line(
@@ -640,14 +641,18 @@ int main(int argc, char** argv) {
                 continue;
             }
 
+            const std::string named_expanded =
+                first_non_space != std::string::npos &&
+                input[first_non_space] == '"' ? input :
+                execution_context.expand_named_patterns(input);
             fred::ExpandedCommandInput expanded_command =
-                fred::make_command_input(input);
+                fred::make_command_input(named_expanded);
             if (first_non_space != std::string::npos &&
                 input[first_non_space] != ':' &&
                 input[first_non_space] != '"') {
                 expanded_command =
                     fred::expand_command_input_with_metadata(
-                        input, manager);
+                        named_expanded, manager);
             }
             const std::string& command_input =
                 expanded_command.text;
@@ -697,7 +702,8 @@ int main(int argc, char** argv) {
                     std::move(expanded_command.characters));
                 fred::Lexer lexer(character_stream);
                 fred::TokenStream tokens(lexer);
-                fred::CommandParser parser(tokens, command_registry);
+                fred::CommandParser parser(tokens, command_registry,
+                                           &execution_context);
 
                 while (!tokens.eof() &&
                        !execution_context.exit_requested()) {

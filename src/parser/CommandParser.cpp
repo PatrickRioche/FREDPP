@@ -14,6 +14,7 @@
 #include "fred/parser/AddressParser.hpp"
 #include "fred/parser/ParseError.hpp"
 #include "fred/parser/PatternParser.hpp"
+#include "fred/runtime/ExecutionContext.hpp"
 
 #include <algorithm>
 #include <charconv>
@@ -224,8 +225,9 @@ std::string consume_delimited_message(
 } // namespace
 
 CommandParser::CommandParser(TokenStream& tokens,
-                             const CommandRegistry& registry) noexcept
-    : tokens_(&tokens), registry_(&registry) {}
+                             const CommandRegistry& registry,
+                             const ExecutionContext* context) noexcept
+    : tokens_(&tokens), registry_(&registry), context_(context) {}
 
 /**
  * @brief Parses one complete command under the current trailing-command policy.
@@ -264,6 +266,12 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         bool zap_read = false;
         bool zap_append_write = false;
         bool user_error_message = false;
+        bool redo_undo = false;
+        bool repeat_control = false;
+        bool repeat_breaks = false;
+        char repeat_condition = 'A';
+        std::size_t repeat_limit = 0;
+        char repeat_until = 'N';
         std::optional<ZapExtendedKind> zap_extended;
         FileWriteMode write_mode = FileWriteMode::Preserve;
         std::optional<std::string> compact_buffer_name;
@@ -287,11 +295,13 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                                            : FileWriteMode::BcdUnsupported;
             } else if (first == 'F' &&
                        (second == 'B' || second == 'F' ||
-                        second == 'N' || second == 'O' || second == 'V')) {
+                        second == 'N' || second == 'O' || second == 'V' ||
+                        second == 'E')) {
                 facts_kind = second == 'B' ? FactsKind::Buffers
                            : second == 'F' ? FactsKind::Files
                            : second == 'N' ? FactsKind::Registers
                            : second == 'V' ? FactsKind::Version
+                           : second == 'E' ? FactsKind::Patterns
                                            : FactsKind::Options;
                 command.type = TokenType::Command;
                 command.lexeme = "F";
@@ -305,6 +315,9 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 } else if (second == 'E') {
                     message_newline = true;
                     user_error_message = true;
+                } else if (second == 'B' || second == 'O') {
+                    repeat_control = true;
+                    repeat_breaks = second == 'B';
                 }
             } else if (first == 'B') {
                 compact_buffer_name = std::string(1, command.lexeme[1]);
@@ -316,6 +329,10 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 command.lexeme = "Z";
             } else if (first == 'Z' && second == 'K') {
                 zap_copy = true;
+                command.type = TokenType::Command;
+                command.lexeme = "Z";
+            } else if (first == 'Z' && second == 'V') {
+                redo_undo = true;
                 command.type = TokenType::Command;
                 command.lexeme = "Z";
             } else if (first == 'Z' && second == 'R') {
@@ -346,6 +363,51 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                     command.type = TokenType::Command;
                     command.lexeme = "Z";
                 }
+            }
+        }
+        if (command.type == TokenType::Identifier &&
+            command.lexeme.size() == 3 &&
+            std::toupper(static_cast<unsigned char>(command.lexeme[0])) == 'J' &&
+            (std::toupper(static_cast<unsigned char>(command.lexeme[1])) == 'B' ||
+             std::toupper(static_cast<unsigned char>(command.lexeme[1])) == 'O')) {
+            const char suffix = static_cast<char>(std::toupper(
+                static_cast<unsigned char>(command.lexeme[2])));
+            if (suffix == 'T' || suffix == 'F') {
+                repeat_control = true;
+                repeat_breaks = std::toupper(static_cast<unsigned char>(command.lexeme[1])) == 'B';
+                repeat_condition = suffix;
+                command.type = TokenType::Command;
+                command.lexeme = "J";
+            }
+        }
+        if (command.type == TokenType::Identifier &&
+            command.lexeme.size() >= 2 &&
+            std::toupper(static_cast<unsigned char>(command.lexeme[0])) == 'U') {
+            const auto suffix = std::string_view(command.lexeme).substr(1);
+            std::size_t digits = 0;
+            while (digits < suffix.size() &&
+                   std::isdigit(static_cast<unsigned char>(suffix[digits]))) ++digits;
+            if (digits || suffix.size() == 1) {
+                if (digits) {
+                    const auto parsed = std::from_chars(suffix.data(), suffix.data() + digits,
+                                                        repeat_limit);
+                    if (parsed.ec != std::errc{} || repeat_limit < 1 ||
+                        repeat_limit > 262143) {
+                        throw ParseError("U repetition limit must be 1..262143", command.location);
+                    }
+                }
+                if (digits < suffix.size()) {
+                    if (digits + 1 != suffix.size()) {
+                        throw ParseError("invalid U repeat suffix", command.location);
+                    }
+                    repeat_until = static_cast<char>(std::toupper(
+                        static_cast<unsigned char>(suffix[digits])));
+                    if (repeat_until != 'T' && repeat_until != 'F' && repeat_until != 'E') {
+                        throw ParseError("U suffix must be T, F or E", command.location);
+                    }
+                }
+                command.type = TokenType::Command;
+                command.lexeme = "U";
             }
         }
         if (command.type == TokenType::Identifier &&
@@ -473,6 +535,59 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                              command.location);
         }
 
+        if (mnemonic == 'E') {
+            if (address) throw ParseError("E does not take an address", command.location);
+            const auto name = parse_parenthesized_buffer_name();
+            if (name.size() > 15 || name.find('(') != std::string::npos ||
+                name.find(')') != std::string::npos) {
+                throw ParseError("E pattern name must be 1..15 characters", command.location);
+            }
+            const auto raw = consume_plain_text(*tokens_);
+            if (raw.size() < 2 || std::isalnum(static_cast<unsigned char>(raw.front())) ||
+                raw.front() != raw.back()) {
+                throw ParseError("E requires a delimited pattern", command.location);
+            }
+            return std::make_unique<NamedPatternCommandNode>(name, raw, command.location);
+        }
+        if (mnemonic == 'U') {
+            if (address) throw ParseError("U addressed ranges are not yet supported", command.location);
+            // Lexer intentionally separates U3 (command + number), as for M5.
+            // A T/F/E modifier is part of U only when adjacent to the count.
+            if (tokens_->peek().type == TokenType::Number) {
+                const auto count = tokens_->consume();
+                auto parsed = std::from_chars(count.lexeme.data(),
+                    count.lexeme.data() + count.lexeme.size(), repeat_limit);
+                if (parsed.ec != std::errc{} || repeat_limit < 1 ||
+                    repeat_limit > 262143) {
+                    throw ParseError("U count must be 1..262143", count.location);
+                }
+                const auto& modifier = tokens_->peek();
+                if ((modifier.type == TokenType::Command ||
+                     modifier.type == TokenType::Identifier) &&
+                    modifier.lexeme.size() == 1 &&
+                    modifier.location.column == count.location.column + count.lexeme.size()) {
+                    const auto candidate = static_cast<char>(std::toupper(
+                        static_cast<unsigned char>(modifier.lexeme[0])));
+                    if (candidate == 'T' || candidate == 'F' || candidate == 'E') {
+                        repeat_until = candidate;
+                        (void)tokens_->consume();
+                    }
+                }
+            }
+            if (repeat_limit == 0 && repeat_until == 'N') {
+                throw ParseError("U requires a repetition count or stop condition", command.location);
+            }
+            auto body = consume_plain_text(*tokens_);
+            if (body.empty()) throw ParseError("U requires a command body", command.location);
+            return std::make_unique<RepeatCommandNode>(repeat_limit, repeat_until,
+                                                        std::move(body), command.location);
+        }
+        if (mnemonic == 'V') {
+            if (address) throw ParseError("V does not take an address", command.location);
+            require_command_end();
+            return std::make_unique<UndoCommandNode>(nullptr, command.location);
+        }
+
         if (mnemonic == 'R') {
             if (zap_read && address) {
                 throw ParseError("ZR does not accept line addresses", address->location());
@@ -556,6 +671,11 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             if (address) {
                 throw ParseError("J does not accept a line address",
                                  address->location());
+            }
+            if (repeat_control) {
+                require_command_end();
+                return std::make_unique<RepeatControlCommandNode>(
+                    repeat_breaks, repeat_condition, command.location);
             }
             if (!message_newline) {
                 throw ParseError("only JM, JP and JE are implemented",
@@ -822,14 +942,15 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             if (option_name == "M" || option_name == "Q" ||
                 option_name == "SD" || option_name == "IF" ||
                 option_name == "OL" || option_name == "OO" ||
-                option_name == "OU") {
+                option_name == "OU" || option_name == "R") {
                 const OptionKind kind = option_name == "M" ? OptionKind::Monitor
                     : option_name == "Q" ? OptionKind::QuitOnError
                     : option_name == "SD" ? OptionKind::CaseInsensitiveSearch
                     : option_name == "IF" ? OptionKind::InputFeed
                     : option_name == "OL" ? OptionKind::OutputLower
                     : option_name == "OO" ? OptionKind::OutputOctal
-                    : OptionKind::OutputUpper;
+                    : option_name == "OU" ? OptionKind::OutputUpper
+                    : OptionKind::PublicRead;
                 require_command_end();
                 return std::make_unique<OptionCommandNode>(
                     kind, enabled, command.location);
@@ -845,6 +966,25 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 return std::make_unique<OptionCommandNode>(
                     OptionKind::InputChange, enabled, command.location,
                     std::vector<std::size_t>{}, from, to);
+            }
+            if (option_name == "B") {
+                const auto raw = consume_plain_text(*tokens_);
+                std::size_t pages = 0;
+                const auto parsed = std::from_chars(raw.data(), raw.data() + raw.size(), pages);
+                if (parsed.ec != std::errc{} || parsed.ptr != raw.data() + raw.size() ||
+                    pages < 1 || pages > 65535) {
+                    throw ParseError("OB expects a page count 1..65535", command.location);
+                }
+                return std::make_unique<OptionCommandNode>(
+                    OptionKind::BufferPages, enabled, command.location,
+                    std::vector<std::size_t>{}, std::to_string(pages));
+            }
+            if (option_name == "O") {
+                const auto raw = consume_plain_text(*tokens_);
+                if (raw.empty()) throw ParseError("OO requires output escape codes", command.location);
+                return std::make_unique<OptionCommandNode>(
+                    OptionKind::OutputCharacters, enabled, command.location,
+                    std::vector<std::size_t>{}, raw);
             }
             if (option_name == "IE") {
                 const auto location = tokens_->peek().location;
@@ -911,14 +1051,13 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                     std::vector<std::size_t>{}, raw);
             }
             if (option_name == "S") {
-                const auto ampersand = tokens_->consume();
-                if (ampersand.lexeme != "&" && ampersand.lexeme != "/") {
-                    throw ParseError("OS requires '&' or '/'", ampersand.location);
-                }
-                require_command_end();
+                const auto raw = consume_plain_text(*tokens_);
+                if (raw.empty()) throw ParseError("OS requires special characters", command.location);
                 return std::make_unique<OptionCommandNode>(
-                    ampersand.lexeme == "&" ? OptionKind::SubstituteAmpersand :
-                    OptionKind::SubstituteSeparator, enabled, command.location);
+                    raw == "&" ? OptionKind::SubstituteAmpersand :
+                    raw == "/" ? OptionKind::SubstituteSeparator :
+                    OptionKind::SpecialCharacters, enabled, command.location,
+                    std::vector<std::size_t>{}, raw);
             }
             if (option_name == "T") {
                 std::vector<std::size_t> stops;
@@ -995,7 +1134,7 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                                  tokens_->peek().location);
             }
 
-            CommandParser nested_parser(*tokens_, *registry_);
+            CommandParser nested_parser(*tokens_, *registry_, context_);
             auto nested_command = nested_parser.parse();
             if (nested_command->has_address()) {
                 throw ParseError(
@@ -1009,6 +1148,11 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         }
 
         if (mnemonic == 'Z') {
+            if (redo_undo) {
+                if (address) throw ParseError("ZV does not take an address", command.location);
+                require_command_end();
+                return std::make_unique<RedoCommandNode>(nullptr, command.location);
+            }
             if (zap_extended) {
                 const auto operation = *zap_extended;
                 const bool takes_buffer = operation == ZapExtendedKind::AppendBuffer ||
@@ -1390,6 +1534,7 @@ std::unique_ptr<PatternNode> CommandParser::parse_delimited_pattern(
         }
     }
 
+    apply_pattern_option_interpretation(source, source_interpretations);
     PatternParser parser(source, std::move(source_interpretations), opening.location.flow_level);
     return parser.parse();
 }
@@ -1445,6 +1590,7 @@ CommandParser::parse_substitution_parts() {
         }
     }
 
+    apply_pattern_option_interpretation(pattern_source, pattern_interpretations);
     PatternParser parser(pattern_source, std::move(pattern_interpretations), opening.location.flow_level);
     auto pattern = parser.parse();
 
@@ -1483,6 +1629,18 @@ CommandParser::parse_substitution_parts() {
 /**
  * @brief Enforces command termination unless parse_one() enabled chaining.
  */
+void CommandParser::apply_pattern_option_interpretation(
+    std::string_view pattern,
+    std::vector<CharacterInterpretation>& interpretations) const {
+    if (!context_ || pattern.size() < 3) return;
+    for (std::size_t i = 1; i + 1 < pattern.size(); ++i) {
+        if (interpretations[i] == CharacterInterpretation::Normal &&
+            !context_->pattern_character_special(pattern[i])) {
+            interpretations[i] = CharacterInterpretation::Literal;
+        }
+    }
+}
+
 void CommandParser::require_command_end() {
     if (tokens_->peek().type == TokenType::NewLine) {
         (void)tokens_->consume();

@@ -13,6 +13,37 @@ BufferManager::BufferManager() {
     create_or_select("0");
 }
 
+BufferManager::Snapshot BufferManager::snapshot() const {
+    Snapshot state;
+    state.current_name = current_ ? current_->name() : "0";
+    state.usage_order = usage_order_;
+    state.buffers.reserve(buffers_.size());
+    for (const auto& [name, owned] : buffers_) {
+        (void)name;
+        state.buffers.push_back(*owned);
+    }
+    std::sort(state.buffers.begin(), state.buffers.end(),
+              [](const Buffer& a, const Buffer& b) { return a.name() < b.name(); });
+    return state;
+}
+
+void BufferManager::restore(const Snapshot& state) {
+    if (state.buffers.empty()) throw std::invalid_argument("empty editor snapshot");
+    for (auto it = buffers_.begin(); it != buffers_.end();) {
+        const auto found = std::find_if(state.buffers.begin(), state.buffers.end(),
+            [&](const Buffer& candidate) { return candidate.name() == it->first; });
+        if (found == state.buffers.end()) it = buffers_.erase(it);
+        else ++it;
+    }
+    for (const auto& image : state.buffers) {
+        auto [it, inserted] = buffers_.try_emplace(image.name(), nullptr);
+        if (inserted) it->second = std::make_unique<Buffer>(image);
+        else *it->second = image;
+    }
+    usage_order_ = state.usage_order;
+    current_ = buffers_.at(state.current_name).get();
+}
+
 void BufferManager::touch(std::string_view name) {
     // Maintain a unique MRU list: remove any older occurrence, then place the
     // selected buffer at the front.

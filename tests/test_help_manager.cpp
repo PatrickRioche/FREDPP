@@ -46,6 +46,11 @@ int main() {
         assert(help.exists(topic));
         assert(!help.load(topic).empty());
     }
+    for (const auto* topic : {"e", "fe", "j", "jb", "u", "v",
+                              "ob", "oo", "or", "os", "zv"}) {
+        assert(help.exists(topic));
+        assert(!help.load(topic).empty());
+    }
     assert(help.exists("jm"));
     assert(help.exists("jp"));
     assert(help.exists("g"));

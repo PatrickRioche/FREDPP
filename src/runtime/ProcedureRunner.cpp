@@ -709,11 +709,13 @@ void ProcedureRunner::execute_procedure_line(
         return;
     }
 
+    const std::string named_expanded = is_comment(raw_value)
+        ? std::string(raw_value) : context_->expand_named_patterns(raw_value);
     const ExpandedCommandInput expanded_source =
         is_comment(raw_value)
             ? make_command_input(raw_value)
             : expand_command_input_with_metadata(
-                  raw_value, *buffers_, maximum_depth_);
+                  named_expanded, *buffers_, maximum_depth_);
     const auto value = trim(expanded_source.text);
 
     try {
@@ -739,6 +741,21 @@ void ProcedureRunner::execute_procedure_line(
                 (*selection == 'F' && !context_->condition())) {
                 throw JumpOutOfProcedure{};
             }
+            return;
+        }
+
+        // JT/JF discard the remainder of the current procedure line when
+        // their condition matches, otherwise dispatch the remaining commands.
+        if (value.size() >= 2 && (value[0] == 'J' || value[0] == 'j') &&
+            (value[1] == 'T' || value[1] == 't' ||
+             value[1] == 'F' || value[1] == 'f') &&
+            (value.size() == 2 || std::isspace(static_cast<unsigned char>(value[2])))) {
+            const bool on_true = value[1] == 'T' || value[1] == 't';
+            if (context_->monitor_commands()) context_->output().write_line(value);
+            if (on_true == context_->condition()) return;
+            const auto tail = trim(std::string_view(value).substr(2));
+            if (tail.empty()) return;
+            execute_single_command(make_command_input(tail), &lines, &index);
             return;
         }
 
@@ -812,7 +829,7 @@ void ProcedureRunner::execute_single_command(
             const std::string one_command(1, op);
             Lexer inline_lexer(one_command);
             TokenStream inline_tokens(inline_lexer);
-            CommandParser inline_parser(inline_tokens, *registry_);
+            CommandParser inline_parser(inline_tokens, *registry_, context_);
             const auto node = inline_parser.parse();
             std::vector<std::string> one_line{
                 context_->transform_input_line(raw_value.substr(2))};
@@ -842,7 +859,7 @@ void ProcedureRunner::execute_single_command(
     FlowCharacterStream character_stream(source.characters);
     Lexer lexer(character_stream);
     TokenStream tokens(lexer);
-    CommandParser parser(tokens, *registry_);
+    CommandParser parser(tokens, *registry_, context_);
 
     while (!tokens.eof() && !context_->exit_requested()) {
         const auto node = parser.parse_one();

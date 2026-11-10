@@ -9,6 +9,7 @@
 #include <string>
 #include <string_view>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 namespace fred {
@@ -190,6 +191,28 @@ public:
     [[nodiscard]] bool substitution_separator_required() const noexcept;
     [[nodiscard]] std::string format_output_line(std::string_view line) const;
 
+    /** Named E patterns and their FE most-recent-first listing. */
+    void define_pattern(std::string name, std::string source);
+    [[nodiscard]] std::vector<std::pair<std::string, std::string>> patterns() const;
+    [[nodiscard]] std::string expand_named_patterns(std::string_view text) const;
+
+    /** Portable interpretations of OB, OO, OR and general OS. */
+    void adjust_work_pages(std::int64_t delta);
+    [[nodiscard]] std::size_t work_pages() const noexcept;
+    void set_output_special_characters(std::string_view letters, bool enabled);
+    [[nodiscard]] const std::string& output_special_characters() const noexcept;
+    void set_public_read(bool enabled) noexcept;
+    [[nodiscard]] bool public_read() const noexcept;
+    void set_pattern_special_characters(std::string_view letters, bool enabled);
+    [[nodiscard]] bool pattern_character_special(char ch) const noexcept;
+    [[nodiscard]] const std::string& pattern_disabled_characters() const noexcept;
+
+    /** In-memory last-ten-commands undo/redo. Disk writes are not reversible. */
+    void record_undo();
+    void undo();
+    void redo();
+    [[nodiscard]] std::size_t undo_depth() const noexcept;
+
     /** The last diagnostic is retained until another error replaces it. */
     void set_last_error(std::string message);
     [[nodiscard]] const std::string& last_error() const noexcept;
@@ -247,6 +270,25 @@ private:
     bool output_upper_{};
     std::size_t page_size_{};
     bool substitution_separator_required_{true};
+    std::unordered_map<std::string, std::string> named_patterns_;
+    std::vector<std::string> pattern_usage_;
+    std::size_t work_pages_{3};
+    std::string output_special_chars_;
+    bool public_read_{true};
+    std::string pattern_disabled_chars_;
+    struct HistoryImage {
+        BufferManager::Snapshot buffers;
+        std::int64_t counter{};
+        std::unordered_map<std::string, std::int64_t> numeric_registers;
+        std::unordered_map<std::string, NumericDisplayOptions> numeric_formats;
+        bool condition{};
+        std::unordered_map<std::string, std::string> patterns;
+        std::vector<std::string> pattern_usage;
+    };
+    [[nodiscard]] HistoryImage make_history_image() const;
+    void restore_history_image(const HistoryImage& image);
+    std::vector<HistoryImage> undo_stack_;
+    std::vector<HistoryImage> redo_stack_;
     std::string last_error_;
     bool exit_requested_{};
     bool immediate_exit_requested_{};

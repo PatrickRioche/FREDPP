@@ -2,28 +2,29 @@
 
 Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/reference/commandes/` restent inchangées et seules celles des commandes disponibles sont embarquées.
 
-Pour un emploi pratique des **90 commandes prises en charge en développement
-v0.0.90** (syntaxe, effet, exemple, limites), consulter le
-[guide de recette de FREDPP 0.0.90](../fr/fredpp/guide-commandes-0.0.90.md),
+Pour un emploi pratique des **103 entrées de la référence historique prises en charge en développement
+v0.0.103** (syntaxe, effet, exemple, limites), consulter le
+[guide de recette de FREDPP 0.0.103](../fr/fredpp/guide-commandes-0.0.103.md),
+le [guide 0.0.90](../fr/fredpp/guide-commandes-0.0.90.md),
 ainsi que le [guide 0.0.80](../fr/fredpp/guide-commandes-0.0.80.md).
 Il complète les fiches historiques embarquées dans l'aide sans les altérer.
 
 ## Couverture de la référence historique
 
-| Famille | Total référence | Implémenté / homologué | Reste |
+| Famille | Total référence | Pris en charge | Reste |
 |---|---:|---:|---:|
-| Commandes principales | 22 | 18 | 4 |
-| Commandes spéciales | 7 | 6 (`\"`, `=`, `#`, `:`, `@`, `\\`) | 1 |
-| Famille F | 7 | 6 (`FB`, `FF`, `FN`, `FO`, `F?`, `FV`) | 1 |
-| Famille J | 5 | 4 (`JB` restant ; `JE`, `JM`, `JO`, `JP` disponibles) | 1 |
+| Commandes principales | 22 | 22 | 0 |
+| Commandes spéciales | 7 | 7 (`\"`, `=`, `#`, `:`, `@`, `\\`, `!`) | 0 |
+| Famille F | 7 | 7 (`FB`, `FE`, `FF`, `FN`, `FO`, `F?`, `FV`) | 0 |
+| Famille J | 5 | 5 (`JB`, `JE`, `JM`, `JO`, `JP`) | 0 |
 | Famille N | 21 | 21 (famille complète en développement) | 0 |
-| Famille O | 24 | 20 (`OC`, `OI(`, `OI\\F`, `OIA`, `OIC`, `OIE`, `OIF`, `OIL`, `OIR`, `OIU`, `OM`, `OOL`, `OOO`, `OOU`, `OP`, `OQ`, `OS&`, `OS/`, `OSD`, `OT`) | 4 |
-| Famille Z | 17 | 15 (`ZA`, `ZB`, `ZC`, `ZD`, `ZI`, `ZK`, `ZL`, `ZM`, `ZO`, `ZP`, `ZR`, `ZS`, `ZT`, `ZU`, `ZW`) | 2 |
-| **Total** | **103** | **90** | **13** |
+| Famille O | 24 | 24 (`OB`, `OC`, `OI(`, `OI\\F`, `OIA`, `OIC`, `OIE`, `OIF`, `OIL`, `OIR`, `OIU`, `OM`, `OO`, `OOL`, `OOO`, `OOU`, `OP`, `OQ`, `OR`, `OS`, `OS&`, `OS/`, `OSD`, `OT`) | 0 |
+| Famille Z | 17 | 17 (`ZA`, `ZB`, `ZC`, `ZD`, `ZG`, `ZI`, `ZK`, `ZL`, `ZM`, `ZO`, `ZP`, `ZR`, `ZS`, `ZT`, `ZU`, `ZV`, `ZW`) | 0 |
+| **Total** | **103** | **103** | **0** |
 
-La couverture fonctionnelle provisoire de la référence est de **90 / 103**, soit environ **87,4 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
+La couverture de **reconnaissance des entrées** de la référence est de **103 / 103**. Cela ne signifie **pas** une émulation complète de GCOS ni l'homologation de chaque forme historique. Plusieurs entrées restent des adaptations portables ou comportent des limites documentées (voir le guide 0.0.103).
 
-**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **90 commandes = `0.0.90`**. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. Le tag `dev-0.0.80` a été publié après **67/67 tests Windows** et la recette interactive ; **`dev-0.0.90` attend la validation Windows par l'utilisateur**, directement sur `dev` et sans modifier `main`.
+**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **103 entrées = `0.0.103`**. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. Le tag **`dev-0.0.90`** est publié après **69/69 tests Windows** et la recette interactive ; **`dev-0.0.103` attend la validation Windows par l'utilisateur**, sur `dev`, sans modifier `main`.
 
 | Commande | État dans FREDPP | Aide embarquée |
 |---|---|:---:|
@@ -31,16 +32,20 @@ La couverture fonctionnelle provisoire de la référence est de **90 / 103**, so
 | B | Disponible, fonctions avancées encore à compléter | Oui |
 | C | Disponible | Oui |
 | D | Disponible | Oui |
+| E | Définit un modèle nommé `E(nom)/modèle/`, réutilisable via `\E(nom)` ; expansion limitée à 16 niveaux / 1 MiB | Oui (`?e`) |
 | F | Disponible : sans argument, affiche nom, curseur, nombre de lignes, fichier associé et état modifié du buffer courant ; avec un nom de fichier, modifie uniquement son association, sans lecture/écriture ni effacement de l'indicateur modifié | Oui (`?f`) |
 | FB | Disponible; ordre décroissant de dernière utilisation, ligne courante, nombre de lignes, fichier associé et état modifié | Oui (`?fb`) |
+| FE | Liste les définitions `E` dans l'ordre des dernières définitions | Oui (`?fe`) |
 | FF | Disponible; liste de tous les buffers associés à un fichier, triée par nom de buffer, avec indication de modification (`?`) | Oui (`?ff`) |
 | FN | Disponible : affiche les registres numériques créés, triés par nom, sous la forme `n(nom):valeur`, sans modifier leur état | Oui (`?fn`) |
 | `F?` | Disponible : affiche toujours le buffer courant, puis les autres buffers modifiés triés par nom, avec chemin associé éventuel et marque `?` pour les buffers modifiés ; lecture seule | Oui (`?f?`, alias `?fq`) |
 | FO | Disponible; affiche les options effectivement en service | Oui (`?fo`) |
 | FV | Affiche la version compilée FREDPP, la date de compilation et le commit source, en remplacement de l'ancien « file-code » GCOS | Oui (`?fv`) |
 | G | Disponible avec une commande imbriquée P, D, Z ou S | Oui |
+| J | `J(nom)[T|F]` en procédure ; `JT`/`JF` sautent le reste de la ligne conditionnellement | Oui (`?j`) |
+| JB | Quitte une boucle `U`, avec variantes `JBT`/`JBF` | Oui (`?jb`) |
 | JE | Message d'erreur utilisateur sur une ligne ; `O+Q` demande l'arrêt après le message | Oui (`?je`) |
-| JO | `JO`, `JOT`, `JOF` interrompent la procédure courante (respectivement sans condition, si vraie, si fausse). La sortie d'une itération G/U reste à homologuer | Oui (`?jo`) |
+| JO | `JO`, `JOT`, `JOF` interrompent la procédure courante (respectivement sans condition, si vraie, si fausse) ; dans `U`, sautent l'itération active. Le contrôle G reste à homologuer | Oui (`?jo`) |
 | I | Disponible | Oui |
 | K | Copie vers un buffer avec remplacement ; candidat en validation historique | Oui (`?k`) |
 | `\"` | Disponible : tout le reste de la ligne est ignoré comme commentaire | Oui (`?\"`) |
@@ -65,10 +70,13 @@ La couverture fonctionnelle provisoire de la référence est de **90 / 103**, so
 | `NL` | Compte les caractères UTF-8 des lignes adressées (ligne courante par défaut), hors séparateurs de ligne | Oui (`?nl`) |
 | `NP` | Affiche la valeur formatée d'un registre sur une ligne ; ne modifie ni le compteur ni le buffer | Oui (`?np`) |
 | P | Disponible | Oui |
+| `!` | Exécute une commande du shell hôte, résultat dépendant de la plateforme ; commande de confiance uniquement | Oui (`?!`) |
 | Q | Disponible pour `Q` et `QQ`; Q protège désormais les buffers modifiés; `Q!` reporté | Oui |
 | R | Lecture ASCII/UTF-8, insertion adressée et liste ordonnée de fichiers, y compris les noms individuels entre guillemets avec espaces (formes avancées restantes) | Oui |
 | S | Disponible pour les substitutions globales, les plages, `&`, le suffixe P et l'emploi dans G | Oui |
 | T | Test de modèle `T`/`T~` et registre de condition ; homologation historique restante | Oui |
+| U | `U<n>`, `U[n]T/F/E` ; boucle sur commandes sans saisie de bloc, plafond de sécurité 10 000 itérations sans `n` | Oui (`?u`) |
+| V | Annule une modification en mémoire (historique de dix états) ; écritures disque non annulables | Oui (`?v`) |
 | W | Disponible avec W, WA et l'extension WU; WB reconnu mais GCOS/BCD non pris en charge | Oui (`?w`, `?wu`) |
 | Y | Affiche le dernier diagnostic de parsing ou d'exécution mémorisé ; ne modifie pas l'erreur | Oui (`?y`) |
 | Z | Disponible | Oui |
@@ -76,6 +84,7 @@ La couverture fonctionnelle provisoire de la référence est de **90 / 103**, so
 | ZB | Tri décroissant de la plage ; condition vraie si lignes identiques | Oui (`?zb`) |
 | ZC | Efface le drapeau de modification ; condition = état antérieur | Oui (`?zc`) |
 | ZD | Supprime définitivement le buffer nommé et son contenu non sauvegardé | Oui (`?zd`) |
+| ZG | Redirige la sortie d'une commande vers un buffer nommé | Oui (`?zg`) |
 | ZI | Convertit des alignements d'espaces en tabulations selon les taquets `OT` | Oui (`?zi`) |
 | ZK | Copie avec insertion après la ligne courante du destinataire ; tests Windows locaux et CI réussis, homologation historique restante | Oui (`?zk`) |
 | ZL | Passage en minuscules ASCII sur plage ou modèle, mise à jour du compteur et du curseur | Oui (`?zl`) |
@@ -86,6 +95,7 @@ La couverture fonctionnelle provisoire de la référence est de **90 / 103**, so
 | ZS | Tri croissant de la plage ; condition vraie si lignes identiques | Oui (`?zs`) |
 | ZT | Traduction de caractères ASCII avec jeux de taille égale, sans doublon source | Oui (`?zt`) |
 | ZU | Passage en majuscules ASCII sur plage ou modèle, mise à jour du compteur et du curseur | Oui (`?zu`) |
+| ZV | Rétablit le dernier état annulé par `V` | Oui (`?zv`) |
 | ZW | Ajoute une plage de lignes en fin de fichier sans effacer le contenu existant ; variantes `ZWA` et `ZWU` | Oui (`?zw`) |
 
 ## Limite actuelle de JM / JP
@@ -101,6 +111,10 @@ Le REPL exécute toujours une commande `JM` ou `JP` par ligne saisie. Dans une p
 | `OQ` | Disponible : `O+Q` demande l'arrêt sur erreur dans le REPL/procédure, `O-Q` le désactive | Oui (`?oq`) |
 | `OS&` | Disponible : `O+S&` active `&` comme texte trouvé dans `S`, `O-S&` le rend littéral | Oui (`?os&`) |
 | `OSD` | Disponible : `O+SD` recherche sans distinction de casse ASCII, `O-SD` sensible à la casse ; défaut provisoire `O-SD` pour compatibilité avec les tests FREDPP existants | Oui (`?osd`) |
+| `OB` | `O+B<n>` augmente le budget de pages du workfile, `O-B<n>` le réduit ; compteur portable sans allocation de pages GCOS | Oui (`?ob`) |
+| `OO` | `O+O\F`, `O-O\F` configurent la représentation de caractères de contrôle dans la sortie ; distinct de `OOO` (`O+OO`) | Oui (`?oo`) |
+| `OR` | `O+R`, `O-R` gèrent les bits de lecture publique des nouveaux fichiers sous POSIX ; indicateur uniquement sous Windows (ACL non modifiées) | Oui (`?or`) |
+| `OS` | `O-S*`, `O+S*` rendent un métacaractère de modèle littéral/spécial ; sous-ensemble pris en charge | Oui (`?os`) |
 | `OT` | Disponible : `O+T` définit des colonnes de tabulation ordonnées, `O-T` désactive leur rendu ; les conversions ZI/ZO utilisent les taquets enregistrés | Oui (`?ot`) |
 | `OC` | `O+C/ancien/nouveau/` remplace les occurrences exactes dans les lignes A/I/C au moment de l'entrée ; `O-C` désactive | Oui (`?oc`) |
 | `OI\\F` | `O-I\\F` accepte la forme courte `A texte`, `I texte`, `C texte` ; `O+I\\F` restaure la saisie à terminateur | Oui (`?oi\\f`) |

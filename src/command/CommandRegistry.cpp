@@ -52,6 +52,22 @@ CommandRegistry make_core_command_registry() {
             return std::make_unique<WhyCommandNode>(std::move(address), location);
         }});
 
+    registry.register_command(CommandDescriptor{
+        'E', "Named pattern",
+        [](std::unique_ptr<AddressNode>, SourceLocation location) {
+            return std::make_unique<NamedPatternCommandNode>("", "", location);
+        }});
+    registry.register_command(CommandDescriptor{
+        'U', "Until repetition",
+        [](std::unique_ptr<AddressNode>, SourceLocation location) {
+            return std::make_unique<RepeatCommandNode>(0, 'N', "", location);
+        }});
+    registry.register_command(CommandDescriptor{
+        'V', "Undo",
+        [](std::unique_ptr<AddressNode> address, SourceLocation location) {
+            return std::make_unique<UndoCommandNode>(std::move(address), location);
+        }});
+
     // For simple commands, descriptor callbacks construct the complete AST.
     // For commands with additional operands, CommandParser normally intercepts
     // the mnemonic and performs the full operand parse before the generic

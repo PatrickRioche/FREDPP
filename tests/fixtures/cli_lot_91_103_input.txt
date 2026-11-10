@@ -1,0 +1,22 @@
+B(test103)
+O-I\F
+A Alpha
+A Bravo
+O+I\F
+E(word)/Alpha/
+FE
+1T/\E(word)/
+U3 JM/LOOP103/
+1D
+V
+1,$P
+ZV
+1,$P
+O+B2
+O-B2
+O+O\F
+O-O\F
+O-R
+FO
+O+R
+QQ

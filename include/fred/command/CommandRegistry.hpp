@@ -85,11 +85,10 @@ private:
 /**
  * @brief Builds the standard FREDPP command registry.
  *
- * @return Registry containing the current core command mnemonics:
- *         P, L, D, A, I, B, C, M, T, G, Z, R, W, S, J, F, O and Q.
+ * @return Registry containing 24 core command mnemonics, including E, U, V.
  *
  * @par Current implementation
- * The returned registry currently contains 18 entries. Simple-command
+ * The returned registry currently contains 24 entries. Simple-command
  * descriptors can directly create their complete AST node. Operand-heavy
  * commands are normally fully handled by CommandParser; their descriptor
  * callbacks may contain only defaults/placeholders required by the common

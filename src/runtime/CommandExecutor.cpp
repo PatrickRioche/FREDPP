@@ -2,7 +2,11 @@
  * @file CommandExecutor.cpp
  * @brief Executes already-parsed FRED CommandNode AST against Runtime state.
  *
- * This layer performs editor mutation, address evaluation, file/system I/O and Output effects. It must never re-tokenize or reparse original command source. Command-specific insertion/address exceptions stay here rather than weakening generic AddressEvaluator semantics.
+ * This layer performs editor mutation, address evaluation, file/system I/O and
+ * output effects. The U repeat command is the sole exception to the usual
+ * no-reparse rule: it parses its stored command body for each iteration.
+ * Command-specific address exceptions stay here instead of weakening generic
+ * AddressEvaluator semantics.
  *
  * @note FREDPP_LOT8_CPP_DOCUMENTATION
  */
@@ -14,6 +18,10 @@
 #include "fred/runtime/CommandExecutionError.hpp"
 #include "fred/runtime/NumericOperations.hpp"
 #include "fred/runtime/PatternMatcher.hpp"
+#include "fred/command/CommandRegistry.hpp"
+#include "fred/lexer/Lexer.hpp"
+#include "fred/lexer/TokenStream.hpp"
+#include "fred/parser/CommandParser.hpp"
 #include "fredpp/version.hpp"
 
 #include <algorithm>
@@ -561,6 +569,7 @@ void execute_write(const WriteCommandNode& command, ExecutionContext& context) {
             needs_separator = last != '\n';
         }
     }
+    const bool newly_created = !std::filesystem::exists(filename);
     std::ofstream output(filename, std::ios::binary |
         (command.append_file() ? std::ios::app : std::ios::trunc));
     if (!output) {
@@ -587,6 +596,22 @@ void execute_write(const WriteCommandNode& command, ExecutionContext& context) {
     if (!output) {
         throw CommandExecutionError("error while writing file: " + filename);
     }
+    output.close();
+    if (!output) throw CommandExecutionError("error while closing file: " + filename);
+#ifndef _WIN32
+    // Host-only interpretation of GCOS public read: affect new files only.
+    // Never change the permissions of pre-existing user files on overwrite.
+    if (newly_created) {
+        const auto public_bits = std::filesystem::perms::group_read |
+                                 std::filesystem::perms::others_read;
+        std::error_code error;
+        std::filesystem::permissions(filename, public_bits,
+            context.public_read() ? std::filesystem::perm_options::add :
+                                    std::filesystem::perm_options::remove,
+            error);
+        if (error) throw CommandExecutionError("OR file permission update failed: " + error.message());
+    }
+#endif
 
     context.set_counter(empty_buffer ? 0 : range.last - range.first + 1);
     context.set_condition(true);
@@ -996,6 +1021,13 @@ void execute_facts(const FactsCommandNode& command,
             context.output().write_line("o+p" + std::to_string(context.page_size()));
         if (!context.substitution_separator_required())
             context.output().write_line("o-s/");
+        if (context.work_pages() != 3)
+            context.output().write_line("o+b" + std::to_string(context.work_pages()));
+        if (!context.output_special_characters().empty())
+            context.output().write_line("o+o" + context.output_special_characters());
+        if (!context.public_read()) context.output().write_line("o-r");
+        if (!context.pattern_disabled_characters().empty())
+            context.output().write_line("o-s" + context.pattern_disabled_characters());
         return;
 
     case FactsKind::Version:
@@ -1003,6 +1035,12 @@ void execute_facts(const FactsCommandNode& command,
             "FREDPP v" + std::string(fredpp::version()) +
             " - compiled " + __DATE__ + " " + __TIME__ +
             " - commit " + std::string(fredpp::git_commit()));
+        return;
+
+    case FactsKind::Patterns:
+        for (const auto& [name, source] : context.patterns()) {
+            context.output().write_line("e(" + name + ")" + source);
+        }
         return;
 
     case FactsKind::Buffers:
@@ -1262,6 +1300,20 @@ void execute_option(const OptionCommandNode& command,
         return;
     case OptionKind::SubstituteSeparator:
         context.set_substitution_separator_required(command.enabled());
+        return;
+    case OptionKind::BufferPages:
+        context.adjust_work_pages(
+            (command.enabled() ? 1 : -1) *
+            static_cast<std::int64_t>(std::stoll(command.option_value())));
+        return;
+    case OptionKind::OutputCharacters:
+        context.set_output_special_characters(command.option_value(), command.enabled());
+        return;
+    case OptionKind::PublicRead:
+        context.set_public_read(command.enabled());
+        return;
+    case OptionKind::SpecialCharacters:
+        context.set_pattern_special_characters(command.option_value(), command.enabled());
         return;
     }
 }
@@ -1746,6 +1798,62 @@ void execute_buffer(const BufferCommandNode& command, ExecutionContext& context)
     }
 }
 
+struct RepeatBreak final {};
+struct RepeatContinue final {};
+
+/** Executes a bounded U command body through the normal AST parser. */
+void execute_repeat(const RepeatCommandNode& command, ExecutionContext& context) {
+    // An accidental recursive U definition must not exhaust the native stack.
+    static thread_local std::size_t active_depth = 0;
+    if (active_depth >= 16) {
+        throw CommandExecutionError("U nesting exceeds 16 levels");
+    }
+    struct DepthGuard {
+        std::size_t& depth;
+        explicit DepthGuard(std::size_t& value) : depth(value) { ++depth; }
+        ~DepthGuard() { --depth; }
+    } guard(active_depth);
+    const auto limit = command.limit() == 0 ? std::size_t{10000} : command.limit();
+    const auto registry = make_core_command_registry();
+    const CommandExecutor executor;
+    for (std::size_t iteration = 0; iteration < limit; ++iteration) {
+        bool failed = false;
+        try {
+            const auto expanded = context.expand_named_patterns(command.body());
+            Lexer lexer(expanded);
+            TokenStream tokens(lexer);
+            CommandParser parser(tokens, registry, &context);
+            while (!tokens.eof() && !context.exit_requested()) {
+                const auto node = parser.parse_one();
+                if (node->kind() == AstNodeKind::RepeatControlCommand) {
+                    const auto& control = static_cast<const RepeatControlCommandNode&>(*node);
+                    const bool active = control.condition() == 'A' ||
+                        (control.condition() == 'T' && context.condition()) ||
+                        (control.condition() == 'F' && !context.condition());
+                    if (active && control.breaks()) throw RepeatBreak{};
+                    if (active) throw RepeatContinue{};
+                } else {
+                    executor.execute(*node, context);
+                }
+            }
+        } catch (const RepeatBreak&) {
+            return;
+        } catch (const RepeatContinue&) {
+            // Continue is evaluated before the loop's stop condition below.
+        } catch (const std::exception& error) {
+            if (command.until() != 'E') throw;
+            context.set_last_error(error.what());
+            failed = true;
+        }
+        if (failed || context.exit_requested() ||
+            (command.until() == 'T' && context.condition()) ||
+            (command.until() == 'F' && !context.condition())) return;
+    }
+    if (command.limit() == 0) {
+        throw CommandExecutionError("U exceeded the portable 10000-iteration safety limit");
+    }
+}
+
 } // namespace
 
 /**
@@ -1778,6 +1886,23 @@ void CommandExecutor::execute(const CommandNode& command,
     case AstNodeKind::WhyCommand:
         execute_why(context);
         return;
+    case AstNodeKind::NamedPatternCommand: {
+        const auto& definition = static_cast<const NamedPatternCommandNode&>(command);
+        context.record_undo();
+        context.define_pattern(definition.name(), definition.pattern());
+        return;
+    }
+    case AstNodeKind::RepeatCommand:
+        execute_repeat(static_cast<const RepeatCommandNode&>(command), context);
+        return;
+    case AstNodeKind::RepeatControlCommand:
+        throw CommandExecutionError("JB/JO require an active U loop");
+    case AstNodeKind::UndoCommand:
+        context.undo();
+        return;
+    case AstNodeKind::RedoCommand:
+        context.redo();
+        return;
     case AstNodeKind::PrintCommand:
         execute_print(static_cast<const PrintCommandNode&>(command), context);
         return;
@@ -1785,12 +1910,14 @@ void CommandExecutor::execute(const CommandNode& command,
         execute_list(static_cast<const ListCommandNode&>(command), context);
         return;
     case AstNodeKind::ReadCommand:
+        context.record_undo();
         execute_read(static_cast<const ReadCommandNode&>(command), context);
         return;
     case AstNodeKind::WriteCommand:
         execute_write(static_cast<const WriteCommandNode&>(command), context);
         return;
     case AstNodeKind::DeleteCommand:
+        context.record_undo();
         execute_delete(static_cast<const DeleteCommandNode&>(command), context);
         return;
     case AstNodeKind::AppendCommand:
@@ -1800,37 +1927,45 @@ void CommandExecutor::execute(const CommandNode& command,
     case AstNodeKind::ChangeCommand:
         throw CommandExecutionError("C requires text input mode");
     case AstNodeKind::MoveCommand:
+        context.record_undo();
         execute_move(static_cast<const MoveCommandNode&>(command), context);
         return;
     case AstNodeKind::CopyCommand:
+        context.record_undo();
         execute_copy(static_cast<const CopyCommandNode&>(command), context);
         return;
     case AstNodeKind::TestCommand:
         execute_test(static_cast<const TestCommandNode&>(command), context);
         return;
     case AstNodeKind::BufferCommand:
+        context.record_undo();
         execute_buffer(static_cast<const BufferCommandNode&>(command), context);
         return;
     case AstNodeKind::GlobalCommand:
+        context.record_undo();
         execute_global(static_cast<const GlobalCommandNode&>(command), context);
         return;
     case AstNodeKind::ZapCommand:
         execute_zap(static_cast<const ZapCommandNode&>(command), context);
         return;
     case AstNodeKind::ZapCopyCommand:
+        context.record_undo();
         execute_zap_copy(static_cast<const ZapCopyCommandNode&>(command), context);
         return;
     case AstNodeKind::ZapGatherCommand:
+        context.record_undo();
         execute_zap_gather(
             static_cast<const ZapGatherCommandNode&>(command), context);
         return;
     case AstNodeKind::ZapExtendedCommand:
+        context.record_undo();
         execute_zap_extended(static_cast<const ZapExtendedCommandNode&>(command), context);
         return;
     case AstNodeKind::SystemCommand:
         execute_system(static_cast<const SystemCommandNode&>(command), context);
         return;
     case AstNodeKind::SubstituteCommand:
+        context.record_undo();
         execute_substitute(static_cast<const SubstituteCommandNode&>(command),
                            context);
         return;
@@ -1844,14 +1979,17 @@ void CommandExecutor::execute(const CommandNode& command,
         execute_facts(static_cast<const FactsCommandNode&>(command), context);
         return;
     case AstNodeKind::NumericAssignmentCommand:
+        context.record_undo();
         execute_numeric_assignment(
             static_cast<const NumericAssignmentCommandNode&>(command), context);
         return;
     case AstNodeKind::NumericOperationCommand:
+        context.record_undo();
         execute_numeric_operation(
             static_cast<const NumericOperationCommandNode&>(command), context);
         return;
     case AstNodeKind::FileAssociationCommand:
+        context.record_undo();
         execute_file_association(
             static_cast<const FileAssociationCommandNode&>(command), context);
         return;
@@ -1876,6 +2014,7 @@ void CommandExecutor::execute_append(const AppendCommandNode& command,
                                      std::vector<std::string> lines) const {
     auto& buffer = context.current_buffer();
     const auto after = evaluate_append_address(command, buffer);
+    context.record_undo();
     buffer.insert_after(after, std::move(lines));
 }
 
@@ -1885,6 +2024,7 @@ void CommandExecutor::execute_insert(const InsertCommandNode& command,
                                      std::vector<std::string> lines) const {
     auto& buffer = context.current_buffer();
     const auto after = evaluate_insert_position(command, buffer);
+    context.record_undo();
     buffer.insert_after(after, std::move(lines));
 }
 
@@ -1898,6 +2038,7 @@ void CommandExecutor::execute_change(const ChangeCommandNode& command,
     const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
     const auto insertion_after = range.first - 1;
 
+    context.record_undo();
     buffer.erase(range.first, range.last);
     if (!lines.empty()) {
         buffer.insert_after(insertion_after, std::move(lines));

@@ -138,6 +138,72 @@ public:
     }
 };
 
+/** `E(name)/pattern/` stores a reusable FRED pattern source. */
+class NamedPatternCommandNode final : public CommandNode {
+public:
+    NamedPatternCommandNode(std::string name, std::string pattern,
+                            SourceLocation location) noexcept
+        : CommandNode(nullptr, location), name_(std::move(name)),
+          pattern_(std::move(pattern)) {}
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::NamedPatternCommand;
+    }
+    [[nodiscard]] const std::string& name() const noexcept { return name_; }
+    [[nodiscard]] const std::string& pattern() const noexcept { return pattern_; }
+private:
+    std::string name_;
+    std::string pattern_;
+};
+
+/** `U[n][T|F|E] <command>` repeats a parsed command sequence. */
+class RepeatCommandNode final : public CommandNode {
+public:
+    RepeatCommandNode(std::size_t limit, char until, std::string body,
+                      SourceLocation location) noexcept
+        : CommandNode(nullptr, location), limit_(limit), until_(until),
+          body_(std::move(body)) {}
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::RepeatCommand;
+    }
+    [[nodiscard]] std::size_t limit() const noexcept { return limit_; }
+    [[nodiscard]] char until() const noexcept { return until_; }
+    [[nodiscard]] const std::string& body() const noexcept { return body_; }
+private:
+    std::size_t limit_{};
+    char until_{'N'};
+    std::string body_;
+};
+
+/** `JB[T|F]` breaks a U loop, `JO[T|F]` skips its current iteration. */
+class RepeatControlCommandNode final : public CommandNode {
+public:
+    RepeatControlCommandNode(bool breaks, char condition, SourceLocation location) noexcept
+        : CommandNode(nullptr, location), breaks_(breaks), condition_(condition) {}
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::RepeatControlCommand;
+    }
+    [[nodiscard]] bool breaks() const noexcept { return breaks_; }
+    [[nodiscard]] char condition() const noexcept { return condition_; }
+private:
+    bool breaks_{};
+    char condition_{'A'};
+};
+
+class UndoCommandNode final : public CommandNode {
+public:
+    using CommandNode::CommandNode;
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::UndoCommand;
+    }
+};
+class RedoCommandNode final : public CommandNode {
+public:
+    using CommandNode::CommandNode;
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::RedoCommand;
+    }
+};
+
 /**
  * @brief Historical `L` command AST: list a file on the terminal.
  *
@@ -721,7 +787,10 @@ enum class FactsKind {
     Options,
 
     /** FV: native build and source identity. */
-    Version
+    Version,
+
+    /** FE: names and sources of reusable patterns. */
+    Patterns
 };
 
 /**
@@ -901,7 +970,11 @@ enum class OptionKind {
     OutputOctal,
     OutputUpper,
     PageSize,
-    SubstituteSeparator
+    SubstituteSeparator,
+    BufferPages,
+    OutputCharacters,
+    PublicRead,
+    SpecialCharacters
 };
 
 /**

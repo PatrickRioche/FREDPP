@@ -13,6 +13,14 @@ conservent leurs horodatages originaux en UTC.
 
 ## État mis à jour le 10 novembre 2026
 
+**Lot 91–103 en développement :** couverture des treize entrées restantes de
+la référence (`E`, `J`, `U`, `V`, `!`, `FE`, `JB`, `OB`, `OO`, `OR`, `OS`,
+`ZG`, `ZV`). Branche isolée `feature-v091-v103` depuis le commit
+`f5b6b7f`, tag `dev-0.0.90` déjà publié après **69/69 tests Windows**.
+Objectif : **103/103 entrées reconnues**, avec limitations portables explicites.
+La validation complète Windows et le tag `dev-0.0.103` restent à effectuer ;
+`main` ne change pas.
+
 **Lot 81–90 en développement :** `JO`, `OC`, `OI\\F`, `OIE`, `OIF`, `OOL`,
 `OOO`, `OOU`, `OP`, `OS/`. Travail sur `feature-v081-v090` dérivée du
 commit **`5408508`**, tagué `dev-0.0.80` après **67/67 tests Windows**
@@ -41,10 +49,10 @@ et `dev-0.0.60` sont publiés après validations Windows.
 
 | Élément | État vérifié |
 |---|---|
-| Version du projet | `0.0.90` en préparation (90/103 commandes ; Windows à confirmer) |
-| Branche active | `feature-v081-v090` depuis `origin/dev` ; intégration dans `dev` après vérifications |
-| Dernier lot fonctionnel | `JO`, `OC`, `OI\\F`, `OIE`, `OIF`, `OOL`, `OOO`, `OOU`, `OP`, `OS/` |
-| État des tests | `0.0.40` : **60/60 Windows** ; `0.0.50` : **62/62 Windows** ; `0.0.60` : **64/64 Windows** ; `0.0.70` : **65/65 Windows** ; `0.0.80` : **67/67 Windows** ; `0.0.90` : validation Windows en attente |
+| Version du projet | `0.0.103` en préparation (103/103 entrées, Windows à confirmer) |
+| Branche active | `feature-v091-v103` depuis `origin/dev` ; intégration dans `dev` après vérifications |
+| Dernier lot fonctionnel | `E`, `J`, `U`, `V`, `!`, `FE`, `JB`, `OB`, `OO`, `OR`, `OS`, `ZG`, `ZV` |
+| État des tests | `0.0.40` : **60/60 Windows** ; `0.0.50` : **62/62 Windows** ; `0.0.60` : **64/64 Windows** ; `0.0.70` : **65/65 Windows** ; `0.0.80` : **67/67 Windows** ; `0.0.90` : **69/69 Windows** ; `0.0.103` : validation Windows en attente |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
 | Dernière CI Windows/MSVC complète vérifiée | [Exécution 42704197355 réussie pour `0.0.60` : 64/64 Release et Debug](https://github.com/PatrickRioche/FREDPP/actions/runs/42704197355) ; recettes locales Windows `0.0.70` (65/65) et `0.0.80` (67/67) confirmées, CI des lots ultérieurs non vérifiée ici |

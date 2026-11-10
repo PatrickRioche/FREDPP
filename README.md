@@ -49,7 +49,9 @@ Inside FREDPP:
 Only the French documentation of implemented FRED commands is embedded. The source files under `docs/fr/reference/commandes/` are not modified by the build.
 
 For the actual syntax, supported behavior, examples and limitations of all
-**90 commands in development v0.0.90**, use the [French practical guide for lot 81–90](docs/fr/fredpp/guide-commandes-0.0.90.md), then the [lot 71–80 guide](docs/fr/fredpp/guide-commandes-0.0.80.md).
+**103 historical entries recognized in development v0.0.103**, use the [French practical guide for lot 91–103](docs/fr/fredpp/guide-commandes-0.0.103.md), then the [lot 81–90 guide](docs/fr/fredpp/guide-commandes-0.0.90.md).
+Coverage of an entry does **not** imply a complete GCOS emulation; see the
+documented portable adaptations and limitations.
 The embedded `?commande` pages preserve the historical reference and may
 describe forms that FREDPP has not implemented yet.
 

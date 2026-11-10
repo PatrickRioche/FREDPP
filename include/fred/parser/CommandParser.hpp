@@ -11,6 +11,7 @@
 #include <utility>
 
 namespace fred {
+class ExecutionContext;
 
 /**
  * @brief Parses one FRED command and its operands into a CommandNode AST.
@@ -46,7 +47,8 @@ namespace fred {
  * - F file association and F/FB/FF/FN/FO/F? queries are implemented;
  * - the 21 historical N register commands are parsed in interactive input;
  *   procedures additionally support compact same-line numeric chains;
- * - only OI( and OM option forms are implemented;
+ * - all 24 indexed O forms are recognized, though some GCOS behaviors have
+ *   host-specific portable limits;
  * - J messages are limited to the historical 2000-character maximum;
  * - WB is represented as FileWriteMode::BcdUnsupported.
  */
@@ -59,7 +61,8 @@ public:
      * @pre Both referenced objects must outlive CommandParser.
      */
     CommandParser(TokenStream& tokens,
-                  const CommandRegistry& registry) noexcept;
+                  const CommandRegistry& registry,
+                  const ExecutionContext* context = nullptr) noexcept;
 
     /**
      * @brief Parses one command and normally requires end-of-input.
@@ -148,12 +151,16 @@ private:
      * command tokens.
      */
     void require_command_end();
+    void apply_pattern_option_interpretation(
+        std::string_view pattern,
+        std::vector<CharacterInterpretation>& interpretations) const;
 
     /** Borrowed token stream. */
     TokenStream* tokens_;
 
     /** Borrowed read-only command registry. */
     const CommandRegistry* registry_;
+    const ExecutionContext* context_{};
 
     /** Internal mode used by parse_one() for command chaining. */
     bool allow_trailing_commands_{false};

@@ -1,4 +1,18 @@
-## v0.0.90 — Lot 81–90 (développement, recette Windows en attente)
+## v0.0.103 — Lot 91–103 (développement, recette Windows en attente)
+
+- Treize entrées supplémentaires prises en charge dans le suivi : `E`, `J`,
+  `U`, `V`, `!`, `FE`, `JB`, `OB`, `OO`, `OR`, `OS`, `ZG`, `ZV` ; **103/103 entrées
+  reconnues**, sans prétention d'homologation historique intégrale.
+- Modèles nommés et liste FE ; boucles limitées et contrôles conditionnels ;
+  annulation/rétablissement des états en mémoire, historique de dix états.
+- Adaptations portables des pages de travail, des échappements de sortie, des
+  droits de lecture publique et des métacaractères de modèles.
+- Test unitaire et recette CLI dédiés ; guide français, aide historique
+  supplémentaire et tableau de couverture actualisés.
+- `dev-0.0.90` publié après **69/69 tests Windows** ; `dev-0.0.103` ne sera
+  proposé qu'après validation Windows. Aucun tag ni modification de `main` ici.
+
+## v0.0.90 — Lot 81–90 (validé sous Windows, tag `dev-0.0.90` publié)
 
 - Dix commandes supplémentaires : `JO`, `OC`, `OI\\F`, `OIE`, `OIF`,
   `OOL`, `OOO`, `OOU`, `OP` et `OS/` ; couverture **90/103**.
