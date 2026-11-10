@@ -21,6 +21,7 @@
 #include <cctype>
 #include <cstdio>
 #include <cstdint>
+#include <chrono>
 #include <fstream>
 #include <filesystem>
 #include <functional>
@@ -30,6 +31,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <thread>
 #include <utility>
 #include <vector>
 
@@ -50,6 +52,33 @@ void execute_line_number(const LineNumberCommandNode& command,
         ? AddressEvaluator{}.evaluate(command.address(), buffer).first
         : buffer.current_line();
     context.output().write_line(std::to_string(line));
+}
+
+/** Historical # prints the shared counter and leaves all editor state intact. */
+void execute_counter(ExecutionContext& context) {
+    context.output().write_line(std::to_string(context.counter()));
+}
+
+/** Historical :n prints up to n lines on either side of the current line. */
+void execute_window(const WindowCommandNode& command,
+                    ExecutionContext& context) {
+    auto& buffer = context.current_buffer();
+    if (buffer.empty()) return;
+    const std::size_t center = buffer.current_line() ? buffer.current_line() : 1;
+    const std::size_t first = center > command.radius() ?
+        center - command.radius() : 1;
+    const std::size_t last = center + std::min(command.radius(),
+        buffer.line_count() - center);
+    for (std::size_t number = first; number <= last; ++number) {
+        context.output().write_line(buffer.line(number));
+    }
+    buffer.set_current_line(last);
+}
+
+/** Historical Y prints the most recent parser or execution diagnostic. */
+void execute_why(ExecutionContext& context) {
+    context.output().write_line(context.last_error().empty() ?
+        "aucune erreur enregistrée" : context.last_error());
 }
 
 /**
@@ -924,6 +953,21 @@ void execute_facts(const FactsCommandNode& command,
         } else {
             context.output().write_line("o-t");
         }
+        if (!context.append_prompt().empty()) {
+            context.output().write_line("o+ia/" + context.append_prompt() + "/");
+        }
+        if (!context.command_prompt().empty()) {
+            context.output().write_line("o+ic/" + context.command_prompt() + "/");
+        }
+        if (!context.return_message().empty()) {
+            context.output().write_line("o+ir/" + context.return_message() + "/");
+        }
+        if (context.lower_input_escape()) {
+            context.output().write_line(std::string("o+il") + *context.lower_input_escape());
+        }
+        if (context.upper_input_escape()) {
+            context.output().write_line(std::string("o+iu") + *context.upper_input_escape());
+        }
         return;
 
     case FactsKind::Version:
@@ -1131,6 +1175,31 @@ void execute_option(const OptionCommandNode& command,
     case OptionKind::TabStops:
         if (command.enabled()) context.set_tab_stops(command.tab_stops());
         context.set_tabs_enabled(command.enabled());
+        return;
+    case OptionKind::InputAppendPrompt:
+        context.set_append_prompt(command.option_value());
+        return;
+    case OptionKind::InputCommandPrompt:
+        context.set_command_prompt(command.option_value());
+        return;
+    case OptionKind::InputReturnMessage:
+        context.set_return_message(command.option_value());
+        return;
+    case OptionKind::InputLowerEscape:
+        if (command.enabled() && context.upper_input_escape() &&
+            *context.upper_input_escape() == command.option_value().at(0)) {
+            throw CommandExecutionError("OIL and OIU cannot use the same escape");
+        }
+        context.set_lower_input_escape(command.enabled() ?
+            std::optional<char>(command.option_value().at(0)) : std::nullopt);
+        return;
+    case OptionKind::InputUpperEscape:
+        if (command.enabled() && context.lower_input_escape() &&
+            *context.lower_input_escape() == command.option_value().at(0)) {
+            throw CommandExecutionError("OIL and OIU cannot use the same escape");
+        }
+        context.set_upper_input_escape(command.enabled() ?
+            std::optional<char>(command.option_value().at(0)) : std::nullopt);
         return;
     }
 }
@@ -1589,6 +1658,9 @@ void execute_message(const MessageCommandNode& command,
     } else {
         context.output().write(expanded);
     }
+    if (command.user_error()) {
+        context.set_last_error(expanded);
+    }
     if (command.user_error() && context.quit_on_error()) {
         context.request_exit(true);
     }
@@ -1622,10 +1694,27 @@ void execute_buffer(const BufferCommandNode& command, ExecutionContext& context)
  */
 void CommandExecutor::execute(const CommandNode& command,
                               ExecutionContext& context) const {
+    try {
     switch (command.kind()) {
     case AstNodeKind::LineNumberCommand:
         execute_line_number(static_cast<const LineNumberCommandNode&>(command),
                             context);
+        return;
+    case AstNodeKind::CounterCommand:
+        execute_counter(context);
+        return;
+    case AstNodeKind::WindowCommand:
+        execute_window(static_cast<const WindowCommandNode&>(command), context);
+        return;
+    case AstNodeKind::LabelCommand:
+        // In a procedure, the runner resolves @(label) before normal dispatch.
+        return;
+    case AstNodeKind::WaitCommand:
+        std::this_thread::sleep_for(std::chrono::seconds(
+            static_cast<const WaitCommandNode&>(command).seconds()));
+        return;
+    case AstNodeKind::WhyCommand:
+        execute_why(context);
         return;
     case AstNodeKind::PrintCommand:
         execute_print(static_cast<const PrintCommandNode&>(command), context);
@@ -1712,6 +1801,10 @@ void CommandExecutor::execute(const CommandNode& command,
         return;
     default:
         throw CommandExecutionError("unsupported command node");
+    }
+    } catch (const std::exception& error) {
+        context.set_last_error(error.what());
+        throw;
     }
 }
 

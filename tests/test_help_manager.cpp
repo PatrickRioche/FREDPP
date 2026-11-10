@@ -36,6 +36,11 @@ int main() {
         assert(help.exists(topic));
         assert(!help.load(topic).empty());
     }
+    for (const auto* topic : {"#", "@", "window", "wait", "y",
+                              "oia", "oic", "oir", "oil", "oiu"}) {
+        assert(help.exists(topic));
+        assert(!help.load(topic).empty());
+    }
     assert(help.exists("jm"));
     assert(help.exists("jp"));
     assert(help.exists("g"));
@@ -92,6 +97,11 @@ int main() {
     for (const auto* topic : {"    ?fv", "    ?je", "    ?zi", "    ?zo",
                               "    ?zr", "    ?zw", "    ?oq", "    ?os&",
                               "    ?osd", "    ?ot"}) {
+        assert(index.find(topic) != std::string::npos);
+    }
+    for (const auto* topic : {"    ?#", "    ?@", "    ?window", "    ?wait",
+                              "    ?y", "    ?oia", "    ?oic", "    ?oir",
+                              "    ?oil", "    ?oiu"}) {
         assert(index.find(topic) != std::string::npos);
     }
     assert(index.find("    ?procedure") == std::string::npos);

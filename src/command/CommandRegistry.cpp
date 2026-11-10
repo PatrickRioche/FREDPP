@@ -46,6 +46,12 @@ std::size_t CommandRegistry::size() const noexcept {
 CommandRegistry make_core_command_registry() {
     CommandRegistry registry;
 
+    registry.register_command(CommandDescriptor{
+        'Y', "Why",
+        [](std::unique_ptr<AddressNode> address, SourceLocation location) {
+            return std::make_unique<WhyCommandNode>(std::move(address), location);
+        }});
+
     // For simple commands, descriptor callbacks construct the complete AST.
     // For commands with additional operands, CommandParser normally intercepts
     // the mnemonic and performs the full operand parse before the generic

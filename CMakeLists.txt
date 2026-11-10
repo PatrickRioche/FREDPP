@@ -9,7 +9,7 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-project(FREDPP VERSION 0.0.70 LANGUAGES CXX)
+project(FREDPP VERSION 0.0.80 LANGUAGES CXX)
 
 # Development version contract: the patch number equals the number of
 # historical reference commands recorded as available in COMMAND_STATUS.md.
@@ -118,6 +118,11 @@ set(FREDPP_IMPLEMENTED_HELP_TOPICS
     fv
     g
     i
+    oia
+    oic
+    oil
+    oir
+    oiu
     jm
     jp
     je
@@ -151,6 +156,7 @@ set(FREDPP_IMPLEMENTED_HELP_TOPICS
     s
     t
     w
+    y
     z
     za
     zb
@@ -182,7 +188,7 @@ foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
 endforeach()
 
 list(LENGTH FREDPP_HELP_FILES FREDPP_HELP_FILES_LENGTH)
-math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 14")
+math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 18")
 
 string(CONCAT FREDPP_HELP_INDEX
 "============================================================\n"
@@ -263,9 +269,18 @@ string(APPEND FREDPP_HELP_INDEX
 "    ?os&        Afficher l'aide de l'option OS& (substitution)\n"
 "    ?osd        Afficher l'aide de l'option OSD (recherche)\n"
 "    ?ot         Afficher l'aide de l'option OT (tabulations)\n"
+"    ?oia        Prompt de saisie A/I/C\n"
+"    ?oic        Prompt de commande\n"
+"    ?oir        Message à chaque retour clavier\n"
+"    ?oil        Échappement pour minuscules en entrée\n"
+"    ?oiu        Échappement pour majuscules en entrée\n"
 "\nCOMMANDES SPÉCIALES HISTORIQUES IMPLÉMENTÉES\n\n"
 "    ?\"          Afficher l'aide des commentaires FRED\n"
 "    ?=          Afficher l'aide du numéro de ligne\n"
+"    ?#          Afficher l'aide du compteur\n"
+"    ?@          Afficher l'aide des étiquettes de procédure\n"
+"    ?window     Afficher l'aide de la fenêtre de lignes :n\n"
+"    ?wait       Afficher l'aide de l'attente (deux antislashs)\n"
 "\nALIAS HISTORIQUE IMPLÉMENTÉ\n\n"
 "    ?*          Afficher l'aide de l'alias * (1,$)\n"
 )
@@ -348,6 +363,18 @@ foreach(option_help IN ITEMS oq os_ampersand osd ot)
     endif()
     set("FREDPP_${option_help_upper}_HELP_CONTENT" "${option_help_contents}")
 endforeach()
+
+foreach(special_help IN ITEMS at backslashbackslash colon counter)
+    string(TOUPPER "${special_help}" special_help_upper)
+    set(special_help_file
+        "${CMAKE_CURRENT_SOURCE_DIR}/docs/fr/reference/commandes/${special_help}.md")
+    file(READ "${special_help_file}" special_help_contents)
+    string(FIND "${special_help_contents}" ")FREDPP_HELP\"" special_collision)
+    if(NOT special_collision EQUAL -1)
+        message(FATAL_ERROR "Special help contains reserved delimiter: ${special_help_file}")
+    endif()
+    set("FREDPP_${special_help_upper}_HELP_CONTENT" "${special_help_contents}")
+endforeach()
 file(READ "${FREDPP_OM_HELP_FILE}" FREDPP_OM_HELP_CONTENT)
 string(FIND "${FREDPP_OM_HELP_CONTENT}" ")FREDPP_HELP\"" FREDPP_OM_HELP_COLLISION)
 if(NOT FREDPP_OM_HELP_COLLISION EQUAL -1)
@@ -404,6 +431,10 @@ file(WRITE "${FREDPP_EMBEDDED_HELP_CPP}"
 "    Entry{\"*\", R\"FREDPP_HELP(${FREDPP_STAR_ALIAS_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"\\\"\", R\"FREDPP_HELP(${FREDPP_QUOTE_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"=\", R\"FREDPP_HELP(${FREDPP_EQUALS_HELP_CONTENT})FREDPP_HELP\"},\n"
+"    Entry{\"#\", R\"FREDPP_HELP(${FREDPP_COUNTER_HELP_CONTENT})FREDPP_HELP\"},\n"
+"    Entry{\"@\", R\"FREDPP_HELP(${FREDPP_AT_HELP_CONTENT})FREDPP_HELP\"},\n"
+"    Entry{\"window\", R\"FREDPP_HELP(${FREDPP_COLON_HELP_CONTENT})FREDPP_HELP\"},\n"
+"    Entry{\"wait\", R\"FREDPP_HELP(${FREDPP_BACKSLASHBACKSLASH_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"oi(\", R\"FREDPP_HELP(${FREDPP_OI_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"om\", R\"FREDPP_HELP(${FREDPP_OM_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"oq\", R\"FREDPP_HELP(${FREDPP_OQ_HELP_CONTENT})FREDPP_HELP\"},\n"

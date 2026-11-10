@@ -96,6 +96,31 @@ std::string consume_plain_text(TokenStream& tokens) {
     return result;
 }
 
+/** Parses a short delimiter-wrapped OI prompt, e.g. /Mode CMD>/ or !Next!. */
+std::string parse_option_prompt(std::string text, SourceLocation location) {
+    if (text.size() < 2 || text.front() != text.back()) {
+        throw ParseError("OI prompt requires matching delimiters", location);
+    }
+    const unsigned char delimiter = static_cast<unsigned char>(text.front());
+    if (std::isalnum(delimiter) || std::isspace(delimiter) || delimiter == '\\') {
+        throw ParseError("OI prompt delimiter must be symbolic", location);
+    }
+    std::string value;
+    for (std::size_t i = 1; i + 1 < text.size(); ++i) {
+        if (text[i] == '\\' && i + 2 < text.size()) {
+            value.push_back(text[++i]);
+        } else if (text[i] == text.front()) {
+            throw ParseError("unescaped delimiter in OI prompt", location);
+        } else {
+            value.push_back(text[i]);
+        }
+    }
+    if (value.size() > 120) {
+        throw ParseError("OI prompt exceeds 120 characters", location);
+    }
+    return value;
+}
+
 /**
  * @brief Tests the delimiter immediately following the two-byte JM/JP spelling.
  */
@@ -315,6 +340,62 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             require_command_end();
             return std::make_unique<LineNumberCommandNode>(
                 std::move(address), command.location);
+        }
+        if (command.type == TokenType::Symbol && command.lexeme == "#") {
+            if (address) {
+                throw ParseError("# does not accept a line address", address->location());
+            }
+            require_command_end();
+            return std::make_unique<CounterCommandNode>(nullptr, command.location);
+        }
+        if (command.type == TokenType::Symbol && command.lexeme == ":") {
+            if (address) {
+                throw ParseError(": does not accept a line address", address->location());
+            }
+            std::size_t radius = 5;
+            if (tokens_->peek().type == TokenType::Number) {
+                const auto number = tokens_->consume();
+                const auto result = std::from_chars(
+                    number.lexeme.data(), number.lexeme.data() + number.lexeme.size(), radius);
+                if (result.ec != std::errc{} || radius > 100000) {
+                    throw ParseError("window radius must be 0..100000", number.location);
+                }
+            }
+            require_command_end();
+            return std::make_unique<WindowCommandNode>(radius, command.location);
+        }
+        if (command.type == TokenType::Symbol && command.lexeme == "@") {
+            if (address) {
+                throw ParseError("@ does not accept a line address", address->location());
+            }
+            const auto name = parse_parenthesized_buffer_name();
+            if (name.size() > 15 || name.find('(') != std::string::npos ||
+                name.find(')') != std::string::npos) {
+                throw ParseError("label must contain 1..15 characters", command.location);
+            }
+            require_command_end();
+            return std::make_unique<LabelCommandNode>(name, command.location);
+        }
+        if (command.type == TokenType::Backslash && command.lexeme == "\\") {
+            if (address) {
+                throw ParseError("wait does not accept a line address", address->location());
+            }
+            const auto second = tokens_->consume();
+            if (second.type != TokenType::Backslash || !is_adjacent(command, second)) {
+                throw ParseError("wait requires two adjacent backslashes", second.location);
+            }
+            const auto number = tokens_->consume();
+            if (number.type != TokenType::Number || !is_adjacent(second, number)) {
+                throw ParseError("wait requires a number of seconds", number.location);
+            }
+            std::size_t seconds = 0;
+            const auto result = std::from_chars(
+                number.lexeme.data(), number.lexeme.data() + number.lexeme.size(), seconds);
+            if (result.ec != std::errc{} || seconds > 86400) {
+                throw ParseError("wait must not exceed 86400 seconds", number.location);
+            }
+            require_command_end();
+            return std::make_unique<WaitCommandNode>(seconds, command.location);
         }
         if (command.type == TokenType::Symbol && command.lexeme == "!") {
             if (address) {
@@ -672,6 +753,14 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 *facts_kind, command.location);
         }
 
+        if (mnemonic == 'Y') {
+            if (address) {
+                throw ParseError("Y does not accept a line address", address->location());
+            }
+            require_command_end();
+            return std::make_unique<WhyCommandNode>(nullptr, command.location);
+        }
+
         if (mnemonic == 'O') {
             if (address) {
                 throw ParseError("O does not accept a line address",
@@ -707,6 +796,37 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 require_command_end();
                 return std::make_unique<OptionCommandNode>(
                     kind, enabled, command.location);
+            }
+            if (option_name == "IA" || option_name == "IC" || option_name == "IR") {
+                const auto value_location = tokens_->peek().location;
+                const std::string raw = consume_plain_text(*tokens_);
+                if ((enabled && raw.empty()) || (!enabled && !raw.empty())) {
+                    throw ParseError("OI prompt requires +delimited text or - without text",
+                                     value_location);
+                }
+                auto prompt = enabled ? parse_option_prompt(raw, value_location) : std::string{};
+                const auto kind = option_name == "IA" ? OptionKind::InputAppendPrompt
+                                : option_name == "IC" ? OptionKind::InputCommandPrompt
+                                : OptionKind::InputReturnMessage;
+                return std::make_unique<OptionCommandNode>(
+                    kind, enabled, command.location, std::vector<std::size_t>{},
+                    std::move(prompt));
+            }
+            if (option_name == "IL" || option_name == "IU") {
+                const auto value_location = tokens_->peek().location;
+                const std::string raw = consume_plain_text(*tokens_);
+                if ((enabled && raw.size() != 1) || (!enabled && !raw.empty())) {
+                    throw ParseError("OI case escape requires one character after +, none after -",
+                                     value_location);
+                }
+                if (enabled && (std::isspace(static_cast<unsigned char>(raw[0])) ||
+                                std::isalnum(static_cast<unsigned char>(raw[0])))) {
+                    throw ParseError("OI case escape must be a symbol", value_location);
+                }
+                return std::make_unique<OptionCommandNode>(
+                    option_name == "IL" ? OptionKind::InputLowerEscape :
+                    OptionKind::InputUpperEscape, enabled, command.location,
+                    std::vector<std::size_t>{}, raw);
             }
             if (option_name == "S") {
                 const auto ampersand = tokens_->consume();

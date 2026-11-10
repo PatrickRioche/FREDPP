@@ -235,6 +235,13 @@ de commandes, le commit `dev` validé reçoit un tag de jalon indépendant de
 Le préfixe `dev-` évite de déclencher le flux de publication officielle,
 qui surveille les tags `v*` et exige un commit identique à `main`.
 
+**Point d'avancement ultérieur — lot 71–80 :** `dev-0.0.70` a été
+validé sous Windows (**65/65 tests CTest**) puis publié au commit
+`b69b996`. Le travail `0.0.80` ajoute `#`, `:`, `@`, `\\`, `Y`,
+`OIA`, `OIC`, `OIR`, `OIL` et `OIU` ; couverture fonctionnelle provisoire
+**80/103 (77,7 %)**. Le tag `dev-0.0.80` reste réservé au commit `dev`
+qui aura passé la validation Windows et la recette humaine.
+
 Les options `OI(` et `OM` sont disponibles ; `OM` est implicitement à `O-M`.
 
 Les commandes spéciales `\"` (commentaires) et `=` (numéro de ligne)

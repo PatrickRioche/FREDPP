@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <unordered_map>
@@ -152,6 +153,25 @@ public:
     void set_tabs_enabled(bool value) noexcept;
     [[nodiscard]] bool tabs_enabled() const noexcept;
 
+    /** Historical OIA/OIC/OIR terminal strings (empty means default/off). */
+    void set_append_prompt(std::string value);
+    [[nodiscard]] const std::string& append_prompt() const noexcept;
+    void set_command_prompt(std::string value);
+    [[nodiscard]] const std::string& command_prompt() const noexcept;
+    void set_return_message(std::string value);
+    [[nodiscard]] const std::string& return_message() const noexcept;
+
+    /** ASCII-only input case escape prefixes (OIL/OIU). */
+    void set_lower_input_escape(std::optional<char> value) noexcept;
+    [[nodiscard]] std::optional<char> lower_input_escape() const noexcept;
+    void set_upper_input_escape(std::optional<char> value) noexcept;
+    [[nodiscard]] std::optional<char> upper_input_escape() const noexcept;
+    [[nodiscard]] std::string transform_input_line(std::string_view line) const;
+
+    /** The last diagnostic is retained until another error replaces it. */
+    void set_last_error(std::string message);
+    [[nodiscard]] const std::string& last_error() const noexcept;
+
     /**
      * @brief Records a Q/QQ exit request.
      *
@@ -189,6 +209,12 @@ private:
     bool case_insensitive_search_{};
     std::vector<std::size_t> tab_stops_{5, 9};
     bool tabs_enabled_{true};
+    std::string append_prompt_;
+    std::string command_prompt_;
+    std::string return_message_;
+    std::optional<char> lower_input_escape_;
+    std::optional<char> upper_input_escape_;
+    std::string last_error_;
     bool exit_requested_{};
     bool immediate_exit_requested_{};
 };

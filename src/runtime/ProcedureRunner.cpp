@@ -751,6 +751,7 @@ void ProcedureRunner::execute_procedure_line(
         // A nested procedure has already reported its exact source context.
         throw;
     } catch (const std::exception& error) {
+        context_->set_last_error(error.what());
         report_procedure_error_context(*context_, lines, index);
         if (context_->quit_on_error()) {
             context_->request_exit(true);
@@ -813,7 +814,7 @@ void ProcedureRunner::execute_single_command(
                 terminated = true;
                 break;
             }
-            text_lines.push_back(lines->at(cursor));
+            text_lines.push_back(context_->transform_input_line(lines->at(cursor)));
         }
 
         if (!terminated) {

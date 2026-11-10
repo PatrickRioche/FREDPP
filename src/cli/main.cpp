@@ -31,6 +31,7 @@
 #include "fred/runtime/ExecutionContext.hpp"
 
 #include <cstdlib>
+#include <cctype>
 #include <ctime>
 #include <iomanip>
 #include <filesystem>
@@ -575,9 +576,13 @@ int main(int argc, char** argv) {
               << " - Type ? for FRED help; type ?: for FREDPP commands; type Q or QQ to exit.\n";
 
     std::string input;
-    while (std::cout << manager.current().name() << "> " &&
+    while (std::cout << (execution_context.command_prompt().empty() ?
+               manager.current().name() + "> " : execution_context.command_prompt()) &&
            std::getline(std::cin, input)) {
         try {
+            if (!execution_context.return_message().empty()) {
+                std::cout << execution_context.return_message() << '\n';
+            }
             const auto first_non_space = input.find_first_not_of(" \t\r");
             if (first_non_space != std::string::npos &&
                 input[first_non_space] == '?') {
@@ -650,7 +655,9 @@ int main(int argc, char** argv) {
                 std::string text;
                 std::getline(stream >> std::ws, text);
                 print_pattern(text);
-            } else if (!input.empty() && input.front() == ':') {
+            } else if (!input.empty() && input.front() == ':' &&
+                       (input.size() == 1 ||
+                        !std::isdigit(static_cast<unsigned char>(input[1])))) {
                 std::cout << "Unknown development command\n";
             } else if (!input.empty()) {
                 fred::FlowCharacterStream character_stream(
@@ -671,13 +678,17 @@ int main(int argc, char** argv) {
                         std::string text_line;
                         bool terminated = false;
 
-                        while (std::cout << "text> " &&
+                        while (std::cout << (execution_context.append_prompt().empty() ?
+                                   "text> " : execution_context.append_prompt()) &&
                                std::getline(std::cin, text_line)) {
+                            if (!execution_context.return_message().empty()) {
+                                std::cout << execution_context.return_message() << '\n';
+                            }
                             if (text_line == "\\F") {
                                 terminated = true;
                                 break;
                             }
-                            lines.push_back(std::move(text_line));
+                            lines.push_back(execution_context.transform_input_line(text_line));
                         }
 
                         if (!terminated) {
@@ -710,6 +721,7 @@ int main(int argc, char** argv) {
             }
         } catch (const std::exception& error) {
             std::cerr << "error: " << error.what() << '\n';
+            execution_context.set_last_error(error.what());
             if (execution_context.quit_on_error()) {
                 execution_context.request_exit(true);
                 break;

@@ -60,7 +60,8 @@ int main() {
         fred::StringOutput output;
         fred::ExecutionContext context(buffers, output);
         run("FV", executor, context);
-        check(output.content().find("FREDPP v0.0.70") != std::string::npos,
+        check(output.content().find("FREDPP v" + std::string(fredpp::version())) !=
+              std::string::npos,
               "FV prints current compiled version");
         output.clear();
         run("JE/Erreur numero 5/", executor, context);

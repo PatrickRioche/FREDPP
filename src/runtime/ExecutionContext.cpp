@@ -1,5 +1,6 @@
 #include "fred/runtime/ExecutionContext.hpp"
 
+#include <cctype>
 #include <algorithm>
 #include <cstdint>
 #include <utility>
@@ -182,6 +183,61 @@ void ExecutionContext::set_tabs_enabled(bool value) noexcept {
     tabs_enabled_ = value;
 }
 bool ExecutionContext::tabs_enabled() const noexcept { return tabs_enabled_; }
+
+void ExecutionContext::set_append_prompt(std::string value) {
+    append_prompt_ = std::move(value);
+}
+const std::string& ExecutionContext::append_prompt() const noexcept {
+    return append_prompt_;
+}
+void ExecutionContext::set_command_prompt(std::string value) {
+    command_prompt_ = std::move(value);
+}
+const std::string& ExecutionContext::command_prompt() const noexcept {
+    return command_prompt_;
+}
+void ExecutionContext::set_return_message(std::string value) {
+    return_message_ = std::move(value);
+}
+const std::string& ExecutionContext::return_message() const noexcept {
+    return return_message_;
+}
+void ExecutionContext::set_lower_input_escape(std::optional<char> value) noexcept {
+    lower_input_escape_ = value;
+}
+std::optional<char> ExecutionContext::lower_input_escape() const noexcept {
+    return lower_input_escape_;
+}
+void ExecutionContext::set_upper_input_escape(std::optional<char> value) noexcept {
+    upper_input_escape_ = value;
+}
+std::optional<char> ExecutionContext::upper_input_escape() const noexcept {
+    return upper_input_escape_;
+}
+std::string ExecutionContext::transform_input_line(std::string_view line) const {
+    std::string text;
+    text.reserve(line.size());
+    for (std::size_t i = 0; i < line.size(); ++i) {
+        const char value = line[i];
+        const bool to_lower = lower_input_escape_ && value == *lower_input_escape_;
+        const bool to_upper = upper_input_escape_ && value == *upper_input_escape_;
+        if ((to_lower || to_upper) && i + 1 < line.size()) {
+            const unsigned char next = static_cast<unsigned char>(line[++i]);
+            text.push_back(next < 128 ? static_cast<char>(
+                to_lower ? std::tolower(next) : std::toupper(next)) :
+                static_cast<char>(next));
+        } else {
+            text.push_back(value);
+        }
+    }
+    return text;
+}
+void ExecutionContext::set_last_error(std::string message) {
+    last_error_ = std::move(message);
+}
+const std::string& ExecutionContext::last_error() const noexcept {
+    return last_error_;
+}
 
 void ExecutionContext::request_exit(bool immediate) noexcept {
     // A later request overwrites the immediate flag while preserving the

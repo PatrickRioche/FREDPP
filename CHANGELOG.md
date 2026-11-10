@@ -1,3 +1,15 @@
+## v0.0.80 — Lot 71–80 (développement, validation Windows en attente)
+
+- Dix commandes historiques supplémentaires : `#`, `:`, `@`, `\\`, `Y`,
+  `OIA`, `OIC`, `OIR`, `OIL`, `OIU` ; couverture provisoire **80/103**.
+- Consultation du compteur, fenêtre de lignes, étiquettes de procédure,
+  attente contrôlée et conservation du dernier diagnostic.
+- Prompts de saisie et de commande configurables, message de retour clavier,
+  échappements ASCII de casse en entrée A/I/C ; nouveaux états exposés par `FO`.
+- Aides historiques embarquées sans modifier les sources documentaires,
+  guide de recette interactif et tests unitaires du lot.
+- Aucun tag `dev-0.0.80`, merge `main` ou release avant recette Windows.
+
 ## Développement Windows — correctifs internes non publiés (novembre 2026)
 
 - **v0.0.30 — 30/103 commandes (29,1 %) :** commande historique `N:`

@@ -81,6 +81,63 @@ public:
     }
 };
 
+/** Historical `#`: show the shared numeric operation counter. */
+class CounterCommandNode final : public CommandNode {
+public:
+    using CommandNode::CommandNode;
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::CounterCommand;
+    }
+};
+
+/** Historical `:n`: print a window of n lines around the current line. */
+class WindowCommandNode final : public CommandNode {
+public:
+    WindowCommandNode(std::size_t radius, SourceLocation location) noexcept
+        : CommandNode(nullptr, location), radius_(radius) {}
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::WindowCommand;
+    }
+    [[nodiscard]] std::size_t radius() const noexcept { return radius_; }
+private:
+    std::size_t radius_{};
+};
+
+/** Historical `@(label)`, a target recognized by the procedure engine. */
+class LabelCommandNode final : public CommandNode {
+public:
+    LabelCommandNode(std::string name, SourceLocation location) noexcept
+        : CommandNode(nullptr, location), name_(std::move(name)) {}
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::LabelCommand;
+    }
+    [[nodiscard]] const std::string& name() const noexcept { return name_; }
+private:
+    std::string name_;
+};
+
+/** Historical double-backslash wait, constrained to at most 24 hours. */
+class WaitCommandNode final : public CommandNode {
+public:
+    WaitCommandNode(std::size_t seconds, SourceLocation location) noexcept
+        : CommandNode(nullptr, location), seconds_(seconds) {}
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::WaitCommand;
+    }
+    [[nodiscard]] std::size_t seconds() const noexcept { return seconds_; }
+private:
+    std::size_t seconds_{};
+};
+
+/** Historical `Y`: explain the latest parser or execution failure. */
+class WhyCommandNode final : public CommandNode {
+public:
+    using CommandNode::CommandNode;
+    [[nodiscard]] AstNodeKind kind() const noexcept override {
+        return AstNodeKind::WhyCommand;
+    }
+};
+
 /**
  * @brief Historical `L` command AST: list a file on the terminal.
  *
@@ -827,7 +884,12 @@ enum class OptionKind {
     QuitOnError,
     SubstituteAmpersand,
     CaseInsensitiveSearch,
-    TabStops
+    TabStops,
+    InputAppendPrompt,
+    InputCommandPrompt,
+    InputReturnMessage,
+    InputLowerEscape,
+    InputUpperEscape
 };
 
 /**
@@ -842,9 +904,10 @@ public:
     OptionCommandNode(OptionKind option,
                       bool enabled,
                       SourceLocation location,
-                      std::vector<std::size_t> tab_stops = {}) noexcept
+                      std::vector<std::size_t> tab_stops = {},
+                      std::string option_value = {}) noexcept
         : CommandNode(nullptr, location), option_(option), enabled_(enabled),
-          tab_stops_(std::move(tab_stops)) {}
+          tab_stops_(std::move(tab_stops)), option_value_(std::move(option_value)) {}
 
     [[nodiscard]] AstNodeKind kind() const noexcept override {
         return AstNodeKind::OptionCommand;
@@ -855,11 +918,15 @@ public:
     [[nodiscard]] const std::vector<std::size_t>& tab_stops() const noexcept {
         return tab_stops_;
     }
+    [[nodiscard]] const std::string& option_value() const noexcept {
+        return option_value_;
+    }
 
 private:
     OptionKind option_;
     bool enabled_{};
     std::vector<std::size_t> tab_stops_;
+    std::string option_value_;
 };
 
 /** @brief `Q` / `QQ` quit-command AST. */

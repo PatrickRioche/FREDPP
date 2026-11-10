@@ -2,28 +2,28 @@
 
 Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/reference/commandes/` restent inchangées et seules celles des commandes disponibles sont embarquées.
 
-Pour un emploi pratique des **70 commandes prises en charge en développement
-v0.0.70** (syntaxe, effet, exemple, limites), consulter le
-[guide de recette de FREDPP 0.0.70](../fr/fredpp/guide-commandes-0.0.70.md)
-et le [guide 0.0.60](../fr/fredpp/guide-commandes-0.0.60.md).
+Pour un emploi pratique des **80 commandes prises en charge en développement
+v0.0.80** (syntaxe, effet, exemple, limites), consulter le
+[guide de recette de FREDPP 0.0.80](../fr/fredpp/guide-commandes-0.0.80.md),
+ainsi que le [guide 0.0.70](../fr/fredpp/guide-commandes-0.0.70.md).
 Il complète les fiches historiques embarquées dans l'aide sans les altérer.
 
 ## Couverture de la référence historique
 
 | Famille | Total référence | Implémenté / homologué | Reste |
 |---|---:|---:|---:|
-| Commandes principales | 22 | 17 | 5 |
-| Commandes spéciales | 7 | 2 (`\"`, `=`) | 5 |
+| Commandes principales | 22 | 18 | 4 |
+| Commandes spéciales | 7 | 6 (`\"`, `=`, `#`, `:`, `@`, `\\`) | 1 |
 | Famille F | 7 | 6 (`FB`, `FF`, `FN`, `FO`, `F?`, `FV`) | 1 |
 | Famille J | 5 | 3 (`JE`, `JM`, `JP`) | 2 |
 | Famille N | 21 | 21 (famille complète en développement) | 0 |
-| Famille O | 24 | 6 (`OI(`, `OM`, `OQ`, `OS&`, `OSD`, `OT`) | 18 |
+| Famille O | 24 | 11 (`OI(`, `OIA`, `OIC`, `OIL`, `OIR`, `OIU`, `OM`, `OQ`, `OS&`, `OSD`, `OT`) | 13 |
 | Famille Z | 17 | 15 (`ZA`, `ZB`, `ZC`, `ZD`, `ZI`, `ZK`, `ZL`, `ZM`, `ZO`, `ZP`, `ZR`, `ZS`, `ZT`, `ZU`, `ZW`) | 2 |
-| **Total** | **103** | **70** | **33** |
+| **Total** | **103** | **80** | **23** |
 
-La couverture fonctionnelle provisoire de la référence est de **70 / 103**, soit environ **68,0 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
+La couverture fonctionnelle provisoire de la référence est de **80 / 103**, soit environ **77,7 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
 
-**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **70 commandes = `0.0.70`**. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. Le tag `dev-0.0.60` a été publié après validation ; **`dev-0.0.70` ne sera créé qu'après validation Windows par l'utilisateur**, directement sur `dev` et sans modifier `main`.
+**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **80 commandes = `0.0.80`**. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. Les tags `dev-0.0.60` et `dev-0.0.70` ont été publiés après validation ; **`dev-0.0.80` attend la validation Windows par l'utilisateur**, directement sur `dev` et sans modifier `main`.
 
 | Commande | État dans FREDPP | Aide embarquée |
 |---|---|:---:|
@@ -44,6 +44,10 @@ La couverture fonctionnelle provisoire de la référence est de **70 / 103**, so
 | K | Copie vers un buffer avec remplacement ; candidat en validation historique | Oui (`?k`) |
 | `\"` | Disponible : tout le reste de la ligne est ignoré comme commentaire | Oui (`?\"`) |
 | `=` | Disponible : affiche le numéro de la ligne courante ou de la ligne adressée (`2=`, `$=`) sans déplacer le curseur | Oui (`?=`) |
+| `#` | Affiche la valeur du compteur partagé sans modifier son état | Oui (`?#`) |
+| `:` | `:n` affiche les n lignes voisines de la ligne courante (n=5 par défaut) ; le curseur se place à la dernière ligne imprimée | Oui (`?window`) |
+| `@` | `@(nom)` définit une étiquette de procédure, déjà reconnue par les sauts de procédure ; sans effet direct dans le REPL | Oui (`?@`) |
+| `\\` | `\\n` attend n secondes (de 0 à 86 400), `\\0` est immédiat | Oui (`?wait`) |
 | JM | Disponible : message avec retour à la ligne, formes `JM texte` et `JM/texte/` | Oui (`?jm`) |
 | JP | Disponible : message sans retour à la ligne, formes `JP texte` et `JP/texte/` | Oui (`?jp`) |
 | L | Disponible avec un nom de fichier | Oui |
@@ -65,6 +69,7 @@ La couverture fonctionnelle provisoire de la référence est de **70 / 103**, so
 | S | Disponible pour les substitutions globales, les plages, `&`, le suffixe P et l'emploi dans G | Oui |
 | T | Test de modèle `T`/`T~` et registre de condition ; homologation historique restante | Oui |
 | W | Disponible avec W, WA et l'extension WU; WB reconnu mais GCOS/BCD non pris en charge | Oui (`?w`, `?wu`) |
+| Y | Affiche le dernier diagnostic de parsing ou d'exécution mémorisé ; ne modifie pas l'erreur | Oui (`?y`) |
 | Z | Disponible | Oui |
 | ZA | Copie tout un buffer après l'adresse courante, avec protection de l'auto-copie | Oui (`?za`) |
 | ZB | Tri décroissant de la plage ; condition vraie si lignes identiques | Oui (`?zb`) |
@@ -96,6 +101,11 @@ Le REPL exécute toujours une commande `JM` ou `JP` par ligne saisie. Dans une p
 | `OS&` | Disponible : `O+S&` active `&` comme texte trouvé dans `S`, `O-S&` le rend littéral | Oui (`?os&`) |
 | `OSD` | Disponible : `O+SD` recherche sans distinction de casse ASCII, `O-SD` sensible à la casse ; défaut provisoire `O-SD` pour compatibilité avec les tests FREDPP existants | Oui (`?osd`) |
 | `OT` | Disponible : `O+T` définit des colonnes de tabulation ordonnées, `O-T` désactive leur rendu ; les conversions ZI/ZO utilisent les taquets enregistrés | Oui (`?ot`) |
+| `OIA` | `O+IA/texte/` définit le prompt de saisie A/I/C ; `O-IA` restaure `text> ` | Oui (`?oia`) |
+| `OIC` | `O+IC/texte/` définit le prompt de commande ; `O-IC` restaure le nom du buffer suivi de `> ` | Oui (`?oic`) |
+| `OIR` | `O+IR/texte/` affiche un message au retour clavier ; `O-IR` le désactive | Oui (`?oir`) |
+| `OIL` | `O+IL%` transforme en minuscule ASCII le caractère suivant `%` dans la saisie texte ; `O-IL` désactive | Oui (`?oil`) |
+| `OIU` | `O+IU^` transforme en majuscule ASCII le caractère suivant `^` dans la saisie texte ; `O-IU` désactive | Oui (`?oiu`) |
 
 ## Moteur de procédures — Sprint 2.17
 
