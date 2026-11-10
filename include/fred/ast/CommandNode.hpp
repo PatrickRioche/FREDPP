@@ -548,11 +548,12 @@ public:
                           std::unique_ptr<PatternNode> pattern,
                           std::string replacement,
                           bool print_after,
-                          SourceLocation location) noexcept
+                          SourceLocation location,
+                          bool closing_separator = true) noexcept
         : CommandNode(std::move(address), location),
           pattern_(std::move(pattern)),
           replacement_(std::move(replacement)),
-          print_after_(print_after) {}
+          print_after_(print_after), closing_separator_(closing_separator) {}
 
     [[nodiscard]] AstNodeKind kind() const noexcept override {
         return AstNodeKind::SubstituteCommand;
@@ -567,11 +568,13 @@ public:
     }
 
     [[nodiscard]] bool print_after() const noexcept { return print_after_; }
+    [[nodiscard]] bool closing_separator() const noexcept { return closing_separator_; }
 
 private:
     std::unique_ptr<PatternNode> pattern_;
     std::string replacement_;
     bool print_after_{};
+    bool closing_separator_{true};
 };
 
 /**
@@ -889,7 +892,16 @@ enum class OptionKind {
     InputCommandPrompt,
     InputReturnMessage,
     InputLowerEscape,
-    InputUpperEscape
+    InputUpperEscape,
+    InputChange,
+    InputTerminatorRequired,
+    InputEscape,
+    InputFeed,
+    OutputLower,
+    OutputOctal,
+    OutputUpper,
+    PageSize,
+    SubstituteSeparator
 };
 
 /**
@@ -905,9 +917,11 @@ public:
                       bool enabled,
                       SourceLocation location,
                       std::vector<std::size_t> tab_stops = {},
-                      std::string option_value = {}) noexcept
+                      std::string option_value = {},
+                      std::string option_value2 = {}) noexcept
         : CommandNode(nullptr, location), option_(option), enabled_(enabled),
-          tab_stops_(std::move(tab_stops)), option_value_(std::move(option_value)) {}
+          tab_stops_(std::move(tab_stops)), option_value_(std::move(option_value)),
+          option_value2_(std::move(option_value2)) {}
 
     [[nodiscard]] AstNodeKind kind() const noexcept override {
         return AstNodeKind::OptionCommand;
@@ -921,12 +935,16 @@ public:
     [[nodiscard]] const std::string& option_value() const noexcept {
         return option_value_;
     }
+    [[nodiscard]] const std::string& option_value2() const noexcept {
+        return option_value2_;
+    }
 
 private:
     OptionKind option_;
     bool enabled_{};
     std::vector<std::size_t> tab_stops_;
     std::string option_value_;
+    std::string option_value2_;
 };
 
 /** @brief `Q` / `QQ` quit-command AST. */

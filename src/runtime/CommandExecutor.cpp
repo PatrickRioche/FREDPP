@@ -91,7 +91,11 @@ void execute_print(const PrintCommandNode& command, ExecutionContext& context) {
     auto& buffer = context.current_buffer();
     const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
     for (auto line = range.first; line <= range.last; ++line) {
-        context.output().write_line(buffer.line(line));
+        const auto ordinal = line - range.first;
+        if (context.page_size() && ordinal && ordinal % context.page_size() == 0) {
+            context.output().write_line("-- page suivante --");
+        }
+        context.output().write_line(context.format_output_line(buffer.line(line)));
     }
     buffer.set_current_line(range.last);
 }
@@ -120,11 +124,16 @@ void execute_list(const ListCommandNode& command, ExecutionContext& context) {
     }
 
     std::string line;
+    std::size_t ordinal = 0;
     while (std::getline(input, line)) {
         if (!line.empty() && line.back() == '\r') {
             line.pop_back();
         }
-        context.output().write_line(line);
+        if (context.page_size() && ordinal && ordinal % context.page_size() == 0) {
+            context.output().write_line("-- page suivante --");
+        }
+        context.output().write_line(context.format_output_line(line));
+        ++ordinal;
     }
 
     if (input.bad()) {
@@ -831,6 +840,9 @@ std::optional<std::string> substitute_all(const PatternNode& pattern,
  */
 void execute_substitute(const SubstituteCommandNode& command,
                         ExecutionContext& context) {
+    if (!command.closing_separator() && context.substitution_separator_required()) {
+        throw CommandExecutionError("S requires a closing separator (O+S/)");
+    }
     auto& buffer = context.current_buffer();
     const auto range = AddressEvaluator{}.evaluate(command.address(), buffer);
     bool changed = false;
@@ -968,6 +980,22 @@ void execute_facts(const FactsCommandNode& command,
         if (context.upper_input_escape()) {
             context.output().write_line(std::string("o+iu") + *context.upper_input_escape());
         }
+        if (!context.input_change_from().empty()) {
+            context.output().write_line("o+c/" + context.input_change_from() +
+                "/" + context.input_change_to() + "/");
+        }
+        if (!context.input_terminator_required())
+            context.output().write_line("o-i\\f");
+        if (context.input_escape() != '\\')
+            context.output().write_line(std::string("o+ie") + context.input_escape());
+        if (!context.input_feed()) context.output().write_line("o-if");
+        if (context.output_lower()) context.output().write_line("o+ol");
+        if (!context.output_octal()) context.output().write_line("o-oo");
+        if (context.output_upper()) context.output().write_line("o+ou");
+        if (context.page_size())
+            context.output().write_line("o+p" + std::to_string(context.page_size()));
+        if (!context.substitution_separator_required())
+            context.output().write_line("o-s/");
         return;
 
     case FactsKind::Version:
@@ -1200,6 +1228,40 @@ void execute_option(const OptionCommandNode& command,
         }
         context.set_upper_input_escape(command.enabled() ?
             std::optional<char>(command.option_value().at(0)) : std::nullopt);
+        return;
+    case OptionKind::InputChange:
+        context.set_input_change(command.option_value(), command.option_value2());
+        return;
+    case OptionKind::InputTerminatorRequired:
+        context.set_input_terminator_required(command.enabled());
+        return;
+    case OptionKind::InputEscape:
+        context.set_input_escape(command.enabled() ? command.option_value().at(0) : '\\');
+        return;
+    case OptionKind::InputFeed:
+        context.set_input_feed(command.enabled());
+        return;
+    case OptionKind::OutputLower:
+        if (command.enabled() && context.output_upper()) {
+            throw CommandExecutionError("OOL and OOU cannot both be active");
+        }
+        context.set_output_lower(command.enabled());
+        return;
+    case OptionKind::OutputOctal:
+        context.set_output_octal(command.enabled());
+        return;
+    case OptionKind::OutputUpper:
+        if (command.enabled() && context.output_lower()) {
+            throw CommandExecutionError("OOL and OOU cannot both be active");
+        }
+        context.set_output_upper(command.enabled());
+        return;
+    case OptionKind::PageSize:
+        context.set_page_size(command.enabled() ?
+            static_cast<std::size_t>(std::stoul(command.option_value())) : 0);
+        return;
+    case OptionKind::SubstituteSeparator:
+        context.set_substitution_separator_required(command.enabled());
         return;
     }
 }

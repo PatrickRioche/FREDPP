@@ -45,6 +45,14 @@ fredpp_add_test(test_zap_copy test_zap_copy.cpp)
 fredpp_add_test(test_zap_extended test_zap_extended.cpp)
 fredpp_add_test(test_lot_61_70 test_lot_61_70.cpp)
 fredpp_add_test(test_lot_71_80 test_lot_71_80.cpp)
+fredpp_add_test(test_lot_81_90 test_lot_81_90.cpp)
+
+add_test(NAME cli_lot_81_90
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_lot_81_90.cmake"
+)
 
 add_test(NAME cli_lot_71_80
     COMMAND ${CMAKE_COMMAND}

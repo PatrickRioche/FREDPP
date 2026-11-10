@@ -105,14 +105,19 @@ std::optional<std::string> parse_buffer_directive(std::string_view source) {
 /**
  * @brief Recognizes a trimmed procedure text terminator (`\F` or `\f`).
  */
-bool is_text_terminator(std::string_view source) noexcept {
+bool is_text_terminator(std::string_view source, char escape = '\\') noexcept {
     const auto value = trim(source);
-    return value == "\\F" || value == "\\f";
+    return value.size() == 2 && value[0] == escape &&
+           (value[1] == 'F' || value[1] == 'f');
 }
 
 } // namespace
 
 namespace {
+
+/** Non-error control flow escaping only the innermost procedure buffer. */
+struct JumpOutOfProcedure {};
+
 
 /**
  * @brief Parsed procedure jump target plus optional required condition state.
@@ -137,6 +142,15 @@ bool equals_ci(std::string_view left, std::string_view right) noexcept {
     }
 
     return true;
+}
+
+/** Historical JO[T|F] is a conditional return from the current procedure. */
+std::optional<char> jump_out_condition(std::string_view source) {
+    const auto value = trim(source);
+    if (equals_ci(value, "JO")) return 'A';
+    if (equals_ci(value, "JOT")) return 'T';
+    if (equals_ci(value, "JOF")) return 'F';
+    return std::nullopt;
 }
 
 /**
@@ -670,7 +684,11 @@ void ProcedureRunner::execute_buffer_impl(std::string_view buffer_name,
     for (std::size_t index = 0;
          index < lines.size() && !context_->exit_requested();
          ++index) {
-        execute_procedure_line(lines, index, depth);
+        try {
+            execute_procedure_line(lines, index, depth);
+        } catch (const JumpOutOfProcedure&) {
+            return;
+        }
     }
 }
 
@@ -711,6 +729,15 @@ void ProcedureRunner::execute_procedure_line(
             (void)label;
             if (context_->monitor_commands()) {
                 context_->output().write_line(value);
+            }
+            return;
+        }
+
+        if (const auto selection = jump_out_condition(value)) {
+            if (*selection == 'A' ||
+                (*selection == 'T' && context_->condition()) ||
+                (*selection == 'F' && !context_->condition())) {
+                throw JumpOutOfProcedure{};
             }
             return;
         }
@@ -777,6 +804,35 @@ void ProcedureRunner::execute_single_command(
         return;
     }
 
+    if (!context_->input_terminator_required() && raw_value.size() > 2 &&
+        std::isspace(static_cast<unsigned char>(raw_value[1]))) {
+        const char op = static_cast<char>(std::toupper(
+            static_cast<unsigned char>(raw_value.front())));
+        if (op == 'A' || op == 'I' || op == 'C') {
+            const std::string one_command(1, op);
+            Lexer inline_lexer(one_command);
+            TokenStream inline_tokens(inline_lexer);
+            CommandParser inline_parser(inline_tokens, *registry_);
+            const auto node = inline_parser.parse();
+            std::vector<std::string> one_line{
+                context_->transform_input_line(raw_value.substr(2))};
+            if (op == 'A') {
+                executor_->execute_append(
+                    static_cast<const AppendCommandNode&>(*node),
+                    *context_, std::move(one_line));
+            } else if (op == 'I') {
+                executor_->execute_insert(
+                    static_cast<const InsertCommandNode&>(*node),
+                    *context_, std::move(one_line));
+            } else {
+                executor_->execute_change(
+                    static_cast<const ChangeCommandNode&>(*node),
+                    *context_, std::move(one_line));
+            }
+            return;
+        }
+    }
+
     // O+M traces the expanded procedure command before parsing/execution.
     // Historical comment lines remain silent even while monitoring is active.
     if (context_->monitor_commands() && !is_comment(raw_value)) {
@@ -809,7 +865,7 @@ void ProcedureRunner::execute_single_command(
         for (std::size_t cursor = *index + 1;
              cursor < lines->size();
              ++cursor) {
-            if (is_text_terminator(lines->at(cursor))) {
+            if (is_text_terminator(lines->at(cursor), context_->input_escape())) {
                 *index = cursor;
                 terminated = true;
                 break;

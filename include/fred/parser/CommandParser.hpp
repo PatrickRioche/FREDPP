@@ -7,6 +7,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <tuple>
 #include <utility>
 
 namespace fred {
@@ -136,7 +137,7 @@ private:
      * S accepts a one-character Symbol as its delimiter. Literal delimiters do
      * not terminate either portion.
      */
-    [[nodiscard]] std::pair<std::unique_ptr<PatternNode>, std::string>
+    [[nodiscard]] std::tuple<std::unique_ptr<PatternNode>, std::string, bool>
         parse_substitution_parts();
 
     /**

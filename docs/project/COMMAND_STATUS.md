@@ -2,10 +2,10 @@
 
 Ce document suit l'état d'implémentation. Les pages situées sous `docs/fr/reference/commandes/` restent inchangées et seules celles des commandes disponibles sont embarquées.
 
-Pour un emploi pratique des **80 commandes prises en charge en développement
-v0.0.80** (syntaxe, effet, exemple, limites), consulter le
-[guide de recette de FREDPP 0.0.80](../fr/fredpp/guide-commandes-0.0.80.md),
-ainsi que le [guide 0.0.70](../fr/fredpp/guide-commandes-0.0.70.md).
+Pour un emploi pratique des **90 commandes prises en charge en développement
+v0.0.90** (syntaxe, effet, exemple, limites), consulter le
+[guide de recette de FREDPP 0.0.90](../fr/fredpp/guide-commandes-0.0.90.md),
+ainsi que le [guide 0.0.80](../fr/fredpp/guide-commandes-0.0.80.md).
 Il complète les fiches historiques embarquées dans l'aide sans les altérer.
 
 ## Couverture de la référence historique
@@ -15,15 +15,15 @@ Il complète les fiches historiques embarquées dans l'aide sans les altérer.
 | Commandes principales | 22 | 18 | 4 |
 | Commandes spéciales | 7 | 6 (`\"`, `=`, `#`, `:`, `@`, `\\`) | 1 |
 | Famille F | 7 | 6 (`FB`, `FF`, `FN`, `FO`, `F?`, `FV`) | 1 |
-| Famille J | 5 | 3 (`JE`, `JM`, `JP`) | 2 |
+| Famille J | 5 | 4 (`JB` restant ; `JE`, `JM`, `JO`, `JP` disponibles) | 1 |
 | Famille N | 21 | 21 (famille complète en développement) | 0 |
-| Famille O | 24 | 11 (`OI(`, `OIA`, `OIC`, `OIL`, `OIR`, `OIU`, `OM`, `OQ`, `OS&`, `OSD`, `OT`) | 13 |
+| Famille O | 24 | 20 (`OC`, `OI(`, `OI\\F`, `OIA`, `OIC`, `OIE`, `OIF`, `OIL`, `OIR`, `OIU`, `OM`, `OOL`, `OOO`, `OOU`, `OP`, `OQ`, `OS&`, `OS/`, `OSD`, `OT`) | 4 |
 | Famille Z | 17 | 15 (`ZA`, `ZB`, `ZC`, `ZD`, `ZI`, `ZK`, `ZL`, `ZM`, `ZO`, `ZP`, `ZR`, `ZS`, `ZT`, `ZU`, `ZW`) | 2 |
-| **Total** | **103** | **80** | **23** |
+| **Total** | **103** | **90** | **13** |
 
-La couverture fonctionnelle provisoire de la référence est de **80 / 103**, soit environ **77,7 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
+La couverture fonctionnelle provisoire de la référence est de **90 / 103**, soit environ **87,4 %**. Elle inclut les commandes en validation Windows ; elle ne signifie pas une homologation historique complète.
 
-**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **80 commandes = `0.0.80`**. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. Les tags `dev-0.0.60` et `dev-0.0.70` ont été publiés après validation ; **`dev-0.0.80` attend la validation Windows par l'utilisateur**, directement sur `dev` et sans modifier `main`.
+**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **90 commandes = `0.0.90`**. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. Le tag `dev-0.0.80` a été publié après **67/67 tests Windows** et la recette interactive ; **`dev-0.0.90` attend la validation Windows par l'utilisateur**, directement sur `dev` et sans modifier `main`.
 
 | Commande | État dans FREDPP | Aide embarquée |
 |---|---|:---:|
@@ -40,6 +40,7 @@ La couverture fonctionnelle provisoire de la référence est de **80 / 103**, so
 | FV | Affiche la version compilée FREDPP, la date de compilation et le commit source, en remplacement de l'ancien « file-code » GCOS | Oui (`?fv`) |
 | G | Disponible avec une commande imbriquée P, D, Z ou S | Oui |
 | JE | Message d'erreur utilisateur sur une ligne ; `O+Q` demande l'arrêt après le message | Oui (`?je`) |
+| JO | `JO`, `JOT`, `JOF` interrompent la procédure courante (respectivement sans condition, si vraie, si fausse). La sortie d'une itération G/U reste à homologuer | Oui (`?jo`) |
 | I | Disponible | Oui |
 | K | Copie vers un buffer avec remplacement ; candidat en validation historique | Oui (`?k`) |
 | `\"` | Disponible : tout le reste de la ligne est ignoré comme commentaire | Oui (`?\"`) |
@@ -101,6 +102,14 @@ Le REPL exécute toujours une commande `JM` ou `JP` par ligne saisie. Dans une p
 | `OS&` | Disponible : `O+S&` active `&` comme texte trouvé dans `S`, `O-S&` le rend littéral | Oui (`?os&`) |
 | `OSD` | Disponible : `O+SD` recherche sans distinction de casse ASCII, `O-SD` sensible à la casse ; défaut provisoire `O-SD` pour compatibilité avec les tests FREDPP existants | Oui (`?osd`) |
 | `OT` | Disponible : `O+T` définit des colonnes de tabulation ordonnées, `O-T` désactive leur rendu ; les conversions ZI/ZO utilisent les taquets enregistrés | Oui (`?ot`) |
+| `OC` | `O+C/ancien/nouveau/` remplace les occurrences exactes dans les lignes A/I/C au moment de l'entrée ; `O-C` désactive | Oui (`?oc`) |
+| `OI\\F` | `O-I\\F` accepte la forme courte `A texte`, `I texte`, `C texte` ; `O+I\\F` restaure la saisie à terminateur | Oui (`?oi\\f`) |
+| `OIE` | `O+IE!` choisit `!F` comme terminateur de saisie, `O-IE` restaure `\\F` | Oui (`?oie`) |
+| `OIF` | `O-IF` supprime le saut de ligne ajouté au message `OIR` dans le REPL ; `O+IF` le rétablit | Oui (`?oif`) |
+| `OOL`, `OOU` | Rendu de secours des minuscules/majuscules avec les préfixes `OIL`/`OIU`, appliqué à P et L ; modes exclusifs | Oui (`?ool`, `?oou`) |
+| `OOO` | `O+OO` imprime les octets de contrôle en notation octale `\\nnn` pour P et L (option active par défaut) ; `O-OO` restaure le rendu direct | Oui (`?ooo`) |
+| `OP` | `O+Pn` insère une séparation visible toutes les n lignes de P et L, sans pause interactive ; `O-P` désactive | Oui (`?op`) |
+| `OS/` | `O-S/` autorise la substitution S sans délimiteur final ; `O+S/` le rétablit | Oui (`?os/`) |
 | `OIA` | `O+IA/texte/` définit le prompt de saisie A/I/C ; `O-IA` restaure `text> ` | Oui (`?oia`) |
 | `OIC` | `O+IC/texte/` définit le prompt de commande ; `O-IC` restaure le nom du buffer suivi de `> ` | Oui (`?oic`) |
 | `OIR` | `O+IR/texte/` affiche un message au retour clavier ; `O-IR` le désactive | Oui (`?oir`) |
@@ -169,7 +178,7 @@ Sont disponibles :
 (.,.)S<séparateur><modèle><séparateur><chaîne><séparateur>[P]
 ```
 
-La substitution porte sur toutes les occurrences non chevauchantes. `&` réinsère le texte trouvé. Les options historiques `OS&` et `OS/` ne sont pas encore configurables.
+La substitution porte sur toutes les occurrences non chevauchantes. `&` réinsère le texte trouvé. Les options historiques `OS&` et `OS/` sont configurables ; avec `O-S/`, le dernier séparateur peut être omis.
 
 ## Limites actuelles de Q
 

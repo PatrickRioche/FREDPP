@@ -1,4 +1,17 @@
-## v0.0.80 — Lot 71–80 (développement, validation Windows en attente)
+## v0.0.90 — Lot 81–90 (développement, recette Windows en attente)
+
+- Dix commandes supplémentaires : `JO`, `OC`, `OI\\F`, `OIE`, `OIF`,
+  `OOL`, `OOO`, `OOU`, `OP` et `OS/` ; couverture **90/103**.
+- Saisie compacte A/I/C, remplacement littéral en entrée, terminateur
+  personnalisable, sortie anticipée d'une procédure selon la condition.
+- Adaptations de terminal explicites : rappel de ligne `OIR`, représentation
+  des casses et des caractères de contrôle dans P/L, pagination non bloquante,
+  fermeture facultative des substitutions sous `O-S/`.
+- Tests unitaires, scénario interactif CTest et aide historique embarquée,
+  sans modifier les documents de référence.
+- Aucun tag ni merge vers `main` avant validation sous Windows.
+
+## v0.0.80 — Lot 71–80 (validé sous Windows, tag `dev-0.0.80` publié)
 
 - Dix commandes historiques supplémentaires : `#`, `:`, `@`, `\\`, `Y`,
   `OIA`, `OIC`, `OIR`, `OIL`, `OIU` ; couverture provisoire **80/103**.

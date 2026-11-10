@@ -121,6 +121,37 @@ std::string parse_option_prompt(std::string text, SourceLocation location) {
     return value;
 }
 
+/** Parses OC's two delimiter-separated literals, preserving escaped delimiters. */
+std::pair<std::string, std::string> parse_option_change(
+    std::string_view source, SourceLocation location) {
+    if (source.size() < 4 || std::isalnum(static_cast<unsigned char>(source.front())) ||
+        source.front() == '\\') {
+        throw ParseError("OC requires /from/to/", location);
+    }
+    const char delimiter = source.front();
+    std::string parts[2];
+    int field = 0;
+    bool closed = false;
+    for (std::size_t i = 1; i < source.size(); ++i) {
+        const char ch = source[i];
+        if (ch == '\\' && i + 1 < source.size()) {
+            parts[field].push_back(source[++i]);
+        } else if (ch == delimiter) {
+            if (++field == 2) {
+                closed = (i + 1 == source.size());
+                break;
+            }
+        } else {
+            parts[field].push_back(ch);
+        }
+    }
+    if (!closed || parts[0].empty() || parts[0].size() > 120 ||
+        parts[1].size() > 120) {
+        throw ParseError("OC requires bounded /nonempty-from/to/", location);
+    }
+    return {std::move(parts[0]), std::move(parts[1])};
+}
+
 /**
  * @brief Tests the delimiter immediately following the two-byte JM/JP spelling.
  */
@@ -490,7 +521,7 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         }
 
         if (mnemonic == 'S') {
-            auto [pattern, replacement] = parse_substitution_parts();
+            auto [pattern, replacement, closed] = parse_substitution_parts();
             bool print_after = false;
             if (tokens_->peek().type == TokenType::Command &&
                 tokens_->peek().lexeme.size() == 1 &&
@@ -502,7 +533,7 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             require_command_end();
             return std::make_unique<SubstituteCommandNode>(
                 std::move(address), std::move(pattern), std::move(replacement),
-                print_after, command.location);
+                print_after, command.location, closed);
         }
 
         if (mnemonic == 'Q') {
@@ -789,13 +820,64 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             const bool enabled = sign.lexeme == "+";
 
             if (option_name == "M" || option_name == "Q" ||
-                option_name == "SD") {
+                option_name == "SD" || option_name == "IF" ||
+                option_name == "OL" || option_name == "OO" ||
+                option_name == "OU") {
                 const OptionKind kind = option_name == "M" ? OptionKind::Monitor
                     : option_name == "Q" ? OptionKind::QuitOnError
-                    : OptionKind::CaseInsensitiveSearch;
+                    : option_name == "SD" ? OptionKind::CaseInsensitiveSearch
+                    : option_name == "IF" ? OptionKind::InputFeed
+                    : option_name == "OL" ? OptionKind::OutputLower
+                    : option_name == "OO" ? OptionKind::OutputOctal
+                    : OptionKind::OutputUpper;
                 require_command_end();
                 return std::make_unique<OptionCommandNode>(
                     kind, enabled, command.location);
+            }
+            if (option_name == "C") {
+                const auto location = tokens_->peek().location;
+                const std::string raw = consume_plain_text(*tokens_);
+                if (!enabled && !raw.empty()) {
+                    throw ParseError("O-C does not accept a replacement", location);
+                }
+                const auto [from, to] = enabled ? parse_option_change(raw, location) :
+                    std::pair<std::string, std::string>{};
+                return std::make_unique<OptionCommandNode>(
+                    OptionKind::InputChange, enabled, command.location,
+                    std::vector<std::size_t>{}, from, to);
+            }
+            if (option_name == "IE") {
+                const auto location = tokens_->peek().location;
+                const std::string raw = consume_plain_text(*tokens_);
+                if ((enabled && raw.size() != 1) || (!enabled && !raw.empty())) {
+                    throw ParseError("OIE requires one escape character after +", location);
+                }
+                if (enabled && (std::isalnum(static_cast<unsigned char>(raw[0])) ||
+                                std::isspace(static_cast<unsigned char>(raw[0])))) {
+                    throw ParseError("OIE requires a symbolic escape", location);
+                }
+                return std::make_unique<OptionCommandNode>(
+                    OptionKind::InputEscape, enabled, command.location,
+                    std::vector<std::size_t>{}, raw);
+            }
+            if (option_name == "P") {
+                const auto location = tokens_->peek().location;
+                const std::string raw = consume_plain_text(*tokens_);
+                std::size_t value = 0;
+                if (enabled) {
+                    const auto parsed = std::from_chars(
+                        raw.data(), raw.data() + raw.size(), value);
+                    if (parsed.ec != std::errc{} ||
+                        parsed.ptr != raw.data() + raw.size() ||
+                        value < 1 || value > 4096) {
+                        throw ParseError("O+P requires a page size 1..4096", location);
+                    }
+                } else if (!raw.empty()) {
+                    throw ParseError("O-P takes no page size", location);
+                }
+                return std::make_unique<OptionCommandNode>(
+                    OptionKind::PageSize, enabled, command.location,
+                    std::vector<std::size_t>{}, enabled ? std::to_string(value) : "");
             }
             if (option_name == "IA" || option_name == "IC" || option_name == "IR") {
                 const auto value_location = tokens_->peek().location;
@@ -830,12 +912,13 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             }
             if (option_name == "S") {
                 const auto ampersand = tokens_->consume();
-                if (ampersand.lexeme != "&") {
-                    throw ParseError("OS& requires '&'", ampersand.location);
+                if (ampersand.lexeme != "&" && ampersand.lexeme != "/") {
+                    throw ParseError("OS requires '&' or '/'", ampersand.location);
                 }
                 require_command_end();
                 return std::make_unique<OptionCommandNode>(
-                    OptionKind::SubstituteAmpersand, enabled, command.location);
+                    ampersand.lexeme == "&" ? OptionKind::SubstituteAmpersand :
+                    OptionKind::SubstituteSeparator, enabled, command.location);
             }
             if (option_name == "T") {
                 std::vector<std::size_t> stops;
@@ -879,6 +962,15 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             }
 
             const auto opening = tokens_->consume();
+            if (opening.type == TokenType::Backslash) {
+                const auto final = tokens_->consume();
+                if (final.lexeme != "F" && final.lexeme != "f") {
+                    throw ParseError("OI\\F requires F", final.location);
+                }
+                require_command_end();
+                return std::make_unique<OptionCommandNode>(
+                    OptionKind::InputTerminatorRequired, enabled, command.location);
+            }
             if (opening.type != TokenType::LeftParenthesis) {
                 throw ParseError("OI( requires '('", opening.location);
             }
@@ -1303,7 +1395,7 @@ std::unique_ptr<PatternNode> CommandParser::parse_delimited_pattern(
 }
 
 
-std::pair<std::unique_ptr<PatternNode>, std::string>
+std::tuple<std::unique_ptr<PatternNode>, std::string, bool>
 /**
  * @brief Parses S pattern/replacement segments around one symbolic delimiter.
  *
@@ -1357,10 +1449,11 @@ CommandParser::parse_substitution_parts() {
     auto pattern = parser.parse();
 
     std::string replacement;
+    bool closed = false;
     while (true) {
         const auto& next = tokens_->peek();
         if (next.type == TokenType::End || next.type == TokenType::NewLine) {
-            throw ParseError("unterminated S replacement", next.location);
+            break;
         }
 
         const auto token = tokens_->consume();
@@ -1378,12 +1471,13 @@ CommandParser::parse_substitution_parts() {
         if (token.lexeme.size() == 1 && token.lexeme.front() == delimiter &&
             token.interpretation != CharacterInterpretation::Literal &&
             preceding_backslashes % 2 == 0) {
+            closed = true;
             break;
         }
         replacement += token.lexeme;
     }
 
-    return {std::move(pattern), std::move(replacement)};
+    return {std::move(pattern), std::move(replacement), closed};
 }
 
 /**

@@ -581,7 +581,8 @@ int main(int argc, char** argv) {
            std::getline(std::cin, input)) {
         try {
             if (!execution_context.return_message().empty()) {
-                std::cout << execution_context.return_message() << '\n';
+                std::cout << execution_context.return_message();
+                if (execution_context.input_feed()) std::cout << '\n';
             }
             const auto first_non_space = input.find_first_not_of(" \t\r");
             if (first_non_space != std::string::npos &&
@@ -597,6 +598,38 @@ int main(int argc, char** argv) {
                               << (topic.empty() ? "index" : topic) << '\n';
                 }
                 continue;
+            }
+            // O-I\F permits a one-line A/I/C payload on an interactive command line.
+            if (!execution_context.input_terminator_required() &&
+                first_non_space != std::string::npos &&
+                first_non_space + 2 < input.size()) {
+                const char operation = static_cast<char>(std::toupper(
+                    static_cast<unsigned char>(input[first_non_space])));
+                if ((operation == 'A' || operation == 'I' || operation == 'C') &&
+                    std::isspace(static_cast<unsigned char>(input[first_non_space + 1]))) {
+                    const std::string source(1, operation);
+                    fred::Lexer inline_lexer(source);
+                    fred::TokenStream inline_tokens(inline_lexer);
+                    fred::CommandParser inline_parser(inline_tokens, command_registry);
+                    auto inline_command = inline_parser.parse();
+                    std::vector<std::string> lines{
+                        execution_context.transform_input_line(
+                            input.substr(first_non_space + 2))};
+                    if (operation == 'A') {
+                        command_executor.execute_append(
+                            static_cast<const fred::AppendCommandNode&>(*inline_command),
+                            execution_context, std::move(lines));
+                    } else if (operation == 'I') {
+                        command_executor.execute_insert(
+                            static_cast<const fred::InsertCommandNode&>(*inline_command),
+                            execution_context, std::move(lines));
+                    } else {
+                        command_executor.execute_change(
+                            static_cast<const fred::ChangeCommandNode&>(*inline_command),
+                            execution_context, std::move(lines));
+                    }
+                    continue;
+                }
             }
             if (input == ":cls") {
                 fredpp::clear_terminal();
@@ -673,7 +706,8 @@ int main(int argc, char** argv) {
                     if (node->kind() == fred::AstNodeKind::AppendCommand ||
                         node->kind() == fred::AstNodeKind::InsertCommand ||
                         node->kind() == fred::AstNodeKind::ChangeCommand) {
-                        std::cout << "-- text input; finish with \\F --\n";
+                        std::cout << "-- text input; finish with "
+                                  << execution_context.input_escape() << "F --\n";
                         std::vector<std::string> lines;
                         std::string text_line;
                         bool terminated = false;
@@ -682,9 +716,12 @@ int main(int argc, char** argv) {
                                    "text> " : execution_context.append_prompt()) &&
                                std::getline(std::cin, text_line)) {
                             if (!execution_context.return_message().empty()) {
-                                std::cout << execution_context.return_message() << '\n';
+                                std::cout << execution_context.return_message();
+                                if (execution_context.input_feed()) std::cout << '\n';
                             }
-                            if (text_line == "\\F") {
+                            if (text_line.size() == 2 &&
+                                text_line[0] == execution_context.input_escape() &&
+                                (text_line[1] == 'F' || text_line[1] == 'f')) {
                                 terminated = true;
                                 break;
                             }
@@ -693,7 +730,7 @@ int main(int argc, char** argv) {
 
                         if (!terminated) {
                             throw std::runtime_error(
-                                "end of input before \\F; text command cancelled");
+                                "end of input before input terminator; text command cancelled");
                         }
 
                         if (node->kind() == fred::AstNodeKind::AppendCommand) {

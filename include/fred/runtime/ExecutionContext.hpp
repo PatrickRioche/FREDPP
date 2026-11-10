@@ -168,6 +168,28 @@ public:
     [[nodiscard]] std::optional<char> upper_input_escape() const noexcept;
     [[nodiscard]] std::string transform_input_line(std::string_view line) const;
 
+    /** Host-terminal adaptations of GCOS input and output options. */
+    void set_input_change(std::string from, std::string to);
+    [[nodiscard]] const std::string& input_change_from() const noexcept;
+    [[nodiscard]] const std::string& input_change_to() const noexcept;
+    void set_input_terminator_required(bool value) noexcept;
+    [[nodiscard]] bool input_terminator_required() const noexcept;
+    void set_input_escape(char value) noexcept;
+    [[nodiscard]] char input_escape() const noexcept;
+    void set_input_feed(bool value) noexcept;
+    [[nodiscard]] bool input_feed() const noexcept;
+    void set_output_lower(bool value) noexcept;
+    [[nodiscard]] bool output_lower() const noexcept;
+    void set_output_octal(bool value) noexcept;
+    [[nodiscard]] bool output_octal() const noexcept;
+    void set_output_upper(bool value) noexcept;
+    [[nodiscard]] bool output_upper() const noexcept;
+    void set_page_size(std::size_t value) noexcept;
+    [[nodiscard]] std::size_t page_size() const noexcept;
+    void set_substitution_separator_required(bool value) noexcept;
+    [[nodiscard]] bool substitution_separator_required() const noexcept;
+    [[nodiscard]] std::string format_output_line(std::string_view line) const;
+
     /** The last diagnostic is retained until another error replaces it. */
     void set_last_error(std::string message);
     [[nodiscard]] const std::string& last_error() const noexcept;
@@ -214,6 +236,17 @@ private:
     std::string return_message_;
     std::optional<char> lower_input_escape_;
     std::optional<char> upper_input_escape_;
+    std::string input_change_from_;
+    std::string input_change_to_;
+    bool input_terminator_required_{true};
+    char input_escape_{'\\'};
+    bool input_feed_{true};
+    bool output_lower_{};
+    // Historical FRED enables octal output of special characters by default.
+    bool output_octal_{true};
+    bool output_upper_{};
+    std::size_t page_size_{};
+    bool substitution_separator_required_{true};
     std::string last_error_;
     bool exit_requested_{};
     bool immediate_exit_requested_{};

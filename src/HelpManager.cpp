@@ -304,6 +304,8 @@ std::string HelpManager::normalize_topic(std::string_view topic) {
     if (normalized == "n:") {
         return "ncolon";
     }
+    if (normalized == "oi\\f") return "oi_backslash_f";
+    if (normalized == "os/") return "os_separator";
     // Literal historical numeric operators have descriptive source filenames.
     constexpr std::pair<std::string_view, std::string_view> numeric_aliases[] = {
         {"n+", "nplus"}, {"n-", "nminus"}, {"n*", "nmultiply"},

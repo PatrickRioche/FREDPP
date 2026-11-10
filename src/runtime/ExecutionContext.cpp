@@ -3,6 +3,7 @@
 #include <cctype>
 #include <algorithm>
 #include <cstdint>
+#include <stdexcept>
 #include <utility>
 
 namespace fred {
@@ -215,14 +216,34 @@ std::optional<char> ExecutionContext::upper_input_escape() const noexcept {
     return upper_input_escape_;
 }
 std::string ExecutionContext::transform_input_line(std::string_view line) const {
+    std::string changed(line);
+    if (!input_change_from_.empty()) {
+        std::string substituted;
+        substituted.reserve(changed.size());
+        std::size_t position = 0;
+        while (position < changed.size()) {
+            const auto match = changed.find(input_change_from_, position);
+            if (match == std::string::npos) {
+                substituted.append(changed, position);
+                break;
+            }
+            substituted.append(changed, position, match - position);
+            substituted += input_change_to_;
+            if (substituted.size() > 1048576) {
+                throw std::runtime_error("OC input expansion exceeds 1 MiB");
+            }
+            position = match + input_change_from_.size();
+        }
+        changed = std::move(substituted);
+    }
     std::string text;
-    text.reserve(line.size());
-    for (std::size_t i = 0; i < line.size(); ++i) {
-        const char value = line[i];
+    text.reserve(changed.size());
+    for (std::size_t i = 0; i < changed.size(); ++i) {
+        const char value = changed[i];
         const bool to_lower = lower_input_escape_ && value == *lower_input_escape_;
         const bool to_upper = upper_input_escape_ && value == *upper_input_escape_;
-        if ((to_lower || to_upper) && i + 1 < line.size()) {
-            const unsigned char next = static_cast<unsigned char>(line[++i]);
+        if ((to_lower || to_upper) && i + 1 < changed.size()) {
+            const unsigned char next = static_cast<unsigned char>(changed[++i]);
             text.push_back(next < 128 ? static_cast<char>(
                 to_lower ? std::tolower(next) : std::toupper(next)) :
                 static_cast<char>(next));
@@ -231,6 +252,61 @@ std::string ExecutionContext::transform_input_line(std::string_view line) const 
         }
     }
     return text;
+}
+void ExecutionContext::set_input_change(std::string from, std::string to) {
+    input_change_from_ = std::move(from);
+    input_change_to_ = std::move(to);
+}
+const std::string& ExecutionContext::input_change_from() const noexcept {
+    return input_change_from_;
+}
+const std::string& ExecutionContext::input_change_to() const noexcept {
+    return input_change_to_;
+}
+void ExecutionContext::set_input_terminator_required(bool value) noexcept {
+    input_terminator_required_ = value;
+}
+bool ExecutionContext::input_terminator_required() const noexcept {
+    return input_terminator_required_;
+}
+void ExecutionContext::set_input_escape(char value) noexcept { input_escape_ = value; }
+char ExecutionContext::input_escape() const noexcept { return input_escape_; }
+void ExecutionContext::set_input_feed(bool value) noexcept { input_feed_ = value; }
+bool ExecutionContext::input_feed() const noexcept { return input_feed_; }
+void ExecutionContext::set_output_lower(bool value) noexcept { output_lower_ = value; }
+bool ExecutionContext::output_lower() const noexcept { return output_lower_; }
+void ExecutionContext::set_output_octal(bool value) noexcept { output_octal_ = value; }
+bool ExecutionContext::output_octal() const noexcept { return output_octal_; }
+void ExecutionContext::set_output_upper(bool value) noexcept { output_upper_ = value; }
+bool ExecutionContext::output_upper() const noexcept { return output_upper_; }
+void ExecutionContext::set_page_size(std::size_t value) noexcept { page_size_ = value; }
+std::size_t ExecutionContext::page_size() const noexcept { return page_size_; }
+void ExecutionContext::set_substitution_separator_required(bool value) noexcept {
+    substitution_separator_required_ = value;
+}
+bool ExecutionContext::substitution_separator_required() const noexcept {
+    return substitution_separator_required_;
+}
+std::string ExecutionContext::format_output_line(std::string_view line) const {
+    std::string result;
+    result.reserve(line.size());
+    for (const unsigned char value : line) {
+        if (output_octal_ && (value < 32 || value == 127)) {
+            result += '\\';
+            result += static_cast<char>('0' + ((value >> 6) & 7));
+            result += static_cast<char>('0' + ((value >> 3) & 7));
+            result += static_cast<char>('0' + (value & 7));
+        } else if (output_lower_ && value >= 'a' && value <= 'z') {
+            result += lower_input_escape_.value_or('%');
+            result += static_cast<char>(std::toupper(value));
+        } else if (output_upper_ && value >= 'A' && value <= 'Z') {
+            result += upper_input_escape_.value_or('^');
+            result += static_cast<char>(std::tolower(value));
+        } else {
+            result += static_cast<char>(value);
+        }
+    }
+    return result;
 }
 void ExecutionContext::set_last_error(std::string message) {
     last_error_ = std::move(message);

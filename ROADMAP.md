@@ -239,8 +239,16 @@ qui surveille les tags `v*` et exige un commit identique à `main`.
 validé sous Windows (**65/65 tests CTest**) puis publié au commit
 `b69b996`. Le travail `0.0.80` ajoute `#`, `:`, `@`, `\\`, `Y`,
 `OIA`, `OIC`, `OIR`, `OIL` et `OIU` ; couverture fonctionnelle provisoire
-**80/103 (77,7 %)**. Le tag `dev-0.0.80` reste réservé au commit `dev`
-qui aura passé la validation Windows et la recette humaine.
+**80/103 (77,7 %)**. Le tag `dev-0.0.80` a depuis été publié sur `dev`
+après la validation Windows (67/67 tests) et la recette humaine.
+
+**Point d'avancement du lot 81–90 (10 novembre 2026) :** `dev-0.0.80`
+est publié sur le commit `5408508` après **67/67 tests Windows** et
+recette interactive. Le lot `0.0.90` se concentre sur dix commandes de
+contrôle de saisie, de présentation et de procédure : `JO`, `OC`,
+`OI\\F`, `OIE`, `OIF`, `OOL`, `OOO`, `OOU`, `OP`, `OS/`.
+Leur intégration porte la couverture provisoire à **90/103 (87,4 %)**.
+Le tag `dev-0.0.90` attend les validations Windows ; `main` ne change pas.
 
 Les options `OI(` et `OM` sont disponibles ; `OM` est implicitement à `O-M`.
 

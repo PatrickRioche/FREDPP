@@ -13,6 +13,13 @@ conservent leurs horodatages originaux en UTC.
 
 ## État mis à jour le 10 novembre 2026
 
+**Lot 81–90 en développement :** `JO`, `OC`, `OI\\F`, `OIE`, `OIF`, `OOL`,
+`OOO`, `OOU`, `OP`, `OS/`. Travail sur `feature-v081-v090` dérivée du
+commit **`5408508`**, tagué `dev-0.0.80` après **67/67 tests Windows**
+et recette interactive. Objectif : **90/103 commandes** ; nouveau tag
+seulement après les tests Windows et la recette, sans modifier `main`.
+
+
 **Lot 71–80 en préparation :** dix commandes historiques supplémentaires
 (`#`, `:`, `@`, `\\`, `Y`, `OIA`, `OIC`, `OIR`, `OIL`, `OIU`) sur une
 branche de travail isolée `feature-v071-v080`. Le lot 61–70 a passé les
@@ -34,13 +41,13 @@ et `dev-0.0.60` sont publiés après validations Windows.
 
 | Élément | État vérifié |
 |---|---|
-| Version du projet | `0.0.80` en préparation (80/103 commandes ; Windows à confirmer) |
-| Branche active | `feature-v071-v080` depuis `origin/dev` ; intégration dans `dev` après vérifications |
-| Dernier lot fonctionnel | `#`, `:`, `@`, `\\`, `Y`, `OIA`, `OIC`, `OIR`, `OIL`, `OIU` ; tests C++ ciblés |
-| État des tests | `0.0.40` : **60/60 Windows** ; `0.0.50` : **62/62 Windows** ; `0.0.60` : **64/64 Windows** ; `0.0.70` : **65/65 Windows** ; `0.0.80` : validation Windows en attente |
+| Version du projet | `0.0.90` en préparation (90/103 commandes ; Windows à confirmer) |
+| Branche active | `feature-v081-v090` depuis `origin/dev` ; intégration dans `dev` après vérifications |
+| Dernier lot fonctionnel | `JO`, `OC`, `OI\\F`, `OIE`, `OIF`, `OOL`, `OOO`, `OOU`, `OP`, `OS/` |
+| État des tests | `0.0.40` : **60/60 Windows** ; `0.0.50` : **62/62 Windows** ; `0.0.60` : **64/64 Windows** ; `0.0.70` : **65/65 Windows** ; `0.0.80` : **67/67 Windows** ; `0.0.90` : validation Windows en attente |
 | Branche stable | `main`, non modifiée par ces travaux |
 | Écart de `dev` sur `main` | Évolutif ; consulter `git log main..dev` |
-| Dernière CI Windows/MSVC complète vérifiée | [Exécution 42704197355 réussie pour `0.0.60` : 64/64 Release et Debug](https://github.com/PatrickRioche/FREDPP/actions/runs/42704197355) ; recette locale Windows `0.0.70` confirmée (65/65), CI du lot `0.0.80` en attente |
+| Dernière CI Windows/MSVC complète vérifiée | [Exécution 42704197355 réussie pour `0.0.60` : 64/64 Release et Debug](https://github.com/PatrickRioche/FREDPP/actions/runs/42704197355) ; recettes locales Windows `0.0.70` (65/65) et `0.0.80` (67/67) confirmées, CI des lots ultérieurs non vérifiée ici |
 | Validation locale Windows 11 — lot 31–40 | **60/60 tests réussis en 92,51 s**, puis scénario numérique manuel confirmé et tag `dev-0.0.40` publié |
 | Validation locale Windows 11 — T | Confirmée par l'utilisateur (scénario et CTest 1/1) |
 | Validation locale Windows 11 — K | Confirmée par l'utilisateur (sortie exacte et CTest 2/2) |
