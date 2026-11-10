@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Tag à publier, par exemple v0.0.9"
+        description: "Tag à publier, par exemple v0.1.0"
         required: true
         type: string
 
@@ -30,6 +30,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
       vscode_version: ${{ steps.version.outputs.vscode_version }}
+      prerelease: ${{ steps.version.outputs.prerelease }}
 
     steps:
       - name: Checkout release tag
@@ -72,13 +73,21 @@ jobs:
             exit 1
           fi
 
-          # Stable releases must be tagged on the current main commit, after
-          # the development branch has been promoted. Development-only tags
-          # never authorize a public release, even if prefixed with v.
-          git fetch --no-tags origin refs/heads/main
-          main_commit="$(git rev-parse FETCH_HEAD)"
-          if [ "$(git rev-parse HEAD)" != "${main_commit}" ]; then
-            echo "Release tag ${release_tag} must point to the current main commit" >&2
+          # Stable releases come from main. A tag on the current dev tip is
+          # allowed only as a GitHub pre-release; no promotion is performed.
+          # Exact branch tips prevent publishing tags from unrelated commits.
+          git fetch --no-tags origin \
+            +refs/heads/main:refs/remotes/origin/main \
+            +refs/heads/dev:refs/remotes/origin/dev
+          tagged_commit="$(git rev-parse HEAD)"
+          main_commit="$(git rev-parse refs/remotes/origin/main)"
+          dev_commit="$(git rev-parse refs/remotes/origin/dev)"
+          if [ "${tagged_commit}" = "${main_commit}" ]; then
+            prerelease=false
+          elif [ "${tagged_commit}" = "${dev_commit}" ]; then
+            prerelease=true
+          else
+            echo "Release tag ${release_tag} must point to the current main or dev commit" >&2
             exit 1
           fi
 
@@ -91,6 +100,7 @@ jobs:
           echo "version=${version}" >> "${GITHUB_OUTPUT}"
           echo "tag=${release_tag}" >> "${GITHUB_OUTPUT}"
           echo "vscode_version=${vscode_version}" >> "${GITHUB_OUTPUT}"
+          echo "prerelease=${prerelease}" >> "${GITHUB_OUTPUT}"
 
   windows:
     name: Windows x64 portable ZIP
@@ -347,59 +357,6 @@ jobs:
           path: out/release/FREDPP-v${{ needs.validate.outputs.version }}-macos-arm64.tar.gz
           if-no-files-found: error
 
-  android:
-    name: Android APK
-    needs: validate
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout release tag
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ needs.validate.outputs.tag }}
-          fetch-depth: 0
-
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: temurin
-          java-version: "17"
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Install Android toolchain
-        shell: bash
-        run: |
-          yes | sdkmanager --licenses >/dev/null || true
-          sdkmanager \
-            "platforms;android-36" \
-            "build-tools;36.0.0" \
-            "ndk;28.2.13676358" \
-            "cmake;3.31.6"
-
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v4
-        with:
-          gradle-version: "9.5.0"
-
-      - name: Build installable Android APK
-        run: bash android/gradlew -p android :app:assembleDebug
-
-      - name: Rename Android APK
-        shell: bash
-        run: |
-          mkdir -p out/release
-          cp android/app/build/outputs/apk/debug/app-debug.apk \
-            "out/release/FREDPP-v${{ needs.validate.outputs.version }}-android.apk"
-
-      - name: Upload Android APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: release-android
-          path: out/release/FREDPP-v${{ needs.validate.outputs.version }}-android.apk
-          if-no-files-found: error
-
   vscode:
     name: VS Code universal VSIX
     needs: validate
@@ -447,7 +404,7 @@ jobs:
 
   publish:
     name: Publish GitHub Release
-    needs: [validate, windows, debian, debian_arm64, macos_x64, macos_arm64, android, vscode]
+    needs: [validate, windows, debian, debian_arm64, macos_x64, macos_arm64, vscode]
     runs-on: ubuntu-latest
 
     steps:
@@ -476,10 +433,47 @@ jobs:
             "fredpp_${{ needs.validate.outputs.version }}_arm64.deb" \
             "FREDPP-v${{ needs.validate.outputs.version }}-macos-x64.tar.gz" \
             "FREDPP-v${{ needs.validate.outputs.version }}-macos-arm64.tar.gz" \
-            "FREDPP-v${{ needs.validate.outputs.version }}-android.apk" \
             "FREDPP-Language-v${{ needs.validate.outputs.vscode_version }}.vsix" \
             > SHA256SUMS.txt
           cat SHA256SUMS.txt
+
+      - name: Verify complete release asset set
+        shell: bash
+        env:
+          RELEASE_VERSION: ${{ needs.validate.outputs.version }}
+          VSCODE_VERSION: ${{ needs.validate.outputs.vscode_version }}
+        run: |
+          set -euo pipefail
+          cd out/release
+
+          # Exactly nine uploaded files; GitHub adds both source archives.
+          expected=(
+            "FREDPP-v${RELEASE_VERSION}-windows-x64.zip"
+            "FREDPP-v${RELEASE_VERSION}-debian13-amd64.tar.gz"
+            "FREDPP-v${RELEASE_VERSION}-debian13-arm64.tar.gz"
+            "FREDPP-v${RELEASE_VERSION}-macos-x64.tar.gz"
+            "FREDPP-v${RELEASE_VERSION}-macos-arm64.tar.gz"
+            "fredpp_${RELEASE_VERSION}_amd64.deb"
+            "fredpp_${RELEASE_VERSION}_arm64.deb"
+            "FREDPP-Language-v${VSCODE_VERSION}.vsix"
+            "SHA256SUMS.txt"
+          )
+          if [ "$(find . -maxdepth 1 -type f | wc -l)" -ne "${#expected[@]}" ]; then
+            echo "Unexpected number of release files (expected ${#expected[@]})" >&2
+            find . -maxdepth 1 -type f -print
+            exit 1
+          fi
+          for asset in "${expected[@]}"; do
+            if [ ! -s "${asset}" ]; then
+              echo "Release asset missing or empty: ${asset}" >&2
+              exit 1
+            fi
+          done
+          if [ "$(wc -l < SHA256SUMS.txt)" -ne 8 ]; then
+            echo "SHA256SUMS.txt must contain eight packaged assets" >&2
+            exit 1
+          fi
+          sha256sum --check --strict SHA256SUMS.txt
 
       - name: Publish release and assets
         env:
@@ -487,6 +481,7 @@ jobs:
           GH_REPO: ${{ github.repository }}
           RELEASE_TAG: ${{ needs.validate.outputs.tag }}
           RELEASE_VERSION: ${{ needs.validate.outputs.version }}
+          RELEASE_IS_PRERELEASE: ${{ needs.validate.outputs.prerelease }}
         shell: bash
         run: |
           set -euo pipefail
@@ -499,21 +494,27 @@ jobs:
             "out/release/fredpp_${RELEASE_VERSION}_arm64.deb"
             "out/release/FREDPP-v${RELEASE_VERSION}-macos-x64.tar.gz"
             "out/release/FREDPP-v${RELEASE_VERSION}-macos-arm64.tar.gz"
-            "out/release/FREDPP-v${RELEASE_VERSION}-android.apk"
             "out/release/FREDPP-Language-v${{ needs.validate.outputs.vscode_version }}.vsix"
             "out/release/SHA256SUMS.txt"
           )
+
+          release_flags=()
+          if [ "${RELEASE_IS_PRERELEASE}" = "true" ]; then
+            release_flags+=(--prerelease --latest=false)
+          else
+            release_flags+=(--prerelease=false --latest)
+          fi
 
           if gh release view "${RELEASE_TAG}" >/dev/null 2>&1; then
             gh release upload "${RELEASE_TAG}" "${assets[@]}" --clobber
             gh release edit "${RELEASE_TAG}" \
               --title "FREDPP ${RELEASE_TAG}" \
               --notes-file RELEASE_NOTES.md \
-              --latest
+              "${release_flags[@]}"
           else
             gh release create "${RELEASE_TAG}" "${assets[@]}" \
               --verify-tag \
               --title "FREDPP ${RELEASE_TAG}" \
               --notes-file RELEASE_NOTES.md \
-              --latest
+              "${release_flags[@]}"
           fi

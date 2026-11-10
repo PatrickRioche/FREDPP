@@ -8,6 +8,8 @@
   Windows 11 validation.
 - Keep `main` stable. Do not merge `dev` into `main` or publish a stable
   tag until a validated release decision has been made.
+- A `vX.Y.Z` tag at the current `dev` tip may publish a **pre-release**;
+  stable GitHub releases remain restricted to the current `main` tip.
 - Optional development tags may mark reproducible checkpoints but do not
   authorize a release.
 - Updating a development commit does not automatically change the software

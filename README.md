@@ -85,14 +85,30 @@ The repository currently contains:
 Ready-to-run packages are published from Git tags through GitHub Releases:
 
 - portable Windows x64 ZIP;
-- portable Debian 13 amd64 TAR.GZ;
-- Debian amd64 package;
-- SHA-256 checksum manifest.
+- portable Debian 13 amd64 and arm64 TAR.GZ archives;
+- Debian amd64 and arm64 packages;
+- portable macOS Intel x64 and Apple Silicon arm64 TAR.GZ archives;
+- VS Code language extension VSIX;
+- SHA-256 checksum manifest covering the eight binary packages.
+
+The `v0.1.0` release is a **pre-release tagged on `dev`** (103/103 historical
+reference entries recognized, not full historical emulation). GitHub supplies
+the source ZIP and TAR.GZ automatically, for **11 displayed assets** in total.
+Stable releases are tagged on `main`; the `v0.1.0` pre-release does not modify it.
+Android continues to use its separate CI workflow and is not part of this
+release asset set.
 
 The release page is available at:
 
 ```text
 https://github.com/PatrickRioche/FREDPP/releases/latest
+```
+
+For the `dev` pre-release, use the specific tag page (pre-releases are not
+selected by `/releases/latest`):
+
+```text
+https://github.com/PatrickRioche/FREDPP/releases/tag/v0.1.0
 ```
 
 Download statistics can be displayed with:

@@ -24,7 +24,7 @@ Il complète les fiches historiques embarquées dans l'aide sans les altérer.
 
 La couverture de **reconnaissance des entrées** de la référence est de **103 / 103**. Cela ne signifie **pas** une émulation complète de GCOS ni l'homologation de chaque forme historique. Plusieurs entrées restent des adaptations portables ou comportent des limites documentées (voir le guide 0.0.103).
 
-**Numérotation de `dev` :** la version `0.0.N` reprend le nombre `N` de commandes historiques référencées et prises en charge dans ce tableau. Ainsi, **103 entrées = `0.0.103`**. Les corrections internes sans nouvelle commande ne changent pas ce numéro. CMake vérifie l'accord entre la version et le total à chaque configuration. Le tag **`dev-0.0.90`** est publié après **69/69 tests Windows** et la recette interactive ; **`dev-0.0.103` attend la validation Windows par l'utilisateur**, sur `dev`, sans modifier `main`.
+**Numérotation :** les jalons de développement antérieurs suivaient `0.0.N`, où `N` représentait le nombre d'entrées historiques prises en charge ; **103 entrées = jalon `0.0.103`**. À partir de la préversion de distribution **`0.1.0`**, la version logicielle suit un cycle indépendant du compteur de commandes. CMake continue à comparer le total de ce tableau avec une valeur de référence explicite (`FREDPP_EXPECTED_REFERENCE_COUNT`). Le jalon **`dev-0.0.103`** a été validé sous Windows (**71/71 tests**) et publié sur `dev` sans modifier `main`.
 
 | Commande | État dans FREDPP | Aide embarquée |
 |---|---|:---:|

@@ -1,40 +1,52 @@
-﻿# FREDPP v0.0.22 — Application Android native
+# FREDPP v0.1.0 — Préversion de référence
 
-FREDPP v0.0.22 ajoute Android aux plateformes du projet sans réécrire le moteur :
-l'application utilise directement `fredpp_core` C++20 via JNI/NDK.
+Cette première préversion rassemble les travaux effectués sur la branche `dev`
+jusqu'au jalon `dev-0.0.103`. Elle préserve l'esprit de l'éditeur en ligne FRED
+et propose un moteur C++20 portable avec un langage de manipulation de texte.
 
-## Android
+## Fonctionnalités
 
-L'application fournit une console FREDPP tactile, conserve la session et les buffers
-entre les exécutions, et peut charger une procédure texte ou `.fredpp` depuis le
-sélecteur de documents Android.
+- Les **103 entrées** du tableau de référence historique sont reconnues et
+  prises en charge, avec les adaptations et limites indiquées dans le
+  [tableau de couverture](https://github.com/PatrickRioche/FREDPP/blob/v0.1.0/docs/project/COMMAND_STATUS.md) et les guides français.
+- Buffers multiples, adresses de lignes, insertion, suppression, copie,
+  déplacement, recherche et substitution, fichiers et commandes de consultation.
+- Registres numériques, options de saisie, exécution de procédures, conditions,
+  boucles contrôlées, modèles nommés, annulation et rétablissement.
+- Aide embarquée, version traçable par `FV`, et extension de langage pour
+  Visual Studio Code.
 
-L'interface est réalisée en Kotlin / Jetpack Compose. Le logo complet reste la
-référence graphique officielle ; l'icône Android est une déclinaison compacte
-dérivée, utilisée uniquement pour les emplacements qui exigent une icône.
+**Important :** 103/103 correspond à la couverture des *entrées répertoriées*,
+pas à une équivalence fonctionnelle complète avec FRED sous GCOS. Certains cas
+historiques, les directives avancées et les limites de charge restent à valider.
 
-## Compatibilité du cœur
+## Vérification disponible au jalon
 
-Le moteur FREDPP n'est pas dupliqué. Les mêmes composants de parsing, flot, buffers,
-commandes et procédures que sur les plateformes desktop sont compilés dans la
-bibliothèque native Android.
+La version de développement `0.0.103` a passé **71 tests CTest sur 71** sous
+Windows/MSVC (91,26 s), ainsi qu'une recette interactive ciblée. Le pipeline de
+publication compile et teste à nouveau ses plateformes avant de produire les
+archives. La campagne renforcée sur les boucles infinies, délais d'exécution,
+mémoire et taille des buffers est prévue **après cette préversion** ; elle
+n'est pas présentée comme déjà réussie.
 
-Le nouveau commutateur CMake `FREDPP_BUILD_CLI` reste activé par défaut ; il est
-désactivé uniquement dans le sous-build Android afin de ne produire que la
-bibliothèque nécessaire à l'APK.
+## Téléchargements
 
-## Distribution
+La release contient neuf fichiers fournis par le workflow :
 
-La release ajoute :
+- `FREDPP-Language-v0.1.0.vsix`
+- `FREDPP-v0.1.0-debian13-amd64.tar.gz`
+- `FREDPP-v0.1.0-debian13-arm64.tar.gz`
+- `FREDPP-v0.1.0-macos-arm64.tar.gz`
+- `FREDPP-v0.1.0-macos-x64.tar.gz`
+- `FREDPP-v0.1.0-windows-x64.zip`
+- `fredpp_0.1.0_amd64.deb`
+- `fredpp_0.1.0_arm64.deb`
+- `SHA256SUMS.txt`
 
-    FREDPP-v0.0.22-android.apk
+GitHub ajoute automatiquement les deux archives du code source (`zip` et
+`tar.gz`), soit **11 assets affichés**. Les empreintes SHA-256 couvrent les
+huit packages téléchargeables créés par le workflow.
 
-L'APK est inclus dans `SHA256SUMS.txt`. Les artefacts Windows, Debian, macOS et VS Code
-continuent d'être produits par le même workflow.
-
-## Signature
-
-L'APK de cette première intégration est signé avec la configuration de débogage
-Android afin d'être directement installable. Cette signature n'est pas une signature
-de publication stable : une clé de release dédiée devra être ajoutée avant une
-distribution pérenne ou sur le Play Store, sans modifier le moteur FREDPP.
+Les fichiers de cette release sont compilés depuis le tag `v0.1.0` sur `dev`,
+**sans modifier `main`**. L'application Android suit son propre circuit CI et
+n'est pas incluse dans cette matrice de livraison.

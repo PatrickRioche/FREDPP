@@ -1,4 +1,16 @@
-## v0.0.103 — Lot 91–103 (développement, recette Windows en attente)
+## v0.1.0 — Première préversion publiée depuis `dev` (préparation)
+
+- Version de distribution indépendante du compteur de couverture historique ;
+  les **103/103 entrées reconnues** restent décrites dans le guide `0.0.103`.
+- Publication automatique multi-plateforme avec neuf fichiers de livraison
+  vérifiés (Windows, Debian 13 x64/ARM64, macOS x64/ARM64, VSIX et SHA-256),
+  plus deux archives source générées par GitHub.
+- Préversion issue de `dev` : `main` reste inchangée ; une release stable
+  demeure réservée à `main`.
+- Base de validation : **71/71 tests Windows/MSVC** sur le jalon `0.0.103` ;
+  les tests renforcés de temps, boucles et mémoire constituent l'étape suivante.
+
+## v0.0.103 — Lot 91–103 (validé sous Windows, tag `dev-0.0.103` publié)
 
 - Treize entrées supplémentaires prises en charge dans le suivi : `E`, `J`,
   `U`, `V`, `!`, `FE`, `JB`, `OB`, `OO`, `OR`, `OS`, `ZG`, `ZV` ; **103/103 entrées
@@ -9,8 +21,8 @@
   droits de lecture publique et des métacaractères de modèles.
 - Test unitaire et recette CLI dédiés ; guide français, aide historique
   supplémentaire et tableau de couverture actualisés.
-- `dev-0.0.90` publié après **69/69 tests Windows** ; `dev-0.0.103` ne sera
-  proposé qu'après validation Windows. Aucun tag ni modification de `main` ici.
+- `dev-0.0.90` publié après **69/69 tests Windows** ; `dev-0.0.103` publié
+  après **71/71 tests Windows** et recette interactive. `main` inchangée.
 
 ## v0.0.90 — Lot 81–90 (validé sous Windows, tag `dev-0.0.90` publié)
 

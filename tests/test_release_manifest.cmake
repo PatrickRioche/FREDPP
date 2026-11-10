@@ -56,3 +56,45 @@ foreach(relative_path IN LISTS required_files)
         message(FATAL_ERROR "Missing release file: ${relative_path}")
     endif()
 endforeach()
+
+# The public release matrix is intentionally fixed at eight built packages
+# plus SHA256SUMS.txt. GitHub adds the two source archives automatically.
+file(READ "${FREDPP_SOURCE_DIR}/.github/workflows/release.yml"
+    FREDPP_RELEASE_WORKFLOW)
+foreach(required_asset IN ITEMS
+    "-windows-x64.zip"
+    "-debian13-amd64.tar.gz"
+    "-debian13-arm64.tar.gz"
+    "-macos-x64.tar.gz"
+    "-macos-arm64.tar.gz"
+    "_amd64.deb"
+    "_arm64.deb"
+    "FREDPP-Language-v"
+    "SHA256SUMS.txt"
+)
+    string(FIND "${FREDPP_RELEASE_WORKFLOW}" "${required_asset}"
+        FREDPP_ASSET_POSITION)
+    if(FREDPP_ASSET_POSITION EQUAL -1)
+        message(FATAL_ERROR "Required release artifact missing from workflow: ${required_asset}")
+    endif()
+endforeach()
+
+foreach(required_release_guard IN ITEMS
+    "prerelease=true"
+    "prerelease=false"
+    "Verify complete release asset set"
+    "sha256sum --check --strict SHA256SUMS.txt"
+)
+    string(FIND "${FREDPP_RELEASE_WORKFLOW}" "${required_release_guard}"
+        FREDPP_GUARD_POSITION)
+    if(FREDPP_GUARD_POSITION EQUAL -1)
+        message(FATAL_ERROR "Release safety check missing: ${required_release_guard}")
+    endif()
+endforeach()
+
+string(FIND "${FREDPP_RELEASE_WORKFLOW}" "android.apk"
+    FREDPP_ANDROID_ASSET_POSITION)
+if(NOT FREDPP_ANDROID_ASSET_POSITION EQUAL -1)
+    message(FATAL_ERROR
+        "Android APK must stay out of the eleven-asset desktop release matrix")
+endif()
