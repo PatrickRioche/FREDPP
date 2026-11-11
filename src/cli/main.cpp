@@ -626,6 +626,7 @@ int main(int argc, char** argv) {
     fred::BufferManager manager;
     fred::ConsoleOutput output(std::cout);
     fred::ExecutionContext execution_context(manager, output);
+    execution_context.set_terminal_input(std::cin);
     fred::CommandExecutor command_executor;
     const auto command_registry = fred::make_core_command_registry();
     std::size_t maximum_procedure_steps = 0;
