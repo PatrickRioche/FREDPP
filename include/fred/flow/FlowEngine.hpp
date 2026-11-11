@@ -37,12 +37,13 @@ namespace fred {
  *
  * @par Full-flow APIs
  * expand_buffer() and expand_input() execute the general nested flow stream,
- * including active `\B`, literal `\S`/`\L`, `\C`, `\O` and escaped backslash
+ * including active `\B`, literal `\S`/`\L`, `\W` (associated filename),
+ * `\C`, `\O` and escaped backslash
  * handling.
  *
  * @par Command-input APIs
  * expand_command_input_characters() preserves CharacterInterpretation metadata
- * needed by Lexer/PatternParser. `\S`/`\L` inserted bytes are Literal, `\C`
+ * needed by Lexer/PatternParser. `\S`/`\L`/`\W` inserted bytes are Literal, `\C`
  * marks the following byte Literal and `\O` marks it ForcedSpecial.
  *
  * @par Historical representation vs FREDPP
@@ -113,12 +114,15 @@ public:
      *
      * @throws std::out_of_range for unknown referenced buffers.
      * @throws std::runtime_error for malformed `\S`/`\L`/`\C`/`\O`,
+     *         missing file association for `\W`,
      *         overlong names or expansion-depth overflow.
      * @throws std::logic_error when a full-flow input stack is already active.
      *
      * @par Current command-input directives
      * - `\S(name)` injects all Buffer lines concatenated, as Literal;
      * - `\L(name)` injects Buffer lines with generated newlines, as Literal;
+     * - `\W` inserts the selected Buffer's associated file as Literal and
+     *   rejects Buffers without a file association;
      * - `\C x` (without the space in source syntax) removes the directive and
      *   marks the following byte Literal;
      * - `\O x` removes the directive and marks the following byte ForcedSpecial;
