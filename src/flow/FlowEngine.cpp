@@ -58,6 +58,19 @@ std::string literal_buffer_text(const Buffer& buffer) {
     return text;
 }
 
+/**
+ * The \W directive inserts the file associated with the currently selected
+ * Buffer. A missing association is an error, never an empty expansion.
+ */
+const std::string& current_associated_filename(const BufferManager& buffers) {
+    const auto& filename = buffers.current().associated_file();
+    if (!filename || filename->empty()) {
+        throw std::runtime_error(
+            "no file associated with current buffer for \\W");
+    }
+    return *filename;
+}
+
 /** Extracts only character bytes from a metadata-preserving expansion. */
 std::string input_characters_text(
     const std::vector<InputCharacter>& characters) {
@@ -171,6 +184,20 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
                 '\\', depth, CharacterInterpretation::Normal});
             expanded.push_back(InputCharacter{
                 '\\', depth, CharacterInterpretation::Normal});
+            position += 2;
+            continue;
+        }
+
+        if (source[position] == '\\' &&
+            position + 1 < source.size() &&
+            (source[position + 1] == 'W' ||
+             source[position + 1] == 'w')) {
+            // Insert filename bytes literally: Windows separators and other
+            // special characters must not be interpreted as flow directives.
+            for (const char value : current_associated_filename(buffers)) {
+                expanded.push_back(InputCharacter{
+                    value, depth, CharacterInterpretation::Literal});
+            }
             position += 2;
             continue;
         }
@@ -384,6 +411,13 @@ std::string FlowEngine::expand_current_input() {
                         character->level + 1,
                         true,
                         CharacterInterpretation::Literal);
+            continue;
+        }
+
+        if (directive->value == 'W' || directive->value == 'w') {
+            // The selected Buffer determines \W, even when the directive
+            // is expanded from another Buffer through an active \B.
+            output += current_associated_filename(*buffers_);
             continue;
         }
 
