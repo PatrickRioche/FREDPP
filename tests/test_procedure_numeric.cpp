@@ -185,6 +185,29 @@ int main() {
         assert(result.condition);
     }
     {
+        const auto result = run_case(0, {
+            "N(rhs):41",
+            "JM/value=\\N(rhs)/",
+            "N(rhs)+1",
+            "JM/updated=\\N(rhs)/",
+            "N(rhs)B2",
+            "N(np):\\N(rhs)",
+            "N(np)P",
+        });
+        assert(result.output == "value=41\nupdated=42\n42\n");
+        assert(result.np == 42);
+    }
+    {
+        const auto result = run_case(0, {
+            "N(rhs):-3",
+            "N(np):5",
+            "N(np)+\\N(rhs)",
+            "JM/negative=\\N(rhs)/",
+        });
+        assert(result.np == 2);
+        assert(result.output == "negative=-3\n");
+    }
+    {
         const auto result = run_case(0, {"N(np):-12", "N(np)|"});
         assert(result.np == 12);
     }

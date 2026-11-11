@@ -12,6 +12,8 @@
 
 namespace fred {
 
+class ExecutionContext;
+
 /**
  * @brief Expands FRED flow directives over strings and Buffer content.
  *
@@ -37,8 +39,8 @@ namespace fred {
  *
  * @par Full-flow APIs
  * expand_buffer() and expand_input() execute the general nested flow stream,
- * including active `\B`, literal `\S`/`\L`, `\C`, `\O` and escaped backslash
- * handling.
+ * including active `\B`, literal `\S`/`\L`, numeric `\N`, `\C`, `\O`
+ * and escaped backslash handling. Numeric substitution requires a context.
  *
  * @par Command-input APIs
  * expand_command_input_characters() preserves CharacterInterpretation metadata
@@ -66,6 +68,16 @@ public:
      * @pre `buffers` must outlive this FlowEngine.
      */
     explicit FlowEngine(const BufferManager& buffers,
+                        std::size_t maximum_depth = 256);
+
+    /**
+     * @brief Enables `\N(name)` substitution from numeric registers.
+     *
+     * The context is borrowed and must outlive this FlowEngine. Numeric
+     * values are substituted as signed decimal integers, independently of
+     * the register's presentation settings (NB/ND/NF).
+     */
+    explicit FlowEngine(const ExecutionContext& context,
                         std::size_t maximum_depth = 256);
 
     /**
@@ -124,6 +136,8 @@ public:
      * - `\C x` (without the space in source syntax) removes the directive and
      *   marks the following byte Literal;
      * - `\O x` removes the directive and marks the following byte ForcedSpecial;
+     * - `\N(name)` injects a numeric register's decimal value when the engine
+     *   was constructed with an ExecutionContext;
      * - nested `\S`/`\L` may compute buffer names;
      * - inserted Literal bytes are not expanded a second time.
      *
@@ -150,8 +164,8 @@ private:
     /**
      * @brief Parses a parenthesized buffer name for a full-flow directive.
      *
-     * Nested `\S(...)` is expanded while computing the name; `\C` can protect
-     * a character such as `)` so it becomes part of the name.
+     * Nested `\S(...)` and `\N(...)` (with context) are expanded while
+     * computing the name; `\C` can protect a character such as `)`.
      *
      * @param directive_level Level at which the name syntax must remain.
      * @param directive Directive letter used in error messages.
@@ -180,6 +194,9 @@ private:
 
     /** Borrowed read-only buffer namespace. */
     const BufferManager* buffers_;
+
+    /** Optional borrowed numeric register namespace. */
+    const ExecutionContext* numeric_context_{nullptr};
 
     /** Owned stack used by full-flow expand_input()/expand_buffer(). */
     InputStack input_;

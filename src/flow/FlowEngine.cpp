@@ -2,6 +2,7 @@
 #include "fred/flow/BufferInputSource.hpp"
 #include "fred/flow/InputSource.hpp"
 #include "fred/core/Limits.hpp"
+#include "fred/runtime/ExecutionContext.hpp"
 
 #include <memory>
 #include <stdexcept>
@@ -69,6 +70,16 @@ std::string input_characters_text(
     return text;
 }
 
+/** Resolve a historical numeric-register reference as decimal text. */
+std::string numeric_register_text(
+    const ExecutionContext& context, std::string_view name) {
+    if (name.empty() || name.size() > 14 ||
+        name.find('(') != std::string_view::npos) {
+        throw std::runtime_error("invalid numeric operand register name");
+    }
+    return std::to_string(context.numeric_register(name));
+}
+
 /**
  * Appends Buffer content with Literal interpretation.
  *
@@ -106,6 +117,7 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
     std::string_view source,
     std::size_t& position,
     const BufferManager& buffers,
+    const ExecutionContext* numeric_context,
     std::size_t depth,
     std::size_t maximum_depth,
     bool stop_at_closing_parenthesis) {
@@ -175,6 +187,14 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
             continue;
         }
 
+        const bool is_numeric_register_directive =
+            numeric_context != nullptr &&
+            source[position] == '\\' &&
+            position + 2 < source.size() &&
+            (source[position + 1] == 'N' ||
+             source[position + 1] == 'n') &&
+            source[position + 2] == '(';
+
         const bool is_literal_buffer_directive =
             source[position] == '\\' &&
             position + 2 < source.size() &&
@@ -185,7 +205,8 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
             source[position + 2] == '(';
 
         // Unknown/non-command-input directives remain ordinary source text.
-        if (!is_literal_buffer_directive) {
+        if (!is_literal_buffer_directive &&
+            !is_numeric_register_directive) {
             expanded.push_back(InputCharacter{
                 source[position++],
                 depth,
@@ -203,13 +224,13 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
         const bool emit_newlines =
             directive == 'L' || directive == 'l';
 
-        position += 3; // skip \S( or \L(
+        position += 3; // skip \S(, \L( or \N(
 
-        // The buffer name itself is subject to the same central expansion.
-        // This enables forms such as \S(\S(nombuf)).
+        // Reference names are subject to the same central expansion.
+        // This enables forms such as \S(\N(buffer-number)).
         const auto buffer_name_characters =
             expand_command_literal_buffer_segment(
-                source, position, buffers,
+                source, position, buffers, numeric_context,
                 depth + 1, maximum_depth, true);
         const std::string buffer_name =
             input_characters_text(buffer_name_characters);
@@ -224,6 +245,16 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
                 std::to_string(limits::max_buffer_name_length));
         }
 
+        if (is_numeric_register_directive) {
+            const auto digits = numeric_register_text(
+                *numeric_context, buffer_name);
+            for (const char digit : digits) {
+                expanded.push_back(InputCharacter{
+                    digit, depth + 1, CharacterInterpretation::Literal});
+            }
+            continue;
+        }
+
         // \S and \L both inject characters literally.
         // \S suppresses <nl>; \L preserves them.
         append_literal_buffer_text(
@@ -235,7 +266,7 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
 
     if (stop_at_closing_parenthesis) {
         throw std::runtime_error(
-            "unterminated literal buffer directive in command input");
+            "unterminated flow directive in command input");
     }
 
     return expanded;
@@ -247,6 +278,13 @@ FlowEngine::FlowEngine(
     const BufferManager& buffers,
     std::size_t maximum_depth)
     : buffers_(&buffers), input_(maximum_depth) {}
+
+FlowEngine::FlowEngine(
+    const ExecutionContext& context,
+    std::size_t maximum_depth)
+    : buffers_(&context.buffers()),
+      numeric_context_(&context),
+      input_(maximum_depth) {}
 
 std::string FlowEngine::expand_buffer(std::string_view buffer_name) {
     // Full-flow operations share input_; overlapping/reentrant execution would
@@ -283,7 +321,8 @@ FlowEngine::expand_command_input_characters(std::string_view source) {
     // it can preserve lexical interpretation metadata in its result.
     std::size_t position = 0;
     return expand_command_literal_buffer_segment(
-        source, position, *buffers_, 0, input_.maximum_depth(), false);
+        source, position, *buffers_, numeric_context_, 0,
+        input_.maximum_depth(), false);
 }
 
 std::string FlowEngine::expand_current_input() {
@@ -396,6 +435,13 @@ std::string FlowEngine::expand_current_input() {
             continue;
         }
 
+        if (numeric_context_ != nullptr &&
+            (directive->value == 'N' || directive->value == 'n')) {
+            const auto name = parse_buffer_name(character->level, 'N');
+            output += numeric_register_text(*numeric_context_, name);
+            continue;
+        }
+
         // Unknown flow directives are preserved rather than silently consumed.
         output.push_back('\\');
         output.push_back(directive->value);
@@ -412,6 +458,11 @@ std::string FlowEngine::parse_buffer_name(
     std::size_t directive_level,
     char directive,
     std::size_t nesting_depth) {
+    if (nesting_depth >= input_.maximum_depth()) {
+        throw std::runtime_error(
+            "maximum flow expansion depth exceeded (" +
+            std::to_string(input_.maximum_depth()) + ")");
+    }
     const std::string prefix = std::string("\\") + directive;
     const auto opening = read_raw();
     if (!opening ||
@@ -475,6 +526,16 @@ std::string FlowEngine::parse_buffer_name(
                 // lines; it does not inject newline separators into the name.
                 name += literal_buffer_text(
                     buffers_->get(nested_name));
+                continue;
+            }
+
+            if (numeric_context_ != nullptr &&
+                (nested_directive->value == 'N' ||
+                 nested_directive->value == 'n')) {
+                const auto nested_name = parse_buffer_name(
+                    directive_level, 'N', nesting_depth + 1);
+                name += numeric_register_text(
+                    *numeric_context_, nested_name);
                 continue;
             }
 

@@ -652,7 +652,7 @@ int main(int argc, char** argv) {
                 input[first_non_space] != '"') {
                 expanded_command =
                     fred::expand_command_input_with_metadata(
-                        named_expanded, manager);
+                        named_expanded, execution_context);
             }
             const std::string& command_input =
                 expanded_command.text;
@@ -671,7 +671,7 @@ int main(int argc, char** argv) {
             if (command == ":flow") {
                 std::string name;
                 stream >> name;
-                fred::FlowEngine flow(manager);
+                fred::FlowEngine flow(execution_context);
                 std::cout << flow.expand_buffer(name);
             } else if (command == ":lex") {
                 std::string text;

@@ -715,7 +715,7 @@ void ProcedureRunner::execute_procedure_line(
         is_comment(raw_value)
             ? make_command_input(raw_value)
             : expand_command_input_with_metadata(
-                  named_expanded, *buffers_, maximum_depth_);
+                  named_expanded, *context_, maximum_depth_);
     const auto value = trim(expanded_source.text);
 
     try {

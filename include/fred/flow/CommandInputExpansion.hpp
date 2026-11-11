@@ -1,6 +1,7 @@
 #pragma once
 
 #include "fred/flow/FlowEngine.hpp"
+#include "fred/runtime/ExecutionContext.hpp"
 
 #include <cstddef>
 #include <string>
@@ -96,6 +97,22 @@ inline ExpandedCommandInput expand_command_input_with_metadata(
     return result;
 }
 
+/** Expand buffer directives and numeric `\N(name)` against live runtime state. */
+inline ExpandedCommandInput expand_command_input_with_metadata(
+    std::string_view source,
+    const ExecutionContext& context,
+    std::size_t maximum_depth = 256) {
+    FlowEngine flow(context, maximum_depth);
+
+    ExpandedCommandInput result;
+    result.characters = flow.expand_command_input_characters(source);
+    result.text.reserve(result.characters.size());
+    for (const auto& character : result.characters) {
+        result.text.push_back(character.value);
+    }
+    return result;
+}
+
 /**
  * @brief Convenience command-input expansion returning only text.
  *
@@ -118,6 +135,15 @@ inline std::string expand_command_input(
     std::size_t maximum_depth) {
     return expand_command_input_with_metadata(
         source, buffers, maximum_depth).text;
+}
+
+/** Text-only expansion with access to current numeric registers. */
+inline std::string expand_command_input(
+    std::string_view source,
+    const ExecutionContext& context,
+    std::size_t maximum_depth = 256) {
+    return expand_command_input_with_metadata(
+        source, context, maximum_depth).text;
 }
 
 } // namespace fred

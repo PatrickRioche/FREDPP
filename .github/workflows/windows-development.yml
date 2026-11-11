@@ -41,6 +41,37 @@ jobs:
       - name: Run complete Windows Release test suite
         run: ctest --test-dir out/build/windows-dev -C Release --output-on-failure
 
+      # A testable Release-mode executable without publishing a GitHub Release.
+      # Keep the version number unchanged until the next formal release.
+      - name: Write Windows Release build identity and SHA-256
+        shell: pwsh
+        run: |
+          $directory = "out/build/windows-dev/Release"
+          $executable = Join-Path $directory "fredpp.exe"
+          if (-not (Test-Path $executable)) {
+            throw "Release executable not found: $executable"
+          }
+          $hash = (Get-FileHash $executable -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -Path (Join-Path $directory "SHA256SUMS.txt") -Value "$hash  fredpp.exe" -Encoding ascii
+          Set-Content -Path (Join-Path $directory "BUILD_INFO.txt") -Value @(
+            "FREDPP Windows x64 development build (MSVC Release)"
+            "Commit: ${{ github.sha }}"
+            "Branch: ${{ github.ref_name }}"
+            "Configuration: Release"
+            "This artifact is not a published GitHub Release."
+          ) -Encoding utf8
+
+      - name: Upload testable Windows x64 Release executable
+        uses: actions/upload-artifact@v4
+        with:
+          name: FREDPP-Windows-x64-Release-dev-${{ github.sha }}
+          path: |
+            out/build/windows-dev/Release/fredpp.exe
+            out/build/windows-dev/Release/SHA256SUMS.txt
+            out/build/windows-dev/Release/BUILD_INFO.txt
+          if-no-files-found: error
+          retention-days: 30
+
       # This development lane deliberately runs targeted engineering
       # regressions, not the deferred historical compatibility campaign.
       - name: Test targeted core, K-copy, ZK-insert, FF, equals and T-jump regressions

@@ -1,5 +1,8 @@
 #include "fred/core/BufferManager.hpp"
+#include "fred/flow/CommandInputExpansion.hpp"
 #include "fred/flow/FlowEngine.hpp"
+#include "fred/runtime/ExecutionContext.hpp"
+#include "fred/runtime/Output.hpp"
 
 #include <cstdlib>
 #include <iostream>
@@ -33,6 +36,83 @@ void expect_throws(auto&& action, const char* message) {
 
 int main() {
     fred::BufferManager buffers;
+
+    // Numeric registers participate in both general flow and command input.
+    // The buffer-only API remains usable without an execution context.
+    fred::StringOutput numeric_output;
+    fred::ExecutionContext numeric_context(buffers, numeric_output);
+    numeric_context.set_numeric_register("buf", 42);
+    numeric_context.set_numeric_register("negative", -17);
+    buffers.create_or_select("42").append("FROM-42");
+    buffers.create_or_select("register-name").append("buf");
+    buffers.create_or_select("numeric-parent")
+        .append("before \\N(buf) after");
+    {
+        fred::FlowEngine flow(numeric_context);
+        expect_equal(flow.expand_buffer("numeric-parent"),
+                     "before 42 after\n",
+                     "numeric substitution in buffer flow");
+        expect_equal(flow.expand_input("[\\n(negative)]"), "[-17]",
+                     "lowercase numeric substitution supports negatives");
+        expect_equal(flow.expand_input("\\N(unset)"), "0",
+                     "unset numeric register has historical zero value");
+        expect_equal(flow.expand_input("\\S(\\N(buf))"), "FROM-42",
+                     "numeric value may compute a nested buffer name");
+        expect_equal(flow.expand_input("\\N(\\S(register-name))"), "42",
+                     "buffer text may compute a numeric register name");
+        expect_equal(flow.expand_input("\\C\\N(buf)"), "\\N(buf)",
+                     "literal-character escape protects numeric directive");
+        expect_equal(flow.expand_input("\\\\N(buf)"), "\\N(buf)",
+                     "escaped backslash protects numeric directive");
+        expect_throws([&] { (void)flow.expand_input("\\N()"); },
+                      "empty numeric name is rejected");
+        expect_throws([&] {
+            (void)flow.expand_input("\\N(123456789012345)");
+        }, "numeric name longer than 14 characters is rejected");
+        expect_throws([&] { (void)flow.expand_input("\\N(buf"); },
+                      "unterminated numeric substitution is rejected");
+        expect_equal(flow.expand_input("\\N(buf)"), "42",
+                     "flow is reusable after invalid numeric directive");
+    }
+    {
+        const auto expanded = fred::expand_command_input_with_metadata(
+            "JM/val=\\N(buf)/ B(\\N(buf))", numeric_context);
+        expect_equal(expanded.text, "JM/val=42/ B(42)",
+                     "numeric substitution in command arguments");
+        const auto first_digit = expanded.text.find("42");
+        if (first_digit == std::string::npos ||
+            expanded.characters[first_digit].interpretation !=
+                fred::CharacterInterpretation::Literal) {
+            std::cerr << "FAILED: expanded numeric characters are literal\n";
+            return EXIT_FAILURE;
+        }
+        fred::FlowEngine flow(numeric_context);
+        expect_equal(flow.expand_command_input("\\N(\\S(register-name))"),
+                     "42", "nested numeric name in command input");
+        expect_equal(flow.expand_command_input("\\C\\N(buf)"),
+                     "\\N(buf)", "command literal escape protects numeric");
+        expect_equal(flow.expand_command_input("\\\\N(buf)"),
+                     "\\\\N(buf)",
+                     "escaped command backslash protects numeric directive");
+        buffers.create_or_select("literal-numeric").append("\\N(buf)");
+        expect_equal(flow.expand_command_input("\\S(literal-numeric)"),
+                     "\\N(buf)",
+                     "literal buffer injection is not expanded again");
+    }
+    {
+        fred::FlowEngine flow(numeric_context, 8);
+        std::string nested = "\\N(buf)";
+        for (int index = 0; index < 10; ++index) {
+            nested = "\\N(" + nested + ")";
+        }
+        expect_throws([&] { (void)flow.expand_input(nested); },
+                      "nested numeric reference is limited by flow depth");
+    }
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(flow.expand_input("\\N(buf)"), "\\N(buf)",
+                     "buffer-only flow keeps numeric directive unresolved");
+    }
 
     buffers.create_or_select("plain").append("hello");
     {

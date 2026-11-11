@@ -84,6 +84,28 @@ Dans l'implémentation actuelle, `\B(buffer)` doit être seul sur sa ligne. Les
 appels peuvent être imbriqués et une profondeur maximale protège contre la
 récursion infinie.
 
+## SUBSTITUTION NUMÉRIQUE `\N(registre)`
+
+La directive `\N(nom)` remplace sa propre écriture par la valeur décimale
+signée du registre numérique `N(nom)`, y compris dans les arguments de commandes
+et les messages des procédures :
+
+```fred
+N(total):12
+JM/Total : \N(total)/
+N(copie):\N(total)
+```
+
+Le message affiche `Total : 12` et le registre `copie` reçoit la valeur `12`.
+La substitution lit la valeur numérique courante sans modifier le registre ni
+le compteur. Un registre non initialisé vaut `0`. Les options de présentation
+`NB`, `ND` et `NF` concernent l'impression d'un registre (`NP`) ; `\N` injecte
+toujours un entier décimal afin de rester utilisable comme opérande numérique.
+
+Le nom du registre est limité à 14 caractères. Il peut être construit avec
+une substitution imbriquée comme `\N(\S(nom))`. La directive `\C` peut
+protéger le caractère `\` pour empêcher l'expansion.
+
 ## COMMANDES DE TEXTE
 
 `A`, `I` et `C` utilisent les lignes suivantes jusqu'à `\F`.
