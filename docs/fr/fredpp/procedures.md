@@ -84,6 +84,36 @@ Dans l'implémentation actuelle, `\B(buffer)` doit être seul sur sa ligne. Les
 appels peuvent être imbriqués et une profondeur maximale protège contre la
 récursion infinie.
 
+## BOUCLES ET LIMITES DE SÉCURITÉ
+
+Les sauts arrière `J(étiquette)` restent autorisés : ils sont nécessaires aux
+boucles historiques, notamment lorsqu'un registre `N(...)` est décrémenté puis
+testé pour décider de la sortie. Un saut arrière n'est pas une erreur en soi.
+
+Pour éviter qu'une boucle sans fin bloque l'éditeur, chaque lancement d'une
+procédure dispose de deux limites indépendantes, **partagées entre la procédure
+principale et les appels `\B` imbriqués** :
+
+- **1 000 000 de lignes exécutées**, par défaut ;
+- **60 secondes écoulées**, par défaut (vérification entre les lignes).
+
+La première limite atteinte arrête la procédure avec un message explicite,
+signalant une *possible* boucle infinie. Le mécanisme habituel d'inspection
+après erreur reste disponible et la sémantique des sauts ne change pas.
+
+Pour augmenter les limites avant de lancer FREDPP sous PowerShell :
+
+```powershell
+$env:FREDPP_PROCEDURE_MAX_STEPS = '5000000'
+$env:FREDPP_PROCEDURE_MAX_SECONDS = '300'
+fredpp ma_procedure
+```
+
+Les deux variables doivent contenir un entier strictement positif. La durée
+maximale configurable est de 86 400 secondes. Ces garde-fous n'interrompent
+pas une commande bloquante *pendant* son exécution : le temps est contrôlé
+quand FREDPP passe à une nouvelle ligne de procédure.
+
 ## SUBSTITUTION NUMÉRIQUE `\N(registre)`
 
 La directive `\N(nom)` remplace sa propre écriture par la valeur décimale

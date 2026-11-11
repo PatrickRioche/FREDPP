@@ -1,5 +1,6 @@
 #pragma once
 
+#include <chrono>
 #include <cstddef>
 #include <string>
 #include <string_view>
@@ -38,12 +39,17 @@ struct ExpandedCommandInput;
  */
 class ProcedureRunner {
 public:
+    static constexpr std::size_t default_maximum_steps = 1'000'000;
+    static constexpr std::size_t default_maximum_seconds = 60;
+
     /**
      * @param buffers Borrowed BufferManager.
      * @param context Borrowed shared ExecutionContext.
      * @param registry Borrowed command registry.
      * @param executor Borrowed command executor.
      * @param maximum_depth Nested procedure/flow protection.
+     * @param maximum_steps Shared instruction budget across nested procedures.
+     * @param maximum_elapsed Wall-clock budget, checked between instructions.
      *
      * @note The constructor is noexcept and currently does not reject zero;
      *       a zero maximum causes execute_buffer_impl() to fail immediately.
@@ -52,7 +58,10 @@ public:
                     ExecutionContext& context,
                     const CommandRegistry& registry,
                     const CommandExecutor& executor,
-                    std::size_t maximum_depth = 256) noexcept;
+                    std::size_t maximum_depth = 256,
+                    std::size_t maximum_steps = default_maximum_steps,
+                    std::chrono::milliseconds maximum_elapsed =
+                        std::chrono::seconds{default_maximum_seconds}) noexcept;
 
     /**
      * @brief Executes a named existing Buffer as a procedure.
@@ -103,6 +112,10 @@ private:
     const CommandRegistry* registry_;
     const CommandExecutor* executor_;
     std::size_t maximum_depth_;
+    std::size_t maximum_steps_;
+    std::chrono::milliseconds maximum_elapsed_;
+    std::size_t executed_steps_ = 0;
+    std::chrono::steady_clock::time_point started_at_{};
 };
 
 } // namespace fred

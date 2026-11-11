@@ -604,12 +604,16 @@ ProcedureRunner::ProcedureRunner(BufferManager& buffers,
                                  ExecutionContext& context,
                                  const CommandRegistry& registry,
                                  const CommandExecutor& executor,
-                                 std::size_t maximum_depth) noexcept
+                                 std::size_t maximum_depth,
+                                 std::size_t maximum_steps,
+                                 std::chrono::milliseconds maximum_elapsed) noexcept
     : buffers_(&buffers),
       context_(&context),
       registry_(&registry),
       executor_(&executor),
-      maximum_depth_(maximum_depth) {}
+      maximum_depth_(maximum_depth),
+      maximum_steps_(maximum_steps),
+      maximum_elapsed_(maximum_elapsed) {}
 
 void ProcedureRunner::execute_buffer(std::string_view buffer_name) {
     execute_buffer_impl(buffer_name, 0);
@@ -668,6 +672,12 @@ bool ProcedureRunner::execute_buffer_directive(std::string_view source) {
  */
 void ProcedureRunner::execute_buffer_impl(std::string_view buffer_name,
                                           std::size_t depth) {
+    // One top-level invocation owns the entire budget, including nested \B.
+    if (depth == 0) {
+        executed_steps_ = 0;
+        started_at_ = std::chrono::steady_clock::now();
+    }
+
     if (depth >= maximum_depth_) {
         throw CommandExecutionError(
             "maximum procedure buffer-flow depth exceeded");
@@ -705,20 +715,33 @@ void ProcedureRunner::execute_procedure_line(
     std::size_t depth) {
     const std::string_view source = lines.at(index);
     const auto raw_value = trim(source);
-    if (raw_value.empty()) {
-        return;
-    }
-
-    const std::string named_expanded = is_comment(raw_value)
-        ? std::string(raw_value) : context_->expand_named_patterns(raw_value);
-    const ExpandedCommandInput expanded_source =
-        is_comment(raw_value)
-            ? make_command_input(raw_value)
-            : expand_command_input_with_metadata(
-                  named_expanded, *context_, maximum_depth_);
-    const auto value = trim(expanded_source.text);
-
     try {
+        // Historical backward jumps remain legal; only runaway execution is
+        // stopped. Counting occurs before expansion to cover every line.
+        if (executed_steps_ >= maximum_steps_) {
+            throw CommandExecutionError(
+                "procedure instruction limit exceeded (possible infinite loop)");
+        }
+        if (std::chrono::steady_clock::now() - started_at_ >=
+            maximum_elapsed_) {
+            throw CommandExecutionError(
+                "procedure elapsed time limit exceeded (possible infinite loop)");
+        }
+        ++executed_steps_;
+
+        if (raw_value.empty()) {
+            return;
+        }
+
+        const std::string named_expanded = is_comment(raw_value)
+            ? std::string(raw_value) : context_->expand_named_patterns(raw_value);
+        const ExpandedCommandInput expanded_source =
+            is_comment(raw_value)
+                ? make_command_input(raw_value)
+                : expand_command_input_with_metadata(
+                      named_expanded, *context_, maximum_depth_);
+        const auto value = trim(expanded_source.text);
+
         if (const auto nested = parse_buffer_directive(value)) {
             if (context_->monitor_commands()) {
                 context_->output().write_line(value);

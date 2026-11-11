@@ -32,6 +32,8 @@
 
 #include <cstdlib>
 #include <cctype>
+#include <charconv>
+#include <chrono>
 #include <ctime>
 #include <iomanip>
 #include <filesystem>
@@ -47,6 +49,25 @@
 #endif
 
 namespace {
+
+/** @brief Reads a positive procedure safety limit without silent fallback. */
+std::size_t procedure_limit_from_environment(
+    const char* name, std::size_t default_value) {
+    const char* raw = std::getenv(name);
+    if (raw == nullptr || *raw == '\0') {
+        return default_value;
+    }
+    const std::string_view value(raw);
+    std::size_t parsed = 0;
+    const auto [end, error] = std::from_chars(
+        value.data(), value.data() + value.size(), parsed);
+    if (error != std::errc{} || end != value.data() + value.size() ||
+        parsed == 0) {
+        throw std::runtime_error(
+            std::string(name) + " must be a positive integer");
+    }
+    return parsed;
+}
 
 /**
  * @brief Requests UTF-8 console input/output code pages on Windows.
@@ -541,8 +562,28 @@ int main(int argc, char** argv) {
     fred::ExecutionContext execution_context(manager, output);
     fred::CommandExecutor command_executor;
     const auto command_registry = fred::make_core_command_registry();
+    std::size_t maximum_procedure_steps = 0;
+    std::size_t maximum_procedure_seconds = 0;
+    try {
+        maximum_procedure_steps = procedure_limit_from_environment(
+            "FREDPP_PROCEDURE_MAX_STEPS",
+            fred::ProcedureRunner::default_maximum_steps);
+        maximum_procedure_seconds = procedure_limit_from_environment(
+            "FREDPP_PROCEDURE_MAX_SECONDS",
+            fred::ProcedureRunner::default_maximum_seconds);
+        if (maximum_procedure_seconds > 86'400) {
+            throw std::runtime_error(
+                "FREDPP_PROCEDURE_MAX_SECONDS must not exceed 86400");
+        }
+    } catch (const std::exception& error) {
+        std::cerr << "error: " << error.what() << '\n';
+        return 1;
+    }
     fred::ProcedureRunner procedure_runner(
-        manager, execution_context, command_registry, command_executor);
+        manager, execution_context, command_registry, command_executor,
+        256, maximum_procedure_steps,
+        std::chrono::seconds{
+            static_cast<std::chrono::seconds::rep>(maximum_procedure_seconds)});
     if (argc >= 2) {
         std::filesystem::path procedure_path;
         try {

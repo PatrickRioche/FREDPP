@@ -1268,6 +1268,25 @@ Missing label raises:
 ? label not found
 ```
 
+### Runaway-loop protection
+
+Backward `J` jumps are not rejected or detected as cycles: their termination
+may depend on changing numeric registers and conditions. Instead, a top-level
+procedure execution has a shared **1,000,000-line budget** and a **60-second
+elapsed-time budget** by default. Nested `\B` calls consume the same budgets.
+The counters and start time reset for the next top-level invocation.
+
+Limits are configurable in the CLI with the positive-integer environment
+variables `FREDPP_PROCEDURE_MAX_STEPS` and
+`FREDPP_PROCEDURE_MAX_SECONDS` (at most 86400 seconds). `ProcedureRunner` also
+accepts both limits as optional constructor arguments for embedding/tests.
+
+When either limit is exceeded, the runner raises a runtime error with the
+normal procedure source context and records the error in `ExecutionContext`.
+Elapsed time is checked between procedure lines, not during a blocking command.
+The independent, existing `U` repeat and recursion safety limits remain in
+effect.
+
 ## 47. Numeric procedure register names
 
 `N(name)` register names:
