@@ -114,6 +114,21 @@ maximale configurable est de 86 400 secondes. Ces garde-fous n'interrompent
 pas une commande bloquante *pendant* son exécution : le temps est contrôlé
 quand FREDPP passe à une nouvelle ligne de procédure.
 
+Les commandes de répétition `U` possèdent aussi une protection **partagée entre
+tous les `U` imbriqués** : 1 000 000 d'itérations cumulées ou 60 secondes, par
+défaut. Cette limite évite qu'une imbrication de répétitions pourtant bornées
+individuellement provoque une exécution démesurée. Elle s'applique également
+aux `U` lancés directement en mode interactif. Pour un traitement plus long :
+
+```powershell
+$env:FREDPP_REPEAT_MAX_STEPS = '5000000'
+$env:FREDPP_REPEAT_MAX_SECONDS = '300'
+```
+
+Ces limites sont distinctes de celles qui comptent les lignes de procédure.
+Elles se réinitialisent entre deux commandes `U` indépendantes. Les dépassements
+ne sont pas absorbés par le mode `UE` (« arrêter sur erreur »).
+
 ## SUBSTITUTION NUMÉRIQUE `\N(registre)`
 
 La directive `\N(nom)` remplace sa propre écriture par la valeur décimale

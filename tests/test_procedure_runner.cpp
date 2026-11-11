@@ -104,6 +104,50 @@ int main() {
     expect_error([&] { runner.execute_buffer("recursive"); },
                  "maximum procedure buffer-flow depth exceeded");
 
+    // The exact historical nesting boundary remains available to finite
+    // procedures; only an additional nested buffer is rejected.
+    const auto check_nested_depth = [](
+        std::size_t number_of_buffers,
+        std::size_t maximum_depth,
+        bool should_succeed) {
+        fred::BufferManager chain_buffers;
+        for (std::size_t index = 0; index < number_of_buffers; ++index) {
+            auto& entry = chain_buffers.create_or_select(
+                "level" + std::to_string(index));
+            if (index + 1 < number_of_buffers) {
+                entry.append("\\B(level" + std::to_string(index + 1) + ")");
+            } else {
+                entry.append("JM/finished/");
+            }
+        }
+        fred::StringOutput chain_output;
+        fred::ExecutionContext chain_context(chain_buffers, chain_output);
+        const auto chain_registry = fred::make_core_command_registry();
+        fred::CommandExecutor chain_executor;
+        fred::ProcedureRunner chain_runner(
+            chain_buffers, chain_context, chain_registry,
+            chain_executor, maximum_depth);
+        bool failed = false;
+        try {
+            chain_runner.execute_buffer("level0");
+        } catch (const std::runtime_error& error) {
+            failed = true;
+            assert(std::string_view(error.what()).find(
+                "maximum procedure buffer-flow depth exceeded") !=
+                std::string_view::npos);
+        }
+        assert(failed == !should_succeed);
+        if (should_succeed) {
+            assert(chain_output.content() == "finished\n");
+        }
+    };
+    check_nested_depth(15, 16, true);
+    check_nested_depth(16, 16, true);
+    check_nested_depth(17, 16, false);
+    check_nested_depth(255, 256, true);
+    check_nested_depth(256, 256, true);
+    check_nested_depth(257, 256, false);
+
 
     {
         fred::BufferManager chain_buffers;

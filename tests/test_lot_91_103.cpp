@@ -36,6 +36,17 @@ bool rejects(std::string_view command, fred::CommandExecutor& executor,
     catch (const std::exception&) { return true; }
     return false;
 }
+
+void set_repeat_budget_for_test(const char* value) {
+#ifdef _WIN32
+    const int status = _putenv_s("FREDPP_REPEAT_MAX_STEPS", value == nullptr ? "" : value);
+#else
+    const int status = value == nullptr
+        ? unsetenv("FREDPP_REPEAT_MAX_STEPS")
+        : setenv("FREDPP_REPEAT_MAX_STEPS", value, 1);
+#endif
+    expect(status == 0, "repeat test environment must be configurable");
+}
 }
 
 int main() {
@@ -65,6 +76,57 @@ int main() {
     run("U4 JO", executor, context);
     expect(output.empty(), "JB and JO control U without output");
     expect(rejects("JB", executor, context), "JB outside U rejected");
+
+    // Nested U operations keep the documented depth boundary. A finite
+    // sixteen-level chain must succeed; the seventeenth level is rejected.
+    const auto nested_u_command = [](int depth) {
+        std::string command = "JM/nested-ok/";
+        for (int level = 0; level < depth; ++level) {
+            command = "U1 " + command;
+        }
+        return command;
+    };
+    output.clear();
+    run(nested_u_command(15), executor, context);
+    run(nested_u_command(16), executor, context);
+    expect(output.content() == "nested-ok\nnested-ok\n",
+           "fifteen and sixteen nested U commands terminate");
+    output.clear();
+    expect(rejects(nested_u_command(17), executor, context),
+           "seventeen nested U commands hit the depth guard");
+
+    // Unlike independent U limits, this guard counts the product of nested
+    // loops. An exhausted budget is fatal even inside UE (until error).
+    const char* previous_raw = std::getenv("FREDPP_REPEAT_MAX_STEPS");
+    const bool had_previous_value = previous_raw != nullptr;
+    const std::string previous_value =
+        had_previous_value ? previous_raw : "";
+    set_repeat_budget_for_test("6");
+    output.clear();
+    run("U2 U2 JM/ok/", executor, context);
+    expect(output.content() == "ok\nok\nok\nok\n",
+           "nested U loop uses all six shared iterations safely");
+
+    set_repeat_budget_for_test("5");
+    bool detected = false;
+    try {
+        run("U2 U2 JM/limit/", executor, context);
+    } catch (const std::exception& error) {
+        detected = std::string_view(error.what()).find(
+            "U shared iteration limit exceeded") != std::string_view::npos;
+    }
+    expect(detected, "nested U exceeds the cumulative step budget");
+    detected = false;
+    try {
+        run("UE U2 U2 JM/limit/", executor, context);
+    } catch (const std::exception& error) {
+        detected = std::string_view(error.what()).find(
+            "U shared iteration limit exceeded") != std::string_view::npos;
+    }
+    expect(detected, "UE does not swallow runaway-loop safety errors");
+    set_repeat_budget_for_test(
+        had_previous_value ? previous_value.c_str() : nullptr);
+    output.clear();
 
     auto& buffer = context.current_buffer();
     buffer.append("Alpha");

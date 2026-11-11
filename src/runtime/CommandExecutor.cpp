@@ -13,6 +13,7 @@
 #include "fred/runtime/CommandExecutor.hpp"
 
 #include "fred/ast/AbsoluteAddressNode.hpp"
+#include "fred/core/Limits.hpp"
 
 #include "fred/runtime/AddressEvaluator.hpp"
 #include "fred/runtime/CommandExecutionError.hpp"
@@ -27,6 +28,8 @@
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <charconv>
+#include <cstdlib>
 #include <cstdio>
 #include <cstdint>
 #include <chrono>
@@ -39,6 +42,7 @@
 #include <optional>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <thread>
 #include <utility>
 #include <vector>
@@ -1801,22 +1805,77 @@ void execute_buffer(const BufferCommandNode& command, ExecutionContext& context)
 struct RepeatBreak final {};
 struct RepeatContinue final {};
 
+/** Safety failures must not be swallowed by the historical UE error handler. */
+class RepeatSafetyError final : public CommandExecutionError {
+public:
+    using CommandExecutionError::CommandExecutionError;
+};
+
+std::size_t repeat_limit_from_environment(
+    const char* name, std::size_t default_value) {
+    const char* raw = std::getenv(name);
+    if (raw == nullptr || *raw == '\0') return default_value;
+    const std::string_view value(raw);
+    std::size_t parsed = 0;
+    const auto [end, error] = std::from_chars(
+        value.data(), value.data() + value.size(), parsed);
+    if (error != std::errc{} || end != value.data() + value.size() ||
+        parsed == 0) {
+        throw CommandExecutionError(
+            std::string(name) + " must be a positive integer");
+    }
+    return parsed;
+}
+
+struct RepeatExecutionBudget {
+    std::size_t active_depth = 0;
+    std::size_t iterations = 0;
+    std::size_t maximum_iterations = limits::default_repeat_max_steps;
+    std::chrono::seconds maximum_elapsed{
+        limits::default_repeat_max_seconds};
+    std::chrono::steady_clock::time_point started_at{};
+};
+
 /** Executes a bounded U command body through the normal AST parser. */
 void execute_repeat(const RepeatCommandNode& command, ExecutionContext& context) {
     // An accidental recursive U definition must not exhaust the native stack.
-    static thread_local std::size_t active_depth = 0;
-    if (active_depth >= 16) {
+    static thread_local RepeatExecutionBudget budget;
+    if (budget.active_depth >= 16) {
         throw CommandExecutionError("U nesting exceeds 16 levels");
+    }
+    if (budget.active_depth == 0) {
+        budget.maximum_iterations = repeat_limit_from_environment(
+            "FREDPP_REPEAT_MAX_STEPS", limits::default_repeat_max_steps);
+        const auto seconds = repeat_limit_from_environment(
+            "FREDPP_REPEAT_MAX_SECONDS", limits::default_repeat_max_seconds);
+        if (seconds > 86'400) {
+            throw CommandExecutionError(
+                "FREDPP_REPEAT_MAX_SECONDS must not exceed 86400");
+        }
+        budget.maximum_elapsed = std::chrono::seconds{
+            static_cast<std::chrono::seconds::rep>(seconds)};
+        budget.iterations = 0;
+        budget.started_at = std::chrono::steady_clock::now();
     }
     struct DepthGuard {
         std::size_t& depth;
         explicit DepthGuard(std::size_t& value) : depth(value) { ++depth; }
         ~DepthGuard() { --depth; }
-    } guard(active_depth);
+    } guard(budget.active_depth);
     const auto limit = command.limit() == 0 ? std::size_t{10000} : command.limit();
     const auto registry = make_core_command_registry();
     const CommandExecutor executor;
     for (std::size_t iteration = 0; iteration < limit; ++iteration) {
+        if (budget.iterations >= budget.maximum_iterations) {
+            throw RepeatSafetyError(
+                "U shared iteration limit exceeded (possible runaway loop)");
+        }
+        if (std::chrono::steady_clock::now() - budget.started_at >=
+            budget.maximum_elapsed) {
+            throw RepeatSafetyError(
+                "U elapsed time limit exceeded (possible runaway loop)");
+        }
+        ++budget.iterations;
         bool failed = false;
         try {
             const auto expanded = context.expand_named_patterns(command.body());
@@ -1840,6 +1899,8 @@ void execute_repeat(const RepeatCommandNode& command, ExecutionContext& context)
             return;
         } catch (const RepeatContinue&) {
             // Continue is evaluated before the loop's stop condition below.
+        } catch (const RepeatSafetyError&) {
+            throw;
         } catch (const std::exception& error) {
             if (command.until() != 'E') throw;
             context.set_last_error(error.what());

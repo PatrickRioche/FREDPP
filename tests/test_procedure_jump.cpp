@@ -67,6 +67,38 @@ void expect_safety_error(std::vector<std::string> lines,
     assert(caught && "expected safety limit to stop procedure");
 }
 
+std::string run_nested_countdowns(std::size_t maximum_steps) {
+    fred::BufferManager buffers;
+    auto& child = buffers.create_or_select("child");
+    child.append("N(inner):2");
+    child.append("@(inner_loop)");
+    child.append("N(inner)-1");
+    child.append("N(inner)=0J(child_done)T");
+    child.append("J(inner_loop)");
+    child.append("@(child_done)");
+    child.append("JM/child-done/");
+
+    auto& parent = buffers.create_or_select("parent");
+    parent.append("N(outer):2");
+    parent.append("@(outer_loop)");
+    parent.append("\\B(child)");
+    parent.append("N(outer)-1");
+    parent.append("N(outer)=0J(done)T");
+    parent.append("J(outer_loop)");
+    parent.append("@(done)");
+    parent.append("JM/parent-done/");
+
+    fred::StringOutput output;
+    fred::ExecutionContext context(buffers, output);
+    const auto registry = fred::make_core_command_registry();
+    fred::CommandExecutor executor;
+    fred::ProcedureRunner runner(
+        buffers, context, registry, executor,
+        256, maximum_steps, std::chrono::seconds{60});
+    runner.execute_buffer("parent");
+    return output.content();
+}
+
 } // namespace
 
 int main() {
@@ -159,9 +191,55 @@ int main() {
             "J(again)",
             "@(done)",
             "JM/loop-complete/",
-        }, false, 25);
+        }, false, 14);
         assert(output == "loop-complete\n");
     }
+
+    // The line budget is inclusive: a valid loop may use its final step.
+    expect_safety_error({
+        "N(count):4",
+        "@(again)",
+        "N(count)-1",
+        "N(count)=0J(done)T",
+        "J(again)",
+        "@(done)",
+        "JM/loop-complete/",
+    }, 13, std::chrono::seconds{60},
+       "procedure instruction limit exceeded");
+
+    // Nested countdowns terminate normally; their child lines count against
+    // the parent's shared budget without false cycle detection.
+    assert(run_nested_countdowns(26) ==
+           "child-done\nchild-done\nparent-done\n");
+    {
+        bool stopped = false;
+        try {
+            (void)run_nested_countdowns(25);
+        } catch (const std::runtime_error& error) {
+            stopped = true;
+            assert(std::string_view(error.what()).find(
+                "procedure instruction limit exceeded") !=
+                std::string_view::npos);
+        }
+        assert(stopped);
+    }
+
+    // JO/JOT/JOF are normal exits and must not be mistaken for infinite loops.
+    assert(run_lines({
+        "JM/start/", "JO", "JM/unreachable/",
+    }, false, 2) == "start\n");
+    assert(run_lines({
+        "JM/start/", "JOT", "JM/unreachable/",
+    }, true, 2) == "start\n");
+    assert(run_lines({
+        "JM/start/", "JOF", "JM/unreachable/",
+    }, false, 2) == "start\n");
+    assert(run_lines({
+        "JM/start/", "JOT", "JM/false-path/",
+    }, false, 3) == "start\nfalse-path\n");
+    assert(run_lines({
+        "JM/start/", "JOF", "JM/true-path/",
+    }, true, 3) == "start\ntrue-path\n");
 
     // A permanent J loop must fail rather than monopolize the process.
     expect_safety_error({
