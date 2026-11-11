@@ -758,13 +758,13 @@ void ProcedureRunner::execute_procedure_line(
             return;
         }
 
-        const std::string named_expanded = is_comment(raw_value)
-            ? std::string(raw_value) : context_->expand_named_patterns(raw_value);
+        // Named pattern references are parsed by CommandParser exclusively
+        // within pattern operands; they must not alter messages or filenames.
         const ExpandedCommandInput expanded_source =
             is_comment(raw_value)
                 ? make_command_input(raw_value)
                 : expand_command_input_with_metadata(
-                      named_expanded, *context_, maximum_depth_);
+                      raw_value, *context_, maximum_depth_);
         const auto value = trim(expanded_source.text);
 
         if (const auto nested = parse_buffer_directive(value)) {
