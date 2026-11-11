@@ -77,7 +77,7 @@ std::string numeric_register_text(
         name.find('(') != std::string_view::npos) {
         throw std::runtime_error("invalid numeric operand register name");
     }
-    return std::to_string(context.numeric_register(name));
+    return context.format_numeric_register(name);
 }
 
 
