@@ -102,6 +102,7 @@ add_test(NAME cli_flow_w
 )
 set_tests_properties(cli_flow_w PROPERTIES
     PASS_REGULAR_EXPRESSION "FILE=/data/source.txt"
+    TIMEOUT 15
 )
 
 add_test(NAME cli_smoke COMMAND fredpp --version)
