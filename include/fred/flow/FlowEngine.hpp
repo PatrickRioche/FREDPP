@@ -76,8 +76,8 @@ public:
      *
      * The context is borrowed and must outlive this FlowEngine. It supplies
      * numeric registers and the optional terminal source for \\R. Numeric
-     * values are currently substituted as decimal integers, independently of
-     * register presentation options (NB/ND/NF).
+     * values are substituted using the register's NB/ND/NF display options,
+     * as required by historical FRED.
      */
     explicit FlowEngine(const ExecutionContext& context,
                         std::size_t maximum_depth = 256);
@@ -138,7 +138,7 @@ public:
      * - `\C x` (without the space in source syntax) removes the directive and
      *   marks the following byte Literal;
      * - `\O x` removes the directive and marks the following byte ForcedSpecial;
-     * - `\N(name)` injects a numeric register's decimal value when the engine
+     * - `\N(name)` injects the register's formatted digits when the engine
      *   was constructed with an ExecutionContext;
      * - `\R` injects one line from the terminal without its newline. The
      *   injected bytes are Literal and are not expanded a second time;
