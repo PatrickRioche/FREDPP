@@ -836,8 +836,21 @@ int main(int argc, char** argv) {
                                 terminated = true;
                                 break;
                             }
-                            // \R inside interactive A/I/C text input reads
-                            // the next terminal line without interpreting it.
+                            if (text_line.find("\\B(") != std::string::npos ||
+                                text_line.find("\\b(") != std::string::npos) {
+                                // Active buffer flow may contribute multiple
+                                // text lines; expand before storing them.
+                                fred::FlowEngine flow(execution_context);
+                                const auto expanded = flow.expand_input(text_line);
+                                std::istringstream parts(expanded);
+                                std::string part;
+                                while (std::getline(parts, part)) {
+                                    lines.push_back(
+                                        execution_context.transform_input_line(part));
+                                }
+                                continue;
+                            }
+                            // \R reads one literal line from the terminal.
                             std::string expanded_text = text_line;
                             if (text_line.find("\\R") != std::string::npos ||
                                 text_line.find("\\r") != std::string::npos) {
