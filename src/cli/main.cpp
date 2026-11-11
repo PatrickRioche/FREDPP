@@ -749,18 +749,15 @@ int main(int argc, char** argv) {
                 continue;
             }
 
-            const std::string named_expanded =
-                first_non_space != std::string::npos &&
-                input[first_non_space] == '"' ? input :
-                execution_context.expand_named_patterns(input);
+            // Only the pattern parser may expand named \E references.
             fred::ExpandedCommandInput expanded_command =
-                fred::make_command_input(named_expanded);
+                fred::make_command_input(input);
             if (first_non_space != std::string::npos &&
                 input[first_non_space] != ':' &&
                 input[first_non_space] != '"') {
                 expanded_command =
                     fred::expand_command_input_with_metadata(
-                        named_expanded, execution_context);
+                        input, execution_context);
             }
             const std::string& command_input =
                 expanded_command.text;
