@@ -105,12 +105,13 @@ int main() {
     text_flow.append("\\F");
     text_flow.append("1,$P");
     runner.execute_buffer("text-flow");
-    assert(buffers.current().line_count() == 4);
+    assert(buffers.current().line_count() == 5);
     assert(buffers.current().line(1) == "prestart");
     assert(buffers.current().line(2) == "one");
     assert(buffers.current().line(3) == "two");
-    assert(buffers.current().line(4) == "post");
-    assert(output.content() == "prestart\none\ntwo\npost\n");
+    assert(buffers.current().line(4).empty());
+    assert(buffers.current().line(5) == "post");
+    assert(output.content() == "prestart\none\ntwo\n\npost\n");
     output.clear();
 
     // Directive-like text within a delimited message remains message text.
