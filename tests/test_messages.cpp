@@ -2,6 +2,7 @@
 #include "fred/command/CommandRegistry.hpp"
 #include "fred/core/BufferManager.hpp"
 #include "fred/flow/CommandInputExpansion.hpp"
+#include "fred/flow/FlowCharacterStream.hpp"
 #include "fred/lexer/Lexer.hpp"
 #include "fred/lexer/TokenStream.hpp"
 #include "fred/parser/CommandParser.hpp"
@@ -11,6 +12,7 @@
 
 #include <cassert>
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -152,6 +154,27 @@ int main() {
         fred::expand_command_input("JM!\\S(msg)!", buffers);
     execute(expanded_message, executor, context);
     assert(output.content() == "FLOW\n");
+
+    // \R supplies literal input: a matching delimiter inside that input
+    // must be text, not the end of the enclosing JM message.
+    {
+        std::istringstream terminal("alpha!beta\\N(no)\n");
+        context.set_terminal_input(terminal);
+        const auto expanded = fred::expand_command_input_with_metadata(
+            "JM!RESULT=\\R!", context);
+        fred::FlowCharacterStream characters(expanded.characters);
+        fred::Lexer lexer(characters);
+        fred::TokenStream tokens(lexer);
+        const auto registry = fred::make_core_command_registry();
+        fred::CommandParser parser(tokens, registry, &context);
+        const auto message = parser.parse();
+        assert(message->kind() == fred::AstNodeKind::MessageCommand);
+        assert(static_cast<const fred::MessageCommandNode&>(*message)
+                   .message() == "RESULT=alpha!beta\\N(no)");
+        output.clear();
+        executor.execute(*message, context);
+        assert(output.content() == "RESULT=alpha!beta\\N(no)\n");
+    }
 
     expect_error("JM!unterminated", "unterminated J message");
 
