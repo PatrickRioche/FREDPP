@@ -839,7 +839,16 @@ int main(int argc, char** argv) {
                                 terminated = true;
                                 break;
                             }
-                            lines.push_back(execution_context.transform_input_line(text_line));
+                            // \R inside interactive A/I/C text input reads
+                            // the next terminal line without interpreting it.
+                            std::string expanded_text = text_line;
+                            if (text_line.find("\\R") != std::string::npos ||
+                                text_line.find("\\r") != std::string::npos) {
+                                fred::FlowEngine flow(execution_context);
+                                expanded_text = flow.expand_command_input(text_line);
+                            }
+                            lines.push_back(
+                                execution_context.transform_input_line(expanded_text));
                         }
 
                         if (!terminated) {
