@@ -397,7 +397,7 @@ preserving separators such as `\` in Windows paths.
 If the selected Buffer has no non-empty associated filename, expansion raises
 a controlled `runtime_error`. Both `\W` and `\w` are recognized.
 
-### \`\\C<char>\` — force following character literal
+### `\C<char>` — force following character literal
 
 The directive marker disappears.
 
