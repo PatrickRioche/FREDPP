@@ -401,6 +401,74 @@ int main() {
         (void)flow.expand_input("A\\O");
     }, "full flow O requires a following character");
 
+    // \W always uses the file associated with the CURRENT Buffer.
+    // Its substituted bytes must stay literal, including Windows slashes.
+    const std::string filename = "C:\\work\\samples\\demo.fredpp";
+    auto& with_file = buffers.create_or_select("w-with-file");
+    with_file.associate_file(filename,
+                             fred::TextEncoding::Utf8,
+                             fred::LineEnding::CrLf, true);
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(flow.expand_input("JP!file=\\W!"),
+                     "JP!file=" + filename + "!",
+                     "full flow W returns current associated filename");
+    }
+    {
+        fred::FlowEngine flow(buffers);
+        const auto characters =
+            flow.expand_command_input_characters("A\\WB");
+        std::string actual;
+        for (const auto& character : characters) {
+            actual.push_back(character.value);
+        }
+        expect_equal(actual, "A" + filename + "B",
+                     "command input W expands inside arbitrary arguments");
+        for (std::size_t i = 0; i < filename.size(); ++i) {
+            if (characters[i + 1].interpretation !=
+                fred::CharacterInterpretation::Literal) {
+                std::cerr << "FAILED: W filename bytes must remain literal\n";
+                return EXIT_FAILURE;
+            }
+        }
+    }
+
+    // Switching the selected Buffer must immediately change \W's value.
+    auto& second_file = buffers.create_or_select("w-second-file");
+    second_file.associate_file("second.txt",
+                               fred::TextEncoding::Utf8,
+                               fred::LineEnding::Lf, true);
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(flow.expand_input("\\W"),
+                     "second.txt",
+                     "W reflects newly selected Buffer");
+    }
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(flow.expand_command_input("\\w"),
+                     "second.txt",
+                     "lowercase w alias expands file association");
+    }
+
+    buffers.create_or_select("w-without-file");
+    expect_throws([&] {
+        fred::FlowEngine flow(buffers);
+        (void)flow.expand_input("\\W");
+    }, "full flow W rejects missing file association");
+    expect_throws([&] {
+        fred::FlowEngine flow(buffers);
+        (void)flow.expand_command_input("\\W");
+    }, "command input W rejects missing file association");
+
+    buffers.select("w-with-file");
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(flow.expand_command_input("\\W"),
+                     filename,
+                     "W recovers original file on buffer reselection");
+    }
+
     {
         const std::string max_name(64, 'n');
         buffers.create_or_select(max_name);
