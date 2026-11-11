@@ -945,9 +945,21 @@ void ProcedureRunner::execute_single_command(
                 terminated = true;
                 break;
             }
-            // \R inside an A/I/C text block diverts to the terminal for
-            // exactly one literal line; keep other existing text unchanged.
             const auto& raw_text = lines->at(cursor);
+            if (raw_text.find("\\B(") != std::string::npos ||
+                raw_text.find("\\b(") != std::string::npos) {
+                // In text-input mode, active \B may inject multiple logical
+                // lines. Its nested directives are interpreted by FlowEngine.
+                FlowEngine flow(*context_, maximum_depth_);
+                const auto expanded = flow.expand_input(raw_text);
+                std::istringstream parts(expanded);
+                std::string part;
+                while (std::getline(parts, part)) {
+                    text_lines.push_back(context_->transform_input_line(part));
+                }
+                continue;
+            }
+            // \R diverts the next literal line from the terminal.
             std::string expanded_text = raw_text;
             if (raw_text.find("\\R") != std::string::npos ||
                 raw_text.find("\\r") != std::string::npos) {
