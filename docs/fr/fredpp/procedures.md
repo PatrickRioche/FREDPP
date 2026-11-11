@@ -135,6 +135,13 @@ Ces limites sont distinctes de celles qui comptent les lignes de procédure.
 Elles se réinitialisent entre deux commandes `U` indépendantes. Les dépassements
 ne sont pas absorbés par le mode `UE` (« arrêter sur erreur »).
 
+## DIRECTIVES DU FLOT
+
+Les neuf directives historiques `\B`, `\C`, `\E`, `\L`, `\N`,
+`\O`, `\R`, `\S` et `\W` sont présentées avec leur état de conformité
+dans [directives-flot.md](directives-flot.md), également accessible par
+`?directives`.
+
 ## SUBSTITUTION NUMÉRIQUE `\N(registre)`
 
 La directive `\N(nom)` remplace sa propre écriture par la valeur décimale

@@ -209,7 +209,7 @@ foreach(help_topic IN LISTS FREDPP_IMPLEMENTED_HELP_TOPICS)
 endforeach()
 
 list(LENGTH FREDPP_HELP_FILES FREDPP_HELP_FILES_LENGTH)
-math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 19")
+math(EXPR FREDPP_EMBEDDED_HELP_COUNT "${FREDPP_HELP_FILES_LENGTH} + 20")
 
 string(CONCAT FREDPP_HELP_INDEX
 "============================================================\n"
@@ -289,6 +289,7 @@ string(APPEND FREDPP_HELP_INDEX
 "\nAUTRES AIDES\n\n"
 "    ?           Afficher cette liste\n"
 "    ?limites    Limites de securite et variables d'environnement\n"
+"    ?directives Directives du flot et compatibilite\n"
 "    ?!          Afficher l'aide historique de la commande !\n"
 "\nOPTION HISTORIQUE IMPLÉMENTÉE\n\n"
 "    ?oi(        Afficher l'aide de l'option OI(\n"
@@ -410,6 +411,18 @@ if(NOT FREDPP_OM_HELP_COLLISION EQUAL -1)
 endif()
 
 # The limits page is FREDPP-specific help, not a historical command.
+set(FREDPP_DIRECTIVES_HELP_FILE
+    "${CMAKE_CURRENT_SOURCE_DIR}/docs/fr/fredpp/directives-flot.md"
+)
+if(NOT EXISTS "${FREDPP_DIRECTIVES_HELP_FILE}")
+    message(FATAL_ERROR "Missing flow directives help")
+endif()
+file(READ "${FREDPP_DIRECTIVES_HELP_FILE}" FREDPP_DIRECTIVES_HELP_CONTENT)
+string(FIND "${FREDPP_DIRECTIVES_HELP_CONTENT}" ")FREDPP_HELP\"" FREDPP_DIRECTIVES_HELP_COLLISION)
+if(NOT FREDPP_DIRECTIVES_HELP_COLLISION EQUAL -1)
+    message(FATAL_ERROR "Flow directives help contains reserved delimiter")
+endif()
+
 set(FREDPP_LIMITES_HELP_FILE
     "${CMAKE_CURRENT_SOURCE_DIR}/docs/fr/fredpp/limites.md"
 )
@@ -482,6 +495,7 @@ file(WRITE "${FREDPP_EMBEDDED_HELP_CPP}"
 "    Entry{\"os&\", R\"FREDPP_HELP(${FREDPP_OS_AMPERSAND_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"osd\", R\"FREDPP_HELP(${FREDPP_OSD_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"ot\", R\"FREDPP_HELP(${FREDPP_OT_HELP_CONTENT})FREDPP_HELP\"},\n"
+"    Entry{\"directives\", R\"FREDPP_HELP(${FREDPP_DIRECTIVES_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"limites\", R\"FREDPP_HELP(${FREDPP_LIMITES_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"procedure\", R\"FREDPP_HELP(${FREDPP_PROCEDURE_HELP_CONTENT})FREDPP_HELP\"},\n"
 "    Entry{\"wu\", R\"FREDPP_HELP(${FREDPP_WU_HELP_CONTENT})FREDPP_HELP\"},\n"

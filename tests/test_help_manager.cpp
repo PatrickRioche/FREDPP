@@ -64,6 +64,8 @@ int main() {
     assert(help.exists("om"));
     assert(help.exists("procedure"));
     assert(help.exists("limites"));
+    assert(help.exists("directives"));
+    assert(help.load("directives").find("W") != std::string::npos);
     const auto limits_page = help.load("limites");
     assert(limits_page.find("FREDPP_PROCEDURE_MAX_STEPS") != std::string::npos);
     assert(limits_page.find("FREDPP_REPEAT_MAX_SECONDS") != std::string::npos);
@@ -82,6 +84,7 @@ int main() {
     const auto index = help.load_for_terminal("");
     assert(index.find("AIDE FRED — COMMANDES DISPONIBLES") != std::string::npos);
     assert(index.find("    ?limites") != std::string::npos);
+    assert(index.find("    ?directives") != std::string::npos);
     assert(index.find("    ?fb") != std::string::npos);
     assert(index.find("    ?f ") != std::string::npos);
     assert(index.find("    ?ff") != std::string::npos);

@@ -33,6 +33,7 @@ Inside FREDPP:
 ```text
 ?       FRED command documentation currently embedded
 ?limites  Limites de securite FREDPP (documentation francaise)
+?directives  Compatibilite des neuf directives de flot
 ?:      FREDPP-specific development and diagnostic commands
 ?*      historical whole-buffer alias documentation
 ?q      historical Q command documentation
@@ -72,6 +73,10 @@ Remove-Item Env:FREDPP_REPEAT_MAX_STEPS
 Les variables configurables sont `FREDPP_PROCEDURE_MAX_STEPS`, `FREDPP_PROCEDURE_MAX_SECONDS`, `FREDPP_REPEAT_MAX_STEPS` et `FREDPP_REPEAT_MAX_SECONDS`. Les valeurs doivent être des entiers strictement positifs ; les durées sont plafonnées à 86 400 secondes. Les commandes internes bloquantes ne sont pas interrompues pendant leur exécution.
 
 Voir [la documentation française des limites](docs/fr/fredpp/limites.md), également disponible par `?limites` dans FREDPP. Ces protections ne limitent pas encore la taille mémoire totale des buffers.
+
+## Historical stream directives
+
+The nine expected directives are `\B`, `\C`, `\E`, `\L`, `\N`, `\O`, `\R`, `\S`, and `\W`. Their current coverage and limitations are documented in the [French flow reference](docs/fr/fredpp/directives-flot.md), also available in the CLI with `?directives`. The `\W` directive injects the filename associated with the selected buffer; the `W` command writes a file.
 
 ## Historical lineage
 
