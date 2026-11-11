@@ -1275,6 +1275,9 @@ may depend on changing numeric registers and conditions. Instead, a top-level
 procedure execution has a shared **1,000,000-line budget** and a **60-second
 elapsed-time budget** by default. Nested `\B` calls consume the same budgets.
 The counters and start time reset for the next top-level invocation.
+Nested procedure frames and their source snapshots are stored on the heap,
+not through recursive native calls, so the supported depth of 256 does not
+exhaust the default Windows thread stack.
 
 Limits are configurable in the CLI with the positive-integer environment
 variables `FREDPP_PROCEDURE_MAX_STEPS` and

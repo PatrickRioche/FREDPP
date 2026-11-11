@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <cstddef>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -100,7 +101,8 @@ private:
 
     void execute_procedure_line(const std::vector<std::string>& lines,
                                 std::size_t& index,
-                                std::size_t depth);
+                                std::size_t depth,
+                                std::optional<std::string>& nested_buffer);
 
     void execute_single_command(
         const ExpandedCommandInput& source,

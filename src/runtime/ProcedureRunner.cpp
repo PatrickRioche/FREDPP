@@ -665,10 +665,11 @@ bool ProcedureRunner::execute_buffer_directive(std::string_view source) {
 }
 
 /**
- * @brief Executes a snapshot of a procedure Buffer with depth protection.
+ * @brief Executes procedure-buffer snapshots with an explicit stack.
  *
- * The line vector is copied before execution so edits to Buffer state do not
- * mutate the physical procedure source currently being iterated.
+ * A native recursive call for each nested \B exhausted the default Windows
+ * thread stack near the documented 256-level limit. Frames now live on the
+ * heap while preserving one source snapshot and label scope per Buffer.
  */
 void ProcedureRunner::execute_buffer_impl(std::string_view buffer_name,
                                           std::size_t depth) {
@@ -688,16 +689,39 @@ void ProcedureRunner::execute_buffer_impl(std::string_view buffer_name,
             "unknown procedure buffer: " + std::string(buffer_name));
     }
 
-    const std::vector<std::string> lines =
-        buffers_->get(buffer_name).lines();
+    struct Frame {
+        std::vector<std::string> lines;
+        std::size_t index;
+        std::size_t depth;
+    };
 
-    for (std::size_t index = 0;
-         index < lines.size() && !context_->exit_requested();
-         ++index) {
+    std::vector<Frame> frames;
+    frames.push_back(Frame{buffers_->get(buffer_name).lines(), 0, depth});
+
+    while (!frames.empty() && !context_->exit_requested()) {
+        auto& frame = frames.back();
+        if (frame.index >= frame.lines.size()) {
+            frames.pop_back();
+            continue;
+        }
+
+        std::optional<std::string> nested_buffer;
         try {
-            execute_procedure_line(lines, index, depth);
+            execute_procedure_line(
+                frame.lines, frame.index, frame.depth, nested_buffer);
         } catch (const JumpOutOfProcedure&) {
-            return;
+            // JO/JOT/JOF leave only the currently active Buffer frame.
+            frames.pop_back();
+            continue;
+        }
+
+        // In a parent frame, continue after the \B directive once the child
+        // returns. A jump or A/I/C block may already have changed the index.
+        const std::size_t child_depth = frame.depth + 1;
+        ++frame.index;
+        if (nested_buffer) {
+            frames.push_back(Frame{
+                buffers_->get(*nested_buffer).lines(), 0, child_depth});
         }
     }
 }
@@ -712,7 +736,8 @@ void ProcedureRunner::execute_buffer_impl(std::string_view buffer_name,
 void ProcedureRunner::execute_procedure_line(
     const std::vector<std::string>& lines,
     std::size_t& index,
-    std::size_t depth) {
+    std::size_t depth,
+    std::optional<std::string>& nested_buffer) {
     const std::string_view source = lines.at(index);
     const auto raw_value = trim(source);
     try {
@@ -746,7 +771,17 @@ void ProcedureRunner::execute_procedure_line(
             if (context_->monitor_commands()) {
                 context_->output().write_line(value);
             }
-            execute_buffer_impl(*nested, depth + 1);
+            // Validate while still in this line's exception context; the
+            // executor then pushes a heap-backed child frame.
+            if (depth + 1 >= maximum_depth_) {
+                throw CommandExecutionError(
+                    "maximum procedure buffer-flow depth exceeded");
+            }
+            if (!buffers_->contains(*nested)) {
+                throw CommandExecutionError(
+                    "unknown procedure buffer: " + *nested);
+            }
+            nested_buffer = *nested;
             return;
         }
 
