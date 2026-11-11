@@ -742,6 +742,40 @@ void ProcedureRunner::load_and_execute_file(
 }
 
 bool ProcedureRunner::execute_buffer_directive(std::string_view source) {
+    // Interactive input also supports a \B invocation between complete
+    // whitespace-separated commands. Each child uses the same buffered
+    // procedure stack as a standalone \B call.
+    if (split_inline_buffer_flow(source)) {
+        std::string remaining(trim(source));
+        for (std::size_t step = 0; step < maximum_steps_; ++step) {
+            const auto inline_flow = split_inline_buffer_flow(remaining);
+            if (!inline_flow) {
+                if (!remaining.empty()) {
+                    if (!execute_buffer_directive(remaining)) {
+                        execute_single_command(
+                            make_command_input(remaining), nullptr, nullptr);
+                    }
+                }
+                return true;
+            }
+            if (!inline_flow->before.empty()) {
+                execute_single_command(
+                    make_command_input(inline_flow->before), nullptr, nullptr);
+            }
+            const auto child = parse_buffer_directive(inline_flow->directive);
+            if (!child) {
+                throw CommandExecutionError("invalid inline \\B directive");
+            }
+            execute_buffer_impl(*child, 0);
+            remaining = inline_flow->after;
+            if (remaining.empty() || context_->exit_requested()) {
+                return true;
+            }
+        }
+        throw CommandExecutionError(
+            "inline buffer-flow instruction limit exceeded");
+    }
+
     const auto buffer_name = parse_buffer_directive(source);
     if (!buffer_name) {
         return false;
