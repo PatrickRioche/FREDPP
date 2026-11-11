@@ -112,6 +112,95 @@ bool is_text_terminator(std::string_view source, char escape = '\\') noexcept {
            (value[1] == 'F' || value[1] == 'f');
 }
 
+struct InlineBufferFlow {
+    std::string before;
+    std::string directive;
+    std::string after;
+};
+
+/**
+ * Extract one top-level, whitespace-separated \B(name) from a procedure
+ * command chain. This reuses the existing heap-backed frame stack, so child
+ * execution, step limits and parent continuation retain their guarantees.
+ *
+ * A directive inside a JM/JP/JE delimited body or a pattern operand must not
+ * be mistaken for a command-stream insertion.
+ */
+std::optional<InlineBufferFlow> split_inline_buffer_flow(
+    std::string_view source) {
+    const auto line = trim(source);
+    if (line.empty() || line.front() == '"') {
+        return std::nullopt;
+    }
+
+    // Do not reinterpret possible pattern-body content.
+    const char first = static_cast<char>(
+        std::toupper(static_cast<unsigned char>(line.front())));
+    if (first == 'S' || first == 'G' || first == 'T' || first == 'E') {
+        return std::nullopt;
+    }
+
+    bool in_message = false;
+    char message_delimiter = '\0';
+    for (std::size_t index = 0; index < line.size(); ++index) {
+        if (in_message) {
+            if (line[index] == message_delimiter) {
+                in_message = false;
+            }
+            continue;
+        }
+        if (index + 2 < line.size() &&
+            (index == 0 ||
+             std::isspace(static_cast<unsigned char>(line[index - 1]))) &&
+            (line[index] == 'J' || line[index] == 'j') &&
+            (line[index + 1] == 'M' || line[index + 1] == 'm' ||
+             line[index + 1] == 'P' || line[index + 1] == 'p' ||
+             line[index + 1] == 'E' || line[index + 1] == 'e') &&
+            !std::isalnum(static_cast<unsigned char>(line[index + 2])) &&
+            !std::isspace(static_cast<unsigned char>(line[index + 2])) &&
+            line[index + 2] != '\\') {
+            in_message = true;
+            message_delimiter = line[index + 2];
+            index += 2;
+            continue;
+        }
+
+        if (index > 0 &&
+            !std::isspace(static_cast<unsigned char>(line[index - 1]))) {
+            continue;
+        }
+        if (index + 3 >= line.size() ||
+            line[index] != '\\' ||
+            (line[index + 1] != 'B' && line[index + 1] != 'b') ||
+            line[index + 2] != '(') {
+            continue;
+        }
+        const auto closing = line.find(')', index + 3);
+        if (closing == std::string_view::npos ||
+            closing == index + 3 ||
+            line.substr(index + 3, closing - index - 3).find('(') !=
+                std::string_view::npos) {
+            continue;
+        }
+        if (closing + 1 < line.size() &&
+            !std::isspace(static_cast<unsigned char>(line[closing + 1]))) {
+            continue;
+        }
+        auto before = std::string(trim(line.substr(0, index)));
+        auto after = std::string(trim(line.substr(closing + 1)));
+        if (before.empty() && after.empty()) {
+            return std::nullopt; // Existing standalone \B handling.
+        }
+        return InlineBufferFlow{
+            std::move(before),
+            std::string(line.substr(index, closing + 1 - index)),
+            std::move(after)
+        };
+    }
+    return std::nullopt;
+}
+
+
 } // namespace
 
 namespace {
@@ -703,6 +792,26 @@ void ProcedureRunner::execute_buffer_impl(std::string_view buffer_name,
         auto& frame = frames.back();
         if (frame.index >= frame.lines.size()) {
             frames.pop_back();
+            continue;
+        }
+
+        if (const auto inline_flow =
+                split_inline_buffer_flow(frame.lines[frame.index])) {
+            std::vector<std::string> expanded_lines;
+            if (!inline_flow->before.empty()) {
+                expanded_lines.push_back(inline_flow->before);
+            }
+            expanded_lines.push_back(inline_flow->directive);
+            if (!inline_flow->after.empty()) {
+                expanded_lines.push_back(inline_flow->after);
+            }
+            const auto position = frame.lines.begin() +
+                static_cast<std::ptrdiff_t>(frame.index);
+            frame.lines.erase(position);
+            frame.lines.insert(
+                frame.lines.begin() +
+                    static_cast<std::ptrdiff_t>(frame.index),
+                expanded_lines.begin(), expanded_lines.end());
             continue;
         }
 
