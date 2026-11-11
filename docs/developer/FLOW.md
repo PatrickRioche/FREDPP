@@ -384,7 +384,20 @@ A\S(other)\nB(weird),$\n
 
 with the backslash content and generated newlines all marked Literal.
 
-### `\C<char>` — force following character literal
+### \`\\W\` — filename of the selected Buffer
+
+The associated file path is read from \`BufferManager::current()\`.
+This is not the name of the Buffer being expanded: it is the file currently
+associated with the **selected** Buffer.
+
+The path is inserted without reinterpretation by the flow engine.
+The command-input stage marks every inserted filename character \`Literal\`,
+preserving separators such as \`\\\` in Windows paths.
+
+If the selected Buffer has no non-empty associated filename, expansion raises
+a controlled \`runtime_error\`. Both \`\\W\` and \`\\w\` are recognized.
+
+### \`\\C<char>\` — force following character literal
 
 The directive marker disappears.
 
@@ -532,7 +545,12 @@ emit newlines = true
 interpretation = Literal
 ```
 
-### `\C`
+### \`\\W\`
+
+Inserts the associated filename of the currently selected Buffer directly in
+the expanded output. The inserted text is not recursively expanded.
+
+### \`\\C\`
 
 Consumes the marker and immediately outputs the next byte without allowing that
 byte to begin another directive in the current expansion.
@@ -710,6 +728,8 @@ semantics across front ends.
 - no double expansion of Literal results;
 - preservation of CharacterInterpretation metadata;
 - `\C` and `\O`;
+- `\W` (associated filename, selection changes, absent association,
+  literal Windows filename metadata);
 - protected `)` in computed names;
 - 64-character accepted name;
 - 65-character rejected name.
