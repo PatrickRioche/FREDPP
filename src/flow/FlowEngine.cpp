@@ -80,6 +80,28 @@ std::string numeric_register_text(
     return std::to_string(context.numeric_register(name));
 }
 
+
+/** Return the current buffer's associated filename for \W substitution. */
+std::string filename_for_flow(const BufferManager& buffers) {
+    const auto& filename = buffers.current().associated_file();
+    if (!filename) {
+        throw std::runtime_error(
+            "\\W requires an associated filename for the current buffer");
+    }
+    return *filename;
+}
+
+/** Preserve filename bytes as literal when expanding command input. */
+void append_literal_filename(
+    std::vector<InputCharacter>& output,
+    std::string_view filename,
+    std::size_t level) {
+    for (const char ch : filename) {
+        output.push_back(InputCharacter{
+            ch, level, CharacterInterpretation::Literal});
+    }
+}
+
 /**
  * Appends Buffer content with Literal interpretation.
  *
@@ -183,6 +205,16 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
                 '\\', depth, CharacterInterpretation::Normal});
             expanded.push_back(InputCharacter{
                 '\\', depth, CharacterInterpretation::Normal});
+            position += 2;
+            continue;
+        }
+
+        if (source[position] == '\\' &&
+            position + 1 < source.size() &&
+            (source[position + 1] == 'W' ||
+             source[position + 1] == 'w')) {
+            append_literal_filename(
+                expanded, filename_for_flow(buffers), depth + 1);
             position += 2;
             continue;
         }
@@ -435,6 +467,12 @@ std::string FlowEngine::expand_current_input() {
             continue;
         }
 
+        if (directive->value == 'W' || directive->value == 'w') {
+            // The filename is data, not an active nested flow source.
+            output += filename_for_flow(*buffers_);
+            continue;
+        }
+
         if (numeric_context_ != nullptr &&
             (directive->value == 'N' || directive->value == 'n')) {
             const auto name = parse_buffer_name(character->level, 'N');
@@ -526,6 +564,12 @@ std::string FlowEngine::parse_buffer_name(
                 // lines; it does not inject newline separators into the name.
                 name += literal_buffer_text(
                     buffers_->get(nested_name));
+                continue;
+            }
+
+            if (nested_directive->value == 'W' ||
+                nested_directive->value == 'w') {
+                name += filename_for_flow(*buffers_);
                 continue;
             }
 

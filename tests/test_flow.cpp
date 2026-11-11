@@ -114,6 +114,59 @@ int main() {
                      "buffer-only flow keeps numeric directive unresolved");
     }
 
+
+    // \W is a literal filename substitution; it is not the W command.
+    buffers.create_or_select("w-current");
+    {
+        fred::FlowEngine flow(buffers);
+        expect_throws([&] { (void)flow.expand_input("\\W"); },
+                      "W needs a current filename");
+        expect_throws([&] { (void)flow.expand_command_input("\\W"); },
+                      "W needs a current filename in command input");
+    }
+
+    const std::string file_w = "C:\\data\\source.fredpp";
+    buffers.current().associate_file(
+        file_w, fred::TextEncoding::Utf8, fred::LineEnding::Lf, true);
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(flow.expand_input("File=\\W"),
+                     "File=" + file_w, "full-flow filename");
+        expect_equal(flow.expand_input("\\w"), file_w, "lowercase filename");
+        expect_equal(flow.expand_command_input("JM!\\W!"),
+                     "JM!" + file_w + "!", "command-input filename");
+        expect_equal(flow.expand_command_input("JM!\\w!"),
+                     "JM!" + file_w + "!", "lowercase command-input filename");
+        expect_equal(flow.expand_input("\\C\\W"),
+                     "\\W", "C protects filename flow");
+        expect_equal(flow.expand_input("\\\\W"),
+                     "\\W", "doubled slash protects filename flow");
+        expect_equal(flow.expand_command_input("\\C\\W"),
+                     "\\W", "C protects filename command input");
+        expect_equal(flow.expand_command_input("\\\\W"),
+                     "\\\\W", "doubled slash protects filename command input");
+        const auto chars = flow.expand_command_input_characters("JM!\\W!");
+        const auto offset = chars.size() - file_w.size() - 1;
+        for (std::size_t i = 0; i < file_w.size(); ++i) {
+            if (chars[offset + i].interpretation !=
+                fred::CharacterInterpretation::Literal) {
+                std::cerr << "FAILED: filename must be literal\n";
+                return EXIT_FAILURE;
+            }
+        }
+    }
+
+    buffers.create_or_select("w-target").append("TARGET");
+    buffers.create_or_select("w-current").associate_file(
+        "w-target", fred::TextEncoding::Ascii, fred::LineEnding::Lf, true);
+    {
+        fred::FlowEngine flow(buffers);
+        expect_equal(flow.expand_command_input("\\S(\\W)"),
+                     "TARGET", "W computes a buffer name");
+        expect_equal(flow.expand_input("\\S(\\W)"),
+                     "TARGET", "W computes a full-flow buffer name");
+    }
+
     buffers.create_or_select("plain").append("hello");
     {
         fred::FlowEngine flow(buffers);
