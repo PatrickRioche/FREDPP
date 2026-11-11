@@ -11,16 +11,16 @@ Elles ne doivent pas être confondues avec les commandes portant les mêmes noms
 | \L(buffer) | Injecte littéralement, en conservant les fins de ligne | Implémenté |
 | \N(registre) | Injecte la valeur selon le format du registre | Partiel : substitution décimale actuelle |
 | \O | Force l'interprétation spéciale du caractère suivant | Implémenté |
-| \R | Lit une ligne du terminal, littéralement, sans fin de ligne | Non implémenté |
+| \R | Lit une ligne du terminal, littéralement, sans fin de ligne | Implémenté sur branche de travail, validation Windows à confirmer |
 | \S(buffer) | Injecte littéralement, sans fins de ligne | Implémenté |
-| \W | Injecte le nom du fichier associé au buffer courant | Implémenté dans le moteur de flot, tests Windows à confirmer |
+| \W | Injecte le nom du fichier associé au buffer courant | Implémenté, tests Windows réussis (74/74) |
 
 ## Exemple de \W
 
 Associer un fichier au buffer courant avec la commande R, F ou W, puis saisir :
 
 ```fred
-JM/Fichier courant : \W/
+JM!Fichier courant : \W!
 !echo \W
 ```
 
@@ -32,10 +32,32 @@ Dans FREDPP, l'absence de nom de fichier associé provoque une erreur
 explicite, pour éviter qu'un programme utilise silencieusement un chemin
 vide ; le cas exact dans FRED historique n'est pas encore établi.
 
+## Lecture terminal littérale avec \R
+
+La directive \R lit une seule ligne sur l'entrée standard du processus,
+pas dans le fichier de procédure. Elle supprime le caractère de fin de
+ligne, mais conserve les autres caractères de l'utilisateur littéralement.
+Elle ne réinterprète jamais les directives présentes dans la réponse.
+
+Exemple dans une procédure :
+
+```fred
+JP!Saisissez une réponse : !
+A
+\R
+\F
+1P
+```
+
+Si l'utilisateur saisit `Bonjour \N(x)`, le buffer reçoit
+la chaîne littérale, non la valeur du registre numérique. Un flux terminal
+indisponible ou fermé provoque une erreur explicite.
+
 ## Écarts à résoudre
 
 - \E doit être reconnue seulement à l'intérieur des motifs.
-- \R doit lire une ligne au terminal sans interpréter les directives.
+- \R lit une ligne du terminal sans interpréter les directives ;
+  l'intégration en cours couvre les commandes et les blocs A/I/C.
 - \N doit respecter les formats NB/ND/NF des registres.
 - \B doit être complet en entrée de texte et en flot mixte.
 
