@@ -83,6 +83,20 @@ fredpp_add_test(test_substitute test_substitute.cpp)
 fredpp_add_test(test_quit test_quit.cpp)
 fredpp_add_test(test_file_io test_file_io.cpp)
 
+add_test(NAME cli_limits
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_limits.cmake"
+)
+
+add_test(NAME cli_bootstrap_q
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_bootstrap_q.cmake"
+)
+
 add_test(NAME cli_smoke COMMAND fredpp --version)
 set_tests_properties(cli_smoke PROPERTIES
     PASS_REGULAR_EXPRESSION "FREDPP v${PROJECT_VERSION}"

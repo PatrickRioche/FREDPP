@@ -86,6 +86,12 @@ récursion infinie.
 
 ## BOUCLES ET LIMITES DE SÉCURITÉ
 
+La commande `fredpp --limits` affiche les plafonds réellement actifs et la
+provenance de leurs valeurs (défaut ou environnement), sans lancer l'éditeur.
+La rubrique `?limites` est également intégrée à l'aide française de FREDPP.
+Pour un tableau complet, consulter [les limites d'exécution](limites.md).
+
+
 Les sauts arrière `J(étiquette)` restent autorisés : ils sont nécessaires aux
 boucles historiques, notamment lorsqu'un registre `N(...)` est décrémenté puis
 testé pour décider de la sortie. Un saut arrière n'est pas une erreur en soi.

@@ -32,6 +32,7 @@ Inside FREDPP:
 
 ```text
 ?       FRED command documentation currently embedded
+?limites  Limites de securite FREDPP (documentation francaise)
 ?:      FREDPP-specific development and diagnostic commands
 ?*      historical whole-buffer alias documentation
 ?q      historical Q command documentation
@@ -54,6 +55,23 @@ Coverage of an entry does **not** imply a complete GCOS emulation; see the
 documented portable adaptations and limitations.
 The embedded `?commande` pages preserve the historical reference and may
 describe forms that FREDPP has not implemented yet.
+
+## Limites de sécurité (FREDPP)
+
+Sans réglage particulier, chaque procédure est limitée à **1 000 000 de lignes exécutées** et **60 secondes**. Les appels imbriqués `\\B` partagent ce budget. Les répétitions `U` disposent d'un budget distinct de **1 000 000 d'itérations cumulées** et **60 secondes**, partagé entre les `U` imbriqués.
+
+Les valeurs effectives, y compris celles provenant de l'environnement, sont visibles sans lancer de procédure :
+
+```powershell
+fredpp --limits
+$env:FREDPP_REPEAT_MAX_STEPS = '5'
+fredpp --limits
+Remove-Item Env:FREDPP_REPEAT_MAX_STEPS
+```
+
+Les variables configurables sont `FREDPP_PROCEDURE_MAX_STEPS`, `FREDPP_PROCEDURE_MAX_SECONDS`, `FREDPP_REPEAT_MAX_STEPS` et `FREDPP_REPEAT_MAX_SECONDS`. Les valeurs doivent être des entiers strictement positifs ; les durées sont plafonnées à 86 400 secondes. Les commandes internes bloquantes ne sont pas interrompues pendant leur exécution.
+
+Voir [la documentation française des limites](docs/fr/fredpp/limites.md), également disponible par `?limites` dans FREDPP. Ces protections ne limitent pas encore la taille mémoire totale des buffers.
 
 ## Historical lineage
 

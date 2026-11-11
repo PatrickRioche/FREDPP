@@ -14,6 +14,7 @@
 #include "fred/ast/RangeAddressNode.hpp"
 #include "fred/ast/RelativeAddressNode.hpp"
 #include "fred/core/BufferManager.hpp"
+#include "fred/core/Limits.hpp"
 #include "fred/flow/FlowEngine.hpp"
 #include "fred/lexer/Lexer.hpp"
 #include "fred/lexer/TokenType.hpp"
@@ -67,6 +68,57 @@ std::size_t procedure_limit_from_environment(
             std::string(name) + " must be a positive integer");
     }
     return parsed;
+}
+
+/**
+ * @brief Prints the effective CLI safety configuration without starting
+ * the editor or executing the user's initialization procedure.
+ *
+ * All four environment variables are validated with the same integer rules
+ * as the procedure and repetition executors. Empty variables mean default.
+ */
+void print_execution_limits() {
+    const auto procedure_steps = procedure_limit_from_environment(
+        "FREDPP_PROCEDURE_MAX_STEPS",
+        fred::ProcedureRunner::default_maximum_steps);
+    const auto procedure_seconds = procedure_limit_from_environment(
+        "FREDPP_PROCEDURE_MAX_SECONDS",
+        fred::ProcedureRunner::default_maximum_seconds);
+    const auto repeat_steps = procedure_limit_from_environment(
+        "FREDPP_REPEAT_MAX_STEPS", fred::limits::default_repeat_max_steps);
+    const auto repeat_seconds = procedure_limit_from_environment(
+        "FREDPP_REPEAT_MAX_SECONDS", fred::limits::default_repeat_max_seconds);
+
+    if (procedure_seconds > 86'400) {
+        throw std::runtime_error(
+            "FREDPP_PROCEDURE_MAX_SECONDS must not exceed 86400");
+    }
+    if (repeat_seconds > 86'400) {
+        throw std::runtime_error(
+            "FREDPP_REPEAT_MAX_SECONDS must not exceed 86400");
+    }
+
+    const auto print_setting = [](const char* name, std::size_t value) {
+        const char* raw = std::getenv(name);
+        const bool customized = raw != nullptr && *raw != '\0';
+        std::cout << "  " << name << " = " << value
+                  << (customized ? " (environment)" : " (default)")
+                  << '\n';
+    };
+
+    std::cout << "FREDPP v" << fredpp::version()
+              << " - execution safety limits\nProcedure:\n";
+    print_setting("FREDPP_PROCEDURE_MAX_STEPS", procedure_steps);
+    print_setting("FREDPP_PROCEDURE_MAX_SECONDS", procedure_seconds);
+    std::cout << "  Maximum nested procedure levels = 256\n"
+              << "U repetition:\n";
+    print_setting("FREDPP_REPEAT_MAX_STEPS", repeat_steps);
+    print_setting("FREDPP_REPEAT_MAX_SECONDS", repeat_seconds);
+    std::cout << "  Maximum nested U levels = 16\n"
+              << "  Maximum explicit U count = 262143\n"
+              << "  Safety ceiling for U without a count = 10000\n"
+              << "Time budgets are checked between instructions/iterations.\n"
+              << "A blocking command cannot be interrupted by these limits.\n";
 }
 
 /**
@@ -319,6 +371,8 @@ void initialize_parameter_buffer(fred::BufferManager& manager,
     for (int index = 2; index < argc; ++index) {
         parameters.append(argv[index]);
     }
+    // Bootstrap data is the initial baseline, not unsaved user input.
+    parameters.mark_clean();
 }
 
 
@@ -392,6 +446,9 @@ void initialize_single_line_bootstrap_buffer(
             "bootstrap special buffer must be initially empty");
     }
     buffer.append(std::move(value));
+    // The initial system value is not a user modification. Subsequent edits
+    // still mark this Buffer dirty and remain protected by normal Q.
+    buffer.mark_clean();
 
     // FB must know every opened Buffer. get_or_create() intentionally does
     // not touch MRU ordering, so explicit selection records d, t and u in the
@@ -554,6 +611,15 @@ int main(int argc, char** argv) {
     if (argc > 1 && std::string_view(argv[1]) == "--version") {
         print_version_info();
         return 0;
+    }
+    if (argc > 1 && std::string_view(argv[1]) == "--limits") {
+        try {
+            print_execution_limits();
+            return 0;
+        } catch (const std::exception& error) {
+            std::cerr << "error: " << error.what() << '\n';
+            return 1;
+        }
     }
 
     fredpp::HelpManager help_manager;
