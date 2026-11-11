@@ -97,6 +97,13 @@ add_test(NAME cli_bootstrap_q
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_bootstrap_q.cmake"
 )
 
+add_test(NAME cli_flow_w
+    COMMAND fredpp "${CMAKE_CURRENT_SOURCE_DIR}/fixtures/cli_flow_w.fredpp"
+)
+set_tests_properties(cli_flow_w PROPERTIES
+    PASS_REGULAR_EXPRESSION "FILE=/data/source.txt"
+)
+
 add_test(NAME cli_smoke COMMAND fredpp --version)
 set_tests_properties(cli_smoke PROPERTIES
     PASS_REGULAR_EXPRESSION "FREDPP v${PROJECT_VERSION}"
