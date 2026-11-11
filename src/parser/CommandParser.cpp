@@ -659,6 +659,10 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 throw ParseError("E pattern name must be 1..15 characters", command.location);
             }
             const auto raw = consume_plain_text(*tokens_);
+            if (raw.empty()) {
+                return std::make_unique<NamedPatternCommandNode>(
+                    name, std::string{}, command.location);
+            }
             if (raw.size() < 2 || std::isalnum(static_cast<unsigned char>(raw.front())) ||
                 raw.front() != raw.back()) {
                 throw ParseError("E requires a delimited pattern", command.location);
