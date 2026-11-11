@@ -64,6 +64,13 @@ int main() {
     execute("T/\\\\E(d)/");
     assert(!context.condition());
 
+    // An E(name) command removes the definition; the resulting reference
+    // is a known non-matching pattern, not an arbitrary-text expansion.
+    execute("E(d)");
+    assert(!context.named_pattern_source("d").has_value());
+    execute("T/\E(d)/");
+    assert(!context.condition());
+
     // A direct recursive named definition must fail with a clear bound.
     execute("E(loop)/\\E(loop)/");
     bool recursive_rejected = false;
