@@ -3,6 +3,7 @@
 #include <cctype>
 #include <algorithm>
 #include <cstdint>
+#include <istream>
 #include <stdexcept>
 #include <utility>
 
@@ -40,6 +41,27 @@ Output& ExecutionContext::exchange_output(Output& output) noexcept {
     Output* previous = output_;
     output_ = &output;
     return *previous;
+}
+
+void ExecutionContext::set_terminal_input(std::istream& input) noexcept {
+    terminal_input_ = &input;
+}
+
+std::string ExecutionContext::read_terminal_line() const {
+    if (terminal_input_ == nullptr) {
+        throw std::runtime_error(
+            "\\R requires a terminal input stream");
+    }
+    std::string line;
+    if (!std::getline(*terminal_input_, line)) {
+        throw std::runtime_error(
+            "end of terminal input while reading \\R");
+    }
+    // In redirected CRLF input, getline consumes LF but may retain CR.
+    if (!line.empty() && line.back() == '\r') {
+        line.pop_back();
+    }
+    return line;
 }
 
 void ExecutionContext::set_counter(std::int64_t value) noexcept {

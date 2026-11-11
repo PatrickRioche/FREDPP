@@ -211,6 +211,23 @@ std::vector<InputCharacter> expand_command_literal_buffer_segment(
 
         if (source[position] == '\\' &&
             position + 1 < source.size() &&
+            (source[position + 1] == 'R' ||
+             source[position + 1] == 'r')) {
+            if (numeric_context == nullptr) {
+                throw std::runtime_error(
+                    "\\R requires a terminal input stream");
+            }
+            const auto line = numeric_context->read_terminal_line();
+            for (const char ch : line) {
+                expanded.push_back(InputCharacter{
+                    ch, depth + 1, CharacterInterpretation::Literal});
+            }
+            position += 2;
+            continue;
+        }
+
+        if (source[position] == '\\' &&
+            position + 1 < source.size() &&
             (source[position + 1] == 'W' ||
              source[position + 1] == 'w')) {
             append_literal_filename(
@@ -467,6 +484,16 @@ std::string FlowEngine::expand_current_input() {
             continue;
         }
 
+        if (directive->value == 'R' || directive->value == 'r') {
+            if (numeric_context_ == nullptr) {
+                throw std::runtime_error(
+                    "\\R requires a terminal input stream");
+            }
+            // The terminal input is literal data, not active nested flow.
+            output += numeric_context_->read_terminal_line();
+            continue;
+        }
+
         if (directive->value == 'W' || directive->value == 'w') {
             // The filename is data, not an active nested flow source.
             output += filename_for_flow(*buffers_);
@@ -564,6 +591,16 @@ std::string FlowEngine::parse_buffer_name(
                 // lines; it does not inject newline separators into the name.
                 name += literal_buffer_text(
                     buffers_->get(nested_name));
+                continue;
+            }
+
+            if (nested_directive->value == 'R' ||
+                nested_directive->value == 'r') {
+                if (numeric_context_ == nullptr) {
+                    throw std::runtime_error(
+                        "\\R requires a terminal input stream");
+                }
+                name += numeric_context_->read_terminal_line();
                 continue;
             }
 

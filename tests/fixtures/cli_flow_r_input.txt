@@ -1,0 +1,2 @@
+slash/path!\N(x)
+raw\W(literal)

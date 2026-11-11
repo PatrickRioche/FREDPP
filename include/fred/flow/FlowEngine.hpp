@@ -40,7 +40,8 @@ class ExecutionContext;
  * @par Full-flow APIs
  * expand_buffer() and expand_input() execute the general nested flow stream,
  * including active `\B`, literal `\S`/`\L`, numeric `\N`, `\C`, `\O`
- * and escaped backslash handling. Numeric substitution requires a context.
+ * and escaped backslash handling. Numeric substitution and terminal \\R
+ * require a runtime context.
  *
  * @par Command-input APIs
  * expand_command_input_characters() preserves CharacterInterpretation metadata
@@ -73,9 +74,10 @@ public:
     /**
      * @brief Enables `\N(name)` substitution from numeric registers.
      *
-     * The context is borrowed and must outlive this FlowEngine. Numeric
-     * values are substituted as signed decimal integers, independently of
-     * the register's presentation settings (NB/ND/NF).
+     * The context is borrowed and must outlive this FlowEngine. It supplies
+     * numeric registers and the optional terminal source for \\R. Numeric
+     * values are currently substituted as decimal integers, independently of
+     * register presentation options (NB/ND/NF).
      */
     explicit FlowEngine(const ExecutionContext& context,
                         std::size_t maximum_depth = 256);
@@ -138,6 +140,8 @@ public:
      * - `\O x` removes the directive and marks the following byte ForcedSpecial;
      * - `\N(name)` injects a numeric register's decimal value when the engine
      *   was constructed with an ExecutionContext;
+     * - `\R` injects one line from the terminal without its newline. The
+     *   injected bytes are Literal and are not expanded a second time;
      * - nested `\S`/`\L` may compute buffer names;
      * - inserted Literal bytes are not expanded a second time.
      *

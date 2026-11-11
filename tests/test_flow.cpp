@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
+#include <sstream>
 #include <string>
 
 namespace {
@@ -36,6 +37,60 @@ void expect_throws(auto&& action, const char* message) {
 
 int main() {
     fred::BufferManager buffers;
+
+    // \R reads a single terminal line literally, without its newline.
+    {
+        fred::StringOutput terminal_output;
+        fred::ExecutionContext terminal_context(buffers, terminal_output);
+        std::istringstream input("input \\W/(literal)\r\n\\N(ignored)\n");
+        terminal_context.set_terminal_input(input);
+        fred::FlowEngine flow(terminal_context);
+
+        expect_equal(flow.expand_input("left[\\R]right"),
+                     "left[input \\W/(literal)]right",
+                     "R reads CRLF-terminated terminal text literally");
+        const auto characters =
+            flow.expand_command_input_characters("JM!literal=\\r!");
+        std::string expanded;
+        for (const auto& character : characters) {
+            expanded.push_back(character.value);
+        }
+        expect_equal(expanded, "JM!literal=\\N(ignored)!",
+                     "R lowercase reads terminal without nested directives");
+        const auto literal_start = expanded.find("\\N");
+        if (literal_start == std::string::npos ||
+            characters[literal_start].interpretation !=
+                fred::CharacterInterpretation::Literal) {
+            std::cerr << "FAILED: R terminal input must be literal\n";
+            return EXIT_FAILURE;
+        }
+        expect_equal(flow.expand_command_input("\\C\\R"), "\\R",
+                     "C protects R without another terminal read");
+        expect_throws([&] { (void)flow.expand_input("\\R"); },
+                      "R rejects terminal EOF");
+        expect_equal(flow.expand_input("recovered"), "recovered",
+                     "flow remains reusable after terminal EOF");
+    }
+    {
+        fred::StringOutput terminal_output;
+        fred::ExecutionContext terminal_context(buffers, terminal_output);
+        std::istringstream input("terminal-buffer\n\n");
+        terminal_context.set_terminal_input(input);
+        buffers.create_or_select("terminal-buffer").append("from terminal");
+        fred::FlowEngine flow(terminal_context);
+        expect_equal(flow.expand_command_input("\\S(\\R)"),
+                     "from terminal",
+                     "R may compute the nested buffer name");
+        expect_equal(flow.expand_input("left\\Rright"), "leftright",
+                     "empty terminal line contributes no newline");
+    }
+    {
+        fred::StringOutput output;
+        fred::ExecutionContext no_terminal_context(buffers, output);
+        fred::FlowEngine flow(no_terminal_context);
+        expect_throws([&] { (void)flow.expand_command_input("\\R"); },
+                      "R rejects an unconfigured terminal");
+    }
 
     // Numeric registers participate in both general flow and command input.
     // The buffer-only API remains usable without an execution context.

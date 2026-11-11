@@ -97,6 +97,14 @@ add_test(NAME cli_bootstrap_q
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_bootstrap_q.cmake"
 )
 
+add_test(NAME cli_flow_r
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DFIXTURE_DIR=${CMAKE_CURRENT_SOURCE_DIR}/fixtures"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_flow_r.cmake"
+)
+set_tests_properties(cli_flow_r PROPERTIES TIMEOUT 20)
+
 add_test(NAME cli_flow_w
     COMMAND fredpp "${CMAKE_CURRENT_SOURCE_DIR}/fixtures/cli_flow_w.fredpp"
 )

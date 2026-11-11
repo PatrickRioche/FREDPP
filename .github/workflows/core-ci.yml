@@ -1,0 +1,44 @@
+name: FREDPP Core CI
+
+on:
+  pull_request:
+    branches: [dev]
+    paths:
+      - "src/**"
+      - "include/**"
+      - "tests/**"
+      - "CMakeLists.txt"
+      - ".github/workflows/core-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-msvc:
+    name: Windows MSVC / CTest
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Configure Release
+        run: cmake -S . -B out/build/ci-msvc -A x64 -DFREDPP_BUILD_TESTS=ON
+      - name: Build Release
+        run: cmake --build out/build/ci-msvc --config Release --parallel 1
+      - name: Run full test suite
+        run: ctest --test-dir out/build/ci-msvc -C Release --output-on-failure --timeout 40
+
+  linux-gcc:
+    name: Linux GCC / CTest
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Configure Release
+        run: cmake -S . -B out/build/ci-gcc -G Ninja -DCMAKE_BUILD_TYPE=Release -DFREDPP_BUILD_TESTS=ON
+      - name: Build Release
+        run: cmake --build out/build/ci-gcc --parallel 2
+      - name: Run full test suite
+        run: ctest --test-dir out/build/ci-gcc --output-on-failure --timeout 40
