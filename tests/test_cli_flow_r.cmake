@@ -15,7 +15,7 @@ if(NOT status EQUAL 0)
     message(FATAL_ERROR "cli_flow_r failed: ${status}\n${output}\n${errors}")
 endif()
 
-string(FIND "${output}" "FIRST=slash/path\\N(x)" first_at)
+string(FIND "${output}" "FIRST=slash/path!\\N(x)" first_at)
 if(first_at EQUAL -1)
     message(FATAL_ERROR "command-input R was not literal: ${output}")
 endif()
