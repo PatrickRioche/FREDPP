@@ -15,7 +15,7 @@ execute_process(
 if(NOT status EQUAL 0)
     message(FATAL_ERROR "Q after procedure error did not exit cleanly: ${status}\n${output}\n${errors}")
 endif()
-string(FIND "${output}" "procedure stopped; entering interactive debug mode" at)
+string(FIND "${errors}" "procedure stopped; entering interactive debug mode" at)
 if(at EQUAL -1)
     message(FATAL_ERROR "Fixture did not trigger debug mode: ${output}")
 endif()
