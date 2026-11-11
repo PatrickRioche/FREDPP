@@ -98,6 +98,10 @@ int main() {
     fred::ExecutionContext numeric_context(buffers, numeric_output);
     numeric_context.set_numeric_register("buf", 42);
     numeric_context.set_numeric_register("negative", -17);
+    numeric_context.set_numeric_register("formatted", -35);
+    numeric_context.set_numeric_base("formatted", 16);
+    numeric_context.set_numeric_minimum_digits("formatted", 4);
+    numeric_context.set_numeric_fill_character("formatted", '.');
     buffers.create_or_select("42").append("FROM-42");
     buffers.create_or_select("register-name").append("buf");
     buffers.create_or_select("numeric-parent")
@@ -109,6 +113,8 @@ int main() {
                      "numeric substitution in buffer flow");
         expect_equal(flow.expand_input("[\\n(negative)]"), "[-17]",
                      "lowercase numeric substitution supports negatives");
+        expect_equal(flow.expand_input("\\N(formatted)"), "-..23",
+                     "N substitutes digits respecting NB/ND/NF");
         expect_equal(flow.expand_input("\\N(unset)"), "0",
                      "unset numeric register has historical zero value");
         expect_equal(flow.expand_input("\\S(\\N(buf))"), "FROM-42",
@@ -142,6 +148,8 @@ int main() {
             return EXIT_FAILURE;
         }
         fred::FlowEngine flow(numeric_context);
+        expect_equal(flow.expand_command_input("\\N(formatted)"), "-..23",
+                     "formatted N is expanded in command input");
         expect_equal(flow.expand_command_input("\\N(\\S(register-name))"),
                      "42", "nested numeric name in command input");
         expect_equal(flow.expand_command_input("\\C\\N(buf)"),
