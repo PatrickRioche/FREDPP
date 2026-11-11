@@ -212,7 +212,8 @@ std::string consume_delimited_message(
                 ' ');
         }
 
-        if (token.lexeme == delimiter) {
+        if (token.lexeme == delimiter &&
+            token.interpretation != CharacterInterpretation::Literal) {
             return result;
         }
 
