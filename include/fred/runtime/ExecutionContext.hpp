@@ -5,6 +5,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include <istream>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -70,6 +71,20 @@ public:
      *          returned/stored references may be used.
      */
     [[nodiscard]] Output& exchange_output(Output& output) noexcept;
+
+    /**
+     * @brief Attaches the terminal input stream used by historical \\R.
+     *
+     * The stream is borrowed and must outlive this context. In procedures,
+     * \\R reads from this stream rather than from the procedure buffer.
+     */
+    void set_terminal_input(std::istream& input) noexcept;
+
+    /**
+     * @brief Reads exactly one literal terminal line without its CR/LF.
+     * @throws std::runtime_error if input is unavailable or at EOF.
+     */
+    [[nodiscard]] std::string read_terminal_line() const;
 
     /** Sets the shared numeric counter (`#` in procedure numeric operands). */
     void set_counter(std::int64_t value) noexcept;
@@ -237,6 +252,7 @@ private:
     /** Borrowed services. */
     BufferManager* buffers_;
     Output* output_;
+    std::istream* terminal_input_{nullptr};
 
     std::int64_t counter_{};
     std::unordered_map<std::string, std::int64_t> numeric_registers_;
