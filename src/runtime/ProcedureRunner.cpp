@@ -945,7 +945,17 @@ void ProcedureRunner::execute_single_command(
                 terminated = true;
                 break;
             }
-            text_lines.push_back(context_->transform_input_line(lines->at(cursor)));
+            // \R inside an A/I/C text block diverts to the terminal for
+            // exactly one literal line; keep other existing text unchanged.
+            const auto& raw_text = lines->at(cursor);
+            std::string expanded_text = raw_text;
+            if (raw_text.find("\\R") != std::string::npos ||
+                raw_text.find("\\r") != std::string::npos) {
+                FlowEngine flow(*context_, maximum_depth_);
+                expanded_text = flow.expand_command_input(raw_text);
+            }
+            text_lines.push_back(
+                context_->transform_input_line(expanded_text));
         }
 
         if (!terminated) {
