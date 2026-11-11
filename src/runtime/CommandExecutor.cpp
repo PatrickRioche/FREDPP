@@ -1950,7 +1950,11 @@ void CommandExecutor::execute(const CommandNode& command,
     case AstNodeKind::NamedPatternCommand: {
         const auto& definition = static_cast<const NamedPatternCommandNode&>(command);
         context.record_undo();
-        context.define_pattern(definition.name(), definition.pattern());
+        if (definition.pattern().empty()) {
+            context.forget_pattern(definition.name());
+        } else {
+            context.define_pattern(definition.name(), definition.pattern());
+        }
         return;
     }
     case AstNodeKind::RepeatCommand:
