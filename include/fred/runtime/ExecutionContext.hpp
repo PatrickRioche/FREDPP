@@ -208,6 +208,11 @@ public:
 
     /** Named E patterns and their FE most-recent-first listing. */
     void define_pattern(std::string name, std::string source);
+    /** @return A stored delimited pattern or nullopt for an undefined name. */
+    [[nodiscard]] std::optional<std::string> named_pattern_source(
+        std::string_view name) const;
+    /** Forgets a previously named pattern without affecting other names. */
+    void forget_pattern(std::string_view name);
     [[nodiscard]] std::vector<std::pair<std::string, std::string>> patterns() const;
     [[nodiscard]] std::string expand_named_patterns(std::string_view text) const;
 
