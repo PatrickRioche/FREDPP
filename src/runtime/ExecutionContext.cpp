@@ -354,6 +354,22 @@ void ExecutionContext::define_pattern(std::string name, std::string source) {
     pattern_usage_.insert(pattern_usage_.begin(), std::move(name));
 }
 
+std::optional<std::string> ExecutionContext::named_pattern_source(
+    std::string_view name) const {
+    const auto found = named_patterns_.find(std::string(name));
+    if (found == named_patterns_.end()) {
+        return std::nullopt;
+    }
+    return found->second;
+}
+
+void ExecutionContext::forget_pattern(std::string_view name) {
+    named_patterns_.erase(std::string(name));
+    pattern_usage_.erase(
+        std::remove(pattern_usage_.begin(), pattern_usage_.end(), name),
+        pattern_usage_.end());
+}
+
 std::vector<std::pair<std::string, std::string>> ExecutionContext::patterns() const {
     std::vector<std::pair<std::string, std::string>> result;
     result.reserve(pattern_usage_.size());
