@@ -90,6 +90,13 @@ int main() {
     assert(output.content() == "enfant\nalpha\n");
     output.clear();
 
+    // The same inline form is accepted when issued directly from a terminal.
+    const bool interactive_inline = runner.execute_buffer_directive(
+        "JP!interactive ! \\B(child) JM!complete!");
+    assert(interactive_inline);
+    assert(output.content() == "interactive enfant\ncomplete\n");
+    output.clear();
+
     // Within an A/I/C text block, active B contributes logical text lines,
     // with nested directives executed before returning to the caller.
     auto& inner_text = buffers.create_or_select("inner-text");
