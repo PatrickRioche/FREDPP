@@ -27,6 +27,7 @@
 
 #include <cctype>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -110,6 +111,95 @@ bool is_text_terminator(std::string_view source, char escape = '\\') noexcept {
     return value.size() == 2 && value[0] == escape &&
            (value[1] == 'F' || value[1] == 'f');
 }
+
+struct InlineBufferFlow {
+    std::string before;
+    std::string directive;
+    std::string after;
+};
+
+/**
+ * Extract one top-level, whitespace-separated \B(name) from a procedure
+ * command chain. This reuses the existing heap-backed frame stack, so child
+ * execution, step limits and parent continuation retain their guarantees.
+ *
+ * A directive inside a JM/JP/JE delimited body or a pattern operand must not
+ * be mistaken for a command-stream insertion.
+ */
+std::optional<InlineBufferFlow> split_inline_buffer_flow(
+    std::string_view source) {
+    const auto line = trim(source);
+    if (line.empty() || line.front() == '"') {
+        return std::nullopt;
+    }
+
+    // Do not reinterpret possible pattern-body content.
+    const char first = static_cast<char>(
+        std::toupper(static_cast<unsigned char>(line.front())));
+    if (first == 'S' || first == 'G' || first == 'T' || first == 'E') {
+        return std::nullopt;
+    }
+
+    bool in_message = false;
+    char message_delimiter = '\0';
+    for (std::size_t index = 0; index < line.size(); ++index) {
+        if (in_message) {
+            if (line[index] == message_delimiter) {
+                in_message = false;
+            }
+            continue;
+        }
+        if (index + 2 < line.size() &&
+            (index == 0 ||
+             std::isspace(static_cast<unsigned char>(line[index - 1]))) &&
+            (line[index] == 'J' || line[index] == 'j') &&
+            (line[index + 1] == 'M' || line[index + 1] == 'm' ||
+             line[index + 1] == 'P' || line[index + 1] == 'p' ||
+             line[index + 1] == 'E' || line[index + 1] == 'e') &&
+            !std::isalnum(static_cast<unsigned char>(line[index + 2])) &&
+            !std::isspace(static_cast<unsigned char>(line[index + 2])) &&
+            line[index + 2] != '\\') {
+            in_message = true;
+            message_delimiter = line[index + 2];
+            index += 2;
+            continue;
+        }
+
+        if (index > 0 &&
+            !std::isspace(static_cast<unsigned char>(line[index - 1]))) {
+            continue;
+        }
+        if (index + 3 >= line.size() ||
+            line[index] != '\\' ||
+            (line[index + 1] != 'B' && line[index + 1] != 'b') ||
+            line[index + 2] != '(') {
+            continue;
+        }
+        const auto closing = line.find(')', index + 3);
+        if (closing == std::string_view::npos ||
+            closing == index + 3 ||
+            line.substr(index + 3, closing - index - 3).find('(') !=
+                std::string_view::npos) {
+            continue;
+        }
+        if (closing + 1 < line.size() &&
+            !std::isspace(static_cast<unsigned char>(line[closing + 1]))) {
+            continue;
+        }
+        auto before = std::string(trim(line.substr(0, index)));
+        auto after = std::string(trim(line.substr(closing + 1)));
+        if (before.empty() && after.empty()) {
+            return std::nullopt; // Existing standalone \B handling.
+        }
+        return InlineBufferFlow{
+            std::move(before),
+            std::string(line.substr(index, closing + 1 - index)),
+            std::move(after)
+        };
+    }
+    return std::nullopt;
+}
+
 
 } // namespace
 
@@ -652,6 +742,40 @@ void ProcedureRunner::load_and_execute_file(
 }
 
 bool ProcedureRunner::execute_buffer_directive(std::string_view source) {
+    // Interactive input also supports a \B invocation between complete
+    // whitespace-separated commands. Each child uses the same buffered
+    // procedure stack as a standalone \B call.
+    if (split_inline_buffer_flow(source)) {
+        std::string remaining(trim(source));
+        for (std::size_t step = 0; step < maximum_steps_; ++step) {
+            const auto inline_flow = split_inline_buffer_flow(remaining);
+            if (!inline_flow) {
+                if (!remaining.empty()) {
+                    if (!execute_buffer_directive(remaining)) {
+                        execute_single_command(
+                            make_command_input(remaining), nullptr, nullptr);
+                    }
+                }
+                return true;
+            }
+            if (!inline_flow->before.empty()) {
+                execute_single_command(
+                    make_command_input(inline_flow->before), nullptr, nullptr);
+            }
+            const auto child = parse_buffer_directive(inline_flow->directive);
+            if (!child) {
+                throw CommandExecutionError("invalid inline \\B directive");
+            }
+            execute_buffer_impl(*child, 0);
+            remaining = inline_flow->after;
+            if (remaining.empty() || context_->exit_requested()) {
+                return true;
+            }
+        }
+        throw CommandExecutionError(
+            "inline buffer-flow instruction limit exceeded");
+    }
+
     const auto buffer_name = parse_buffer_directive(source);
     if (!buffer_name) {
         return false;
@@ -702,6 +826,26 @@ void ProcedureRunner::execute_buffer_impl(std::string_view buffer_name,
         auto& frame = frames.back();
         if (frame.index >= frame.lines.size()) {
             frames.pop_back();
+            continue;
+        }
+
+        if (const auto inline_flow =
+                split_inline_buffer_flow(frame.lines[frame.index])) {
+            std::vector<std::string> expanded_lines;
+            if (!inline_flow->before.empty()) {
+                expanded_lines.push_back(inline_flow->before);
+            }
+            expanded_lines.push_back(inline_flow->directive);
+            if (!inline_flow->after.empty()) {
+                expanded_lines.push_back(inline_flow->after);
+            }
+            const auto position = frame.lines.begin() +
+                static_cast<std::ptrdiff_t>(frame.index);
+            frame.lines.erase(position);
+            frame.lines.insert(
+                frame.lines.begin() +
+                    static_cast<std::ptrdiff_t>(frame.index),
+                expanded_lines.begin(), expanded_lines.end());
             continue;
         }
 
@@ -758,13 +902,13 @@ void ProcedureRunner::execute_procedure_line(
             return;
         }
 
-        const std::string named_expanded = is_comment(raw_value)
-            ? std::string(raw_value) : context_->expand_named_patterns(raw_value);
+        // Named pattern references are parsed by CommandParser exclusively
+        // within pattern operands; they must not alter messages or filenames.
         const ExpandedCommandInput expanded_source =
             is_comment(raw_value)
                 ? make_command_input(raw_value)
                 : expand_command_input_with_metadata(
-                      named_expanded, *context_, maximum_depth_);
+                      raw_value, *context_, maximum_depth_);
         const auto value = trim(expanded_source.text);
 
         if (const auto nested = parse_buffer_directive(value)) {
@@ -945,9 +1089,21 @@ void ProcedureRunner::execute_single_command(
                 terminated = true;
                 break;
             }
-            // \R inside an A/I/C text block diverts to the terminal for
-            // exactly one literal line; keep other existing text unchanged.
             const auto& raw_text = lines->at(cursor);
+            if (raw_text.find("\\B(") != std::string::npos ||
+                raw_text.find("\\b(") != std::string::npos) {
+                // In text-input mode, active \B may inject multiple logical
+                // lines. Its nested directives are interpreted by FlowEngine.
+                FlowEngine flow(*context_, maximum_depth_);
+                const auto expanded = flow.expand_input(raw_text);
+                std::istringstream parts(expanded);
+                std::string part;
+                while (std::getline(parts, part)) {
+                    text_lines.push_back(context_->transform_input_line(part));
+                }
+                continue;
+            }
+            // \R diverts the next literal line from the terminal.
             std::string expanded_text = raw_text;
             if (raw_text.find("\\R") != std::string::npos ||
                 raw_text.find("\\r") != std::string::npos) {

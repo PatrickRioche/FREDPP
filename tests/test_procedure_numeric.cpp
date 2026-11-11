@@ -191,10 +191,12 @@ int main() {
             "N(rhs)+1",
             "JM/updated=\\N(rhs)/",
             "N(rhs)B2",
+            "JM/formatted=\\N(rhs)/",
+            "N(rhs)B10",
             "N(np):\\N(rhs)",
             "N(np)P",
         });
-        assert(result.output == "value=41\nupdated=42\n42\n");
+        assert(result.output == "value=41\nupdated=42\nformatted=101010\n42\n");
         assert(result.np == 42);
     }
     {

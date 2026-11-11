@@ -144,9 +144,9 @@ dans [directives-flot.md](directives-flot.md), également accessible par
 
 ## SUBSTITUTION NUMÉRIQUE `\N(registre)`
 
-La directive `\N(nom)` remplace sa propre écriture par la valeur décimale
-signée du registre numérique `N(nom)`, y compris dans les arguments de commandes
-et les messages des procédures :
+La directive `\N(nom)` remplace sa propre écriture par la valeur formatée
+du registre numérique `N(nom)`, conformément aux options `NB`, `ND` et `NF`,
+y compris dans les arguments de commandes et les messages des procédures :
 
 ```fred
 N(total):12
@@ -157,8 +157,9 @@ N(copie):\N(total)
 Le message affiche `Total : 12` et le registre `copie` reçoit la valeur `12`.
 La substitution lit la valeur numérique courante sans modifier le registre ni
 le compteur. Un registre non initialisé vaut `0`. Les options de présentation
-`NB`, `ND` et `NF` concernent l'impression d'un registre (`NP`) ; `\N` injecte
-toujours un entier décimal afin de rester utilisable comme opérande numérique.
+`NB`, `ND` et `NF` concernent l'impression d'un registre (`NP`) et
+l'injection par `\N`. Si un format non décimal est choisi, le résultat
+n'est pas nécessairement un opérande numérique décimal valide.
 
 Le nom du registre est limité à 14 caractères. Il peut être construit avec
 une substitution imbriquée comme `\N(\S(nom))`. La directive `\C` peut

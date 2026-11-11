@@ -1878,8 +1878,8 @@ void execute_repeat(const RepeatCommandNode& command, ExecutionContext& context)
         ++budget.iterations;
         bool failed = false;
         try {
-            const auto expanded = context.expand_named_patterns(command.body());
-            Lexer lexer(expanded);
+            // E is pattern-only; repeat command bodies are not expanded globally.
+            Lexer lexer(command.body());
             TokenStream tokens(lexer);
             CommandParser parser(tokens, registry, &context);
             while (!tokens.eof() && !context.exit_requested()) {
@@ -1950,7 +1950,11 @@ void CommandExecutor::execute(const CommandNode& command,
     case AstNodeKind::NamedPatternCommand: {
         const auto& definition = static_cast<const NamedPatternCommandNode&>(command);
         context.record_undo();
-        context.define_pattern(definition.name(), definition.pattern());
+        if (definition.pattern().empty()) {
+            context.forget_pattern(definition.name());
+        } else {
+            context.define_pattern(definition.name(), definition.pattern());
+        }
         return;
     }
     case AstNodeKind::RepeatCommand:

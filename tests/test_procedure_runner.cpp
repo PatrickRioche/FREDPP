@@ -76,6 +76,58 @@ int main() {
 
     output.clear();
 
+    // Inline active \B is a command-stream injection, not text substitution.
+    auto& inline_flow = buffers.create_or_select("inline-flow");
+    inline_flow.append("JP!before ! \\B(child) JM!after!");
+    runner.execute_buffer("inline-flow");
+    assert(output.content() == "before enfant\nafter\n");
+    output.clear();
+
+    // A buffer may also be injected between other commands in one line.
+    auto& chained_flow = buffers.create_or_select("chained-flow");
+    chained_flow.append("B(data) \\B(child) 1P");
+    runner.execute_buffer("chained-flow");
+    assert(output.content() == "enfant\nalpha\n");
+    output.clear();
+
+    // The same inline form is accepted when issued directly from a terminal.
+    const bool interactive_inline = runner.execute_buffer_directive(
+        "JP!interactive ! \\B(child) JM!complete!");
+    assert(interactive_inline);
+    assert(output.content() == "interactive enfant\ncomplete\n");
+    output.clear();
+
+    // Within an A/I/C text block, active B contributes logical text lines,
+    // with nested directives executed before returning to the caller.
+    auto& inner_text = buffers.create_or_select("inner-text");
+    inner_text.append("one");
+    inner_text.append("two");
+    auto& outer_text = buffers.create_or_select("outer-text");
+    outer_text.append("start");
+    outer_text.append("\\B(inner-text)");
+    auto& text_flow = buffers.create_or_select("text-flow");
+    text_flow.append("B(text-result)");
+    text_flow.append("A");
+    text_flow.append("pre\\B(outer-text)post");
+    text_flow.append("\\F");
+    text_flow.append("1,$P");
+    runner.execute_buffer("text-flow");
+    assert(buffers.current().line_count() == 5);
+    assert(buffers.current().line(1) == "prestart");
+    assert(buffers.current().line(2) == "one");
+    assert(buffers.current().line(3) == "two");
+    assert(buffers.current().line(4).empty());
+    assert(buffers.current().line(5) == "post");
+    assert(output.content() == "prestart\none\ntwo\n\npost\n");
+    output.clear();
+
+    // Directive-like text within a delimited message remains message text.
+    auto& protected_flow = buffers.create_or_select("protected-flow");
+    protected_flow.append("JM!literal \\B(child)!");
+    runner.execute_buffer("protected-flow");
+    assert(output.content() == "literal \\B(child)\n");
+    output.clear();
+
     auto& monitored = buffers.create_or_select("monitored");
     monitored.append("O+M");
     monitored.append("JM/Bonjour/");

@@ -20,6 +20,7 @@
 #include <charconv>
 #include <cctype>
 #include <cstdint>
+#include <functional>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -29,6 +30,120 @@
 
 namespace fred {
 namespace {
+
+
+/**
+ * Expand \E(name) only after a command's pattern delimiters have been
+ * recognized. Text in ordinary command arguments must never expand \E.
+ *
+ * The expansion carries CharacterInterpretation metadata so \C and literal
+ * buffer text remain protected. Each referenced expression is grouped,
+ * preserving alternation and repetition precedence in its caller.
+ */
+void expand_named_pattern_references(
+    std::string& source,
+    std::vector<CharacterInterpretation>& interpretations,
+    const ExecutionContext* context) {
+    if (context == nullptr) {
+        return;
+    }
+
+    constexpr std::size_t max_expansion_bytes = 1'048'576;
+    constexpr unsigned max_reference_depth = 32;
+    std::vector<std::string> active_names;
+    std::string result;
+    std::vector<CharacterInterpretation> result_flags;
+
+    auto emit = [&](char byte, CharacterInterpretation flag) {
+        if (result.size() >= max_expansion_bytes) {
+            throw std::runtime_error("E pattern expansion exceeds 1 MiB");
+        }
+        result.push_back(byte);
+        result_flags.push_back(flag);
+    };
+
+    std::function<void(
+        std::string_view,
+        const std::vector<CharacterInterpretation>&,
+        unsigned)> expand;
+
+    expand = [&](std::string_view fragment,
+                 const std::vector<CharacterInterpretation>& flags,
+                 unsigned depth) {
+        for (std::size_t i = 0; i < fragment.size();) {
+            const auto interpretation = flags.empty()
+                ? CharacterInterpretation::Normal : flags.at(i);
+
+            // A protected slash, or the second slash in an escaped pair,
+            // cannot start a named-pattern directive.
+            std::size_t previous_slashes = 0;
+            for (std::size_t p = i; p > 0 && fragment[p - 1] == '\\'; --p) {
+                ++previous_slashes;
+            }
+            const bool is_reference =
+                interpretation != CharacterInterpretation::Literal &&
+                previous_slashes % 2 == 0 &&
+                i + 3 < fragment.size() &&
+                fragment[i] == '\\' &&
+                (fragment[i + 1] == 'E' || fragment[i + 1] == 'e') &&
+                fragment[i + 2] == '(';
+
+            if (!is_reference) {
+                emit(fragment[i++], interpretation);
+                continue;
+            }
+
+            const auto closing = fragment.find(')', i + 3);
+            if (closing == std::string_view::npos) {
+                throw std::runtime_error("unterminated \\E(name) in pattern");
+            }
+
+            const std::string name(fragment.substr(i + 3, closing - i - 3));
+            if (name.empty() || name.size() > 15 ||
+                name.find('(') != std::string::npos) {
+                throw std::runtime_error("invalid E pattern name");
+            }
+
+            const auto definition = context->named_pattern_source(name);
+            if (!definition) {
+                // A historical undefined \E must never match. '$.' cannot
+                // match anywhere: $ asserts end-of-line and . needs a byte.
+                // Force metasyntax even when pattern options disable $ or .
+                for (char ch : std::string_view("($.)")) {
+                    emit(ch, CharacterInterpretation::ForcedSpecial);
+                }
+            } else {
+                if (depth >= max_reference_depth ||
+                    std::find(active_names.begin(), active_names.end(),
+                              name) != active_names.end()) {
+                    throw std::runtime_error(
+                        "recursive E pattern expansion is not finite: " + name);
+                }
+                const auto& delimited = *definition;
+                if (delimited.size() < 2 ||
+                    delimited.front() != delimited.back()) {
+                    throw std::runtime_error(
+                        "invalid E pattern definition: " + name);
+                }
+
+                active_names.push_back(name);
+                const auto body = std::string_view(delimited)
+                    .substr(1, delimited.size() - 2);
+                if (!body.empty()) {
+                    emit('(', CharacterInterpretation::ForcedSpecial);
+                    expand(body, {}, depth + 1);
+                    emit(')', CharacterInterpretation::ForcedSpecial);
+                }
+                active_names.pop_back();
+            }
+            i = closing + 1;
+        }
+    };
+
+    expand(source, interpretations, 0);
+    source = std::move(result);
+    interpretations = std::move(result_flags);
+}
 
 /** @return true when the token is the FREDPP `*` whole-buffer alias. */
 bool is_whole_buffer_alias(const Token& token) noexcept {
@@ -544,6 +659,10 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
                 throw ParseError("E pattern name must be 1..15 characters", command.location);
             }
             const auto raw = consume_plain_text(*tokens_);
+            if (raw.empty()) {
+                return std::make_unique<NamedPatternCommandNode>(
+                    name, std::string{}, command.location);
+            }
             if (raw.size() < 2 || std::isalnum(static_cast<unsigned char>(raw.front())) ||
                 raw.front() != raw.back()) {
                 throw ParseError("E requires a delimited pattern", command.location);
@@ -1535,6 +1654,7 @@ std::unique_ptr<PatternNode> CommandParser::parse_delimited_pattern(
         }
     }
 
+    expand_named_pattern_references(source, source_interpretations, context_);
     apply_pattern_option_interpretation(source, source_interpretations);
     PatternParser parser(source, std::move(source_interpretations), opening.location.flow_level);
     return parser.parse();
@@ -1591,6 +1711,7 @@ CommandParser::parse_substitution_parts() {
         }
     }
 
+    expand_named_pattern_references(pattern_source, pattern_interpretations, context_);
     apply_pattern_option_interpretation(pattern_source, pattern_interpretations);
     PatternParser parser(pattern_source, std::move(pattern_interpretations), opening.location.flow_level);
     auto pattern = parser.parse();

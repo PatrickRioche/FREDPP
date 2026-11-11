@@ -1,45 +1,79 @@
-# Directives historiques du flot FRED — audit de FREDPP
+# Directives historiques du flot FRED — audit de conformité FREDPP
 
-Les neuf directives attendues sont **\B, \C, \E, \L, \N, \O, \R, \S et \W**.
-Elles ne doivent pas être confondues avec les commandes portant les mêmes noms.
+Les neuf directives sont **\B, \C, \E, \L, \N, \O, \R, \S et \W**.
+Une directive de flot ne doit pas être confondue avec la commande portant la même lettre.
 
-| Directive | Fonction historique | Statut FREDPP sur dev |
+| Directive | Fonction | État de l'implémentation |
 | --- | --- | --- |
-| \B(buffer) | Injecte le contenu comme flot actif de commandes ou de texte | Partiel : certaines formes ne sont pas raccordées aux procédures |
-| \C | Rend littéral le caractère suivant | Implémenté |
-| \E(motif) | Injecte un motif nommé par E, seulement dans un motif | Partiel : développement préalable trop général |
-| \L(buffer) | Injecte littéralement, en conservant les fins de ligne | Implémenté |
-| \N(registre) | Injecte la valeur selon le format du registre | Partiel : substitution décimale actuelle |
-| \O | Force l'interprétation spéciale du caractère suivant | Implémenté |
-| \R | Lit une ligne du terminal, littéralement, sans fin de ligne | Implémenté sur branche de travail, validation Windows à confirmer |
-| \S(buffer) | Injecte littéralement, sans fins de ligne | Implémenté |
-| \W | Injecte le nom du fichier associé au buffer courant | Implémenté, tests Windows réussis (74/74) |
+| \B(buffer) | Injecte le buffer comme flot actif | Moteur de flot, appels autonomes, commandes séparées par espaces et blocs A/I/C couverts ; expressions arbitrairement imbriquées restant à étudier |
+| \C | Protège le caractère suivant | Implémenté |
+| \E(motif) | Référence un motif nommé, uniquement dans les motifs | Développement contextuel dans S/G/T, noms imbriqués et inconnus gérés ; récursion cyclique encore limitée |
+| \L(buffer) | Injecte littéralement les lignes, fins de ligne conservées | Implémenté |
+| \N(registre) | Injecte le registre avec ses options NB/ND/NF | Implémenté |
+| \O | Force le caractère spécial suivant | Implémenté |
+| \R | Lit une seule ligne du terminal, littéralement | Implémenté (commandes et blocs A/I/C) |
+| \S(buffer) | Injecte littéralement les lignes sans fins de ligne | Implémenté |
+| \W | Injecte le fichier associé au buffer courant | Implémenté et testé sur Windows |
 
-## Exemple de \W
+## \N : formatage numérique
 
-Associer un fichier au buffer courant avec la commande R, F ou W, puis saisir :
+La valeur injectée par `\N(nom)` respecte la base (`NB`), la largeur
+minimale (`ND`) et le caractère de remplissage (`NF`) du registre.
+Un registre non défini vaut zéro dans le format par défaut.
 
 ```fred
-JM!Fichier courant : \W!
-!echo \W
+N(valeur):42
+N(valeur)B16
+N(valeur)D4
+JM!Valeur formatée : \N(valeur)!
 ```
 
-La directive \W ne sauvegarde aucun fichier : c'est la commande W
-qui écrit sur disque. Les formes \W et \w sont reconnues. Les antislashs
-contenus dans les noms de fichiers Windows restent littéraux.
+Le message affiche `Valeur formatée : 002A`.
+Attention : une substitution formatée en base 16 ne correspond pas
+nécessairement à un opérande décimal valide pour une autre commande N.
 
-Dans FREDPP, l'absence de nom de fichier associé provoque une erreur
-explicite, pour éviter qu'un programme utilise silencieusement un chemin
-vide ; le cas exact dans FRED historique n'est pas encore établi.
+## \E : uniquement à l'intérieur d'un motif
 
-## Lecture terminal littérale avec \R
+```fred
+E(chiffres)/[0-9]+/
+T/\E(chiffres)/
+JM!La séquence \E(chiffres) reste littérale dans ce message.!
+```
 
-La directive \R lit une seule ligne sur l'entrée standard du processus,
-pas dans le fichier de procédure. Elle supprime le caractère de fin de
-ligne, mais conserve les autres caractères de l'utilisateur littéralement.
-Elle ne réinterprète jamais les directives présentes dans la réponse.
+Seuls les paramètres de motif de `S`, `G` et `T` interprètent
+`\E(nom)`. Les références définies sont regroupées pour préserver
+les priorités des alternatives. Un nom inconnu ne peut jamais produire
+de correspondance. Les définitions imbriquées finies sont prises en charge.
 
-Exemple dans une procédure :
+**Limites conservées :** les références cycliques sont arrêtées explicitement
+au lieu d'autoriser toute la récursion historique ; les options de motif
+fixées lors d'une ancienne définition et le raccourci historique
+`E(nom)//` ne bénéficient pas encore d'une émulation complète.
+
+## \B : flot actif
+
+L'appel autonome `\B(buffer)` exécute le contenu comme une procédure,
+avec pile d'appels, garde de profondeur et budget d'instructions.
+L'insertion peut aussi être placée entre deux commandes complètes
+séparées par des espaces. Dans les blocs de texte `A`, `I` ou `C`,
+les lignes injectées et les directives imbriquées sont développées.
+
+```fred
+JP!Avant ! \B(sous-procedure) JM!Après!
+```
+
+Le buffer `sous-procedure` est exécuté après `JP`, puis le flux reprend
+avec `JM`.
+
+Les insertions `\B` au milieu de délimiteurs de messages, de motifs ou
+d'expressions non séparées par des espaces ne sont pas assimilées
+à des appels de procédure. Leur émulation historique n'est pas garantie.
+
+## \R : lecture terminal littérale
+
+La directive `\R` lit une seule ligne sur l'entrée standard du processus,
+sans lire la procédure en cours. Elle élimine la fin de ligne et ne
+développe aucune directive contenue dans la réponse.
 
 ```fred
 JP!Saisissez une réponse : !
@@ -49,19 +83,19 @@ A
 1P
 ```
 
-Si l'utilisateur saisit `Bonjour \N(x)`, le buffer reçoit
-la chaîne littérale, non la valeur du registre numérique. Un flux terminal
-indisponible ou fermé provoque une erreur explicite.
+Si la réponse est `Bonjour \N(x)`, le buffer reçoit exactement
+cette chaîne. Une entrée absente ou fermée entraîne une erreur contrôlée.
 
-## Écarts à résoudre
+## \W : chemin du buffer courant
 
-- \E doit être reconnue seulement à l'intérieur des motifs.
-- \R lit une ligne du terminal sans interpréter les directives ;
-  l'intégration en cours couvre les commandes et les blocs A/I/C.
-- \N doit respecter les formats NB/ND/NF des registres.
-- \B doit être complet en entrée de texte et en flot mixte.
+Une fois un fichier associé au buffer par `F`, `R` ou `W` :
 
-La directive \F de fin de saisie de texte reste également nécessaire
-mais elle ne figure pas dans la liste des neuf directives de cet audit.
+```fred
+JM!Fichier courant : \W!
+```
+
+Le délimiteur `!` évite que les barres obliques d'un chemin soient
+prises pour des fins de message. `\W` ne sauvegarde rien (à la différence
+de la commande `W`). Un buffer sans fichier associé provoque une erreur.
 
 Référence historique : https://www.thinkage.ca/gcos/expl/fred/stre.html

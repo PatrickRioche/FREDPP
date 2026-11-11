@@ -749,18 +749,15 @@ int main(int argc, char** argv) {
                 continue;
             }
 
-            const std::string named_expanded =
-                first_non_space != std::string::npos &&
-                input[first_non_space] == '"' ? input :
-                execution_context.expand_named_patterns(input);
+            // Only the pattern parser may expand named \E references.
             fred::ExpandedCommandInput expanded_command =
-                fred::make_command_input(named_expanded);
+                fred::make_command_input(input);
             if (first_non_space != std::string::npos &&
                 input[first_non_space] != ':' &&
                 input[first_non_space] != '"') {
                 expanded_command =
                     fred::expand_command_input_with_metadata(
-                        named_expanded, execution_context);
+                        input, execution_context);
             }
             const std::string& command_input =
                 expanded_command.text;
@@ -839,8 +836,21 @@ int main(int argc, char** argv) {
                                 terminated = true;
                                 break;
                             }
-                            // \R inside interactive A/I/C text input reads
-                            // the next terminal line without interpreting it.
+                            if (text_line.find("\\B(") != std::string::npos ||
+                                text_line.find("\\b(") != std::string::npos) {
+                                // Active buffer flow may contribute multiple
+                                // text lines; expand before storing them.
+                                fred::FlowEngine flow(execution_context);
+                                const auto expanded = flow.expand_input(text_line);
+                                std::istringstream parts(expanded);
+                                std::string part;
+                                while (std::getline(parts, part)) {
+                                    lines.push_back(
+                                        execution_context.transform_input_line(part));
+                                }
+                                continue;
+                            }
+                            // \R reads one literal line from the terminal.
                             std::string expanded_text = text_line;
                             if (text_line.find("\\R") != std::string::npos ||
                                 text_line.find("\\r") != std::string::npos) {
