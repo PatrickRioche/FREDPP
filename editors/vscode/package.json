@@ -2,7 +2,7 @@
   "name": "fredpp-language",
   "displayName": "FREDPP Language Support",
   "description": "Visual Studio Code language support for FREDPP procedure files.",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "fredpp",
   "engines": {
     "vscode": "^1.90.0"
