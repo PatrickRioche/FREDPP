@@ -1,52 +1,65 @@
-# FREDPP v0.1.0 — Préversion de référence
+# FREDPP v0.1.1 — Version candidate Windows x64 (essais utilisateur)
 
-Cette première préversion rassemble les travaux effectués sur la branche `dev`
-jusqu'au jalon `dev-0.0.103`. Elle préserve l'esprit de l'éditeur en ligne FRED
-et propose un moteur C++20 portable avec un langage de manipulation de texte.
+Cette version candidate sert à tester sur Windows le moteur FREDPP C++20 après
+les travaux de fiabilisation menés depuis la préversion v0.1.0.
 
-## Fonctionnalités
+**Statut : version candidate, non encore publiée comme GitHub Release officielle.**
+Le ZIP de test est produit par GitHub Actions pour la pull request de
+préparation, sans tag v0.1.1 et sans modification de la branche main.
 
-- Les **103 entrées** du tableau de référence historique sont reconnues et
-  prises en charge, avec les adaptations et limites indiquées dans le
-  [tableau de couverture](https://github.com/PatrickRioche/FREDPP/blob/v0.1.0/docs/project/COMMAND_STATUS.md) et les guides français.
-- Buffers multiples, adresses de lignes, insertion, suppression, copie,
-  déplacement, recherche et substitution, fichiers et commandes de consultation.
-- Registres numériques, options de saisie, exécution de procédures, conditions,
-  boucles contrôlées, modèles nommés, annulation et rétablissement.
-- Aide embarquée, version traçable par `FV`, et extension de langage pour
-  Visual Studio Code.
+## Évolutions depuis v0.1.0
 
-**Important :** 103/103 correspond à la couverture des *entrées répertoriées*,
-pas à une équivalence fonctionnelle complète avec FRED sous GCOS. Certains cas
-historiques, les directives avancées et les limites de charge restent à valider.
+- Directives de flot : \R (saisie terminal littérale), \N (format du
+  registre NB/ND/NF), \E (références nommées uniquement dans les motifs,
+  définitions imbriquées), \B (flot actif de commandes et saisie A/I/C).
+  Les autres directives \C, \L, \O, \S et \W restent couvertes.
+- Exécution des procédures et commandes : corrections de compatibilité
+  historique et protections contre les cas non bornés.
+- Non-régression : passage de 71 à **78 tests CTest** depuis v0.1.0,
+  validés en CI Windows/MSVC et Linux/GCC, puis localement sous Windows.
+- Fichiers : deux campagnes automatisées sur 100 et 1 000 fichiers ;
+  vérification octet pour octet des sorties, des traitements R/S/WU/*D,
+  de l'absence de modification des sources et de la récupération après
+  fichier manquant.
+- CI Android : installation du SDK réparée, APK Debug construit et
+  publié séparément dans GitHub Actions.
 
-## Vérification disponible au jalon
+## Télécharger et tester sur Windows
 
-La version de développement `0.0.103` a passé **71 tests CTest sur 71** sous
-Windows/MSVC (91,26 s), ainsi qu'une recette interactive ciblée. Le pipeline de
-publication compile et teste à nouveau ses plateformes avant de produire les
-archives. La campagne renforcée sur les boucles infinies, délais d'exécution,
-mémoire et taille des buffers est prévue **après cette préversion** ; elle
-n'est pas présentée comme déjà réussie.
+Récupérer l'artefact **FREDPP-Windows-x64-Candidate-PR-N** depuis
+GitHub Actions (exécution réussie de la pull request préparatoire).
+L'artefact contient l'archive `FREDPP-v0.1.1-windows-x64.zip`.
 
-## Téléchargements
+1. Décompresser l'artefact GitHub, puis le ZIP du kit FREDPP.
+2. Exécuter `fredpp.exe --version` : il doit afficher **FREDPP v0.1.1**.
+3. Essayer `fredpp.exe hello` depuis le répertoire contenant
+   la bibliothèque de procédures fournie ; vérifier que les commandes
+   et les scripts personnels fonctionnent normalement.
+4. Conserver une copie de sauvegarde des documents avant toute édition
+   importante ; signaler les erreurs avec la commande, le résultat
+   attendu et le résultat observé.
 
-La release contient neuf fichiers fournis par le workflow :
+L'exécutable Windows est **non signé**. Windows SmartScreen ou Smart App
+Control peut avertir ou bloquer son lancement. Ne désactivez pas
+globalement les protections Windows pour exécuter FREDPP.
 
-- `FREDPP-Language-v0.1.0.vsix`
-- `FREDPP-v0.1.0-debian13-amd64.tar.gz`
-- `FREDPP-v0.1.0-debian13-arm64.tar.gz`
-- `FREDPP-v0.1.0-macos-arm64.tar.gz`
-- `FREDPP-v0.1.0-macos-x64.tar.gz`
-- `FREDPP-v0.1.0-windows-x64.zip`
-- `fredpp_0.1.0_amd64.deb`
-- `fredpp_0.1.0_arm64.deb`
-- `SHA256SUMS.txt`
+## Limitations connues
 
-GitHub ajoute automatiquement les deux archives du code source (`zip` et
-`tar.gz`), soit **11 assets affichés**. Les empreintes SHA-256 couvrent les
-huit packages téléchargeables créés par le workflow.
+- Reconnaissance des 103 entrées du tableau historique, **sans garantie
+  d'équivalence GCOS complète**.
+- Certaines formes avancées de \B et \E restent non homologuées ; les
+  références cycliques de motifs sont interrompues par une limite.
+- Les budgets de durée sont vérifiés entre instructions : une commande
+  bloquante n'est pas interrompue ; les buffers n'ont pas encore de
+  plafond global de mémoire.
+- La résistance à une coupure brutale pendant une écriture et aux
+  fichiers exceptionnellement volumineux n'est pas entièrement validée.
+- La livraison Windows candidate ne contient pas l'APK Android ; la
+  compilation Android suit un workflow CI séparé.
 
-Les fichiers de cette release sont compilés depuis le tag `v0.1.0` sur `dev`,
-**sans modifier `main`**. L'application Android suit son propre circuit CI et
-n'est pas incluse dans cette matrice de livraison.
+## Diffusion ultérieure
+
+Après retour des essais Windows, les notes pourront être finalisées et
+le tag v0.1.1 créé sur le sommet exact de dev pour publier une nouvelle
+**préversion**. Le workflow officiel produira les archives Windows,
+Debian, macOS, l'extension VS Code et le manifeste de sommes SHA-256.
