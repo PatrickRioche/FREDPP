@@ -274,6 +274,20 @@ add_test(NAME cli_test_condition_t
         -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_condition_t.cmake"
 )
 
+# Production-like batch reliability: actual procedure + R/WU on 100/1000
+# separate files. The CMake runner creates unique build-tree sandboxes.
+foreach(batch_count IN ITEMS 100 1000)
+    add_test(NAME cli_reliability_batch_${batch_count}
+        COMMAND ${CMAKE_COMMAND}
+            "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+            "-DTEST_ROOT=${CMAKE_CURRENT_BINARY_DIR}/fredpp-batch-${batch_count}"
+            "-DBATCH_COUNT=${batch_count}"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_batch_files.cmake"
+    )
+    set_tests_properties(cli_reliability_batch_${batch_count}
+        PROPERTIES TIMEOUT 40)
+endforeach()
+
 add_test(NAME test_release_manifest
     COMMAND ${CMAKE_COMMAND}
         -DFREDPP_SOURCE_DIR=${CMAKE_SOURCE_DIR}
