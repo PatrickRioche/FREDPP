@@ -78,6 +78,73 @@ foreach(index RANGE 1 ${BATCH_COUNT})
     endif()
 endforeach()
 
+# Second real-world workload: rewrite every source into its own output file,
+# through the same reusable FRED buffer. This probes 100/1000 independent
+# R -> S -> WU -> D cycles, file association replacement and exact output.
+set(transformed_dir "${root}/transformed files")
+file(MAKE_DIRECTORY "${transformed_dir}")
+file(TO_CMAKE_PATH "${root}/transform-procedure.fredpp" transform_procedure)
+set(transform_commands "B(reusable)\n")
+foreach(index RANGE 1 ${BATCH_COUNT})
+    set(source_file "${inputs}/sample ${index}.txt")
+    file(TO_CMAKE_PATH "${source_file}" source_for_fred)
+    file(TO_CMAKE_PATH
+        "${transformed_dir}/result ${index}.txt" transformed_for_fred)
+    string(APPEND transform_commands
+        "R \"${source_for_fred}\"\n"
+        "S!alpha-!omega-!\n"
+        "WU \"${transformed_for_fred}\"\n"
+        "*D\n")
+endforeach()
+string(APPEND transform_commands
+    "JM!FREDPP-TRANSFORM-${BATCH_COUNT}-OK!\n")
+file(WRITE "${transform_procedure}" "${transform_commands}")
+
+execute_process(
+    COMMAND "${CMAKE_COMMAND}" -E env
+        "FREDPP_INIT="
+        "FREDPP_PROCEDURE_MAX_SECONDS=60"
+        "${FREDPP_EXE}" "${transform_procedure}"
+    WORKING_DIRECTORY "${root}"
+    RESULT_VARIABLE transform_status
+    OUTPUT_VARIABLE transform_output
+    ERROR_VARIABLE transform_errors
+    TIMEOUT 30
+)
+string(REPLACE "\r\n" "\n" transform_output "${transform_output}")
+if(NOT "${transform_status}" STREQUAL "0" OR
+   NOT "${transform_output}" STREQUAL
+       "FREDPP-TRANSFORM-${BATCH_COUNT}-OK\n" OR
+   NOT "${transform_errors}" STREQUAL "")
+    message(FATAL_ERROR
+        "File-by-file transformation failed on ${BATCH_COUNT} inputs.\n"
+        "status: ${transform_status}\n"
+        "stdout: ${transform_output}\nstderr: ${transform_errors}\n"
+        "Workspace retained: ${root}")
+endif()
+
+foreach(index RANGE 1 ${BATCH_COUNT})
+    set(transformed_file
+        "${transformed_dir}/result ${index}.txt")
+    if(NOT EXISTS "${transformed_file}")
+        message(FATAL_ERROR
+            "Missing transformed file ${index}: ${root}")
+    endif()
+    file(READ "${transformed_file}" transformed_actual)
+    if(NOT "${transformed_actual}" STREQUAL
+       "FREDPP-ROW-${index}|omega-${index}\n")
+        message(FATAL_ERROR
+            "Transformed content mismatch on file ${index}: ${root}")
+    endif()
+    set(source_file "${inputs}/sample ${index}.txt")
+    file(READ "${source_file}" actual_source)
+    if(NOT "${actual_source}" STREQUAL
+       "FREDPP-ROW-${index}|alpha-${index}\n")
+        message(FATAL_ERROR
+            "Transformation changed input file ${index}: ${root}")
+    endif()
+endforeach()
+
 # Failure injection: a missing source must stop before the WU step,
 # without creating an incomplete output file or changing existing inputs.
 file(TO_CMAKE_PATH "${inputs}/missing source.txt" missing_file)
