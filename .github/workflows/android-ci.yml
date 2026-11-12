@@ -34,7 +34,11 @@ jobs:
           distribution: temurin
           java-version: "17"
 
+      # The action defaults to `tools platform-tools`, but the legacy
+      # Android SDK `tools` package is no longer published by Google.
       - uses: android-actions/setup-android@v3
+        with:
+          packages: platform-tools
 
       - name: Install Android toolchain
         shell: bash
