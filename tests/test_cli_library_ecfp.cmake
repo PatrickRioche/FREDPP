@@ -11,6 +11,9 @@ endif()
 string(RANDOM LENGTH 10 ALPHABET 0123456789abcdef suffix)
 set(root "${TEST_ROOT}/ecfp-${suffix}")
 file(MAKE_DIRECTORY "${root}")
+file(MAKE_DIRECTORY "${root}/library")
+# Simulate the layout of the portable kit; invoke by simple procedure name.
+file(COPY "${ECFP_PROCEDURE}" DESTINATION "${root}/library")
 
 # Paths deliberately contain whitespace to exercise real Windows paths.
 set(first "${root}/source one.txt")
@@ -30,7 +33,7 @@ file(WRITE "${quit_file}" "QQ\n")
 function(run_ecfp mode status_var stdout_var stderr_var)
     execute_process(
         COMMAND "${CMAKE_COMMAND}" -E env "FREDPP_INIT="
-            "${FREDPP_EXE}" "${ECFP_PROCEDURE}"
+            "${FREDPP_EXE}" "ecfp"
             "${list_file}" "${command_file}" "${mode}"
         WORKING_DIRECTORY "${root}"
         INPUT_FILE "${quit_file}"
