@@ -1,0 +1,89 @@
+" Auteur: Patrick Rioche & ChatGPT Astra    le 13/11/2026   a Angers
+" @(fredpp): ecfp  - Executer Commandes FredPp
+"
+" Syntaxe:
+"   fredpp ecfp <liste_fichiers> <commandes_fredpp> <VOIR|FAIRE>
+"
+" Un chemin de fichier par ligne dans <liste_fichiers>.
+"
+" <commandes_fredpp> contient des commandes FREDPP qui modifient le buffer courant.
+"
+" VOIR : applique en memoire, affiche le resultat, sans commande W de ECFP.
+" FAIRE : applique les memes commandes puis W sur le fichier d'origine.
+"
+" IMPORTANT : le fichier de commandes doit etre de confiance et ne doit
+" contenir ni ecriture autonome (W, ZW), ni commande systeme (!, ZG), ni QQ.
+" ECFP n'isole pas les effets secondaires d'une procedure appelee.
+" Faire une sauvegarde externe avant toute execution en mode FAIRE.
+
+B(0)
+N(ectfp_argc):$=3 J(ectfp_args)T
+JM/Usage : fredpp ectfp <liste_fichiers> <commandes_ted> <VOIR|FAIRE>/
+QQ
+
+@(ectfp_args)
+1M(ectfp_liste)
+1M(ectfp_com)
+1M(ectfp_mode)
+
+B(ectfp_mode)
+1T/^VOIR$/
+J(ectfp_voir)T
+1T/^voir$/
+J(ectfp_voir)T
+1T/^FAIRE$/
+J(ectfp_faire)T
+1T/^faire$/
+J(ectfp_faire)T
+JM/ECFP : troisieme argument invalide (VOIR ou FAIRE)./
+QQ
+
+@(ectfp_voir)
+N(ectfp_save):0
+J(ectfp_init)
+
+@(ectfp_faire)
+N(ectfp_save):1
+
+@(ectfp_init)
+B(ectfp_fichiers)
+R \S(ectfp_liste)
+B(ectfp_programme)
+R \S(ectfp_com)
+N(ectfp_total):0
+JM/ECFP : debut du traitement./
+
+@(ectfp_suivant)
+B(ectfp_fichiers)
+N(ectfp_reste):$=0 J(ectfp_fin)T
+1M(ectfp_nom)
+JM/ECFP : traitement du fichier :/
+B(ectfp_nom)
+1P
+B(ectfp_travail)
+R \S(ectfp_nom)
+\B(ectfp_programme)
+B(ectfp_travail)
+N(ectfp_save)=1 J(ectfp_ecrire)T
+JM/ECFP VOIR : resultat transforme (non enregistre) :/
+N(ectfp_lignes):$=0 J(ectfp_vide)T
+1,$P
+J(ectfp_apres)
+
+@(ectfp_vide)
+JM/ECFP VOIR : fichier transforme vide./
+J(ectfp_apres)
+
+@(ectfp_ecrire)
+W
+JM/ECFP FAIRE : fichier enregistre./
+
+@(ectfp_apres)
+B(ectfp_fichiers)
+ZD(ectfp_travail)
+N(ectfp_total)+1
+J(ectfp_suivant)
+
+@(ectfp_fin)
+JM/ECFP : nombre de fichiers traites : \N(ectfp_total)/
+QQ
