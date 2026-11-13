@@ -103,6 +103,15 @@ The repository currently contains:
 - historical whole-buffer alias `*`, including bare `*` (`1,$P`) and forms such as `*D`;
 - automated tests through CTest.
 
+## Bundled procedure library
+
+Release packages include general-purpose `library/*.fredpp` procedures.
+`ecfp.fredpp` runs a trusted command script over a text file listing input
+files: `fredpp ecfp <file-list> <command-file> VOIR` previews transformations;
+`FAIRE` writes to the originals. Back up originals before using FAIRE.
+VOIR does not sandbox commands within the supplied script. See
+[French procedure documentation](docs/fr/fredpp/procedures.md).
+
 ## Official releases
 
 Ready-to-run packages are published from Git tags through GitHub Releases:
