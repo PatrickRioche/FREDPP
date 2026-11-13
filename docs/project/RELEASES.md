@@ -38,12 +38,12 @@ modifier `main` :
 ```bash
 git switch dev
 git pull --ff-only origin dev
-git tag -a v0.1.0 -m "FREDPP v0.1.0 pre-release"
-git push origin v0.1.0
+git tag -a vX.Y.Z -m "FREDPP vX.Y.Z pre-release"
+git push origin vX.Y.Z
 ```
 
-Cette procédure suppose que la version `0.1.0` et le workflow de livraison
-ont déjà été commités et poussés sur `dev`, que le tag `v0.1.0` n'existe pas,
+Cette procédure suppose que la version `X.Y.Z` et le workflow de livraison
+ont déjà été commités et poussés sur `dev`, que le tag `vX.Y.Z` n'existe pas,
 et que les tests locaux ont réussi. Le push du tag déclenche GitHub Actions.
 
 Pour une **release stable ultérieure**, après validation complète et décision
