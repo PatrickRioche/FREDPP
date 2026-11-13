@@ -312,10 +312,12 @@ std::filesystem::path with_fredpp_extension(std::filesystem::path path) {
  * @brief Resolves a requested procedure according to current desktop search policy.
  *
  * Explicit paths are tested directly (and with `.fredpp` when extensionless).
- * Simple names are searched in the current directory and, on Windows only, the
- * fixed `C:\fredpp\library` location.
+ * Simple names are searched in the current directory, in its library/
+ * subdirectory, next to the executable (portable kits), and in standard
+ * installation library locations. Explicit paths are unchanged.
  */
-std::filesystem::path resolve_procedure_path(std::string_view name) {
+std::filesystem::path resolve_procedure_path(
+    std::string_view name, const std::filesystem::path& executable_path) {
     if (name.empty()) {
         throw std::runtime_error("procedure name must not be empty");
     }
@@ -333,10 +335,26 @@ std::filesystem::path resolve_procedure_path(std::string_view name) {
         }
     } else {
         const auto physical = with_fredpp_extension(requested);
-        candidates.push_back(std::filesystem::current_path() / physical);
+        const auto current = std::filesystem::current_path();
+        candidates.push_back(current / physical);
+        candidates.push_back(current / "library" / physical);
+
+        // A portable ZIP/TAR.GZ includes library/ beside fredpp(.exe).
+        // Resolve it even when launched from a different working directory.
+        std::error_code executable_error;
+        const auto executable = std::filesystem::absolute(
+            executable_path, executable_error);
+        if (!executable_error) {
+            candidates.push_back(executable.parent_path() / "library" / physical);
+        }
 #ifdef _WIN32
         candidates.push_back(
             std::filesystem::path{R"(C:\fredpp\library)"} / physical);
+#else
+        candidates.push_back(
+            std::filesystem::path{"/usr/local/share/fredpp/library"} / physical);
+        candidates.push_back(
+            std::filesystem::path{"/usr/share/fredpp/library"} / physical);
 #endif
     }
 
@@ -661,7 +679,7 @@ int main(int argc, char** argv) {
             }
 
             initialize_parameter_buffer(manager, argc, argv);
-            procedure_path = resolve_procedure_path(argv[1]);
+            procedure_path = resolve_procedure_path(argv[1], argv[0]);
         } catch (const std::exception& error) {
             std::cerr << "error: " << error.what() << '\n';
             return 1;
