@@ -47,6 +47,18 @@ install -m 0644 "$PROJECT_ROOT/packaging/LISEZMOI-MACOS.txt" "$STAGE_DIR/LISEZMO
 for file in LICENSE NOTICE CHANGELOG.md ROADMAP.md RELEASE_NOTES.md; do
     install -m 0644 "$PROJECT_ROOT/$file" "$STAGE_DIR/$file"
 done
+# Bundle every procedure in the portable macOS archive.
+mkdir -p "$STAGE_DIR/library"
+shopt -s nullglob
+procedures=("$PROJECT_ROOT"/library/*.fredpp)
+if (( ${#procedures[@]} == 0 )); then
+    echo "error: no FREDPP library procedures found" >&2
+    exit 1
+fi
+for procedure in "${procedures[@]}"; do
+    install -m 0644 "$procedure" "$STAGE_DIR/library/$(basename "$procedure")"
+done
+
 tar -C "$OUTPUT_DIR" -czf "$ARCHIVE" "$PACKAGE_NAME"
 echo "Created: $ARCHIVE"
 file "$STAGE_DIR/fredpp"
