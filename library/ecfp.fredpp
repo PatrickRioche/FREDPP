@@ -47,9 +47,9 @@ N(ectfp_save):1
 
 @(ectfp_init)
 B(ectfp_fichiers)
-R \S(ectfp_liste)
+R "\S(ectfp_liste)"
 B(ectfp_programme)
-R \S(ectfp_com)
+R "\S(ectfp_com)"
 N(ectfp_total):0
 JM/ECFP : debut du traitement./
 
@@ -61,7 +61,7 @@ JM/ECFP : traitement du fichier :/
 B(ectfp_nom)
 1P
 B(ectfp_travail)
-R \S(ectfp_nom)
+R "\S(ectfp_nom)"
 \B(ectfp_programme)
 B(ectfp_travail)
 N(ectfp_save)=1 J(ectfp_ecrire)T
