@@ -1,66 +1,73 @@
-# FREDPP v0.1.1 — Version candidate Windows x64 (essais utilisateur)
+# FREDPP v0.1.1 — Préversion multi-plateforme
 
-Cette version candidate sert à tester sur Windows le moteur FREDPP C++20 après
-les travaux de fiabilisation menés depuis la préversion v0.1.0.
-
-**Statut : version candidate, non encore publiée comme GitHub Release officielle.**
-Le ZIP de test est produit par GitHub Actions pour la pull request de
-préparation, sans tag v0.1.1 et sans modification de la branche main.
+Cette préversion consolide l'éditeur FREDPP C++20 depuis v0.1.0. Elle est
+préparée depuis la branche `dev` et ne promeut pas le code vers `main`.
 
 ## Évolutions depuis v0.1.0
 
-- Directives de flot : \R (saisie terminal littérale), \N (format du
-  registre NB/ND/NF), \E (références nommées uniquement dans les motifs,
-  définitions imbriquées), \B (flot actif de commandes et saisie A/I/C).
-  Les autres directives \C, \L, \O, \S et \W restent couvertes.
-- Exécution des procédures et commandes : corrections de compatibilité
-  historique et protections contre les cas non bornés.
-- Non-régression : passage de 71 à **79 tests CTest** depuis v0.1.0,
-  validés en CI Windows/MSVC et Linux/GCC, puis localement sous Windows.
-- Fichiers : deux campagnes automatisées sur 100 et 1 000 fichiers ;
-  vérification octet pour octet des sorties, des traitements R/S/WU/*D,
-  de l'absence de modification des sources et de la récupération après
-  fichier manquant.
-- Bibliothèque : ajout de `ecfp.fredpp` pour appliquer un fichier de commandes à une liste de fichiers (VOIR sans sauvegarde automatique, FAIRE avec écriture). Les kits Windows, macOS et Debian embarquent désormais les procédures de `library/` ; les paquets Debian les installent également. Attention : VOIR ne sandboxe pas les commandes appelées.
-- CI Android : installation du SDK réparée, APK Debug construit et
-  publié séparément dans GitHub Actions.
+- Directives du flot : améliorations de `\B`, `\E`, `\N` et `\R`, avec
+  maintien des limitations historiques documentées.
+- Exécution des procédures : corrections fonctionnelles, protections contre
+  les répétitions sans borne et contrôles de récupération après erreur.
+- Suite de non-régression portée de **71 à 79 tests CTest**. La candidate
+  v0.1.1 a validé **79/79 tests en CI Windows/MSVC et Linux/GCC**.
+- Tests de lots : traitement de **100 et 1 000 fichiers**, avec vérification
+  des données, transformations successives, intégrité des fichiers sources
+  et gestion d'une source manquante.
+- Nouvelle procédure générale **`ecfp.fredpp`**, fournie dans `library/` :
+  applique un programme de commandes FREDPP aux fichiers énumérés dans une
+  liste. `VOIR` affiche les transformations sans écriture automatique d'ECFP ;
+  `FAIRE` écrit les transformations sur les originaux.
+- Les procédures `library/*.fredpp` sont incluses automatiquement dans les
+  archives portables Windows, Debian et macOS, ainsi que dans les paquets
+  natifs Debian.
+- La CI Android construit à nouveau un APK Debug ; **Android n'est pas
+  inclus dans la présente release desktop**.
 
-## Télécharger et tester sur Windows
+## Téléchargements
 
-Récupérer l'artefact **FREDPP-Windows-x64-Candidate-PR-N** depuis
-GitHub Actions (exécution réussie de la pull request préparatoire).
-L'artefact contient l'archive `FREDPP-v0.1.1-windows-x64.zip`.
+La chaîne de publication construit les neuf fichiers suivants :
 
-1. Décompresser l'artefact GitHub, puis le ZIP du kit FREDPP.
-2. Exécuter `fredpp.exe --version` : il doit afficher **FREDPP v0.1.1**.
-3. Essayer `fredpp.exe hello` depuis le répertoire contenant
-   la bibliothèque de procédures fournie ; vérifier que les commandes
-   et les scripts personnels fonctionnent normalement.
-4. Conserver une copie de sauvegarde des documents avant toute édition
-   importante ; signaler les erreurs avec la commande, le résultat
-   attendu et le résultat observé.
+- `FREDPP-v0.1.1-windows-x64.zip`
+- `FREDPP-v0.1.1-debian13-amd64.tar.gz`
+- `FREDPP-v0.1.1-debian13-arm64.tar.gz`
+- `FREDPP-v0.1.1-macos-x64.tar.gz`
+- `FREDPP-v0.1.1-macos-arm64.tar.gz`
+- `fredpp_0.1.1_amd64.deb`
+- `fredpp_0.1.1_arm64.deb`
+- `FREDPP-Language-v0.1.1.vsix`
+- `SHA256SUMS.txt`
 
-L'exécutable Windows est **non signé**. Windows SmartScreen ou Smart App
-Control peut avertir ou bloquer son lancement. Ne désactivez pas
-globalement les protections Windows pour exécuter FREDPP.
+Le workflow vérifie chaque package et ses empreintes SHA-256 avant
+publication. GitHub fournit en plus les deux archives du code source.
 
-## Limitations connues
+## Essayer ECFP
 
-- Reconnaissance des 103 entrées du tableau historique, **sans garantie
-  d'équivalence GCOS complète**.
-- Certaines formes avancées de \B et \E restent non homologuées ; les
-  références cycliques de motifs sont interrompues par une limite.
-- Les budgets de durée sont vérifiés entre instructions : une commande
-  bloquante n'est pas interrompue ; les buffers n'ont pas encore de
-  plafond global de mémoire.
-- La résistance à une coupure brutale pendant une écriture et aux
-  fichiers exceptionnellement volumineux n'est pas entièrement validée.
-- La livraison Windows candidate ne contient pas l'APK Android ; la
-  compilation Android suit un workflow CI séparé.
+Placez un nom de fichier par ligne dans `liste.txt` et un programme de
+commandes FREDPP dans `transformations.fredpp`. Depuis un kit décompressé :
 
-## Diffusion ultérieure
+```text
+fredpp ecfp liste.txt transformations.fredpp VOIR
+fredpp ecfp liste.txt transformations.fredpp FAIRE
+```
 
-Après retour des essais Windows, les notes pourront être finalisées et
-le tag v0.1.1 créé sur le sommet exact de dev pour publier une nouvelle
-**préversion**. Le workflow officiel produira les archives Windows,
-Debian, macOS, l'extension VS Code et le manifeste de sommes SHA-256.
+**Sauvegardez les fichiers avant FAIRE.** Le mode VOIR ne garantit pas
+l'absence d'effets secondaires du programme fourni : les commandes externes
+ou autonomes d'écriture ne sont pas isolées. N'exécutez que des scripts fiables.
+
+## Limites connues
+
+- Les **103 entrées** du tableau de couverture sont reconnues ; cela ne
+  garantit pas une émulation complète de FRED sous GCOS.
+- Certaines formes avancées des directives, dont `\B` et `\E`, restent
+  incomplètes ou non homologuées.
+- Les délais de sécurité sont contrôlés entre les instructions, pas pendant
+  l'exécution d'une commande bloquante. Aucun plafond global de mémoire des
+  buffers n'est actuellement appliqué.
+- La résistance aux coupures pendant une écriture et aux volumes
+  exceptionnellement importants n'est pas entièrement validée.
+- L'exécutable Windows est non signé ; SmartScreen peut afficher un
+  avertissement. Ne désactivez pas les protections Windows pour le lancer.
+
+La présente version est une **préversion** destinée aux tests et à
+l'expérimentation. L'APK Android suit une diffusion distincte.
