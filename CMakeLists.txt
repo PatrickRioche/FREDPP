@@ -574,6 +574,12 @@ if(FREDPP_BUILD_CLI)
     install(TARGETS fredpp
         RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
+    # Install all general-purpose procedures in native Debian packages.
+    # Portable kits are assembled separately by the platform scripts.
+    install(DIRECTORY library/
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/fredpp/library"
+        FILES_MATCHING PATTERN "*.fredpp"
+    )
     set(FREDPP_INSTALL_DOCDIR "${CMAKE_INSTALL_DATAROOTDIR}/doc/fredpp")
     install(FILES
         LICENSE
