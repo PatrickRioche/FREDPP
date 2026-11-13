@@ -29,6 +29,33 @@ jobs:
       - name: Run full test suite
         run: ctest --test-dir out/build/ci-msvc -C Release --output-on-failure --timeout 40
 
+      # Offer a testable portable ZIP on release-preparation PRs without
+      # creating a tag or publishing a GitHub Release.
+      - name: Package Windows candidate after successful tests
+        if: startsWith(github.head_ref, 'release/')
+        shell: pwsh
+        run: |
+          ./scripts/package-release.ps1 -BuildDirectory out/build/ci-msvc -OutputDirectory out/release
+          $kits = @(Get-ChildItem out/release -Filter 'FREDPP-v*-windows-x64.zip' -File)
+          if ($kits.Count -ne 1) {
+            throw "Expected exactly one FREDPP Windows ZIP, found $($kits.Count)"
+          }
+          $hash = (Get-FileHash $kits[0].FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+          Set-Content -Path "out/release/SHA256-CANDIDATE.txt" -Encoding ascii -Value "$hash  $($kits[0].Name)"
+          Write-Host "Windows candidate ZIP: $($kits[0].Name)"
+          Write-Host "SHA256: $hash"
+
+      - name: Upload Windows release candidate for manual testing
+        if: startsWith(github.head_ref, 'release/')
+        uses: actions/upload-artifact@v4
+        with:
+          name: FREDPP-Windows-x64-Candidate-PR-${{ github.event.pull_request.number }}
+          path: |
+            out/release/FREDPP-v*-windows-x64.zip
+            out/release/SHA256-CANDIDATE.txt
+          if-no-files-found: error
+          retention-days: 30
+
   linux-gcc:
     name: Linux GCC / CTest
     runs-on: ubuntu-latest
