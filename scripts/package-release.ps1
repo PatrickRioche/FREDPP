@@ -44,12 +44,13 @@ foreach ($File in @("LICENSE", "NOTICE", "CHANGELOG.md", "ROADMAP.md", "RELEASE_
 
 $LibraryDirectory = Join-Path $StageDirectory "library"
 New-Item -ItemType Directory -Path $LibraryDirectory -Force | Out-Null
-foreach ($Procedure in @("aide.fredpp", "hello.fredpp", "index.fredpp", "ouya.fredpp")) {
-    $ProcedureSource = Join-Path (Join-Path $ProjectRoot "library") $Procedure
-    if (-not (Test-Path $ProcedureSource)) {
-        throw "Missing release library procedure: $Procedure"
-    }
-    Copy-Item $ProcedureSource (Join-Path $LibraryDirectory $Procedure)
+# Ship every maintained library procedure in current and future releases.
+$Procedures = @(Get-ChildItem -Path (Join-Path $ProjectRoot "library") -Filter "*.fredpp" -File)
+if ($Procedures.Count -eq 0) {
+    throw "No FREDPP library procedures found for packaging"
+}
+foreach ($Procedure in $Procedures) {
+    Copy-Item $Procedure.FullName (Join-Path $LibraryDirectory $Procedure.Name)
 }
 
 Compress-Archive -Path $StageDirectory -DestinationPath $ArchivePath -CompressionLevel Optimal
