@@ -53,6 +53,18 @@ for file in LICENSE NOTICE CHANGELOG.md ROADMAP.md RELEASE_NOTES.md; do
     install -m 0644 "$PROJECT_ROOT/$file" "$STAGE_DIR/$file"
 done
 
+# Include the same library procedures in portable archives as in the DEB.
+mkdir -p "$STAGE_DIR/library"
+shopt -s nullglob
+procedures=("$PROJECT_ROOT"/library/*.fredpp)
+if (( ${#procedures[@]} == 0 )); then
+    echo "error: no FREDPP library procedures found" >&2
+    exit 1
+fi
+for procedure in "${procedures[@]}"; do
+    install -m 0644 "$procedure" "$STAGE_DIR/library/$(basename "$procedure")"
+done
+
 tar -C "$OUTPUT_DIR" -czf "$ARCHIVE" "$PACKAGE_NAME"
 
 cpack --config "$BUILD_DIR/CPackConfig.cmake" -G DEB -B "$OUTPUT_DIR"

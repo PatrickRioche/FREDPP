@@ -17,6 +17,7 @@ set(required_files
     packaging/LISEZMOI-MACOS.txt
     library/aide.fredpp
     library/hello.fredpp
+    library/ecfp.fredpp
     library/index.fredpp
     library/ouya.fredpp
     scripts/package-release.ps1
@@ -50,6 +51,29 @@ set(required_files
     scripts/release-stats.sh
     .github/workflows/release.yml
 )
+
+# Every future portable release must copy the procedure library on all
+# desktop platforms, and the Debian DEB must install it as well.
+file(READ "${FREDPP_SOURCE_DIR}/scripts/package-release.ps1" windows_package)
+file(READ "${FREDPP_SOURCE_DIR}/scripts/package-release.sh" debian_package)
+file(READ "${FREDPP_SOURCE_DIR}/scripts/package-release-macos.sh" macos_package)
+file(READ "${FREDPP_SOURCE_DIR}/CMakeLists.txt" cmake_source)
+foreach(required IN ITEMS "Get-ChildItem" "-Filter \"*.fredpp\"")
+    string(FIND "${windows_package}" "${required}" at)
+    if(at EQUAL -1)
+        message(FATAL_ERROR "Windows packaging does not ship the complete library")
+    endif()
+endforeach()
+foreach(package_script IN ITEMS debian_package macos_package)
+    string(FIND "${${package_script}}" "library/*.fredpp" at)
+    if(at EQUAL -1)
+        message(FATAL_ERROR "Portable Unix packaging does not ship the complete library")
+    endif()
+endforeach()
+string(FIND "${cmake_source}" "install(DIRECTORY library/" at)
+if(at EQUAL -1)
+    message(FATAL_ERROR "Native Debian package does not install the library")
+endif()
 
 foreach(relative_path IN LISTS required_files)
     if(NOT EXISTS "${FREDPP_SOURCE_DIR}/${relative_path}")

@@ -15,12 +15,13 @@ préparation, sans tag v0.1.1 et sans modification de la branche main.
   Les autres directives \C, \L, \O, \S et \W restent couvertes.
 - Exécution des procédures et commandes : corrections de compatibilité
   historique et protections contre les cas non bornés.
-- Non-régression : passage de 71 à **78 tests CTest** depuis v0.1.0,
+- Non-régression : passage de 71 à **79 tests CTest** depuis v0.1.0,
   validés en CI Windows/MSVC et Linux/GCC, puis localement sous Windows.
 - Fichiers : deux campagnes automatisées sur 100 et 1 000 fichiers ;
   vérification octet pour octet des sorties, des traitements R/S/WU/*D,
   de l'absence de modification des sources et de la récupération après
   fichier manquant.
+- Bibliothèque : ajout de `ecfp.fredpp` pour appliquer un fichier de commandes à une liste de fichiers (VOIR sans sauvegarde automatique, FAIRE avec écriture). Les kits Windows, macOS et Debian embarquent désormais les procédures de `library/` ; les paquets Debian les installent également. Attention : VOIR ne sandboxe pas les commandes appelées.
 - CI Android : installation du SDK réparée, APK Debug construit et
   publié séparément dans GitHub Actions.
 

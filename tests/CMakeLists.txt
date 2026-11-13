@@ -126,6 +126,16 @@ set_tests_properties(cli_script PROPERTIES
     PASS_REGULAR_EXPRESSION "CLI OK"
 )
 
+# End-to-end regression for the shipped ECFP multi-file procedure.
+add_test(NAME cli_library_ecfp
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DECFP_PROCEDURE=${CMAKE_SOURCE_DIR}/library/ecfp.fredpp"
+        "-DTEST_ROOT=${CMAKE_CURRENT_BINARY_DIR}/fredpp-ecfp"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_library_ecfp.cmake"
+)
+set_tests_properties(cli_library_ecfp PROPERTIES TIMEOUT 30)
+
 add_test(NAME cli_procedure_bootstrap
     COMMAND ${CMAKE_COMMAND}
         "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"

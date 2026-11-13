@@ -2,7 +2,8 @@
 
 - Consolidation des neuf directives de flot FRED : traitements des références nommées `\\E` dans les seuls motifs, injection active `\\B`, registre numérique `\\N` avec formats NB/ND/NF et lecture terminal littérale `\\R` ; limites historiques avancées toujours documentées.
 - Fiabilisation des procédures et des garde-fous d'exécution ; améliorations du moteur de commandes et des tests de non-régression.
-- Extension de la suite automatisée de **71 à 78 tests CTest** depuis la v0.1.0, validés sous Windows/MSVC et Linux/GCC. Deux scénarios couvrent le traitement de **100 et 1 000 fichiers**, leurs transformations, l'intégrité des sources et le retour contrôlé après fichier manquant.
+- Extension de la suite automatisée de **71 à 79 tests CTest** depuis la v0.1.0, validés sous Windows/MSVC et Linux/GCC. Deux scénarios couvrent le traitement de **100 et 1 000 fichiers**, leurs transformations, l'intégrité des sources et le retour contrôlé après fichier manquant.
+- Bibliothèque générale : intégration de `library/ecfp.fredpp` (traitement de listes de fichiers en modes VOIR et FAIRE), recherche des procédures fournies à côté de l'exécutable et inclusion automatique des scripts dans les kits Windows, Debian et macOS. Test supplémentaire ECFP (VOIR, FAIRE, chemins avec espaces).
 - Réparation du workflow Android : retrait du paquet SDK obsolète `tools`, compilation et publication d'un APK Debug dans GitHub Actions (distribution Android séparée).
 - Version **de test** : le ZIP Windows x64 est produit par la CI sur la pull request de préparation. Aucun tag ni publication GitHub Release `v0.1.1` n'est créé à ce stade.
 

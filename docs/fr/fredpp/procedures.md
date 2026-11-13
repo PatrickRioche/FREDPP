@@ -12,14 +12,19 @@ Le fichier physique reste `hello.fredpp`. L'extension `.fredpp` sert notamment
 à l'association avec Visual Studio Code ; elle n'a pas besoin d'être saisie
 dans l'usage courant du CLI.
 
-Pour un nom simple, sous Windows, FREDPP recherche dans cet ordre :
+Pour un nom simple, FREDPP recherche dans cet ordre :
 
 ```text
 .\hello.fredpp
-C:\fredpp\library\hello.fredpp
+.\library\hello.fredpp
+<dossier_de_fredpp.exe>\library\hello.fredpp
 ```
 
-Le premier fichier trouvé est exécuté. Les chemins explicites restent acceptés :
+Sous Windows, `C:\fredpp\library` reste également pris en charge.
+Sur Linux, les répertoires d'installation
+`/usr/local/share/fredpp/library` et `/usr/share/fredpp/library`
+sont consultés. Le premier fichier existant est exécuté.
+Les chemins explicites restent acceptés :
 
 ```text
 fredpp .\mesprocs\hello.fredpp
@@ -27,6 +32,33 @@ fredpp C:\travail\hello.fredpp
 ```
 
 Un chemin explicite sans extension est également essayé avec `.fredpp`.
+
+## ECFP — TRAITEMENT D'UNE LISTE DE FICHIERS
+
+`library/ecfp.fredpp` est une procédure d'intérêt général fournie
+avec les kits Windows, Debian et macOS. Elle exécute un programme de commandes
+FREDPP sur chaque fichier dont le chemin figure dans une liste (un chemin par
+ligne).
+
+```powershell
+fredpp ecfp .\fichiers.txt .\transformations.fredpp VOIR
+fredpp ecfp .\fichiers.txt .\transformations.fredpp FAIRE
+```
+
+- **VOIR** : affiche les résultats transformés en mémoire, sans écriture
+  automatique de la procédure ECFP sur les fichiers traités.
+- **FAIRE** : applique les commandes puis écrit sur les fichiers d'origine
+  avec `W`. **Faire une sauvegarde** avant de lancer ce mode.
+- Les fichiers de la liste et le programme de commandes doivent exister ;
+  les chemins contenant des espaces sont pris en charge.
+- **Sécurité :** le mode VOIR n'est pas un bac à sable. La procédure de
+  commandes fournie doit être fiable et ne doit pas contenir d'écriture
+  autonome (`W`, `ZW`), de commande système (`!`, `ZG`) ou de `QQ`.
+  L'appel d'autres procédures peut également produire des effets secondaires.
+
+La bibliothèque est automatiquement incluse dans les archives portables ;
+les paquets Debian installent les procédures sous
+`/usr/share/fredpp/library` (selon le préfixe d'installation).
 
 ## PARAMÈTRES DE PROCÉDURE : B(0)
 
