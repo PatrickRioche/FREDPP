@@ -22,6 +22,7 @@ No version number is duplicated manually in this README.
 ## Development history
 
 - [Chronological development log](docs/project/DEVELOPMENT_LOG.md): dated work on `dev`, CI results, and local validation status.
+- [Development time by release](docs/project/DEVELOPMENT_TIME_BY_RELEASE.md): version-indexed commit activity and cautious effort estimate.
 - [Changelog](CHANGELOG.md): version-oriented summary of product changes.
 - [Roadmap](ROADMAP.md): upcoming features and milestones.
 - [Git history](https://github.com/PatrickRioche/FREDPP/commits/dev/): authoritative commit-level traceability.
