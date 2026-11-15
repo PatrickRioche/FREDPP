@@ -1,5 +1,6 @@
 #include "fred/runtime/ExecutionContext.hpp"
 
+#include <chrono>
 #include <cctype>
 #include <algorithm>
 #include <cstdint>
@@ -52,6 +53,19 @@ std::string ExecutionContext::read_terminal_line() const {
         throw std::runtime_error(
             "\\R requires a terminal input stream");
     }
+
+    // Account for time blocked in the input stream even when getline fails.
+    // The procedure watchdog remains active during all other instructions.
+    struct InputWaitGuard {
+        std::chrono::steady_clock::duration& total;
+        std::chrono::steady_clock::time_point start;
+        ~InputWaitGuard() noexcept {
+            total += std::chrono::steady_clock::now() - start;
+        }
+    };
+    InputWaitGuard input_wait{terminal_input_wait_duration_,
+                              std::chrono::steady_clock::now()};
+
     std::string line;
     if (!std::getline(*terminal_input_, line)) {
         throw std::runtime_error(
@@ -62,6 +76,11 @@ std::string ExecutionContext::read_terminal_line() const {
         line.pop_back();
     }
     return line;
+}
+
+std::chrono::steady_clock::duration
+ExecutionContext::terminal_input_wait_duration() const noexcept {
+    return terminal_input_wait_duration_;
 }
 
 void ExecutionContext::set_counter(std::int64_t value) noexcept {

@@ -6,6 +6,11 @@
 #include "fred/runtime/ProcedureRunner.hpp"
 
 #include <cassert>
+#include <chrono>
+#include <istream>
+#include <streambuf>
+#include <thread>
+#include <utility>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -21,6 +26,34 @@ void expect_error(auto&& action, std::string_view fragment) {
                std::string_view::npos);
     }
 }
+
+// Simulates a human pausing before typing one line on a console.
+class DelayedTerminalBuffer final : public std::streambuf {
+public:
+    DelayedTerminalBuffer(std::string text, std::chrono::milliseconds delay)
+        : text_(std::move(text)), delay_(delay) {}
+
+protected:
+    int_type underflow() override {
+        if (next_ == text_.size()) {
+            return traits_type::eof();
+        }
+        if (!waited_ || (next_ > 0 && text_[next_ - 1] == '\n')) {
+            std::this_thread::sleep_for(delay_);
+            waited_ = true;
+        }
+        character_ = text_[next_++];
+        setg(&character_, &character_, &character_ + 1);
+        return traits_type::to_int_type(character_);
+    }
+
+private:
+    std::string text_;
+    std::chrono::milliseconds delay_;
+    std::size_t next_{0};
+    char character_{};
+    bool waited_{};
+};
 
 } // namespace
 
@@ -243,6 +276,42 @@ int main() {
            "Mode d'emploi : \n"
            "Input A/BOK\n");
     assert(buffers.current().name() == "after-message");
+
+    // Regression: a user may think longer than the procedure watchdog
+    // without the next instruction being mistaken for an infinite loop.
+    // A real runaway J loop is still stopped by the independent limits.
+    {
+        fred::BufferManager slow_buffers;
+        fred::StringOutput slow_output;
+        fred::ExecutionContext slow_context(slow_buffers, slow_output);
+        fred::CommandExecutor slow_executor;
+        const auto slow_registry = fred::make_core_command_registry();
+        DelayedTerminalBuffer slow_input_buffer(
+            "7\nFIN\n", std::chrono::milliseconds{160});
+        std::istream slow_input(&slow_input_buffer);
+        slow_context.set_terminal_input(slow_input);
+        auto& slow_proc = slow_buffers.create_or_select("slow-proc");
+        slow_proc.append("B(slow-answer)");
+        slow_proc.append("A");
+        slow_proc.append("\\R");
+        slow_proc.append("\\F");
+        slow_proc.append("JM!RESPONDED!");
+        slow_proc.append("B(slow-answer-2)");
+        slow_proc.append("A");
+        slow_proc.append("\\R");
+        slow_proc.append("\\F");
+        slow_proc.append("JM!SECOND-ANSWER!");
+        fred::ProcedureRunner slow_runner(
+            slow_buffers, slow_context, slow_registry, slow_executor,
+            8, 1'000, std::chrono::milliseconds{90});
+
+        slow_runner.execute_buffer("slow-proc");
+        assert(slow_output.content() == "RESPONDED\nSECOND-ANSWER\n");
+        assert(slow_buffers.get("slow-answer").line(1) == "7");
+        assert(slow_buffers.get("slow-answer-2").line(1) == "FIN");
+        assert(slow_context.terminal_input_wait_duration() >=
+               std::chrono::milliseconds{300});
+    }
 
     return 0;
 }

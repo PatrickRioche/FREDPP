@@ -20,7 +20,7 @@ La commande ne lance aucune procédure ni fichier d'initialisation.
 | Variable d'environnement | Défaut | Portée |
 | --- | ---: | --- |
 | `FREDPP_PROCEDURE_MAX_STEPS` | 1 000 000 | Lignes exécutées dans une procédure et ses appels `\\B` |
-| `FREDPP_PROCEDURE_MAX_SECONDS` | 60 | Durée écoulée de cette exécution |
+| `FREDPP_PROCEDURE_MAX_SECONDS` | 60 | Durée effective d'exécution (hors attente de saisie `\R`) |
 | `FREDPP_REPEAT_MAX_STEPS` | 1 000 000 | Itérations cumulées de commandes `U` imbriquées |
 | `FREDPP_REPEAT_MAX_SECONDS` | 60 | Durée écoulée des répétitions `U` imbriquées |
 
@@ -59,6 +59,11 @@ entre deux `U` indépendants, y compris en mode interactif.
 Une procédure est arrêtée avec un diagnostic explicite et, lorsque cela
 est possible, un retour au mode interactif pour inspection.
 Les sorties conditionnelles historiques restent autorisées.
+
+Le temps pendant lequel la procédure attend une ligne saisie avec `\R`
+**n'est pas décompté** des 60 secondes. Cette règle permet notamment de jouer
+au morpion ou de dialoguer avec ELIZA sans risque de timeout dû au temps de
+réflexion. Le comptage d'instructions reste actif pour détecter les boucles.
 Les dépassements de sécurité des répétitions `U` ne sont pas assimilés
 à une erreur ordinaire récupérable par `UE`.
 

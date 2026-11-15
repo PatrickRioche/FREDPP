@@ -60,7 +60,7 @@ describe forms that FREDPP has not implemented yet.
 
 ## Limites de sécurité (FREDPP)
 
-Sans réglage particulier, chaque procédure est limitée à **1 000 000 de lignes exécutées** et **60 secondes**. Les appels imbriqués `\\B` partagent ce budget. Les répétitions `U` disposent d'un budget distinct de **1 000 000 d'itérations cumulées** et **60 secondes**, partagé entre les `U` imbriqués.
+Sans réglage particulier, chaque procédure est limitée à **1 000 000 de lignes exécutées** et **60 secondes de traitement effectif** (le temps d'attente de saisie `\R` n'est pas comptabilisé). Les appels imbriqués `\\B` partagent ce budget. Les répétitions `U` disposent d'un budget distinct de **1 000 000 d'itérations cumulées** et **60 secondes**, partagé entre les `U` imbriqués.
 
 Les valeurs effectives, y compris celles provenant de l'environnement, sont visibles sans lancer de procédure :
 

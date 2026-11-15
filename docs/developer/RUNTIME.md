@@ -1287,6 +1287,9 @@ accepts both limits as optional constructor arguments for embedding/tests.
 When either limit is exceeded, the runner raises a runtime error with the
 normal procedure source context and records the error in `ExecutionContext`.
 Elapsed time is checked between procedure lines, not during a blocking command.
+The time spent waiting inside `ExecutionContext::read_terminal_line()` for
+historical `\R` input is subtracted from the procedure elapsed-time budget.
+All other execution time (including looping, parsing and commands) still counts.
 Independent `U` limits also remain in effect: the parser enforces at most
 262143 iterations for a single explicit `U`; runtime allows at most 16 nested
 `U` calls. A new cumulative budget (1,000,000 nested `U` iterations and

@@ -3,6 +3,7 @@
 #include "fred/core/BufferManager.hpp"
 #include "fred/runtime/Output.hpp"
 
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <istream>
@@ -85,6 +86,15 @@ public:
      * @throws std::runtime_error if input is unavailable or at EOF.
      */
     [[nodiscard]] std::string read_terminal_line() const;
+
+    /**
+     * @brief Cumulative time spent waiting for literal terminal input via \R.
+     *
+     * ProcedureRunner subtracts the delta since its invocation began, so
+     * interactive think time does not exhaust the execution-time watchdog.
+     */
+    [[nodiscard]] std::chrono::steady_clock::duration
+    terminal_input_wait_duration() const noexcept;
 
     /** Sets the shared numeric counter (`#` in procedure numeric operands). */
     void set_counter(std::int64_t value) noexcept;
@@ -258,6 +268,7 @@ private:
     BufferManager* buffers_;
     Output* output_;
     std::istream* terminal_input_{nullptr};
+    mutable std::chrono::steady_clock::duration terminal_input_wait_duration_{};
 
     std::int64_t counter_{};
     std::unordered_map<std::string, std::int64_t> numeric_registers_;

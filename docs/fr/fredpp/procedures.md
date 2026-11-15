@@ -161,7 +161,8 @@ procédure dispose de deux limites indépendantes, **partagées entre la procéd
 principale et les appels `\B` imbriqués** :
 
 - **1 000 000 de lignes exécutées**, par défaut ;
-- **60 secondes écoulées**, par défaut (vérification entre les lignes).
+- **60 secondes de traitement effectif**, par défaut (vérification entre les
+  lignes, sans comptabiliser l'attente d'une saisie terminal `\R`).
 
 La première limite atteinte arrête la procédure avec un message explicite,
 signalant une *possible* boucle infinie. Le mécanisme habituel d'inspection

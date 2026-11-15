@@ -50,7 +50,8 @@ public:
      * @param executor Borrowed command executor.
      * @param maximum_depth Nested procedure/flow protection.
      * @param maximum_steps Shared instruction budget across nested procedures.
-     * @param maximum_elapsed Wall-clock budget, checked between instructions.
+     * @param maximum_elapsed Execution-time budget, checked between
+     * instructions; time waiting for terminal input via \\R is excluded.
      *
      * @note The constructor is noexcept and currently does not reject zero;
      *       a zero maximum causes execute_buffer_impl() to fail immediately.
@@ -118,6 +119,7 @@ private:
     std::chrono::milliseconds maximum_elapsed_;
     std::size_t executed_steps_ = 0;
     std::chrono::steady_clock::time_point started_at_{};
+    std::chrono::steady_clock::duration input_wait_at_start_{};
 };
 
 } // namespace fred

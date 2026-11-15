@@ -801,6 +801,7 @@ void ProcedureRunner::execute_buffer_impl(std::string_view buffer_name,
     if (depth == 0) {
         executed_steps_ = 0;
         started_at_ = std::chrono::steady_clock::now();
+        input_wait_at_start_ = context_->terminal_input_wait_duration();
     }
 
     if (depth >= maximum_depth_) {
@@ -891,8 +892,13 @@ void ProcedureRunner::execute_procedure_line(
             throw CommandExecutionError(
                 "procedure instruction limit exceeded (possible infinite loop)");
         }
-        if (std::chrono::steady_clock::now() - started_at_ >=
-            maximum_elapsed_) {
+        // A game or interactive dialogue must not expire merely because the
+        // user took more than 60 seconds to answer a \R prompt. Only the
+        // actual time spent executing the procedure consumes this budget.
+        const auto elapsed = std::chrono::steady_clock::now() - started_at_;
+        const auto terminal_wait =
+            context_->terminal_input_wait_duration() - input_wait_at_start_;
+        if (elapsed - terminal_wait >= maximum_elapsed_) {
             throw CommandExecutionError(
                 "procedure elapsed time limit exceeded (possible infinite loop)");
         }

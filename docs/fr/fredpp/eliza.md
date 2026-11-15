@@ -24,6 +24,11 @@ Sous Windows depuis une compilation locale, on peut aussi lancer :
 & "$env:LOCALAPPDATA\FREDPP\build\x64-Debug\Debug\fredpp.exe" .\library\eliza.fredpp
 ~~~
 
+Le temps de réflexion pendant la saisie avec `\R` ne consomme pas le
+budget de traitement de la procédure sur la branche `dev` corrigée :
+une conversation prolongée ne déclenche donc plus le timeout après 60 secondes
+de simple attente au clavier.
+
 Saisissez une phrase après chaque invite VOUS >. Tapez **FIN**, **STOP**,
 **QUITTER** ou **AU REVOIR** (sans ponctuation ou avec un signe final)
 pour arrêter la conversation. Aucun argument ou fichier externe n'est requis.

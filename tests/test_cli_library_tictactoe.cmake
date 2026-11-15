@@ -64,5 +64,21 @@ require_text("${invalid_output}" "Cette case est deja occupee" "occupied cell")
 require_text("${invalid_output}" "Joueur O - case" "unchanged turn")
 require_text("${invalid_output}" "Partie interrompue." "quit")
 
+# Regression from interactive user report: repeated occupied choices must
+# stay responsive, keep the same player and accept FIN cleanly.
+run_game("occupied_twice" "1\n2\n1\n2\nFIN\n" occupied_output)
+string(REGEX MATCHALL "Cette case est deja occupee" occupied_matches "${occupied_output}")
+list(LENGTH occupied_matches occupied_count)
+if(NOT occupied_count EQUAL 2)
+    message(FATAL_ERROR
+        "Expected two occupied warnings, got ${occupied_count}:\n${occupied_output}")
+endif()
+require_text("${occupied_output}" "Partie interrompue." "occupied quit")
+
+# Regression from interactive user report: X wins the 1-5-9 diagonal.
+run_game("x_diagonal" "1\n4\n2\n3\n5\n6\n9\n" x_diagonal_output)
+require_text("${x_diagonal_output}" "Le joueur X a gagne." "x_diagonal winner")
+require_text("${x_diagonal_output}" "| O | X | O |" "x_diagonal middle board")
+
 file(REMOVE_RECURSE "${root}")
 message(STATUS "Tic-tac-toe X/O wins, draw, input guards and quit passed")
