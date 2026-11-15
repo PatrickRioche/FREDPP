@@ -15,9 +15,14 @@ file(COPY "${TICTACTOE_PROCEDURE}" DESTINATION "${root}/library")
 
 function(run_game name input_text output_variable)
     file(WRITE "${root}/${name}.txt" "${input_text}")
+    # Optional 4th argument selects solo; no argument preserves two players.
+    set(game_arguments tictactoe)
+    if(ARGC GREATER 3)
+        list(APPEND game_arguments "${ARGV3}")
+    endif()
     execute_process(
         COMMAND "${CMAKE_COMMAND}" -E env "FREDPP_INIT="
-            "${FREDPP_EXE}" tictactoe
+            "${FREDPP_EXE}" ${game_arguments}
         WORKING_DIRECTORY "${root}"
         INPUT_FILE "${root}/${name}.txt"
         RESULT_VARIABLE status
@@ -80,5 +85,35 @@ run_game("x_diagonal" "1\n4\n2\n3\n5\n6\n9\n" x_diagonal_output)
 require_text("${x_diagonal_output}" "Le joueur X a gagne." "x_diagonal winner")
 require_text("${x_diagonal_output}" "| O | X | O |" "x_diagonal middle board")
 
+
+# Solo mode uses a precomputed perfect Minimax strategy, no C++ AI.
+# X opens in corner: O always takes the centre, then waits for X.
+run_game("solo_open" "1\nFIN\n" solo_open "solo")
+require_text("${solo_open}" "Mode solo : vous jouez X" "solo chosen")
+require_text("${solo_open}" "FREDPP (O) choisit la case 5." "solo takes centre")
+require_text("${solo_open}" "Partie interrompue." "solo quit")
+
+# If X takes the centre first, the perfect opponent takes a corner.
+run_game("solo_centre" "5\nFIN\n" solo_centre "solo")
+require_text("${solo_centre}" "FREDPP (O) choisit la case 1." "solo corners")
+
+# Human mistakes permit O to win; no extra human inputs are required.
+run_game("solo_win" "1\n2\n4\n" solo_win "solo")
+require_text("${solo_win}" "Le joueur O a gagne." "solo computer win")
+
+# Human perfect replies force a draw; the game must terminate.
+run_game("solo_draw" "1\n2\n7\n6\n8\n" solo_draw "solo")
+require_text("${solo_draw}" "Match nul : toutes les cases sont occupees." "solo draw")
+
+# Invalid and occupied user choices must not consume an automatic turn.
+run_game("solo_bad_input" "1\n5\n0\nFIN\n" solo_bad "solo")
+require_text("${solo_bad}" "Cette case est deja occupee" "solo occupied")
+require_text("${solo_bad}" "Choix invalide" "solo invalid")
+require_text("${solo_bad}" "Partie interrompue." "solo fin")
+
+# Reject unsupported mode arguments without reading from stdin.
+run_game("bad_mode" "" bad_mode "ordinateur")
+require_text("${bad_mode}" "Mode inconnu." "unsupported mode")
+
 file(REMOVE_RECURSE "${root}")
-message(STATUS "Tic-tac-toe X/O wins, draw, input guards and quit passed")
+message(STATUS "Tic-tac-toe 2-player and unbeatable solo Minimax checks passed")

@@ -1,8 +1,10 @@
 " Auteur: FREDPP - exemple pedagogique de jeu interactif.
-" @(fredpp): tictactoe - Morpion pour deux joueurs (X et O).
+" @(fredpp): tictactoe - Morpion X/O a deux ou solo contre FREDPP.
+" Usage: fredpp tictactoe [solo]
+" Sans argument: deux joueurs. Solo: humain X, FREDPP O (Minimax).
 "
 " Syntaxe:
-"   fredpp tictactoe
+"   fredpp tictactoe [solo]
 "
 " Regles: choisir une case libre de 1 a 9, puis alterner X et O.
 " Trois symboles alignes (ligne, colonne, diagonale) font gagner.
@@ -10,7 +12,26 @@
 "
 " Techniques: buffers B, lecture \R, deplacement M, test T,
 " substitution S, controle J, registres N et affichage JM/JP.
+" Table de strategie Minimax engendree par scripts/generate_tictactoe_policy.py.
 
+" Choix du mode par l argument 1, en conservant le mode historique.
+N(tt_solo):0
+B(0)
+N(tt_argc):$=0 J(tt_init)T
+N(tt_argc)=1 J(tt_checkmode)T
+JM!Usage : fredpp tictactoe [solo]!
+JO
+
+@(tt_checkmode)
+1T/^[Ss][Oo][Ll][Oo]$/
+J(tt_set_solo)T
+JM!Mode inconnu. Utilisez : fredpp tictactoe solo!
+JO
+
+@(tt_set_solo)
+N(tt_solo):1
+
+@(tt_init)
 N(tt_moves):0
 N(tt_player):1
 N(tt_state):1
@@ -57,6 +78,12 @@ A
 X
 \F
 
+" Le plateau compact est utilise uniquement pour les decisions Minimax.
+B(tt_board)
+A
+123456789
+\F
+
 " Les deux motifs de victoire possibles sont testes sur huit trios.
 B(tt_goal)
 A
@@ -65,7 +92,13 @@ OOO
 \F
 
 JM!TIC-TAC-TOE - Morpion FREDPP!
+N(tt_solo)=1 J(tt_solomsg)T
 JM!Deux joueurs : X commence, puis O. FIN permet de quitter.!
+J(tt_display)
+
+@(tt_solomsg)
+JM!Mode solo : vous jouez X, FREDPP joue O (Minimax).!
+JM!FIN permet de quitter.!
 J(tt_display)
 
 @(tt_display)
@@ -80,6 +113,13 @@ N(tt_state)=2 J(tt_winend)T
 N(tt_state)=3 J(tt_drawend)T
 
 @(tt_read)
+N(tt_solo)=1 J(tt_maybe_ai)T
+J(tt_human)
+
+@(tt_maybe_ai)
+N(tt_player)=2 J(tt_ai_turn)T
+
+@(tt_human)
 JP!Joueur \S(tt_mark) - case (1-9) ou FIN > !
 B(tt_input)
 A
@@ -95,6 +135,86 @@ J(tt_quit)T
 J(tt_valid)T
 JM!Choix invalide : entrez un chiffre de 1 a 9.!
 J(tt_read)
+
+" Le coup automatique passe par les memes validations que les coups humains.
+@(tt_ai_turn)
+B(tt_board)
+1S/^.*$/\S(tt1)\S(tt2)\S(tt3)\S(tt4)\S(tt5)\S(tt6)\S(tt7)\S(tt8)\S(tt9)/
+" Minimax: table de decisions optimale (285 positions atteignables).
+" Valeurs de Minimax : victoire O=+1, nul=0, victoire X=-1.
+" En cas d egalite, preference centre, coins, bords.
+" BEGIN MINIMAX POLICY
+1T/^1(X(X4O(6(789|OX9)|X(78O|OXO))|3(XO6789|4O(X789|6(X(89|XO|OX)|7(X9|8X)|OXX)))|O4OX(X(89|XO|OX)|7X9))|2(X(XO(6(789|OX9)|X(78O|OXO)|O(OXX|78X))|4O(X(X8O|7XO)|6XXO))|3(XO(X789|6(X(89|XO)|7(X9|8X)))|4(X6789|OXXXO))|OXOX(X(89|XO)|7(X9|8X)))|OX(XO(6X(89|XO)|XX8O)|4OXXXO))$/
+J(tt_ai1)T
+1T/^(X2(X(4O(6(789|OX9)|X(78O|OXO)|O78X)|XO6O89|OO6X89)|34O6(78X|XOX)|O4OXXOX)|12(X4O6X(89|OX)|OXOXXOX|3(XO6XOX|4OXXOX))|O2(O(X(OXX8X|X(O(X8X|7XX)|6(X89|78X)))|OXXX(X9|8X)|4X(X(X89|78X)|6(X(X9|8X)|7XX)))|XX(O6XOX|XOO(X9|8X))|3(X(OXXOX|XO7X9)|4X67X9)))$/
+J(tt_ai2)T
+1T/^(X(X3(4O6(789|OX9)|XO6O89)|23(XO(XO89|6O(X9|8X))|4O(X(789|OX9)|6OXX)|OOXX(89|XO))|O3(XO(XO8X|6OXX)|4OX(78X|OXX)))|O(X3(X(O(X789|6(7(X9|8X)|XOX|OXX))|XO(XO9|7OX))|4(OX(7(X9|8X)|XOX|OXX)|X6(XO9|7OX))|OXXXO9)|23(X(OX(X89|7(X9|8X)|OXX)|XO(X89|78X))|OXX(X89|78X)|4X6(X89|78X))|O3(XX(O(XX9|7XX)|67X9)|4X(X7X9|6(XX9|7XX))))|123(4OX(X89|7(X9|8X)|OXX)|XO6OXX))$/
+J(tt_ai3)T
+1T/^(X(XO4O6X89|OX4O(6X(89|XO)|O(X8X|7XX))|2(O4OXX(89|XO)|34O6X(89|XO)|X4OOOXX))|O(X(X4(O(6OXX|O(X8X|7XX))|X6O(OX|89))|34XX7O9|O4X(X(XO9|7OX)|6XOX))|2(X4X(XO89|6O(X9|8X))|34XX789)|OX4X(XOX9|6OXX))|1(XX4OO(OXX|78X)|2X4OO(X8X|7XX)))$/
+J(tt_ai4)T
+1T/^(X23456789|1(X3456789|2(X456789|3(X56789|45(X789|6(X89|7(X9|8X)))))))$/
+J(tt_ai5)T
+1T/^(X(X(OOO6X(X9|8X)|3OO6X(89|XO))|OX(OO6X(X9|8X)|4O6(OXX|78X))|2(3OO6X(X9|8X)|XOO6XXO))|O(X(X4O6(78X|XOX)|3XX67O9|OXX6(XO9|7OX))|2(XX(O6(78X|OXX)|X6O89)|3XX6789)|OXXX6OX9)|12X4O6(OXX|78X))$/
+J(tt_ai6)T
+1T/^(X(XO(XO6789|4O(X789|67(X9|8X)))|O(X4O(67X9|X7XO)|3(XO678X|4O67XX)|O(XOX78X|4OX7XX))|2(3(XO6789|4O67X9)|O(XOX789|4OX7(X9|8X))))|O(X(X(4(O67X9|X67O9)|X(OO78X|XO7O9)|OXX7O9)|O(XO(X7(X9|8X)|67XX)|4OX7XX|OXX78X)|3(4O67XX|OXX7(OX|89)))|2(X(X(OO7XX|XO789)|4X6789|OXX789)|O(XOX7XX|OXX7XX)|3(XO67XX|OXX7X9))|OX(XXO7X9|4X67X9))|1(2(X4O67X9|O4OX7XX|34O67XX)|XO4OX78X))$/
+J(tt_ai7)T
+1T/^(X(O(X(XO(6(789|O8X)|O78X|X(O89|78O))|4OX(789|X8O)|OOXX89)|O4OXX8X|34O6X8X)|2OOOXX8X)|O(X(O(X(O6X8X|XO78X)|4(OXX8X|X6(X89|78X))|OXXX89)|3(4(O6X8X|X6789)|XXO789)|XXXOO89)|2(XXOOX8X|3XO6X8X)|OXXO6X8X)|1(OX4O6X8X|2(O4OXX8X|34O6X8X)))$/
+J(tt_ai8)T
+1T/^(X(XOOOXX89|OX(XO6OX9|4OXOX9)|2OOOXXX9)|O(X(X(X(O6(789|OX9)|X6OO9)|4(O(X(789|OX9)|6X89)|XXOO9))|O(X(O(XX89|6XX9)|XOX89)|4OXXX9)|3(XO6X89|4O(XX89|6XX9)))|2(XXO(X(789|OX9)|6(X89|7X9))|OX(OXXX9|XOXX9)|3XO6XX9)|OXXO(XX89|6XX9))|1(2(X4OX(789|OX9)|O4OXXX9|34O6XX9)|OX4O(XX89|6XX9)))$/
+J(tt_ai9)T
+JM!Erreur interne : position non couverte par la strategie Minimax.!
+JO
+
+@(tt_ai1)
+B(tt_choice)
+1S/^.*$/1/
+J(tt_ai_play)
+
+@(tt_ai2)
+B(tt_choice)
+1S/^.*$/2/
+J(tt_ai_play)
+
+@(tt_ai3)
+B(tt_choice)
+1S/^.*$/3/
+J(tt_ai_play)
+
+@(tt_ai4)
+B(tt_choice)
+1S/^.*$/4/
+J(tt_ai_play)
+
+@(tt_ai5)
+B(tt_choice)
+1S/^.*$/5/
+J(tt_ai_play)
+
+@(tt_ai6)
+B(tt_choice)
+1S/^.*$/6/
+J(tt_ai_play)
+
+@(tt_ai7)
+B(tt_choice)
+1S/^.*$/7/
+J(tt_ai_play)
+
+@(tt_ai8)
+B(tt_choice)
+1S/^.*$/8/
+J(tt_ai_play)
+
+@(tt_ai9)
+B(tt_choice)
+1S/^.*$/9/
+J(tt_ai_play)
+
+@(tt_ai_play)
+JM!FREDPP (O) choisit la case \S(tt_choice).!
+J(tt_valid)
+" END MINIMAX POLICY
+
 
 @(tt_valid)
 " Le nom du buffer cible est construit a partir de la case lue.

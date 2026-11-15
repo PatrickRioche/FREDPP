@@ -78,14 +78,18 @@ Consultez [le guide ELIZA](eliza.md) pour des exemples et les limites.
 ## TIC-TAC-TOE — MORPION INTERACTIF
 
 `library/tictactoe.fredpp` est un jeu de morpion pour deux joueurs humains,
-X et O, au terminal. La procédure gère les coups valides, les cases déjà
-occupées, les huit combinaisons gagnantes et les matchs nuls.
+X et O, au terminal, avec un **mode solo optionnel contre FREDPP** utilisant
+une table Minimax parfaite. La procédure gère les coups valides, les cases
+déjà occupées, les huit combinaisons gagnantes et les matchs nuls.
 
 ~~~powershell
 fredpp tictactoe
+fredpp tictactoe solo
 ~~~
 
-Choisissez une case de `1` à `9` et saisissez `FIN` pour abandonner.
+La première commande conserve deux joueurs humains. La seconde fait jouer
+l'humain (X) contre FREDPP (O). Choisissez une case de `1` à `9` et
+saisissez `FIN` pour abandonner.
 Consultez [la documentation Tic-tac-toe](tictactoe.md).
 
 ## PARAMÈTRES DE PROCÉDURE : B(0)
