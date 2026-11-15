@@ -136,6 +136,16 @@ add_test(NAME cli_library_ecfp
 )
 set_tests_properties(cli_library_ecfp PROPERTIES TIMEOUT 30)
 
+# Rule-based ELIZA demo: real stdin, pattern matching, rewriting and exit.
+add_test(NAME cli_library_eliza
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DELIZA_PROCEDURE=${CMAKE_SOURCE_DIR}/library/eliza.fredpp"
+        "-DTEST_ROOT=${CMAKE_CURRENT_BINARY_DIR}/fredpp-eliza"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_library_eliza.cmake"
+)
+set_tests_properties(cli_library_eliza PROPERTIES TIMEOUT 30)
+
 add_test(NAME cli_procedure_bootstrap
     COMMAND ${CMAKE_COMMAND}
         "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"

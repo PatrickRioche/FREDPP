@@ -113,6 +113,10 @@ files: `fredpp ecfp <file-list> <command-file> VOIR` previews transformations;
 VOIR does not sandbox commands within the supplied script. See
 [French procedure documentation](docs/fr/fredpp/procedures.md).
 
+`eliza.fredpp` demonstrates an interactive, rule-based chatbot inspired by
+Weizenbaum's ELIZA/DOCTOR: run `fredpp eliza` and enter `FIN` to stop.
+See the [French ELIZA guide](docs/fr/fredpp/eliza.md).
+
 ## Official releases
 
 Ready-to-run packages are published from Git tags through GitHub Releases:

@@ -60,6 +60,21 @@ La bibliothèque est automatiquement incluse dans les archives portables ;
 les paquets Debian installent les procédures sous
 `/usr/share/fredpp/library` (selon le préfixe d'installation).
 
+## ELIZA — DIALOGUE INTERACTIF HISTORIQUE
+
+`library/eliza.fredpp` propose un dialogue en français fondé sur des
+mots-clés, quelques reformulations et des réponses préétablies. Il s'agit
+d'une adaptation pédagogique du programme ELIZA/DOCTOR de Joseph Weizenbaum,
+non de son code historique. La procédure ne requiert ni réseau ni fichier
+externe.
+
+~~~powershell
+fredpp eliza
+~~~
+
+Saisissez une phrase après `VOUS >` et utilisez `FIN` pour terminer.
+Consultez [le guide ELIZA](eliza.md) pour des exemples et les limites.
+
 ## PARAMÈTRES DE PROCÉDURE : B(0)
 
 Les arguments après le nom de la procédure sont chargés dans `B(0)`, un

@@ -1,0 +1,180 @@
+" ELIZA - demonstration de dialogue pour FREDPP.
+" Adaptation originale inspiree d'ELIZA/DOCTOR de Joseph Weizenbaum
+" (MIT, 1964-1966), et non reproduction du programme MAD-SLIP.
+" @(fredpp): eliza - Dialogue pedagogique fonde sur des regles.
+"
+" Syntaxe:
+"   fredpp eliza
+"   FIN pour terminer la conversation.
+"
+" Fonctionnement : lecture litterale par \R, recherche par T,
+" reformulation par S, branchements J et comptage N.
+" Aucune requete reseau, aucun fichier utilisateur modifie.
+" Ce programme n'est ni une IA generative ni un outil therapeutique.
+
+N(el_tour):0
+JM!ELIZA - demonstration de conversation par regles.!
+JM!Ecrivez une phrase. Tapez FIN pour terminer.!
+
+@(el_loop)
+JP!VOUS > !
+B(el_txt)
+A
+\R
+\F
+1T/^$/
+J(el_vide)T
+1T/[.!?]$/
+J(el_ponct)T
+J(el_tests)
+
+@(el_ponct)
+1S/[.!?]$//
+J(el_tests)
+
+@(el_tests)
+1T/^[Ff][Ii][Nn]$/
+J(el_fin)T
+1T/^[Ss][Tt][Oo][Pp]$/
+J(el_fin)T
+1T/^[Qq][Uu][Ii][Tt][Tt][Ee][Rr]$/
+J(el_fin)T
+1T/^[Aa][Uu] [Rr][Ee][Vv][Oo][Ii][Rr]$/
+J(el_fin)T
+1T/[Bb][Oo][Nn][Jj][Oo][Uu][Rr]/
+J(el_bonjour)T
+1T/[Ss][Aa][Ll][Uu][Tt]/
+J(el_bonjour)T
+
+" Reassemblages : la fin de la phrase initiale est conservee.
+1T/^[Jj][Ee] [Ss][Uu][Ii][Ss] /
+J(el_suis)T
+1T/^[Jj][Ee] [Vv][Ee][Uu][Xx] /
+J(el_veux)T
+1T/^[Jj][Ee] [Pp][Ee][Nn][Ss][Ee] [Qq][Uu][Ee] /
+J(el_pense)T
+1T/^[Jj]'[Aa][Ii] [Bb][Ee][Ss][Oo][Ii][Nn] [Dd][Ee] /
+J(el_besoin)T
+
+" Reponses courtes par mots-cles.
+1T/[Pp][Ee][Uu][Rr]/
+J(el_peur)T
+1T/[Tt][Rr][Ii][Ss][Tt]/
+J(el_triste)T
+1T/[Ff][Aa][Mm][Ii][Ll][Ll][Ee]/
+J(el_famille)T
+1T/[Mm][Aa][Mm][Aa][Nn]/
+J(el_famille)T
+1T/[Pp][Aa][Pp][Aa]/
+J(el_famille)T
+1T/[Oo][Rr][Dd][Ii][Nn][Aa][Tt][Ee][Uu][Rr]/
+J(el_ordi)T
+1T/[Pp][Aa][Rr][Cc][Ee] [Qq][Uu][Ee]/
+J(el_parce)T
+1T/[Tt][Oo][Uu][Jj][Oo][Uu][Rr][Ss]/
+J(el_toujours)T
+1T/[Jj][Aa][Mm][Aa][Ii][Ss]/
+J(el_jamais)T
+1T/^[Oo][Uu][Ii]$/
+J(el_oui)T
+1T/^[Nn][Oo][Nn]$/
+J(el_non)T
+1T/[Pp][Oo][Uu][Rr][Qq][Uu][Oo][Ii]/
+J(el_pourquoi)T
+J(el_defaut)
+
+@(el_suis)
+1S/^[Jj][Ee] [Ss][Uu][Ii][Ss] /Depuis quand etes-vous /
+J(el_echo)
+
+@(el_veux)
+1S/^[Jj][Ee] [Vv][Ee][Uu][Xx] /Pourquoi voulez-vous /
+J(el_echo)
+
+@(el_pense)
+1S/^[Jj][Ee] [Pp][Ee][Nn][Ss][Ee] [Qq][Uu][Ee] /Qu'est-ce qui vous fait penser que /
+J(el_echo)
+
+@(el_besoin)
+1S/^[Jj]'[Aa][Ii] [Bb][Ee][Ss][Oo][Ii][Nn] [Dd][Ee] /Pourquoi avez-vous besoin de /
+J(el_echo)
+
+@(el_echo)
+1S/$/ ?/
+JP!ELIZA > ! 1P
+J(el_reset)
+
+@(el_bonjour)
+JM!ELIZA > Bonjour. De quoi aimeriez-vous parler ?!
+J(el_reset)
+
+@(el_peur)
+JM!ELIZA > Qu'est-ce qui vous fait peur ?!
+J(el_reset)
+
+@(el_triste)
+JM!ELIZA > Pouvez-vous me dire ce qui vous attriste ?!
+J(el_reset)
+
+@(el_famille)
+JM!ELIZA > Parlez-moi davantage de votre famille.!
+J(el_reset)
+
+@(el_ordi)
+JM!ELIZA > Les ordinateurs occupent-ils une place importante pour vous ?!
+J(el_reset)
+
+@(el_parce)
+JM!ELIZA > Est-ce la seule raison qui vous vient a l'esprit ?!
+J(el_reset)
+
+@(el_toujours)
+JM!ELIZA > Pouvez-vous citer une situation particuliere ?!
+J(el_reset)
+
+@(el_jamais)
+JM!ELIZA > Vraiment jamais ? Pourriez-vous preciser ?!
+J(el_reset)
+
+@(el_oui)
+JM!ELIZA > Vous semblez certain. Qu'est-ce qui vous convainc ?!
+J(el_reset)
+
+@(el_non)
+JM!ELIZA > Pourquoi cette reponse negative ?!
+J(el_reset)
+
+@(el_pourquoi)
+JM!ELIZA > Quelle reponse envisageriez-vous vous-meme ?!
+J(el_reset)
+
+@(el_vide)
+JM!ELIZA > Je vous ecoute.!
+J(el_reset)
+
+@(el_defaut)
+N(el_tour)+1
+N(el_tour)=1 J(el_def1)T
+N(el_tour)=2 J(el_def2)T
+N(el_tour):0
+JM!ELIZA > En quoi cela vous semble-t-il important ?!
+J(el_reset)
+
+@(el_def1)
+JM!ELIZA > Pouvez-vous m'en dire davantage ?!
+J(el_reset)
+
+@(el_def2)
+JM!ELIZA > Pourquoi dites-vous cela ?!
+J(el_reset)
+
+@(el_reset)
+B(el_txt)
+1D
+J(el_loop)
+
+@(el_fin)
+JM!ELIZA > Au revoir. Merci pour cet echange.!
+B(el_txt)
+1D
+JO
