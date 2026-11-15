@@ -138,7 +138,7 @@ Sémantique historique de lecture R et préparation de la release.
 
 ### dev-0.0.30
 
-**Jalon technique (tag sans GitHub Release)** — [Tag Git] (https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.30).
+**Jalon technique (tag sans GitHub Release)** — [Tag Git](https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.30).
 
 **43 commits** sur **6 date(s) active(s)**, du 18/08/2026 à 15:15 au 09/11/2026 à 13:39.
 
@@ -148,7 +148,7 @@ Android natif, documentation d'architecture, reprise en novembre ; commandes T/K
 
 ### dev-0.0.40
 
-**Jalon technique (tag sans GitHub Release)** — [Tag Git] (https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.40).
+**Jalon technique (tag sans GitHub Release)** — [Tag Git](https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.40).
 
 **3 commits** sur **1 date(s) active(s)**, du 09/11/2026 à 14:48 au 09/11/2026 à 14:57.
 
@@ -158,7 +158,7 @@ Dix opérateurs numériques supplémentaires ; campagne de tests Windows.
 
 ### dev-0.0.50
 
-**Jalon technique (tag sans GitHub Release)** — [Tag Git] (https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.50).
+**Jalon technique (tag sans GitHub Release)** — [Tag Git](https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.50).
 
 **1 commit** sur **1 date(s) active(s)**, du 09/11/2026 à 16:10 au 09/11/2026 à 16:10.
 
@@ -168,7 +168,7 @@ Dix entrées numériques historiques supplémentaires (41–50).
 
 ### dev-0.0.60
 
-**Jalon technique (tag sans GitHub Release)** — [Tag Git] (https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.60).
+**Jalon technique (tag sans GitHub Release)** — [Tag Git](https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.60).
 
 **1 commit** sur **1 date(s) active(s)**, du 09/11/2026 à 22:36 au 09/11/2026 à 22:36.
 
@@ -178,7 +178,7 @@ Dix commandes historiques de famille Z (51–60).
 
 ### dev-0.0.70
 
-**Jalon technique (tag sans GitHub Release)** — [Tag Git] (https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.70).
+**Jalon technique (tag sans GitHub Release)** — [Tag Git](https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.70).
 
 **1 commit** sur **1 date(s) active(s)**, du 10/11/2026 à 09:47 au 10/11/2026 à 09:47.
 
@@ -188,7 +188,7 @@ Jalon d'implémentation des entrées historiques 61–70.
 
 ### dev-0.0.80
 
-**Jalon technique (tag sans GitHub Release)** — [Tag Git] (https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.80).
+**Jalon technique (tag sans GitHub Release)** — [Tag Git](https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.80).
 
 **1 commit** sur **1 date(s) active(s)**, du 10/11/2026 à 10:52 au 10/11/2026 à 10:52.
 
@@ -198,7 +198,7 @@ Jalon d'implémentation des entrées historiques 71–80.
 
 ### dev-0.0.90
 
-**Jalon technique (tag sans GitHub Release)** — [Tag Git] (https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.90).
+**Jalon technique (tag sans GitHub Release)** — [Tag Git](https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.90).
 
 **1 commit** sur **1 date(s) active(s)**, du 10/11/2026 à 12:29 au 10/11/2026 à 12:29.
 
@@ -208,7 +208,7 @@ Jalon d'implémentation des entrées historiques 81–90.
 
 ### dev-0.0.103
 
-**Jalon technique (tag sans GitHub Release)** — [Tag Git] (https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.103).
+**Jalon technique (tag sans GitHub Release)** — [Tag Git](https://github.com/PatrickRioche/FREDPP/tree/dev-0.0.103).
 
 **1 commit** sur **1 date(s) active(s)**, du 10/11/2026 à 13:25 au 10/11/2026 à 13:25.
 
