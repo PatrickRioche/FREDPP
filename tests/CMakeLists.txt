@@ -11,6 +11,13 @@ endfunction()
 
 fredpp_add_test(test_version test_version.cpp)
 target_compile_definitions(test_version PRIVATE FREDPP_EXPECTED_VERSION="${PROJECT_VERSION}")
+if(WIN32 AND TARGET fredpp)
+    add_test(NAME cli_fp_alias
+        COMMAND ${CMAKE_COMMAND}
+            "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+            -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_fp_alias.cmake"
+    )
+endif()
 fredpp_add_test(test_buffer test_buffer.cpp)
 fredpp_add_test(test_flow test_flow.cpp)
 fredpp_add_test(test_flow_e test_flow_e.cpp)

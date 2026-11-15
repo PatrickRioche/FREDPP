@@ -58,6 +58,8 @@ git tag -a vX.Y.Z -m "FREDPP vX.Y.Z"
 git push origin vX.Y.Z
 ```
 
+Pour la **v0.1.2 seulement**, le commit explicitement marqué `[publish-v0.1.2]` déclenche après la validation complète de la CI Windows une étape de création contrôlée du tag `v0.1.2` sur le sommet inchangé de `dev`, puis un `workflow_dispatch` du workflow de publication. Cette exception ponctuelle évite le déclenchement automatique d'une version ultérieure. Si `dev` a avancé ou si le tag existe déjà, l'étape refuse de réécrire les références. Le workflow normal vérifie ensuite la correspondance tag/branche et publie en `prerelease=true`.
+
 Le workflow `.github/workflows/release.yml` :
 
 1. vérifie le tag, la version CMake et la branche de publication (`dev` ou `main`) ;

@@ -20,6 +20,10 @@ set(required_files
     library/ecfp.fredpp
     library/index.fredpp
     library/ouya.fredpp
+    library/eliza.fredpp
+    library/tictactoe.fredpp
+    scripts/generate_tictactoe_policy.py
+    tests/test_cli_fp_alias.cmake
     scripts/package-release.ps1
     scripts/package-release.sh
     scripts/package-release-macos.sh
@@ -62,6 +66,12 @@ foreach(required IN ITEMS "Get-ChildItem" "-Filter \"*.fredpp\"")
     string(FIND "${windows_package}" "${required}" at)
     if(at EQUAL -1)
         message(FATAL_ERROR "Windows packaging does not ship the complete library")
+    endif()
+endforeach()
+foreach(required_alias IN ITEMS "fp.exe" "Get-FileHash" "AliasVersionOutput")
+    string(FIND "${windows_package}" "${required_alias}" alias_pos)
+    if(alias_pos EQUAL -1)
+        message(FATAL_ERROR "Windows ZIP packaging misses fp.exe verification: ${required_alias}")
     endif()
 endforeach()
 foreach(package_script IN ITEMS debian_package macos_package)

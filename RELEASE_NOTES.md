@@ -1,73 +1,46 @@
-# FREDPP v0.1.1 — Préversion multi-plateforme
+# FREDPP v0.1.2 — Préversion multi-plateforme (dev)
 
-Cette préversion consolide l'éditeur FREDPP C++20 depuis v0.1.0. Elle est
-préparée depuis la branche `dev` et ne promeut pas le code vers `main`.
+Cette version est une **prérelease** provenant uniquement de la branche `dev`. Elle ne modifie pas la branche `main` et ne constitue pas une version stable.
 
-## Évolutions depuis v0.1.0
+## Évolutions depuis v0.1.1
 
-- Directives du flot : améliorations de `\B`, `\E`, `\N` et `\R`, avec
-  maintien des limitations historiques documentées.
-- Exécution des procédures : corrections fonctionnelles, protections contre
-  les répétitions sans borne et contrôles de récupération après erreur.
-- Suite de non-régression portée de **71 à 79 tests CTest**. La candidate
-  v0.1.1 a validé **79/79 tests en CI Windows/MSVC et Linux/GCC**.
-- Tests de lots : traitement de **100 et 1 000 fichiers**, avec vérification
-  des données, transformations successives, intégrité des fichiers sources
-  et gestion d'une source manquante.
-- Nouvelle procédure générale **`ecfp.fredpp`**, fournie dans `library/` :
-  applique un programme de commandes FREDPP aux fichiers énumérés dans une
-  liste. `VOIR` affiche les transformations sans écriture automatique d'ECFP ;
-  `FAIRE` écrit les transformations sur les originaux.
-- Les procédures `library/*.fredpp` sont incluses automatiquement dans les
-  archives portables Windows, Debian et macOS, ainsi que dans les paquets
-  natifs Debian.
-- La CI Android construit à nouveau un APK Debug ; **Android n'est pas
-  inclus dans la présente release desktop**.
+- **ELIZA** : `fredpp eliza` lance une conversation pédagogique en commandes FREDPP.
+- **TIC-TAC-TOE** : `fredpp tictactoe` conserve le mode deux joueurs ; `fredpp tictactoe solo` permet de jouer X contre FREDPP (O). La stratégie Minimax est calculée à l'avance et intégrée à la procédure : aucun Python n'est nécessaire pour jouer.
+- **Temps d'exécution interactif** : l'attente au clavier via `\R` est exclue du délai de sécurité de 60 secondes. Les boucles infinies restent limitées par les gardes de temps de traitement et de nombre d'instructions.
+- **Alias Windows** : `fp.exe` est une copie binaire exacte de `fredpp.exe`. Elle est produite lors des builds Windows Debug et Release et incluse avec `fredpp.exe` dans le ZIP Windows. Le packaging compare leurs SHA-256 et leurs versions.
+- **Tests** : scénarios ELIZA et TIC-TAC-TOE, adversaire solo, alias Windows et contrôle des bibliothèques distribuées.
 
-## Téléchargements
+## Fichiers distribués
 
-La chaîne de publication construit les neuf fichiers suivants :
-
-- `FREDPP-v0.1.1-windows-x64.zip`
-- `FREDPP-v0.1.1-debian13-amd64.tar.gz`
-- `FREDPP-v0.1.1-debian13-arm64.tar.gz`
-- `FREDPP-v0.1.1-macos-x64.tar.gz`
-- `FREDPP-v0.1.1-macos-arm64.tar.gz`
-- `fredpp_0.1.1_amd64.deb`
-- `fredpp_0.1.1_arm64.deb`
-- `FREDPP-Language-v0.1.1.vsix`
+- `FREDPP-v0.1.2-windows-x64.zip`
+- `FREDPP-v0.1.2-debian13-amd64.tar.gz`
+- `FREDPP-v0.1.2-debian13-arm64.tar.gz`
+- `FREDPP-v0.1.2-macos-x64.tar.gz`
+- `FREDPP-v0.1.2-macos-arm64.tar.gz`
+- `fredpp_0.1.2_amd64.deb`
+- `fredpp_0.1.2_arm64.deb`
+- `FREDPP-Language-v0.1.2.vsix`
 - `SHA256SUMS.txt`
 
-Le workflow vérifie chaque package et ses empreintes SHA-256 avant
-publication. GitHub fournit en plus les deux archives du code source.
+GitHub fournit également deux archives source (ZIP et TAR.GZ). Le script Python de génération de la politique Minimax est destiné aux développeurs, pas aux utilisateurs du jeu.
 
-## Essayer ECFP
+## Utilisation de l'alias dans Windows PowerShell
 
-Placez un nom de fichier par ligne dans `liste.txt` et un programme de
-commandes FREDPP dans `transformations.fredpp`. Depuis un kit décompressé :
+Dans le dossier du kit Windows décompressé :
 
-```text
-fredpp ecfp liste.txt transformations.fredpp VOIR
-fredpp ecfp liste.txt transformations.fredpp FAIRE
+```powershell
+.\fp.exe --version
+.\fp.exe eliza
+.\fp.exe tictactoe solo
+.\fredpp.exe tictactoe
 ```
 
-**Sauvegardez les fichiers avant FAIRE.** Le mode VOIR ne garantit pas
-l'absence d'effets secondaires du programme fourni : les commandes externes
-ou autonomes d'écriture ne sont pas isolées. N'exécutez que des scripts fiables.
+Pour lancer simplement `fp` à partir d'un autre répertoire, le dossier des exécutables doit figurer dans la variable d'environnement `PATH`.
 
 ## Limites connues
 
-- Les **103 entrées** du tableau de couverture sont reconnues ; cela ne
-  garantit pas une émulation complète de FRED sous GCOS.
-- Certaines formes avancées des directives, dont `\B` et `\E`, restent
-  incomplètes ou non homologuées.
-- Les délais de sécurité sont contrôlés entre les instructions, pas pendant
-  l'exécution d'une commande bloquante. Aucun plafond global de mémoire des
-  buffers n'est actuellement appliqué.
-- La résistance aux coupures pendant une écriture et aux volumes
-  exceptionnellement importants n'est pas entièrement validée.
-- L'exécutable Windows est non signé ; SmartScreen peut afficher un
-  avertissement. Ne désactivez pas les protections Windows pour le lancer.
-
-La présente version est une **préversion** destinée aux tests et à
-l'expérimentation. L'APK Android suit une diffusion distincte.
+- Les 103 entrées historiques reconnues ne correspondent pas encore à une émulation GCOS exhaustive.
+- Certaines formes avancées des directives de flot doivent encore être homologuées.
+- Les délais d'exécution sont contrôlés entre les instructions, pas au milieu d'une commande externe bloquante.
+- Les binaires Windows ne sont pas signés ; SmartScreen peut signaler une application inconnue. Ne désactivez pas les protections pour lancer le programme.
+- Android dispose d'un workflow indépendant et n'est pas inclus dans cette matrice de release.

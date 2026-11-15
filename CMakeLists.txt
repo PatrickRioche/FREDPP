@@ -9,7 +9,7 @@ if(POLICY CMP0091)
     cmake_policy(SET CMP0091 NEW)
 endif()
 
-project(FREDPP VERSION 0.1.1 LANGUAGES CXX)
+project(FREDPP VERSION 0.1.2 LANGUAGES CXX)
 
 # The historical command coverage is independent of the software release
 # version. Keep the documented coverage and this expectation synchronized;
@@ -557,6 +557,16 @@ endif()
 if(FREDPP_BUILD_CLI)
     add_executable(fredpp src/cli/main.cpp)
     target_link_libraries(fredpp PRIVATE fredpp_core)
+    if(WIN32)
+        # Build a byte-identical alias in the same Debug or Release directory.
+        add_custom_command(TARGET fredpp POST_BUILD
+            COMMAND "${CMAKE_COMMAND}" -E copy_if_different
+                "$<TARGET_FILE:fredpp>"
+                "$<TARGET_FILE_DIR:fredpp>/fp.exe"
+            COMMENT "Create Windows fp.exe alias from fredpp.exe"
+            VERBATIM
+        )
+    endif()
 endif()
 
 if(FREDPP_BUILD_TESTS)

@@ -1,3 +1,12 @@
+## v0.1.2 — Procédures interactives, jeux et alias Windows (15 novembre 2026)
+
+- Correction de la limite de temps : le temps d'attente d'une saisie `\R` ne consomme plus les 60 secondes de traitement autorisé ; le garde-fou contre les boucles infinies reste actif.
+- Ajout d'ELIZA, dialogue interactif entièrement exécuté dans une procédure FREDPP.
+- Ajout de TIC-TAC-TOE : mode deux joueurs et mode solo contre FREDPP, utilisant une stratégie Minimax optimale pré-calculée, sans Python à l'exécution.
+- Windows : génération automatique de `fp.exe` par copie de `fredpp.exe` en Debug et Release ; inclusion des deux exécutables identiques dans le kit ZIP.
+- Contrôles de l'identité SHA-256, de la version de l'alias et tests d'intégration ; neuf fichiers de distribution multi-plateforme habituels.
+- v0.1.2 préparée comme préversion sur `dev` sans modification de `main`.
+
 ## v0.1.1 — Préversion de fiabilisation et bibliothèque ECFP (13 novembre 2026)
 
 - Consolidation des neuf directives de flot FRED : traitements des références nommées `\\E` dans les seuls motifs, injection active `\\B`, registre numérique `\\N` avec formats NB/ND/NF et lecture terminal littérale `\\R` ; limites historiques avancées toujours documentées.

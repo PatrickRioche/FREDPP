@@ -2,6 +2,8 @@
 
 **FREDPP** is a modern C++20 reimplementation of the historical FRED text editor.
 
+Starting with v0.1.2, Windows binaries include `fredpp.exe` and the identical `fp.exe` alias. Either name launches the same runtime, e.g. `fp.exe tictactoe solo`.
+
 ## Version and source identity
 
 Run FREDPP and enter:
@@ -134,7 +136,7 @@ Ready-to-run packages are published from Git tags through GitHub Releases:
 - VS Code language extension VSIX;
 - SHA-256 checksum manifest covering the eight binary packages.
 
-The `v0.1.1` release is a **pre-release tagged on `dev`**, including the
+The `v0.1.1` release was tagged on `dev`, including the
 bundled `ecfp.fredpp` procedure and a validated suite of 79 CTest scenarios.
 Recognition of 103 historical reference entries does not imply full GCOS
 emulation. GitHub supplies the source ZIP and TAR.GZ automatically, for
@@ -148,7 +150,7 @@ The release page is available at:
 https://github.com/PatrickRioche/FREDPP/releases/latest
 ```
 
-For the `dev` pre-release, use the specific tag page (pre-releases are not
+For a `dev` pre-release, use the specific tag page (pre-releases are not
 selected by `/releases/latest`):
 
 ```text

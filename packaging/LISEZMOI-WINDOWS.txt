@@ -5,8 +5,16 @@ Installation
 ------------
 
 1. Décompressez l'archive dans le dossier de votre choix.
-2. Lancez fredpp.exe.
+2. Lancez fredpp.exe ou fp.exe (deux copies identiques du même programme).
 3. Dans FREDPP, utilisez ? pour l'aide et Q pour quitter.
+
+Dans PowerShell, depuis ce répertoire :
+
+    .\fp.exe --version
+    .\fp.exe eliza
+    .\fp.exe tictactoe solo
+
+Pour lancer fp depuis n'importe quel dossier, ajoutez ce répertoire à PATH.
 
 Identité du binaire
 -------------------
@@ -23,7 +31,7 @@ MSVC statique.
 
 ## Windows 11 - exécutable non signé
 
-`fredpp.exe` n'est pas encore signé numériquement. Selon la configuration de
+`fredpp.exe` et `fp.exe` ne sont pas encore signés numériquement. Selon la configuration de
 Windows 11, Microsoft Defender SmartScreen ou Smart App Control peut donc
 afficher un avertissement ou bloquer son exécution.
 

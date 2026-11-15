@@ -36,7 +36,20 @@ Remove-Item $StageDirectory -Recurse -Force -ErrorAction SilentlyContinue
 Remove-Item $ArchivePath -Force -ErrorAction SilentlyContinue
 New-Item -ItemType Directory -Path $StageDirectory -Force | Out-Null
 
-Copy-Item $Executable (Join-Path $StageDirectory "fredpp.exe")
+# The alias is an exact copy of the same binary, not a shell wrapper.
+$CanonicalExecutable = Join-Path $StageDirectory "fredpp.exe"
+$AliasExecutable = Join-Path $StageDirectory "fp.exe"
+Copy-Item $Executable $CanonicalExecutable
+Copy-Item $Executable $AliasExecutable
+$CanonicalHash = (Get-FileHash $CanonicalExecutable -Algorithm SHA256).Hash
+$AliasHash = (Get-FileHash $AliasExecutable -Algorithm SHA256).Hash
+if ($CanonicalHash -ne $AliasHash) {
+    throw "fp.exe differs from fredpp.exe in the Windows release ZIP"
+}
+$AliasVersionOutput = & $AliasExecutable --version | Out-String
+if ($AliasVersionOutput -notmatch [regex]::Escape("FREDPP v$Version")) {
+    throw "fp.exe version does not match v$Version"
+}
 Copy-Item (Join-Path $ProjectRoot "packaging/LISEZMOI-WINDOWS.txt") (Join-Path $StageDirectory "LISEZMOI.txt")
 foreach ($File in @("LICENSE", "NOTICE", "CHANGELOG.md", "ROADMAP.md", "RELEASE_NOTES.md")) {
     Copy-Item (Join-Path $ProjectRoot $File) (Join-Path $StageDirectory $File)
