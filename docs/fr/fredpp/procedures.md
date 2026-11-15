@@ -75,6 +75,19 @@ fredpp eliza
 Saisissez une phrase après `VOUS >` et utilisez `FIN` pour terminer.
 Consultez [le guide ELIZA](eliza.md) pour des exemples et les limites.
 
+## TIC-TAC-TOE — MORPION INTERACTIF
+
+`library/tictactoe.fredpp` est un jeu de morpion pour deux joueurs humains,
+X et O, au terminal. La procédure gère les coups valides, les cases déjà
+occupées, les huit combinaisons gagnantes et les matchs nuls.
+
+~~~powershell
+fredpp tictactoe
+~~~
+
+Choisissez une case de `1` à `9` et saisissez `FIN` pour abandonner.
+Consultez [la documentation Tic-tac-toe](tictactoe.md).
+
 ## PARAMÈTRES DE PROCÉDURE : B(0)
 
 Les arguments après le nom de la procédure sont chargés dans `B(0)`, un

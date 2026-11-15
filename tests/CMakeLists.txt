@@ -146,6 +146,16 @@ add_test(NAME cli_library_eliza
 )
 set_tests_properties(cli_library_eliza PROPERTIES TIMEOUT 30)
 
+# Two-player game with real stdin, dynamic buffers and eight win checks.
+add_test(NAME cli_library_tictactoe
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        "-DTICTACTOE_PROCEDURE=${CMAKE_SOURCE_DIR}/library/tictactoe.fredpp"
+        "-DTEST_ROOT=${CMAKE_CURRENT_BINARY_DIR}/fredpp-tictactoe"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_library_tictactoe.cmake"
+)
+set_tests_properties(cli_library_tictactoe PROPERTIES TIMEOUT 30)
+
 add_test(NAME cli_procedure_bootstrap
     COMMAND ${CMAKE_COMMAND}
         "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"

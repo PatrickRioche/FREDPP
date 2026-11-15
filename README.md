@@ -117,6 +117,10 @@ VOIR does not sandbox commands within the supplied script. See
 Weizenbaum's ELIZA/DOCTOR: run `fredpp eliza` and enter `FIN` to stop.
 See the [French ELIZA guide](docs/fr/fredpp/eliza.md).
 
+`tictactoe.fredpp` is a local two-player tic-tac-toe game written entirely
+in FREDPP procedure commands: run `fredpp tictactoe` and enter `FIN` to quit.
+See the [French tic-tac-toe guide](docs/fr/fredpp/tictactoe.md).
+
 ## Official releases
 
 Ready-to-run packages are published from Git tags through GitHub Releases:

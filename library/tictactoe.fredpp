@@ -1,0 +1,177 @@
+" Auteur: FREDPP - exemple pedagogique de jeu interactif.
+" @(fredpp): tictactoe - Morpion pour deux joueurs (X et O).
+"
+" Syntaxe:
+"   fredpp tictactoe
+"
+" Regles: choisir une case libre de 1 a 9, puis alterner X et O.
+" Trois symboles alignes (ligne, colonne, diagonale) font gagner.
+" FIN interrompt la partie, sans modification de fichier.
+"
+" Techniques: buffers B, lecture \R, deplacement M, test T,
+" substitution S, controle J, registres N et affichage JM/JP.
+
+N(tt_moves):0
+N(tt_player):1
+N(tt_state):1
+
+B(tt1)
+A
+1
+\F
+B(tt2)
+A
+2
+\F
+B(tt3)
+A
+3
+\F
+B(tt4)
+A
+4
+\F
+B(tt5)
+A
+5
+\F
+B(tt6)
+A
+6
+\F
+B(tt7)
+A
+7
+\F
+B(tt8)
+A
+8
+\F
+B(tt9)
+A
+9
+\F
+
+B(tt_mark)
+A
+X
+\F
+
+" Les deux motifs de victoire possibles sont testes sur huit trios.
+B(tt_goal)
+A
+XXX
+OOO
+\F
+
+JM!TIC-TAC-TOE - Morpion FREDPP!
+JM!Deux joueurs : X commence, puis O. FIN permet de quitter.!
+J(tt_display)
+
+@(tt_display)
+JM! +---+---+---+!
+JM! | \S(tt1) | \S(tt2) | \S(tt3) | !
+JM! +---+---+---+!
+JM! | \S(tt4) | \S(tt5) | \S(tt6) | !
+JM! +---+---+---+!
+JM! | \S(tt7) | \S(tt8) | \S(tt9) | !
+JM! +---+---+---+!
+N(tt_state)=2 J(tt_winend)T
+N(tt_state)=3 J(tt_drawend)T
+
+@(tt_read)
+JP!Joueur \S(tt_mark) - case (1-9) ou FIN > !
+B(tt_input)
+A
+\R
+\F
+
+" 1M remplace le choix precedent et laisse le buffer d'entree vide.
+1M(tt_choice)
+B(tt_choice)
+1T/^[Ff][Ii][Nn]$/
+J(tt_quit)T
+1T/^[1-9]$/
+J(tt_valid)T
+JM!Choix invalide : entrez un chiffre de 1 a 9.!
+J(tt_read)
+
+@(tt_valid)
+" Le nom du buffer cible est construit a partir de la case lue.
+B(tt\S(tt_choice))
+1T/^[XO]$/
+J(tt_taken)T
+
+" Inscrire le symbole du joueur courant uniquement sur une case libre.
+N(tt_player)=1 J(tt_putx)T
+1S/^[1-9]$/O/
+J(tt_after)
+
+@(tt_putx)
+1S/^[1-9]$/X/
+
+@(tt_after)
+N(tt_moves)+1
+B(tt_goal)
+
+" Trois lignes horizontales.
+1,$T/^\S(tt1)\S(tt2)\S(tt3)$/
+J(tt_win)T
+1,$T/^\S(tt4)\S(tt5)\S(tt6)$/
+J(tt_win)T
+1,$T/^\S(tt7)\S(tt8)\S(tt9)$/
+J(tt_win)T
+
+" Trois colonnes verticales.
+1,$T/^\S(tt1)\S(tt4)\S(tt7)$/
+J(tt_win)T
+1,$T/^\S(tt2)\S(tt5)\S(tt8)$/
+J(tt_win)T
+1,$T/^\S(tt3)\S(tt6)\S(tt9)$/
+J(tt_win)T
+
+" Deux diagonales.
+1,$T/^\S(tt1)\S(tt5)\S(tt9)$/
+J(tt_win)T
+1,$T/^\S(tt3)\S(tt5)\S(tt7)$/
+J(tt_win)T
+
+" Le match nul est verifie seulement apres les victoires possibles.
+N(tt_moves)=9 J(tt_draw)T
+
+" Changement du joueur courant et de son symbole.
+N(tt_player)=1 J(tt_to_o)T
+N(tt_player):1
+B(tt_mark)
+1S/^O$/X/
+J(tt_display)
+
+@(tt_to_o)
+N(tt_player):2
+B(tt_mark)
+1S/^X$/O/
+J(tt_display)
+
+@(tt_taken)
+JM!Cette case est deja occupee. Reessayez.!
+J(tt_read)
+
+@(tt_win)
+N(tt_state):2
+J(tt_display)
+
+@(tt_draw)
+N(tt_state):3
+J(tt_display)
+
+@(tt_winend)
+JM!Le joueur \S(tt_mark) a gagne.!
+JO
+
+@(tt_drawend)
+JM!Match nul : toutes les cases sont occupees.!
+JO
+
+@(tt_quit)
+JM!Partie interrompue.!
+JO
