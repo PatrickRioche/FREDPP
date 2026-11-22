@@ -242,3 +242,7 @@ The parser never accesses the Buffer. The Runtime never parses. AddressEvaluator
 ## Windows build reliability
 
 The Windows scripts build serially and MSVC uses embedded debug information. This prevents intermittent PDB creation failures that can occur when the repository is located in a synchronized folder such as Google Drive.
+
+## License
+
+FREDPP is licensed under the **GNU General Public License v3.0 only** (`GPL-3.0-only`). See [`LICENSE`](LICENSE) for the complete GPL v3 text. Third-party components, if any, remain subject to their own license terms.
