@@ -50,6 +50,10 @@ public:
         std::string_view text,
         std::size_t start_offset = 0) const;
 
+    /** Find a numbered match scanning starts from right to left, without overlap. */
+    [[nodiscard]] std::optional<PatternMatch> find_from_right(
+        const PatternNode& pattern, std::string_view text, unsigned occurrence) const;
+
     /**
      * @return true when find(pattern,text) succeeds.
      */

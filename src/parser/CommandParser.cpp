@@ -16,6 +16,7 @@
 #include "fred/parser/PatternParser.hpp"
 
 #include <cctype>
+#include <charconv>
 #include <optional>
 #include <sstream>
 #include <string>
@@ -306,6 +307,26 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
         }
 
         if (mnemonic == 'S') {
+            int occurrence = 0;
+            const bool backwards = tokens_->peek().lexeme == "-" &&
+                tokens_->peek(1).type == TokenType::Number &&
+                tokens_->peek(2).type == TokenType::Symbol &&
+                tokens_->peek(2).lexeme != "-";
+            if (backwards || tokens_->peek().type == TokenType::Number) {
+                if (backwards) {
+                    (void)tokens_->consume();
+                }
+                const auto number = tokens_->consume();
+                const char* begin = number.lexeme.data();
+                const char* end = begin + number.lexeme.size();
+                const auto parsed = std::from_chars(begin, end, occurrence);
+                if (parsed.ec != std::errc{} || parsed.ptr != end || occurrence == 0) {
+                    throw ParseError("invalid S occurrence", number.location);
+                }
+                if (backwards) {
+                    occurrence = -occurrence;
+                }
+            }
             auto [pattern, replacement] = parse_substitution_parts();
             bool print_after = false;
             if (tokens_->peek().type == TokenType::Command &&
@@ -318,7 +339,7 @@ std::unique_ptr<CommandNode> CommandParser::parse() {
             require_command_end();
             return std::make_unique<SubstituteCommandNode>(
                 std::move(address), std::move(pattern), std::move(replacement),
-                print_after, command.location);
+                print_after, command.location, occurrence);
         }
 
         if (mnemonic == 'Q') {

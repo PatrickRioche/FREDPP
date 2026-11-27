@@ -5,7 +5,7 @@
 ## Syntaxe
 
 ```fred
-(.,.)S/<modèle>/<chaîne>/
+(.,.)S[n]/<modèle>/<chaîne>/[P]
 ```
 
 ## Paramètres
@@ -13,6 +13,8 @@
 | Élément | Description |
 |---|---|
 | `(.,.)` | Adresse ou plage de lignes optionnelle, selon la forme indiquée. |
+| `n` | Sur chaque ligne, un rang positif compte depuis la gauche et un rang négatif depuis la droite. Sans rang, toutes les occurrences sont remplacées. |
+| `P` | Affiche la dernière ligne modifiée. |
 | `<modèle>` | Modèle de recherche FRED. |
 | `<chaîne>` | Chaîne de caractères. |
 
@@ -31,11 +33,10 @@ b(buf)
 1s/ligne/colonne/p
 Ajout  colonne de texte numero 1
 1s/.*/& &/p
-Ajout  colonne de texte numero 1 
-Ajout  colonne de texte numero 1
+Ajout  colonne de texte numero 1 Ajout  colonne de texte numero 1
 1s1/colonne/ligne/p
 Ajout  ligne de texte numero 1 Ajout  colonne de texte numero 1
-1s-1/de texte.*$//
+1s-1/de texte.*$//p
 Ajout  ligne de texte numero 1 Ajout  colonne
 1s/paragraphe//
 ? no text changed

@@ -209,6 +209,30 @@ std::optional<PatternMatch> PatternMatcher::find(
     return std::nullopt;
 }
 
+std::optional<PatternMatch> PatternMatcher::find_from_right(
+    const PatternNode& pattern, std::string_view text, unsigned occurrence) const {
+    auto limit = text.size();
+    for (auto start = text.size(); ; --start) {
+        // Keep the full line for anchors, even as the available interval shrinks.
+        const auto ends = match_from(pattern, text, start);
+        std::optional<std::size_t> longest;
+        for (const auto end : ends) {
+            if (end <= limit && (!longest || end > *longest)) {
+                longest = end;
+            }
+        }
+        if (longest) {
+            if (--occurrence == 0) {
+                return PatternMatch{start, *longest};
+            }
+            limit = start;
+        }
+        if (start == 0) {
+            return std::nullopt;
+        }
+    }
+}
+
 bool PatternMatcher::search(const PatternNode& pattern,
                             std::string_view text) const {
     return find(pattern, text).has_value();

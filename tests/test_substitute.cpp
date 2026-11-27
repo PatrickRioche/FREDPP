@@ -122,5 +122,31 @@ int main() {
         assert(buffers.current().line(3) == "X two");
     }
 
+    (void)buffers.create_or_select("occurrences");
+    auto& buffer = buffers.current();
+    buffer.append("Ajout  ligne de texte numero 1");
+    executor.execute(*parse("1s/ligne/colonne/"), context);
+    executor.execute(*parse("1s/.*/& &/"), context);
+    executor.execute(*parse("1s1/colonne/ligne/p"), context);
+    assert(output.content() ==
+           "Ajout  ligne de texte numero 1 Ajout  colonne de texte numero 1\n");
+    executor.execute(*parse("1s-1/de texte.*$//"), context);
+    assert(buffer.line(1) == "Ajout  ligne de texte numero 1 Ajout  colonne ");
+
+    buffer.append("x x x x");
+    buffer.append("x x x");
+    executor.execute(*parse("2,3s2/x/y/"), context);
+    executor.execute(*parse("2,3s-2/x/z/"), context);
+    assert(buffer.line(2) == "x y z x");
+    assert(buffer.line(3) == "z y x");
+    try {
+        executor.execute(*parse("2s-3/x/o/"), context);
+        assert(false && "missing numbered occurrence should fail");
+    } catch (const fred::CommandExecutionError& error) {
+        assert(std::string_view(error.what()) == "no text changed");
+        assert(buffer.line(2) == "x y z x");
+        assert(!context.condition());
+    }
+
     return 0;
 }

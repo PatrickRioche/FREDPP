@@ -355,11 +355,12 @@ public:
                           std::unique_ptr<PatternNode> pattern,
                           std::string replacement,
                           bool print_after,
-                          SourceLocation location) noexcept
+                          SourceLocation location,
+                          int occurrence = 0) noexcept
         : CommandNode(std::move(address), location),
           pattern_(std::move(pattern)),
           replacement_(std::move(replacement)),
-          print_after_(print_after) {}
+          print_after_(print_after), occurrence_(occurrence) {}
 
     [[nodiscard]] AstNodeKind kind() const noexcept override {
         return AstNodeKind::SubstituteCommand;
@@ -375,10 +376,13 @@ public:
 
     [[nodiscard]] bool print_after() const noexcept { return print_after_; }
 
+    [[nodiscard]] int occurrence() const noexcept { return occurrence_; }
+
 private:
     std::unique_ptr<PatternNode> pattern_;
     std::string replacement_;
     bool print_after_{};
+    int occurrence_{}; // Zero means all matches on each addressed line.
 };
 
 /**
