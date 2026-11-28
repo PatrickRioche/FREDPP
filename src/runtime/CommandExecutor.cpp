@@ -804,57 +804,48 @@ std::string expand_substitution_replacement(std::string_view replacement,
 }
 
 /**
- * @brief Replaces every match on one line without changing the original text.
+ * @brief Replaces all matches or a signed one-based occurrence on one line.
  *
- * Returns std::nullopt only if no match was found. Even zero-length matches
- * advance the search to prevent infinite loops; a same-text replacement still
- * counts as a match under the current S command semantics.
+ * Zero selects all matches; positive ranks count from the left and negative
+ * ranks from the right. Returns std::nullopt if the selected match is absent.
+ * Zero-length matches advance the search. A same-text replacement still
+ * counts as a match. Matching and expansion honor the current editor options.
  */
-std::optional<std::string> substitute_all(const PatternNode& pattern,
-                                          std::string_view replacement,
-                                          std::string_view text,
-                                          bool expand_ampersand,
-                                          bool case_insensitive) {
+std::optional<std::string> substitute(const PatternNode& pattern,
+                                      std::string_view replacement,
+                                      std::string_view text,
+                                      int occurrence,
+                                      bool expand_ampersand,
+                                      bool case_insensitive) {
     PatternMatcher matcher(case_insensitive);
     std::string result;
     std::size_t copied_until = 0;
     std::size_t search_from = 0;
+    const bool numbered = occurrence != 0;
     bool matched = false;
-
     while (search_from <= text.size()) {
-        const auto match = matcher.find(pattern, text, search_from);
+        const auto match = occurrence < 0
+            ? matcher.find_from_right(pattern, text, static_cast<unsigned>(-(occurrence + 1)) + 1)
+            : matcher.find(pattern, text, search_from);
         if (!match) {
             break;
         }
-
-        matched = true;
-        result.append(text.substr(copied_until, match->start - copied_until));
-        result += expand_substitution_replacement(
-            replacement, text.substr(match->start, match->end - match->start),
-            expand_ampersand);
-
-        if (match->end > match->start) {
+        if (occurrence <= 0 || --occurrence == 0) {
+            result.append(text.substr(copied_until, match->start - copied_until));
+            result += expand_substitution_replacement(
+                replacement, text.substr(match->start, match->end - match->start),
+                expand_ampersand);
             copied_until = match->end;
-            if (match->end == text.size()) {
-                search_from = text.size() + 1;
+            matched = true;
+            if (numbered) {
                 break;
             }
-            search_from = match->end;
-            continue;
         }
-
-        // A zero-length match must still advance through the input to avoid an
-        // infinite loop while retaining the character at the match position.
-        copied_until = match->start;
-        if (match->start == text.size()) {
-            search_from = text.size() + 1;
+        if (match->end == text.size()) {
             break;
         }
-        result.push_back(text[match->start]);
-        copied_until = match->start + 1;
-        search_from = copied_until;
+        search_from = match->end + (match->start == match->end ? 1 : 0);
     }
-
     if (!matched) {
         return std::nullopt;
     }
@@ -879,8 +870,8 @@ void execute_substitute(const SubstituteCommandNode& command,
 
     for (auto line = range.first; line <= range.last; ++line) {
         const std::string original = buffer.line(line);
-        const auto replacement = substitute_all(
-            command.pattern(), command.replacement(), original,
+        const auto replacement = substitute(
+            command.pattern(), command.replacement(), original, command.occurrence(),
             context.substitution_ampersand(), context.case_insensitive_search());
         if (!replacement) {
             continue;

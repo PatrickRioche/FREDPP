@@ -1,3 +1,11 @@
+## v0.1.3 — Substitutions numérotées (28 novembre 2026)
+
+- Prise en charge de `S[n]` sur chaque ligne adressée. Un rang positif compte depuis la gauche et un rang négatif depuis la droite.
+- Validation des formes `1s1/chat/A/p` et `1s-2/chat/B/p`, des plages de lignes et du diagnostic lorsque le rang demandé est absent.
+- Compatibilité avec les options de casse, l'expansion de `&` et le séparateur final facultatif.
+- Aide `?s` actualisée et tests de régression du parseur, du moteur et de la session en ligne de commande.
+- Préversion issue de `dev`, avec versions CMake et extension VS Code alignées.
+
 ## v0.1.2 — Procédures interactives, jeux et alias Windows (15 novembre 2026)
 
 - Correction de la limite de temps : le temps d'attente d'une saisie `\R` ne consomme plus les 60 secondes de traitement autorisé ; le garde-fou contre les boucles infinies reste actif.

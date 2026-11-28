@@ -53,6 +53,17 @@ public:
         std::size_t start_offset = 0) const;
 
     /**
+     * @brief Finds a numbered match by scanning starts from right to left.
+     * @param occurrence One-based rank, strictly positive.
+     * @return The selected non-overlapping match, or nullopt if absent.
+     *
+     * At each start the longest match within the remaining interval wins.
+     * Anchors use the full original line and case sensitivity follows find().
+     */
+    [[nodiscard]] std::optional<PatternMatch> find_from_right(
+        const PatternNode& pattern, std::string_view text, unsigned occurrence) const;
+
+    /**
      * @return true when find(pattern,text) succeeds.
      */
     [[nodiscard]] bool search(const PatternNode& pattern,

@@ -1,5 +1,13 @@
 # Feuille de route de FREDPP
 
+## v0.1.3 — Substitutions numérotées
+
+Préversion préparée sur `dev` le 28 novembre 2026.
+
+- `S[n]` sélectionne une occurrence par ligne, depuis la gauche pour un rang positif et depuis la droite pour un rang négatif.
+- Les options de casse, d'expansion de `&` et de séparateur final s'appliquent aux substitutions numérotées.
+- Les tests couvrent les plages, les rangs invalides ou absents, les motifs vides et le scénario terminal `1s1` puis `1s-2`.
+
 ## v0.0.16 — Bootstrap historique des procédures
 
 État : **prêt pour release**.
