@@ -402,6 +402,67 @@ jobs:
           path: out/release/FREDPP-Language-v${{ needs.validate.outputs.vscode_version }}.vsix
           if-no-files-found: error
 
+  cleanup_v013_branches:
+    name: Remove integrated branches after v0.1.3 publication
+    needs: [validate, publish]
+    if: needs.validate.outputs.tag == 'v0.1.3' && needs.validate.outputs.prerelease == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Verify published pre-release and remove the two integrated branches
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo;
+            const tag = 'v0.1.3';
+            const { data: dev } = await github.rest.git.getRef({ owner, repo, ref: 'heads/dev' });
+            const { data: releaseCommit } = await github.rest.repos.getCommit({ owner, repo, ref: tag });
+            if (dev.object.sha !== releaseCommit.sha) {
+              throw new Error('dev and v0.1.3 must point to the same commit before cleanup');
+            }
+            const { data: release } = await github.rest.repos.getReleaseByTag({ owner, repo, tag });
+            if (release.draft || !release.prerelease) {
+              throw new Error('Expected a published v0.1.3 pre-release');
+            }
+            const expectedAssets = [
+              'FREDPP-v0.1.3-windows-x64.zip',
+              'FREDPP-v0.1.3-debian13-amd64.tar.gz',
+              'FREDPP-v0.1.3-debian13-arm64.tar.gz',
+              'FREDPP-v0.1.3-macos-x64.tar.gz',
+              'FREDPP-v0.1.3-macos-arm64.tar.gz',
+              'fredpp_0.1.3_amd64.deb',
+              'fredpp_0.1.3_arm64.deb',
+              'FREDPP-Language-v0.1.3.vsix',
+              'SHA256SUMS.txt'
+            ];
+            for (const name of expectedAssets) {
+              if (!release.assets.some(asset => asset.name === name && asset.size > 0 && asset.state === 'uploaded')) {
+                throw new Error('Missing release asset: ' + name);
+              }
+            }
+            const branches = [
+              ['feature/s-occurrences-fred', 'a966c7622c1e08c20a187eeabf880188a8862ca7'],
+              ['release/v0.1.3', '59e2ab5ef2893bc69e52708823f99d43ad34f020']
+            ];
+            for (const [branch, expectedSha] of branches) {
+              let ref;
+              try {
+                ({ data: ref } = await github.rest.git.getRef({ owner, repo, ref: 'heads/' + branch }));
+              } catch (error) {
+                if (error.status === 404) {
+                  core.info(branch + ' already removed');
+                  continue;
+                }
+                throw error;
+              }
+              if (ref.object.sha !== expectedSha) {
+                throw new Error(branch + ' advanced since integration; refusing to remove new commits');
+              }
+              await github.rest.git.deleteRef({ owner, repo, ref: 'heads/' + branch });
+              core.info('Removed ' + branch);
+            }
+
   publish:
     name: Publish GitHub Release
     needs: [validate, windows, debian, debian_arm64, macos_x64, macos_arm64, vscode]

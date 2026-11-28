@@ -58,7 +58,9 @@ git tag -a vX.Y.Z -m "FREDPP vX.Y.Z"
 git push origin vX.Y.Z
 ```
 
-Pour la **v0.1.2 seulement**, le commit explicitement marqué `[publish-v0.1.2]` déclenche après la validation complète de la CI Windows une étape de création contrôlée du tag `v0.1.2` sur le sommet inchangé de `dev`, puis un `workflow_dispatch` du workflow de publication. Cette exception ponctuelle évite le déclenchement automatique d'une version ultérieure. Si `dev` a avancé ou si le tag existe déjà, l'étape refuse de réécrire les références. Le workflow normal vérifie ensuite la correspondance tag/branche et publie en `prerelease=true`.
+Pour la **v0.1.3 seulement**, le commit explicitement marqué `[publish-v0.1.3]` déclenche après la validation complète de la CI Windows une étape de création contrôlée du tag `v0.1.3` sur le sommet inchangé de `dev`, puis un `workflow_dispatch` du workflow de publication. Cette exception ponctuelle évite le déclenchement automatique d'une version ultérieure. Si `dev` a avancé ou si le tag existe déjà, l'étape refuse de réécrire les références. Le workflow normal vérifie ensuite la correspondance tag/branche et publie en `prerelease=true`.
+
+Après la publication réussie de v0.1.3, le workflow supprime les branches intégrées `feature/s-occurrences-fred` et `release/v0.1.3` après contrôle de leurs commits. Les branches permanentes du dépôt sont `dev` et `main`.
 
 Le workflow `.github/workflows/release.yml` :
 
