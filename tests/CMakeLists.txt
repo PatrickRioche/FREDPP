@@ -88,6 +88,11 @@ set_tests_properties(cli_zap_extended PROPERTIES
 )
 fredpp_add_test(test_star_alias test_star_alias.cpp)
 fredpp_add_test(test_substitute test_substitute.cpp)
+add_test(NAME cli_substitute_occurrences
+    COMMAND ${CMAKE_COMMAND}
+        "-DFREDPP_EXE=$<TARGET_FILE:fredpp>"
+        -P "${CMAKE_CURRENT_SOURCE_DIR}/test_cli_substitute_occurrences.cmake"
+)
 fredpp_add_test(test_quit test_quit.cpp)
 fredpp_add_test(test_file_io test_file_io.cpp)
 

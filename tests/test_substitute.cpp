@@ -4,6 +4,7 @@
 #include "fred/lexer/Lexer.hpp"
 #include "fred/lexer/TokenStream.hpp"
 #include "fred/parser/CommandParser.hpp"
+#include "fred/parser/ParseError.hpp"
 #include "fred/runtime/CommandExecutionError.hpp"
 #include "fred/runtime/CommandExecutor.hpp"
 #include "fred/runtime/ExecutionContext.hpp"
@@ -120,6 +121,81 @@ int main() {
         executor.execute(*command, context);
         assert(buffers.current().line(1) == "X one");
         assert(buffers.current().line(3) == "X two");
+    }
+
+    (void)buffers.create_or_select("occurrences");
+    auto& buffer = buffers.current();
+    buffer.append("Ajout  ligne de texte numero 1");
+    executor.execute(*parse("1s/ligne/colonne/"), context);
+    executor.execute(*parse("1s/.*/& &/"), context);
+    executor.execute(*parse("1s1/colonne/ligne/p"), context);
+    assert(output.content() ==
+           "Ajout  ligne de texte numero 1 Ajout  colonne de texte numero 1\n");
+    executor.execute(*parse("1s-1/de texte.*$//"), context);
+    assert(buffer.line(1) == "Ajout  ligne de texte numero 1 Ajout  colonne ");
+
+    buffer.append("x x x x");
+    buffer.append("x x x");
+    executor.execute(*parse("2,3s2/x/y/"), context);
+    executor.execute(*parse("2,3s-2/x/z/"), context);
+    assert(buffer.line(2) == "x y z x");
+    assert(buffer.line(3) == "z y x");
+    try {
+        executor.execute(*parse("2s-3/x/o/"), context);
+        assert(false && "missing numbered occurrence should fail");
+    } catch (const fred::CommandExecutionError& error) {
+        assert(std::string_view(error.what()) == "no text changed");
+        assert(buffer.line(2) == "x y z x");
+        assert(!context.condition());
+    }
+
+    // The dev options must also apply to numbered substitutions.
+    output.clear();
+    (void)buffers.create_or_select("occurrence_options");
+    auto& options_buffer = buffers.current();
+    options_buffer.append("CHAT chat Chat");
+    context.set_case_insensitive_search(true);
+    executor.execute(*parse("1s-2/chat/[&]/p"), context);
+    assert(options_buffer.line(1) == "CHAT [chat] Chat");
+    assert(output.content() == "CHAT [chat] Chat\n");
+    output.clear();
+
+    context.set_substitution_ampersand(false);
+    executor.execute(*parse("1s1/chat/&/"), context);
+    assert(options_buffer.line(1) == "& [chat] Chat");
+
+    const auto unclosed = parse("1s-1/chat/Z");
+    try {
+        executor.execute(*unclosed, context);
+        assert(false && "O+S/ must reject an unclosed numbered replacement");
+    } catch (const fred::CommandExecutionError&) {
+        assert(options_buffer.line(1) == "& [chat] Chat");
+    }
+    context.set_substitution_separator_required(false);
+    executor.execute(*unclosed, context);
+    assert(options_buffer.line(1) == "& [chat] Z");
+    context.set_substitution_separator_required(true);
+    context.set_substitution_ampersand(true);
+    context.set_case_insensitive_search(false);
+
+    // A '-' delimiter followed by a numeric pattern keeps its existing meaning.
+    options_buffer.append("2 2");
+    executor.execute(*parse("2s-2-X-"), context);
+    assert(options_buffer.line(2) == "X X");
+
+    // Empty matches progress in either direction and preserve intervening text.
+    options_buffer.append("abc");
+    executor.execute(*parse("3s2/x*/Q/"), context);
+    assert(options_buffer.line(3) == "aQbc");
+    executor.execute(*parse("3s-2/x*/Z/"), context);
+    assert(options_buffer.line(3) == "aQbZc");
+
+    for (const auto source : {"1s0/x/y/", "1s-0/x/y/", "1s999999999999/x/y/"}) {
+        try {
+            (void)parse(source);
+            assert(false && "zero and overflowing occurrence ranks must be rejected");
+        } catch (const fred::ParseError&) {
+        }
     }
 
     return 0;

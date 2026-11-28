@@ -1,25 +1,41 @@
-# FREDPP v0.1.2 — Préversion multi-plateforme (dev)
+# FREDPP v0.1.3 — Préversion de substitutions numérotées
 
-Cette version est une **prérelease** provenant uniquement de la branche `dev`. Elle ne modifie pas la branche `main` et ne constitue pas une version stable.
+Cette préversion est construite depuis la branche `dev`.
 
-## Évolutions depuis v0.1.1
+## Évolutions depuis v0.1.2
 
-- **ELIZA** : `fredpp eliza` lance une conversation pédagogique en commandes FREDPP.
-- **TIC-TAC-TOE** : `fredpp tictactoe` conserve le mode deux joueurs ; `fredpp tictactoe solo` permet de jouer X contre FREDPP (O). La stratégie Minimax est calculée à l'avance et intégrée à la procédure : aucun Python n'est nécessaire pour jouer.
-- **Temps d'exécution interactif** : l'attente au clavier via `\R` est exclue du délai de sécurité de 60 secondes. Les boucles infinies restent limitées par les gardes de temps de traitement et de nombre d'instructions.
-- **Alias Windows** : `fp.exe` est une copie binaire exacte de `fredpp.exe`. Elle est produite lors des builds Windows Debug et Release et incluse avec `fredpp.exe` dans le ZIP Windows. Le packaging compare leurs SHA-256 et leurs versions.
-- **Tests** : scénarios ELIZA et TIC-TAC-TOE, adversaire solo, alias Windows et contrôle des bibliothèques distribuées.
+- `S[n]` remplace une occurrence par ligne. Un rang positif compte depuis la gauche et un rang négatif depuis la droite. La forme sans rang remplace toutes les occurrences.
+- Les formes `1s1/chat/A/p` et `1s-2/chat/B/p` sont prises en charge dans le terminal et dans les procédures.
+- Les substitutions numérotées respectent les options de casse, l'expansion de `&` et le séparateur final facultatif.
+- L'aide `?s` présente la syntaxe et un exemple de substitution depuis la droite.
+- Les tests couvrent les plages de lignes, les rangs invalides ou absents, les motifs vides et les combinaisons d'options.
+
+## Exemple dans FREDPP
+
+Sur une première ligne contenant `chat chat chat chat`, exécuter successivement les deux commandes suivantes.
+
+```text
+1s1/chat/A/p
+1s-2/chat/B/p
+```
+
+Les résultats affichés sont les suivants.
+
+```text
+A chat chat chat
+A chat B chat
+```
 
 ## Fichiers distribués
 
-- `FREDPP-v0.1.2-windows-x64.zip`
-- `FREDPP-v0.1.2-debian13-amd64.tar.gz`
-- `FREDPP-v0.1.2-debian13-arm64.tar.gz`
-- `FREDPP-v0.1.2-macos-x64.tar.gz`
-- `FREDPP-v0.1.2-macos-arm64.tar.gz`
-- `fredpp_0.1.2_amd64.deb`
-- `fredpp_0.1.2_arm64.deb`
-- `FREDPP-Language-v0.1.2.vsix`
+- `FREDPP-v0.1.3-windows-x64.zip`
+- `FREDPP-v0.1.3-debian13-amd64.tar.gz`
+- `FREDPP-v0.1.3-debian13-arm64.tar.gz`
+- `FREDPP-v0.1.3-macos-x64.tar.gz`
+- `FREDPP-v0.1.3-macos-arm64.tar.gz`
+- `fredpp_0.1.3_amd64.deb`
+- `fredpp_0.1.3_arm64.deb`
+- `FREDPP-Language-v0.1.3.vsix`
 - `SHA256SUMS.txt`
 
 GitHub fournit également deux archives source (ZIP et TAR.GZ). Le script Python de génération de la politique Minimax est destiné aux développeurs, pas aux utilisateurs du jeu.

@@ -593,11 +593,12 @@ private:
 };
 
 /**
- * @brief Holds the pattern, replacement and optional print suffix for S.
+ * @brief Holds the pattern, replacement, occurrence and optional print suffix for S.
  *
- * Runtime substitutes all matches on each addressed line. An unescaped `&`
- * in the replacement reproduces the matched text; a backslash quotes the
- * following character. A command with no pattern match reports an error.
+ * Zero selects all matches on each addressed line. A positive occurrence
+ * counts from the left and a negative one from the right. Runtime applies
+ * the current replacement options. A missing occurrence reports an error
+ * only when none of the addressed lines can be changed.
  */
 class SubstituteCommandNode final : public CommandNode {
 public:
@@ -607,6 +608,8 @@ public:
      * @param replacement Replacement text owned by the node.
      * @param print_after true when trailing `P` was parsed.
      * @param location Location of S.
+     * @param closing_separator Whether the replacement has its final delimiter.
+     * @param occurrence Signed one-based match rank, or zero for all matches.
      *
      * @pre `pattern` must be non-null.
      */
@@ -615,11 +618,13 @@ public:
                           std::string replacement,
                           bool print_after,
                           SourceLocation location,
-                          bool closing_separator = true) noexcept
+                          bool closing_separator = true,
+                          int occurrence = 0) noexcept
         : CommandNode(std::move(address), location),
           pattern_(std::move(pattern)),
           replacement_(std::move(replacement)),
-          print_after_(print_after), closing_separator_(closing_separator) {}
+          print_after_(print_after), closing_separator_(closing_separator),
+          occurrence_(occurrence) {}
 
     [[nodiscard]] AstNodeKind kind() const noexcept override {
         return AstNodeKind::SubstituteCommand;
@@ -636,11 +641,14 @@ public:
     [[nodiscard]] bool print_after() const noexcept { return print_after_; }
     [[nodiscard]] bool closing_separator() const noexcept { return closing_separator_; }
 
+    [[nodiscard]] int occurrence() const noexcept { return occurrence_; }
+
 private:
     std::unique_ptr<PatternNode> pattern_;
     std::string replacement_;
     bool print_after_{};
     bool closing_separator_{true};
+    int occurrence_{}; // Zero means all matches on each addressed line.
 };
 
 /**
